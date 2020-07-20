@@ -13,6 +13,7 @@
 ***************************************************************************/
 
 #include "dialog_advfind.h"
+#include "util.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -20,10 +21,9 @@
 
 QStringList Dialog_AdvFind::dirCombo;
 
-Dialog_AdvFind::Dialog_AdvFind(MainWindow *parent, QString findText, QString fileType, QString findFolder, bool searchFolders)
+Dialog_AdvFind::Dialog_AdvFind(QWidget *parent, QString findText, QString fileType, QString findFolder, bool searchFolders)
    : QDialog(parent), m_ui(new Ui::Dialog_AdvFind)
 {
-   m_parent  = parent;
    m_busyMsg = nullptr;
 
    m_ui->setupUi(this);
@@ -58,7 +58,7 @@ void Dialog_AdvFind::pick_Folder()
       oldFolder = QDir::currentPath();
    }
 
-   QString newFolder = m_parent->get_DirPath("Select Directory or Folder to Search", oldFolder);
+   QString newFolder = get_DirPath(this, "Select Directory or Folder to Search", oldFolder);
 
    if (! newFolder.isEmpty()) {
 

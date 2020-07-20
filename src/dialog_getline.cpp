@@ -14,8 +14,8 @@
 
 #include "dialog_getline.h"
 
-Dialog_GetLine::Dialog_GetLine()
-   : m_ui(new Ui::Dialog_GetLine)
+Dialog_GetLine::Dialog_GetLine(QWidget *parent)
+    : QDialog(parent), m_ui(new Ui::Dialog_GetLine)
 {
    m_ui->setupUi(this);
    this->setWindowIcon(QIcon("://resources/diamond.png"));

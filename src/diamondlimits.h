@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-* Copyright (c) 2012-2020 Barbara Geller
+* Copyright (c) 2020 Roland Hughes
 *
 * Diamond Editor is free software: you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2
@@ -11,29 +11,20 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 *
 ***************************************************************************/
+#ifndef DIAMONDLIMITS_H
+#define DIAMONDLIMITS_H
 
-#ifndef DIALOG_GETLINE_H
-#define DIALOG_GETLINE_H
+class DiamondLimits
+{
+public:
 
-#include "ui_dialog_getline.h"
-
-#include <QDialog>
-
-class Dialog_GetLine : public QDialog
-{     
-   CS_OBJECT(Dialog_GetLine)
-
-   public:
-      Dialog_GetLine(QWidget *parent=nullptr);
-      ~Dialog_GetLine();
-      QString get_Value();
-      void set_ColNo();
-
-   private:
-      Ui::Dialog_GetLine *m_ui;
-
-      void ok();
-      void cancel();
+    static const int MACRO_MAX           = 10;
+    static const int OPENTABS_MAX        = 20;
+    static const int PRESET_FOLDERS_MAX  = 15;
+    static const int RECENT_FOLDERS_MAX  = 10;
+    static const int RECENT_FILES_MAX    = 10;
+    static const int BACKUP_FILES_MAX    = 6;
+    static const int BACKUP_VERSION_MAX  = 900;
 };
 
 #endif

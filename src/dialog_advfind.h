@@ -16,7 +16,6 @@
 #define DIALOG_ADVFIND_H
 
 #include "ui_dialog_advfind.h"
-#include "mainwindow.h"
 
 #include <QDialog>
 #include <QString>
@@ -27,7 +26,7 @@ class Dialog_AdvFind : public QDialog
    CS_OBJECT(Dialog_AdvFind)
 
    public:
-      Dialog_AdvFind(MainWindow *parent, QString text, QString fileType, QString findFolder, bool searchFolders);
+      Dialog_AdvFind(QWidget *parent, QString text, QString fileType, QString findFolder, bool searchFolders);
       ~Dialog_AdvFind();
 
       QString get_findText();      
@@ -42,7 +41,6 @@ class Dialog_AdvFind : public QDialog
 
    private:
       Ui::Dialog_AdvFind *m_ui;
-      MainWindow *m_parent;
       QLabel *m_busyMsg;
 
       static QStringList dirCombo;

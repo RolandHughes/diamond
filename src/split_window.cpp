@@ -13,6 +13,7 @@
 ***************************************************************************/
 
 #include "mainwindow.h"
+#include "non_gui_functions.h"
 
 #include <QBoxLayout>
 #include <QPalette>
@@ -25,21 +26,21 @@ void MainWindow::split_Horizontal()
       split_CloseButton();
    }
 
-   m_split_textEdit = new DiamondTextEdit(this, m_struct, m_spellCheck, "split");
+   m_split_textEdit = new DiamondTextEdit(this, m_settings, "split");
    m_splitFileName  = m_curFile;
 
    // sync documents
    m_split_textEdit->setDocument(m_textEdit->document());
 
    if (m_split_textEdit->get_ColumnMode()) {
-      m_split_textEdit->setFont(m_struct.fontColumn);
+       m_split_textEdit->setFont(m_settings.fontColumn());
    } else {
-      m_split_textEdit->setFont(m_struct.fontNormal);
+       m_split_textEdit->setFont(m_settings.fontNormal());
    }
 
    QPalette temp = m_split_textEdit->palette();
-   temp.setColor(QPalette::Text, m_struct.colorText);
-   temp.setColor(QPalette::Base, m_struct.colorBack);
+   temp.setColor(QPalette::Text, m_settings.currentTheme().colorText());
+   temp.setColor(QPalette::Base, m_settings.currentTheme().colorBack());
    m_split_textEdit->setPalette(temp);
 
    // position on same line
@@ -62,12 +63,12 @@ void MainWindow::split_Horizontal()
    font2.setPointSize(11);
    m_splitName_CB->setFont(font2);
 
-   for (int k = 0; k < m_openedFiles.size(); ++k) {
+   for (int k = 0; k < m_settings.openedFilesCount(); ++k) {
 
-      QString fullName = m_openedFiles[k];
+       QString fullName = m_settings.openedFiles(k);
       add_splitCombo(fullName);
 
-      if ( m_openedModified[k] ) {
+      if ( m_settings.openedModified(k) ) {
         update_splitCombo(fullName, true);
       }
    }
@@ -111,6 +112,11 @@ void MainWindow::split_Horizontal()
    connect(m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled);
    connect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled);
    connect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled);
+
+   connect(m_split_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType);
+   connect( this,            &MainWindow::changeSettings,
+            m_split_textEdit, &DiamondTextEdit::changeSettings);
+
 }
 
 void MainWindow::split_Vertical()
@@ -120,21 +126,21 @@ void MainWindow::split_Vertical()
       split_CloseButton();
    }
 
-   m_split_textEdit = new DiamondTextEdit(this, m_struct, m_spellCheck, "split");
+   m_split_textEdit = new DiamondTextEdit(this, m_settings, "split");
    m_splitFileName  = m_curFile;
 
    // sync documents
    m_split_textEdit->setDocument(m_textEdit->document());
 
    if (m_split_textEdit->get_ColumnMode()) {
-      m_split_textEdit->setFont(m_struct.fontColumn);
+       m_split_textEdit->setFont(m_settings.fontColumn());
    } else {
-      m_split_textEdit->setFont(m_struct.fontNormal);
+       m_split_textEdit->setFont(m_settings.fontNormal());
    }
 
    QPalette temp = m_split_textEdit->palette();
-   temp.setColor(QPalette::Text, m_struct.colorText);
-   temp.setColor(QPalette::Base, m_struct.colorBack);
+   temp.setColor(QPalette::Text, m_settings.currentTheme().colorText());
+   temp.setColor(QPalette::Base, m_settings.currentTheme().colorBack());
    m_split_textEdit->setPalette(temp);
 
    // position on same line
@@ -156,11 +162,11 @@ void MainWindow::split_Vertical()
    QFont font2 = m_splitName_CB->font();   font2.setPointSize(11);
    m_splitName_CB->setFont(font2);
 
-   for (int k = 0; k < m_openedFiles.size(); ++k) {
-      QString fullName = m_openedFiles[k];
+   for (int k = 0; k < m_settings.openedFilesCount(); ++k) {
+       QString fullName = m_settings.openedFiles(k);
       add_splitCombo(fullName);
 
-      if ( m_openedModified[k] ) {
+      if ( m_settings.openedModified(k) ) {
         update_splitCombo(fullName, true);
       }
    }
@@ -203,6 +209,11 @@ void MainWindow::split_Vertical()
    connect(m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled);
    connect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled);
    connect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled);
+
+   connect(m_split_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType);
+   connect( this,            &MainWindow::changeSettings,
+            m_split_textEdit, &DiamondTextEdit::changeSettings);
+   
 }
 
 void MainWindow::set_splitCombo()
@@ -215,9 +226,9 @@ void MainWindow::set_splitCombo()
       shortName += " *";
    }
 
-   int index = m_openedFiles.indexOf(m_splitFileName);
+   int index = m_settings.openedFilesFind(m_splitFileName);
    if (index != -1)  {
-      m_openedModified.replace(index,isModified);
+      m_settings.openedModifiedReplace(index,isModified);
    }
 
    //
@@ -308,14 +319,14 @@ void MainWindow::split_NameChanged(int data)
          m_split_textEdit->setDocument(textEdit->document());
 
          if (m_split_textEdit->get_ColumnMode()) {
-            m_split_textEdit->setFont(m_struct.fontColumn);
+             m_split_textEdit->setFont(m_settings.fontColumn());
          } else {
-            m_split_textEdit->setFont(m_struct.fontNormal);
+             m_split_textEdit->setFont(m_settings.fontNormal());
          }
 
          QPalette temp = m_split_textEdit->palette();
-         temp.setColor(QPalette::Text, m_struct.colorText);
-         temp.setColor(QPalette::Base, m_struct.colorBack);
+         temp.setColor(QPalette::Text, m_settings.currentTheme().colorText());
+         temp.setColor(QPalette::Base, m_settings.currentTheme().colorBack());
          m_split_textEdit->setPalette(temp);
 
          m_textEdit = m_split_textEdit;

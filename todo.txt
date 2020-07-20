@@ -1,0 +1,72 @@
+file:///home/roland/CopperSpice/html/class_qregularexpression.html
+
+*) Need dialogs for copy/delete theme buttons
+    If deleted theme is current theme change to "Classic" theme. "Classic" theme
+    cannot be deleted.
+    Rename "Default" theme to "Classic"
+
+*) Load needs to actually load the new fields.
+
+*) Add importOldColors() to be called if JSON tags found for old colors.
+    It creates a theme called User-1 and makes it active.
+    Since we no longer update/overwrite old stuff won't be saved again.
+
+*) Fix current line highlight to only change background
+
+*) Insert DiamondTextEdit on colors dialog so we can see actual color changes
+*for gutter, etc. Load sample.cpp from resource file.
+
+*) empty/hidden (other) tabs not updated on theme change. background color is
+ still old color.
+
+*) find regex for PREPROCESS and VARIABLE-n in notepadqq. Add to Diamond
+
+*) steal theme colors from notepadqq
+
+*) create EDT Help dialog
+
+*) have changeSettings() slot in DiamondTextEdit repaint everything if theme changed.
+
+*) find out why changing a theme causes multiple calls to create key definitions?
+
+tab spacing needs to change?
+
+
+
+
+
+
+*) Add copyTheme() dialog to prompt for new theme name and create a new entry in
+*theme map. Set the displayed/selected theme in dialog to new theme
+
+
+*) Read up on Doxyprint to see if it mimics Doxygen comments.
+    If it is like Doxygen,
+
+*) add support for EDT direction lock
+
+*) add support for EDT commands
+    S|some-text|new-text|sel   wh  rest
+    INC file.name =buff-name
+    INC file.name
+    WRITE   (log into Eisner and verify WRITE options)
+    EXIT
+    QUIT
+    See what other EDT and LSE commands are worth adding.
+    LINE 9999
+    Really like GOLD= for "goto line"
+    See what else is worth saving from Emacs EDT.
+    Probably GOLD-C for copy?
+
+*) research regular expression for string of numbers.
+    add to each of the syn_xxxx.json files
+    add support for new JSON class in Syntax::processSyntax()
+
+*) read documentation for QSyntaxHighlighter in CopperSpice
+   see if there is any support for "matching" {(<
+   if so add option to turn on "matching" highlight
+
+*) Split settings into 2 classes
+    one class contains stuff needed by DiamondTextEdit
+    Other contains recent file/folder and other lists only used in MainWindow
+

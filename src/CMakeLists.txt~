@@ -65,6 +65,7 @@ list(APPEND DIAMOND_SOURCES
    ${CMAKE_CURRENT_SOURCE_DIR}/recent_tabs.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/search.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/settings.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/spell.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/spellcheck.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/split_window.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/support.cpp

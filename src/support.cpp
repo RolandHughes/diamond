@@ -16,567 +16,564 @@
 #include "dialog_getline.h"
 #include "dialog_xp_getdir.h"
 #include "mainwindow.h"
+#include "non_gui_functions.h"
 
-#include <QFileInfo>
-#include <QFileDialog>
+//#include <QFileInfo>
+//#include <QFileDialog>
 #include <QFSFileEngine>
 #include <QDragEnterEvent>
 #include <QMimeData>
 #include <QSysInfo>
 #include <QUrl>
 
-void MainWindow::argLoad(QList<QString> argList)
+void MainWindow::argLoad( QList<QString> argList )
 {
-   int argCnt = argList.count();
+    int argCnt = argList.count();
 
-   QStringList t_openedFiles = m_openedFiles;
+    if ( !m_settings.flagNoAutoLoad() )
+    {
+        m_settings.openedFilesClear();
+        m_settings.openedModifiedClear();
+        m_settings.recentFileListClear();
+    }
 
-   if (m_args.flag_noAutoLoad) {
-      t_openedFiles.clear();
-   }
+    for ( int k = 1; k < argCnt; k++ )
+    {
+        QString tempFile = argList.at( k );
 
-   for (int k = 1; k < argCnt; k++) {
-      QString tempFile = argList.at(k);
+        // change to forward slash
+        tempFile = QDir::fromNativeSeparators( tempFile );
 
-      // change to forward slash
-      tempFile = QDir::fromNativeSeparators(tempFile);
+        // expand for full path
+        QFileInfo tempPath( tempFile );
+        tempFile = tempPath.canonicalFilePath();
 
-      // expand for full path
-      QFileInfo tempPath(tempFile);
-      tempFile = tempPath.canonicalFilePath();
+        if ( tempFile.isEmpty() )
+        {
+            // do nothing
 
-      if (tempFile.isEmpty()) {
-         // do nothing
+        }
+        else if ( m_settings.openedFilesContains( tempFile ) )
+        {
+            // file is already open
 
-      } else if (t_openedFiles.contains(tempFile, Qt::CaseInsensitive) ) {
-         // file is already open
-
-      } else if ( QFile::exists(tempFile) ) {
-         if (loadFile(tempFile, true, true)) {
-            t_openedFiles.append(tempFile);
-         }
-      }
-   }
+        }
+        else if ( QFile::exists( tempFile ) )
+        {
+            if ( loadFile( tempFile, true, true ) )
+            {
+                m_settings.openedFilesAppend( tempFile );
+            }
+        }
+    }
 }
 
 void MainWindow::autoLoad()
 {
-   QString fileName;
-   int count = m_openedFiles.size();
+    QString fileName;
+    int count = m_settings.openedFilesCount();
 
-   if (count == 0) {
-      tabNew();
+    if ( count == 0 )
+    {
+        tabNew();
 
-   } else {
+    }
+    else
+    {
 
-      for (int k = 0; k < count; k++)  {
-         fileName = m_openedFiles.at(k);
+        for ( int k = 0; k < count; k++ )
+        {
+            fileName = m_settings.openedFiles( k );
 
-         // load existing files
-         loadFile(fileName, true, true);
-      }
-   }
+            // load existing files
+            loadFile( fileName, true, true );
+        }
+    }
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent( QCloseEvent *event )
 {
-   bool exit = closeAll_Doc(true);
+    bool exit = closeAll_Doc( true );
 
-   if (exit) {
-      json_Write(CLOSE);
-      event->accept();
+    if ( exit )
+    {
+        // TODO:: this is where we need to obtain current size and position
+        //        to store on close.
+        m_settings.set_lastPosition( pos() );
+        m_settings.set_lastSize( size() );
+        m_settings.save();
+        event->accept();
 
-   } else {
-      event->ignore();
+    }
+    else
+    {
+        event->ignore();
 
-   }
+    }
 }
 
 void MainWindow::changeFont()
 {
-   if (m_textEdit->get_ColumnMode()) {
-      m_textEdit->setFont(m_struct.fontColumn);
-   } else {
-      m_textEdit->setFont(m_struct.fontNormal);
-   }
+    if ( m_textEdit->get_ColumnMode() )
+    {
+        m_textEdit->setFont( m_settings.fontColumn() );
+    }
+    else
+    {
+        m_textEdit->setFont( m_settings.fontNormal() );
+    }
 }
 
 void MainWindow::documentWasModified()
 {
-   bool isModified;
+    bool isModified;
 
-   if (m_isSplit) {
-      isModified = m_noSplit_textEdit->document()->isModified();
-      update_splitCombo(m_curFile, isModified);
+    if ( m_isSplit )
+    {
+        isModified = m_noSplit_textEdit->document()->isModified();
+        update_splitCombo( m_curFile, isModified );
 
-   } else {
-      isModified = m_textEdit->document()->isModified();
+    }
+    else
+    {
+        isModified = m_textEdit->document()->isModified();
 
-   }
+    }
 
-   setWindowModified(isModified);
+    setWindowModified( isModified );
 
-   int index = m_openedFiles.indexOf(m_curFile);
-   if (index != -1)  {
-      bool wasModified = m_openedModified[index];
+    int index = m_settings.openedFilesFind( m_curFile );
 
-      if (wasModified != isModified) {
-         m_openedModified.replace(index,isModified);
-         openTab_UpdateOneAction(index,isModified);
-      }
-   }
+    if ( index != -1 )
+    {
+        bool wasModified = m_settings.openedModified( index );
+
+        if ( wasModified != isModified )
+        {
+            m_settings.openedModifiedReplace( index,isModified );
+            openTab_UpdateOneAction( index,isModified );
+        }
+    }
 }
 
-QString MainWindow::get_curFileName(int whichTab)
+QString MainWindow::get_curFileName( int whichTab )
 {
-   QString name = m_tabWidget->tabWhatsThis(whichTab);
+    QString name = m_tabWidget->tabWhatsThis( whichTab );
 
-   if (name == "untitled.txt") {
-      name = "";
-   }
+    if ( name == "untitled.txt" )
+    {
+        name = "";
+    }
 
-   return name;
+    return name;
 }
 
-QString MainWindow::get_DirPath(QString message, QString path)
-{
-   QFileDialog::Options options;
-   options |= QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks;
 
-   QString retval;
 
-#ifdef Q_OS_WIN
-
-   if (QSysInfo::WindowsVersion < QSysInfo::WV_VISTA) {
-
-      Dialog_XP_GetDir *dw = new Dialog_XP_GetDir(this, message, path, options);
-      int result = dw->exec();
-
-      if (result == QDialog::Accepted) {
-         path = dw->getDirectory();
-      }
-
-   } else {
-      path = QFileDialog::getExistingDirectory(this, message, path, options);
-
-   }
-
-#else
-   // on X11 the title bar may not be displayed
-   path = QFileDialog::getExistingDirectory(this, message, path, options);
-
-#endif
-
-   if (! path.isEmpty()) {
-      // silly adjust for platform slash issue
-
-      QDir temp(path + "/");
-      retval = temp.canonicalPath() + "/";
-   }
-
-   return retval;
-}
-
-struct Settings MainWindow::get_StructData()
-{
-   return m_struct;
-}
-
-int MainWindow::get_line_col(const QString route)
-{
-   Dialog_GetLine *dw = new Dialog_GetLine();
-
-   if (route == "col") {
-      dw->set_ColNo();
-   }
-
-   int result = dw->exec();
-   int col    = -1;
-
-   if (result == QDialog::Accepted) {
-      col = dw->get_Value().toInteger<int>();
-   }
-
-   delete dw;
-
-   return col;
-}
-
-bool MainWindow::loadFile(QString fileName, bool addNewTab, bool isAuto, bool isReload)
+bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool isReload )
 {
 #if defined (Q_OS_WIN)
-   // change forward to backslash
-   fileName.replace('/', '\\');
+    // change forward to backslash
+    fileName.replace( '/', '\\' );
 #endif
 
-   // part 1
-   if (addNewTab)  {
-      // test if fileName is open in another tab
-      QFSFileEngine engine(fileName);
+    // part 1
+    if ( addNewTab )
+    {
+        // test if fileName is open in another tab
+        QFSFileEngine engine( fileName );
 
-      int count = m_tabWidget->count();
+        int count = m_tabWidget->count();
 
-      QWidget *temp;
-      DiamondTextEdit *textEdit;
+        QWidget *temp;
+        DiamondTextEdit *textEdit;
 
-      for (int k = 0; k < count; ++k) {
+        for ( int k = 0; k < count; ++k )
+        {
 
-         temp = m_tabWidget->widget(k);
-         textEdit = dynamic_cast<DiamondTextEdit *>(temp);
+            temp = m_tabWidget->widget( k );
+            textEdit = dynamic_cast<DiamondTextEdit *>( temp );
 
-         if (textEdit) {
-            QString t_Fname = m_tabWidget->tabWhatsThis(k);
-            bool found      = false;
+            if ( textEdit )
+            {
+                QString t_Fname = m_tabWidget->tabWhatsThis( k );
+                bool found      = false;
 
-            if (engine.caseSensitive()) {
-               found = (fileName == t_Fname);
+                if ( engine.caseSensitive() )
+                {
+                    found = ( fileName == t_Fname );
 
-            } else {
-               // usually only windows
-               found = fileName.compare(t_Fname, Qt::CaseInsensitive) == 0;
+                }
+                else
+                {
+                    // usually only windows
+                    found = fileName.compare( t_Fname, Qt::CaseInsensitive ) == 0;
 
+                }
+
+                if ( found )
+                {
+                    // file is alredy open, select the tab
+                    m_textEdit = textEdit;
+                    m_tabWidget->setCurrentIndex( k );
+                    return true;
+                }
+            }
+        }
+    }
+
+    QFile file( fileName );
+
+    if ( ! file.open( QFile::ReadOnly | QFile::Text ) )
+    {
+
+        if ( ! isAuto )
+        {
+            // do not show this message
+
+            QString tmp = fileName;
+
+            if ( tmp.isEmpty() )
+            {
+                tmp = "(No file name available)";
             }
 
-            if (found) {
-               // file is alredy open, select the tab
-               m_textEdit = textEdit;
-               m_tabWidget->setCurrentIndex(k);
-               return true;
-            }
-         }
-      }
-   }
+            QString error = tr( "Unable to open/read file:  %1\n%2." ).formatArgs( tmp, file.errorString() );
+            csError( tr( "Open/Read File" ), error );
+            return false;
+        }
+    }
 
-   QFile file(fileName);
+    setStatusBar( tr( "Loading File..." ), 0 );
+    QApplication::setOverrideCursor( Qt::WaitCursor );
 
-   if (! file.open(QFile::ReadOnly | QFile::Text)) {
+    file.seek( 0 );
+    QByteArray temp = file.readAll();
 
-      if (! isAuto) {
-         // do not show this message
+    if ( addNewTab )
+    {
+        tabNew();
 
-         QString tmp = fileName;
-         if (tmp.isEmpty()) {
-            tmp = "(No file name available)";
-         }
+        m_settings.set_priorPath( pathName( fileName ) );
 
-         QString error = tr("Unable to open/read file:  %1\n%2.").formatArgs(tmp, file.errorString());
-         csError(tr("Open/Read File"), error);
-         return false;
-      }
-   }
+        if ( ! isAuto )
+        {
+            saveAndBroadcastSettings();
+        }
+    }
 
-   setStatusBar(tr("Loading File..."), 0);
-   QApplication::setOverrideCursor(Qt::WaitCursor);
+    QString fileData = QString::fromUtf8( temp );
+    m_textEdit->setPlainText( fileData );
+    QApplication::restoreOverrideCursor();
 
-   file.seek(0);
-   QByteArray temp = file.readAll();
+    if ( m_textEdit->m_owner == "tab" )
+    {
+        setCurrentTitle( fileName, false, isReload );
+    }
 
-   if (addNewTab) {
-      tabNew();
+    if ( m_isSplit )
+    {
+        // update split combo box
+        add_splitCombo( fileName );
+    }
 
-      m_struct.pathPrior = this->pathName(fileName);
+    if ( ! addNewTab )
+    {
+        // recent folders
+        rfolder_Add();
+    }
 
-      if (! isAuto) {
-         json_Write(PATH_PRIOR);
-      }
-   }
+    if ( addNewTab && ( ! isAuto ) )
+    {
+        // update open tab list
+        openTab_Add();
 
-   QString fileData = QString::fromUtf8(temp);
-   m_textEdit->setPlainText(fileData);
-   QApplication::restoreOverrideCursor();
+        int index = m_settings.openedFilesFind( fileName );
 
-   if (m_textEdit->m_owner == "tab") {
-      setCurrentTitle(fileName, false, isReload);
-   }
+        if ( index != -1 )
+        {
+            m_settings.openedModifiedReplace( index,false );
+        }
+    }
 
-   if (m_isSplit) {
-      // update split combo box
-      add_splitCombo(fileName);
-   }
+    setStatusBar( tr( "File loaded" ), 1500 );
 
-   if (! addNewTab)  {
-      // recent folders
-      rfolder_Add();
-   }
-
-   if ( addNewTab && (! isAuto) )  {
-      // update open tab list
-      openTab_Add();
-
-      int index = m_openedFiles.indexOf(fileName);
-      if (index != -1)  {
-         m_openedModified.replace(index,false);
-      }
-   }
-
-   setStatusBar(tr("File loaded"), 1500);
-
-   return true;
+    return true;
 }
 
-QString MainWindow::pathName(QString fileName) const
-{
-   QString retval = "";
-
-   if (! fileName.isEmpty())  {
-      QFileInfo temp(fileName);
-
-      if (temp.isAbsolute()) {
-         retval = temp.absolutePath();
-      }
-   }
-
-   return retval;
-}
 
 bool MainWindow::querySave()
 {
-   if (m_textEdit->document()->isModified()) {
+    if ( m_textEdit->document()->isModified() )
+    {
 
-      QString fileName = m_curFile;
+        QString fileName = m_curFile;
 
-      if (m_curFile.isEmpty())  {
-         fileName = "(Unknown Filename)";
-      }
+        if ( m_curFile.isEmpty() )
+        {
+            fileName = "(Unknown Filename)";
+        }
 
-      QMessageBox quest;
-      quest.setWindowTitle(tr("Diamond Editor"));
-      quest.setText( fileName + tr(" has been modified. Save changes?"));
-      quest.setStandardButtons(QMessageBox::Save | QMessageBox::Discard  | QMessageBox::Cancel );
-      quest.setDefaultButton(QMessageBox::Cancel);
+        QMessageBox quest;
+        quest.setWindowTitle( tr( "Diamond Editor" ) );
+        quest.setText( fileName + tr( " has been modified. Save changes?" ) );
+        quest.setStandardButtons( QMessageBox::Save | QMessageBox::Discard  | QMessageBox::Cancel );
+        quest.setDefaultButton( QMessageBox::Cancel );
 
-      int retval = quest.exec();
+        int retval = quest.exec();
 
-      if (retval == QMessageBox::Save) {
+        if ( retval == QMessageBox::Save )
+        {
 
-         if (fileName == "untitled.txt") {
-            return saveAs(SAVE_ONE);
-         } else {
-            return save();
-         }
+            if ( fileName == "untitled.txt" )
+            {
+                return saveAs( SAVE_ONE );
+            }
+            else
+            {
+                return save();
+            }
 
-      } else if (retval == QMessageBox::Cancel) {
-         return false;
+        }
+        else if ( retval == QMessageBox::Cancel )
+        {
+            return false;
 
-      }
-   }
+        }
+    }
 
-   return true;
+    return true;
 }
 
-bool MainWindow::saveFile(QString fileName, SaveFiles saveType)
+bool MainWindow::saveFile( QString fileName, SaveFiles saveType )
 {
 #if defined (Q_OS_WIN)
-   // change forward to backslash
-   fileName.replace('/', '\\');
+    // change forward to backslash
+    fileName.replace( '/', '\\' );
 #endif
 
-   QFile file(fileName);
+    QFile file( fileName );
 
-   if (! file.open(QFile::WriteOnly | QFile::Text)) {
+    if ( ! file.open( QFile::WriteOnly | QFile::Text ) )
+    {
 
-      QString tmp = fileName;
-      if (tmp.isEmpty()) {
-         tmp = tr("(No file name available)");
-      }
+        QString tmp = fileName;
 
-      QString error = tr("Unable to save/write file %1:\n%2.").formatArgs(tmp, file.errorString());
-      csError(tr("Save/Write File"), error);
-      return false;
-   }
+        if ( tmp.isEmpty() )
+        {
+            tmp = tr( "(No file name available)" );
+        }
 
-   if (m_struct.removeSpace)  {
-      deleteEOL_Spaces();
-   }
+        QString error = tr( "Unable to save/write file %1:\n%2." ).formatArgs( tmp, file.errorString() );
+        csError( tr( "Save/Write File" ), error );
+        return false;
+    }
 
-   QApplication::setOverrideCursor(Qt::WaitCursor);
-   file.write(m_textEdit->toPlainText().toUtf8());
-   QApplication::restoreOverrideCursor();
+    if ( m_settings.removeSpaces() )
+    {
+        deleteEOL_Spaces();
+    }
 
-   m_textEdit->document()->setModified(false);
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+    file.write( m_textEdit->toPlainText().toUtf8() );
+    QApplication::restoreOverrideCursor();
 
-   int index = m_openedFiles.indexOf(fileName);
-   if (index != -1)  {
-      m_openedModified.replace(index,false);
-      openTab_UpdateOneAction(index,false);
-   }
+    m_textEdit->document()->setModified( false );
 
-   if (m_isSplit) {
-      update_splitCombo(fileName, false);
-   }
+    int index = m_settings.openedFilesFind( fileName );
 
-   if (saveType == SAVE_ONE) {
-      setWindowModified(false);
-      setDiamondTitle(fileName);
+    if ( index != -1 )
+    {
+        m_settings.openedModifiedReplace( index,false );
+        openTab_UpdateOneAction( index,false );
+    }
 
-      setStatusBar(tr("File saved"), 2000);
-   }
+    if ( m_isSplit )
+    {
+        update_splitCombo( fileName, false );
+    }
 
-   return true;
-}
+    if ( saveType == SAVE_ONE )
+    {
+        setWindowModified( false );
+        setDiamondTitle( fileName );
 
-QString MainWindow::strippedName(const QString fileName)
-{
-   return QFileInfo(fileName).fileName();
-}
+        setStatusBar( tr( "File saved" ), 2000 );
+    }
 
-QString MainWindow::suffixName() const
-{
-   return QFileInfo(m_curFile).suffix().toLower();
+    return true;
 }
 
 
 // title & status bar
-void MainWindow::setCurrentTitle(const QString &fileName, bool tabChange, bool isReload)
+void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool isReload )
 {
-   QString showName;
+    QString showName;
 
-   // adjusts the * in the title bar
-   setWindowModified(m_textEdit->document()->isModified());
+    // adjusts the * in the title bar
+    setWindowModified( m_textEdit->document()->isModified() );
 
-   if (fileName.isEmpty()) {
+    if ( fileName.isEmpty() )
+    {
 
-      m_curFile = "";
-      showName  = "untitled.txt";
+        m_curFile = "";
+        showName  = "untitled.txt";
 
-      setStatus_FName(showName);
+        setStatus_FName( showName );
 
-      // change the name on the tab to "untitled.txt"
-      int index = m_tabWidget->currentIndex();
+        // change the name on the tab to "untitled.txt"
+        int index = m_tabWidget->currentIndex();
 
-      m_tabWidget->setTabText(index, showName);
-      m_tabWidget->setTabWhatsThis(index, showName);
+        m_tabWidget->setTabText( index, showName );
+        m_tabWidget->setTabWhatsThis( index, showName );
 
-      forceSyntax(SYN_TEXT);
+        if ( m_settings.isComplete() )
+        { m_textEdit->forceSyntax( SYN_TEXT ); }
 
-   } else {
-      // loading existing file
+    }
+    else
+    {
+        // loading existing file
 
-      m_curFile = fileName;
-      showName  = m_curFile;
+        m_curFile = fileName;
+        showName  = m_curFile;
 
-      setStatus_FName(m_curFile);
+        setStatus_FName( m_curFile );
 
-      // change the name on the tab to m_curFile
-      int index = m_tabWidget->currentIndex();
+        // change the name on the tab to m_curFile
+        int index = m_tabWidget->currentIndex();
 
-      m_tabWidget->setTabText(index, strippedName(m_curFile));
-      m_tabWidget->setTabWhatsThis(index, m_curFile);
+        m_textEdit->setCurrentFile( m_curFile );
+        m_tabWidget->setTabText( index, strippedName( m_curFile ) );
+        m_tabWidget->setTabWhatsThis( index, m_curFile );
 
-      if (! m_rf_List.contains(m_curFile) ) {
-         rf_Update();
-      }
+        if ( ! m_settings.recentFilesListContains( m_curFile ) )
+        {
+            rf_Update();
+        }
 
-      if (! tabChange && ! isReload)  {
-         setSyntax();
-      }
-   }
+        if ( ! tabChange && ! isReload )
+        {
+            m_textEdit->setSyntax();
+        }
+    }
 
-   setDiamondTitle(showName);
+    setDiamondTitle( showName );
 }
 
-void MainWindow::setDiamondTitle(const QString title)
+void MainWindow::setDiamondTitle( const QString title )
 {
-   // displays as: Diamond Editor --  File Name[*]
-   QString temp = QChar(0x02014);
-   setWindowTitle("Diamond Editor " + temp + " " + title + " [*]" );
+    // displays as: Diamond Editor --  File Name[*]
+    QString temp = QChar( 0x02014 );
+    setWindowTitle( "Diamond Editor " + temp + " " + title + " [*]" );
 }
 
 void MainWindow::setStatus_LineCol()
 {
-   QTextCursor cursor(m_textEdit->textCursor());
+    QTextCursor cursor( m_textEdit->textCursor() );
 
-   // emerald - adjust value when tabs are used instead of spaces
-   int adjColNum = cursor.columnNumber()+1;
+    // emerald - adjust value when tabs are used instead of spaces
+    int adjColNum = cursor.columnNumber()+1;
 
-   m_statusLine->setText(" Line: "  + QString::number(cursor.blockNumber()+1) +
-                         "  Col: "  + QString::number(adjColNum) + "  ");
+    m_statusLine->setText( " Line: "  + QString::number( cursor.blockNumber()+1 ) +
+                           "  Col: "  + QString::number( adjColNum ) + "  " );
 }
 
 void MainWindow::setStatus_ColMode()
 {
-   if (m_struct.isColumnMode) {
-      m_statusMode->setText(" Column Mode  ");
+    if ( m_settings.isColumnMode() )
+    {
+        m_statusMode->setText( " Column Mode  " );
 
-   } else {
-      m_statusMode->setText(" Line Mode  ");
-   }
+    }
+    else
+    {
+        m_statusMode->setText( " Line Mode  " );
+    }
 
-   m_textEdit->set_ColumnMode(m_struct.isColumnMode);
+    m_textEdit->set_ColumnMode( m_settings.isColumnMode() );
 }
 
-void MainWindow::setStatus_FName(QString fullName)
+void MainWindow::setStatus_FName( QString fullName )
 {
-   m_statusName->setText(" " + fullName + "  ");
+    m_statusName->setText( " " + fullName + "  " );
 }
 
-void MainWindow::setUpTabStops()
-{
-   int tabStop;
-
-   for (int k = 1; k < 25; ++k)  {
-      tabStop = (m_struct.tabSpacing * k) + 1;
-      m_tabStops.append(tabStop);
-   }
-}
 
 
 // copy buffer
 void MainWindow::showCopyBuffer()
 {
-   QList<QString> copyBuffer = m_textEdit->copyBuffer();
+    QList<QString> copyBuffer = m_textEdit->copyBuffer();
 
-   Dialog_Buffer *dw = new Dialog_Buffer(copyBuffer);
-   int result = dw->exec();
+    Dialog_Buffer *dw = new Dialog_Buffer( copyBuffer );
+    int result = dw->exec();
 
-   if (result == QDialog::Accepted) {
-      int index = dw->get_Index();
+    if ( result == QDialog::Accepted )
+    {
+        int index = dw->get_Index();
 
-      QString text = copyBuffer.at(index);
-      m_textEdit->textCursor().insertText(text);
-   }
+        QString text = copyBuffer.at( index );
+        m_textEdit->textCursor().insertText( text );
+    }
 
-   delete dw;
+    delete dw;
 }
 
 
 // drag & drop
-void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+void MainWindow::dragEnterEvent( QDragEnterEvent *event )
 {
-   if (event->mimeData()->hasFormat("text/uri-list"))  {
-      event->acceptProposedAction();
-   } else if (event->mimeData()->hasFormat("text/plain"))  {
-      event->acceptProposedAction();
+    if ( event->mimeData()->hasFormat( "text/uri-list" ) )
+    {
+        event->acceptProposedAction();
+    }
+    else if ( event->mimeData()->hasFormat( "text/plain" ) )
+    {
+        event->acceptProposedAction();
 
-   }
+    }
 }
 
-void MainWindow::dropEvent(QDropEvent *event)
+void MainWindow::dropEvent( QDropEvent *event )
 {
-   const QMimeData *mimeData = event->mimeData();
+    const QMimeData *mimeData = event->mimeData();
 
-   if (mimeData->hasUrls()) {
+    if ( mimeData->hasUrls() )
+    {
 
-      QList<QUrl> urls = mimeData->urls();
-      if (urls.isEmpty()) {
-         return;
-      }
+        QList<QUrl> urls = mimeData->urls();
 
-      QString fileName = urls.first().toLocalFile();
-      if (! fileName.isEmpty()) {
-         loadFile(fileName, true, false);
-      }
+        if ( urls.isEmpty() )
+        {
+            return;
+        }
 
-   } else if (mimeData->hasText()) {
-      QTextCursor cursor(m_textEdit->textCursor());
+        QString fileName = urls.first().toLocalFile();
 
-      // set for undo stack
-      cursor.beginEditBlock();
+        if ( ! fileName.isEmpty() )
+        {
+            loadFile( fileName, true, false );
+        }
 
-      cursor.insertText(mimeData->text());
+    }
+    else if ( mimeData->hasText() )
+    {
+        QTextCursor cursor( m_textEdit->textCursor() );
 
-      // set for undo stack
-      cursor.endEditBlock();
-   }
+        // set for undo stack
+        cursor.beginEditBlock();
 
+        cursor.insertText( mimeData->text() );
+
+        // set for undo stack
+        cursor.endEditBlock();
+    }
+
+}
+
+// target for lambda
+void MainWindow::forceSyntax( SyntaxTypes data )
+{
+    m_textEdit->forceSyntax( data );
 }

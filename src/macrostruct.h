@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-* Copyright (c) 2012-2020 Barbara Geller
+* Copyright (c) 2020 Roland Hughes
 *
 * Diamond Editor is free software: you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2
@@ -11,29 +11,14 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 *
 ***************************************************************************/
+#ifndef MACROSTRUCT_H
+#define MACROSTRUCT_H
 
-#ifndef DIALOG_GETLINE_H
-#define DIALOG_GETLINE_H
-
-#include "ui_dialog_getline.h"
-
-#include <QDialog>
-
-class Dialog_GetLine : public QDialog
-{     
-   CS_OBJECT(Dialog_GetLine)
-
-   public:
-      Dialog_GetLine(QWidget *parent=nullptr);
-      ~Dialog_GetLine();
-      QString get_Value();
-      void set_ColNo();
-
-   private:
-      Ui::Dialog_GetLine *m_ui;
-
-      void ok();
-      void cancel();
+struct macroStruct
+{
+   int key;
+   int modifier;
+   QString text;
 };
 
 #endif

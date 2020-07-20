@@ -16,7 +16,6 @@
 #define DIALOG_PRESET_H
 
 #include "ui_dialog_preset.h"
-#include "mainwindow.h"
 
 #include <QDialog>
 #include <QString>
@@ -27,7 +26,7 @@ class Dialog_Preset : public QDialog
    CS_OBJECT(Dialog_Preset)
 
    public:
-      Dialog_Preset(MainWindow *parent, QStringList data);
+      Dialog_Preset(QWidget *parent, QStringList data);
       ~Dialog_Preset();
 
       QStringList getData();
@@ -37,7 +36,6 @@ class Dialog_Preset : public QDialog
 
       QPalette m_editPalette;
       QStringList m_dataList;
-      MainWindow *m_parent;
 
       void verify_Folder(QLineEdit *field);
       void pick_Folder(QString number, QLineEdit *field);

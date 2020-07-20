@@ -16,7 +16,7 @@
 #define DIALOG_COLORS_H
 
 #include "ui_dialog_colors.h"
-#include "mainwindow.h"
+#include "settings.h"
 #include "syntax.h"
 
 #include <QDialog>
@@ -24,55 +24,70 @@
 
 class Dialog_Colors : public QDialog
 {
-   CS_OBJECT(Dialog_Colors)
+    CS_OBJECT( Dialog_Colors )
 
-   public:
-      Dialog_Colors(MainWindow *parent);
-      ~Dialog_Colors();
-      struct Settings get_Colors();
+public:
+    Dialog_Colors( QWidget *parent, Settings& settings );
+    ~Dialog_Colors();
+    Settings &get_Colors();
 
-   private:
-      Ui::Dialog_Colors *m_ui;
+private:
+    Ui::Dialog_Colors *m_ui;
 
-      MainWindow *m_mainWindow;
-      Syntax *m_syntaxParser;
+    Syntax *m_syntaxParser;
 
-      QString m_syntaxFname;
-      struct Settings m_struSettings;
+    QString m_syntaxFname;
+    Settings m_settings;
 
-      void initData();
-      void colorBox(QLineEdit *field, QColor color);
-      void updateParser(bool newSettings);
-      QColor pickColor(QColor oldColor);
+    void colorBox( QLineEdit *field, QColor color );
+    void updateParser( bool newSettings );
+    QColor pickColor( QColor oldColor );
 
-      void text_TB();
-      void back_TB();
-      void highText_TB();
-      void highBack_TB();
-      void key_TB();
-      void type_TB();
-      void class_TB();
-      void func_TB();
-      void quote_TB();
-      void comment_TB();
-      void mline_TB();
-      void key_bold();
-      void key_italic();
-      void type_bold();
-      void type_italic();
-      void class_bold();
-      void class_italic();
-      void func_bold();
-      void func_italic();
-      void quote_bold();
-      void quote_italic();
-      void comment_bold();
-      void comment_italic();
-      void mline_bold();
-      void mline_italic();
+    void text_TB();
+    void back_TB();
+    void gutterText_TB();
+    void gutterBack_TB();
+    void current_TB();
+    void key_TB();
+    void type_TB();
+    void class_TB();
+    void func_TB();
+    void quote_TB();
+    void comment_TB();
+    void mline_TB();
+    void const_TB();
+    void key_bold();
+    void key_italic();
+    void type_bold();
+    void type_italic();
+    void class_bold();
+    void class_italic();
+    void func_bold();
+    void func_italic();
+    void quote_bold();
+    void quote_italic();
+    void comment_bold();
+    void comment_italic();
+    void mline_bold();
+    void mline_italic();
 
-      void save();
-      void cancel();
+    void save();
+    void cancel();
+
+    CS_SLOT_1( Private, void themeChanged( const QString &themeName ) )
+    CS_SLOT_2( themeChanged )
+
+    CS_SLOT_1( Private, void copyClicked() )
+    CS_SLOT_2( copyClicked )
+
+    CS_SLOT_1( Private, void deleteClicked() )
+    CS_SLOT_2( deleteClicked )
+
+    CS_SLOT_1( Private, void exportClicked() )
+    CS_SLOT_2( exportClicked )
+
+    CS_SLOT_1( Private, void importClicked() )
+    CS_SLOT_2( importClicked )
 };
 
 #endif

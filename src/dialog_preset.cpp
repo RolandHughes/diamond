@@ -19,10 +19,9 @@
 #include <QFileInfo>
 #include <QPalette>
 
-Dialog_Preset::Dialog_Preset(MainWindow *parent, QStringList data)
+Dialog_Preset::Dialog_Preset(QWidget *parent, QStringList data)
    : QDialog(parent), m_ui(new Ui::Dialog_Preset)
 {
-   m_parent   = parent;
    m_dataList = data;
 
    m_ui->setupUi(this);
@@ -182,7 +181,7 @@ void Dialog_Preset::pick_Folder(QString number, QLineEdit *field)
    QString title     = tr("Select Folder ") + number;
    QString oldFolder = field->text();
 
-   QString newFolder = m_parent->get_DirPath(title, oldFolder);
+   QString newFolder = get_DirPath(this, title, oldFolder);
 
    if (! newFolder.isEmpty()) {
       field->setText(newFolder);

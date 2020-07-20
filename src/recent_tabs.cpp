@@ -25,8 +25,8 @@ void MainWindow::openTab_CreateMenus()
    QString tName;
 
    int cnt = m_tabWidget->count();
-   m_openedFiles.clear();
-   m_openedModified.clear();
+   m_settings.openedFilesClear();
+   m_settings.openedModifiedClear();
 
    for (int k = 0; k < cnt; ++k) {
       fullName = this->get_curFileName(k);
@@ -35,8 +35,8 @@ void MainWindow::openTab_CreateMenus()
          --cnt;
 
       } else {
-         m_openedFiles.append(fullName);
-         m_openedModified.append(false);
+          m_settings.openedFilesAppend(fullName);
+          m_settings.openedModifiedAppend(false);
       }
    }
 
@@ -44,13 +44,13 @@ void MainWindow::openTab_CreateMenus()
    QMenu *windowMenu = m_ui->menuWindow;
    windowMenu->addSeparator();
 
-   for (int k = 0; k < OPENTABS_MAX; ++k) {
+   for (int k = 0; k < DiamondLimits::OPENTABS_MAX; ++k) {
 
       if (k < cnt)  {
-         fullName = m_openedFiles[k];
+          fullName = m_settings.openedFiles(k);
          tName    = fullName;
 
-         if (m_openedModified[k]) {
+         if (m_settings.openedModified(k)) {
             tName += " *";
          }
 
@@ -77,7 +77,7 @@ void MainWindow::openTab_CreateMenus()
 void MainWindow::openTab_Select(int index)
 { 
    bool match = false;
-   QString fullName = m_openedFiles[index];
+   QString fullName = m_settings.openedFiles(index);
 
    if (fullName.isEmpty()) {
       // something is pretty bogus
@@ -102,7 +102,7 @@ void MainWindow::openTab_Select(int index)
 
       } else {
          // delete entry from list since it did not exist
-         m_openedFiles.removeOne(fullName);
+          m_settings.openedFilesRemove(fullName);
 
          // update actions
          openTab_UpdateActions();
@@ -135,19 +135,20 @@ void MainWindow::openTab_redo()
    QAction *action;
    action = (QAction *)sender();
 
+   // TODO:: this should save settings
    if (action) {
       // re-populate m_openedFiles and m_openedModified
       QString tName;
       bool isModified;
 
-      m_openedFiles.clear();
-      m_openedModified.clear();
+      m_settings.openedFilesClear();
+      m_settings.openedModifiedClear();
 
       int cnt = m_tabWidget->count();
 
       for (int k = 0; k < cnt; ++k) {
          tName = this->get_curFileName(k);
-         m_openedFiles.append(tName);
+         m_settings.openedFilesAppend(tName);
 
          //
          temp = m_tabWidget->widget(k);
@@ -155,16 +156,16 @@ void MainWindow::openTab_redo()
 
          if (textEdit) {
             isModified = textEdit->document()->isModified();
-            m_openedModified.append(isModified);
+            m_settings.openedModifiedAppend(isModified);
          }
       }
 
-      for (int i = 0; i < OPENTABS_MAX; ++i) {
+      for (int i = 0; i < DiamondLimits::OPENTABS_MAX; ++i) {
 
          if (i < cnt)  {
-            tName = m_openedFiles[i];
+             tName = m_settings.openedFiles(i);
 
-            if (m_openedModified[i]) {
+             if (m_settings.openedModified(i)) {
                tName += " *";
             }
 
@@ -188,8 +189,8 @@ void MainWindow::openTab_Add()
       return;
    }
 
-   m_openedFiles.append(m_curFile);
-   m_openedModified.append(false);
+   m_settings.openedFilesAppend(m_curFile);
+   m_settings.openedModifiedAppend(false);
 
    // update actions
    openTab_UpdateActions();
@@ -197,7 +198,7 @@ void MainWindow::openTab_Add()
 
 void MainWindow::openTab_Delete()
 {
-   m_openedFiles.removeOne(m_curFile);
+    m_settings.openedFilesRemove(m_curFile);
 
    // update actions
    openTab_UpdateActions();
@@ -205,36 +206,35 @@ void MainWindow::openTab_Delete()
 
 void MainWindow::openTab_UpdateActions()
 {
-   int cnt = m_openedFiles.count();
+    int cnt = m_settings.openedFilesCount();
 
-   for (int k = 0; k < OPENTABS_MAX; ++k) {
+   for (int k = 0; k < DiamondLimits::OPENTABS_MAX; ++k) {
 
       if (k < cnt)  {
          QString modified;
 
-         if (m_openedModified[k]) {
+         if (m_settings.openedModified(k)) {
             modified += " *";
          }
 
-         openTab_Actions[k]->setText(m_openedFiles[k] + modified);
+         openTab_Actions[k]->setText(m_settings.openedFiles(k) + modified);
          openTab_Actions[k]->setVisible(true);
 
      } else {        
          openTab_Actions[k]->setVisible(false);
      }
-
    }
 }
 
 void MainWindow::openTab_UpdateOneAction(int index, bool isModified)
 {
-   if (index < OPENTABS_MAX) {
+    if (index < DiamondLimits::OPENTABS_MAX) {
       QString modified;
 
       if (isModified) {
          modified += " *";
       }
 
-      openTab_Actions[index]->setText(m_openedFiles[index] + modified);
+      openTab_Actions[index]->setText(m_settings.openedFiles(index) + modified);
    }
 }

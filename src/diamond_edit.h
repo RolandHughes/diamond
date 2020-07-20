@@ -27,126 +27,186 @@
 #include <QTextCursor>
 #include <QWidget>
 
-class MainWindow;
 class LineNumberArea;
 
 class DiamondTextEdit : public QPlainTextEdit
 {
-   CS_OBJECT(DiamondTextEdit)
+    CS_OBJECT( DiamondTextEdit )
 
-   public:
-      DiamondTextEdit(MainWindow *from, struct Settings settings, SpellCheck *spell, QString owner);
-      ~DiamondTextEdit();
+public:
+    DiamondTextEdit( QWidget *parent, Settings &settings, QString owner );
+    ~DiamondTextEdit();
 
-      QString m_owner;
+    QString m_owner;
 
-      void lineNum_PaintEvent(QPaintEvent *event);
-      int lineNum_Width();
+    QString currentFile();
+    void setCurrentFile( QString fileName );
 
-      void set_ShowLineNum(bool data);           
+    void lineNum_PaintEvent( QPaintEvent *event );
+    int lineNum_Width();
 
-      // column mode
-      void set_ColumnMode(bool data);
-      bool get_ColumnMode();
+    void set_ShowLineNum( bool yesNo );
 
-      // copy buffer
-      QList<QString> copyBuffer() const;
+    // column mode
+    void set_ColumnMode( bool yesNo );
+    bool get_ColumnMode();
 
-      // macro
-      void macroStart();
-      void macroStop();
-      QList<QKeyEvent *> get_MacroKeyList();
+    // copy buffer
+    QList<QString> copyBuffer() const;
 
-      // spell
-      void set_Spell(bool value);
-      QTextCursor get_Cursor();
+    // macro
+    void macroStart();
+    void macroStop();
+    QList<QKeyEvent *> get_MacroKeyList();
 
-      // syntax
-      QString get_SyntaxFile();
-      void set_SyntaxFile(QString fname);
-      Syntax * get_SyntaxParser();
-      void set_SyntaxParser(Syntax *data);
-      SyntaxTypes get_SyntaxEnum();
-      void set_SyntaxEnum(SyntaxTypes data);
+    // spell
+    void set_Spell( bool value );
+    QTextCursor get_Cursor();
 
-      CS_SLOT_1(Public, void cut())
-      CS_SLOT_2(cut)
 
-      CS_SLOT_1(Public, void copy())
-      CS_SLOT_2(copy)
+    // syntax
+    QString get_SyntaxFile();
+    void set_SyntaxFile( QString fname );
+    Syntax *get_SyntaxParser();
+    void set_SyntaxParser( Syntax *data );
+    SyntaxTypes get_SyntaxEnum();
+    void set_SyntaxEnum( SyntaxTypes data );
+    void forceSyntax( SyntaxTypes data );
+    void runSyntax( QString synFName );
 
-      CS_SLOT_1(Public, void paste())
-      CS_SLOT_2(paste)
+    CS_SLOT_1( Public, void cut() )
+    CS_SLOT_2( cut )
 
-   protected:
-      void contextMenuEvent(QContextMenuEvent *event);
-      bool event(QEvent *event);
-      void keyPressEvent(QKeyEvent *event);
-      void keyReleaseEvent(QKeyEvent *event);
-      void resizeEvent(QResizeEvent *event);            
-      void mousePressEvent(QMouseEvent *event);
+    CS_SLOT_1( Public, void copy() )
+    CS_SLOT_2( copy )
 
-   private:
-      MainWindow *m_mainWindow;
-      QWidget *m_lineNumArea;     
+    CS_SLOT_1( Public, void paste() )
+    CS_SLOT_2( paste )
 
-      // column mode
-      bool m_isColumnMode;
-      int m_undoCount;
-      void removeColumnModeSpaces();
+    CS_SLOT_1( Public, void changeSettings( Settings &settings ) )
+    CS_SLOT_2( changeSettings )
 
-      bool m_showlineNum;
-      bool m_colHighlight;
+    CS_SLOT_1( Public, void rewrapParagraph() )
+    CS_SLOT_2( rewrapParagraph)
 
-      int m_startRow;
-      int m_startCol;
-      int m_endRow;
-      int m_endCol;
+    CS_SIGNAL_1( Public, void setSynType( SyntaxTypes data ) )
+    CS_SIGNAL_2( setSynType, data )
 
-      // copy buffer
-      QList<QString> m_copyBuffer;
-      void addToCopyBuffer(const QString &text);      
+    // editing API for use by MainWindow
+    //
+    void indentIncr( QString route );
+    void indentDecr( QString route );
+    void deleteLine();
+    void deleteEOL();
+    void deleteThroughEOL();
+    void insertSymbol();
+    void selectAll();
+    void selectBlock();
+    void selectLine();
+    void selectWord();
+    void caseUpper();
+    void caseLower();   // TODO:: add changeCase to change UglyCamelCase to uGLYcAMELcASE
+    void caseCap();
+    void goLine();
+    void goColumn();
+    void insertDate();
+    void insertTime();
+    void goTop();
+    void goBottom();
+    void moveBar();
+    void fixTab_Spaces();
+    void fixSpaces_Tab();
+    void deleteEOL_Spaces();
+    void rewrapParaphragh();
+    void setSyntax();
 
-      // macro
-      bool m_record;
-      QList<QKeyEvent *> m_macroKeyList;
 
-      // spell check
-      QTextCursor m_cursor;
-      bool m_isSpellCheck;
-      SpellCheck *m_spellCheck;
+    // spell check
+    CS_SLOT_1( Private, void spell_addUserDict() )
+    CS_SLOT_2( spell_addUserDict )
 
-      // syntax
-      Syntax *m_syntaxParser;
-      QString m_synFName;
-      SyntaxTypes m_syntaxEnum;
+    CS_SLOT_1( Private, void spell_replaceWord() )
+    CS_SLOT_2( spell_replaceWord )
 
-      CS_SLOT_1(Private, void update_LineNumWidth(int newBlockCount))
-      CS_SLOT_2(update_LineNumWidth) 
 
-      CS_SLOT_1(Private, void update_LineNumArea(const QRect & rect,int value))
-      CS_SLOT_2(update_LineNumArea)
+
+protected:
+    void contextMenuEvent( QContextMenuEvent *event );
+    bool event( QEvent *event );
+    void keyPressEvent( QKeyEvent *event );
+    void keyReleaseEvent( QKeyEvent *event );
+    void resizeEvent( QResizeEvent *event );
+    void mousePressEvent( QMouseEvent *event );
+
+private:
+    QWidget *m_lineNumArea;
+    Settings m_settings;
+    QString m_curFile; // TODO:: need to set this each time file opened
+
+    // tab stops
+    QList<int> m_tabStops;
+    void setUpTabStops();  // TODO:: We should allow a list here so COBOL card format could be supported
+
+    // column mode
+    int m_undoCount;
+    void removeColumnModeSpaces();
+
+    bool m_colHighlight;
+
+    int m_startRow;
+    int m_startCol;
+    int m_endRow;
+    int m_endCol;
+
+    // copy buffer
+    QList<QString> m_copyBuffer;
+    void addToCopyBuffer( const QString &text );
+
+    // macro
+    bool m_record;
+    QList<QKeyEvent *> m_macroKeyList;
+
+    // spell check
+    QStringList spell_getMaybe( QString word );
+    void createSpellCheck();
+    QTextCursor m_cursor;
+    bool m_isSpellCheck;
+    SpellCheck *m_spellCheck;
+
+    // syntax
+    Syntax *m_syntaxParser;
+    QString m_synFName;
+    SyntaxTypes m_syntaxEnum;
+
+    CS_SLOT_1( Private, void update_LineNumWidth( int newBlockCount ) )
+    CS_SLOT_2( update_LineNumWidth )
+
+    CS_SLOT_1( Private, void update_LineNumArea( const QRect &rect,int value ) )
+    CS_SLOT_2( update_LineNumArea )
 };
 
 
 class LineNumArea : public QWidget
 {
-   public:
-      LineNumArea(DiamondTextEdit *editor) : QWidget(editor) {
-         m_editor = editor;
-      }
+public:
+    LineNumArea( DiamondTextEdit *editor ) : QWidget( editor )
+    {
+        m_editor = editor;
+    }
 
-      QSize sizeHint() const {
-         return QSize(m_editor->lineNum_Width(), 0);
-      }
+    QSize sizeHint() const
+    {
+        return QSize( m_editor->lineNum_Width(), 0 );
+    }
 
-   protected:
-      void paintEvent(QPaintEvent *event) {
-         m_editor->lineNum_PaintEvent(event);
-      }
+protected:
+    void paintEvent( QPaintEvent *event )
+    {
+        m_editor->lineNum_PaintEvent( event );
+    }
 
-   private:
-     DiamondTextEdit *m_editor;
+private:
+    DiamondTextEdit *m_editor;
 };
 
 

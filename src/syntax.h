@@ -27,43 +27,43 @@
 
 class Syntax : public QSyntaxHighlighter
 {
-   CS_OBJECT(Syntax)
+    CS_OBJECT( Syntax )
 
-   public:
-      Syntax(QTextDocument *document,
-             QString synFName, const struct Settings &settings, SpellCheck *spell = 0);
+public:
+    Syntax( QTextDocument *document,
+            QString synFName, const Settings &settings, SpellCheck *spell = 0 );
 
-      ~Syntax();
-      bool processSyntax();
-      bool processSyntax(const struct Settings &settings);
-      void set_Spell(bool value);
+    ~Syntax();
+    bool processSyntax();
+    bool processSyntax( const struct Settings &settings );
+    void set_Spell( bool value );
 
-   protected:
-      void highlightBlock(const QString &text);
+protected:
+    void highlightBlock( const QString &text );
 
-   private:
-      QString m_syntaxFile;
-      struct Settings m_settings;
+private:
+    QString m_syntaxFile;
+    Settings m_settings;
 
-      SpellCheck *m_spellCheck;
-      bool m_isSpellCheck;
+    SpellCheck *m_spellCheck;
+    bool m_isSpellCheck;
 
-      QRegularExpression m_commentStartExpression;
-      QRegularExpression m_commentEndExpression;
+    QRegularExpression m_commentStartExpression;
+    QRegularExpression m_commentEndExpression;
 
-      QTextCharFormat m_multiLineCommentFormat;
-      QTextCharFormat m_spellCheckFormat;
+    QTextCharFormat m_multiLineCommentFormat;
+    QTextCharFormat m_spellCheckFormat;
 
-      QByteArray json_ReadFile(QString fileName);
+    QByteArray json_ReadFile( QString fileName );
 
-      //
-      struct HighlightingRule
-      {
-         QRegularExpression pattern;
-         QTextCharFormat format;
-      };
+    //
+    struct HighlightingRule
+    {
+        QRegularExpression pattern;
+        QTextCharFormat format;
+    };
 
-      QVector<HighlightingRule> highlightingRules;     
+    QVector<HighlightingRule> highlightingRules;
 };
 
 #endif

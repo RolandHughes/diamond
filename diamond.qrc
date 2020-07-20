@@ -24,5 +24,6 @@
         <file>resources/undo.png</file>
         <file>resources/diamond.png</file>
         <file>resources/diamond.ico</file>
+        <file>resources/EDT-Keypad.png</file>
     </qresource>
 </RCC>

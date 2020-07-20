@@ -30,7 +30,8 @@ class Dialog_Macro : public QDialog
    public:
       enum MacroEnum { MACRO_LOAD, MACRO_SAVE, MACRO_EDITNAMES };
 
-      Dialog_Macro(MainWindow *parent, MacroEnum enumValue, QStringList macroIds, QStringList macroNames);
+      Dialog_Macro(MainWindow *parent, MacroEnum enumValue, QStringList macroIds,
+                   QStringList macroNames, Settings& settings);
       ~Dialog_Macro();
       QString get_Macro();
 
@@ -43,6 +44,7 @@ class Dialog_Macro : public QDialog
       QStringList m_macroNames_D;
       int m_maxCount;
       bool m_updateNames = false;
+    Settings& m_settings;
 
       void setupTitle();
       void setUpView();

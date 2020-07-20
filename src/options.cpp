@@ -12,373 +12,150 @@
 *
 ***************************************************************************/
 
-#include "dialog_colors.h"
-#include "dialog_fonts.h"
-#include "dialog_options.h"
-#include "dialog_preset.h"
-#include "dialog_print_opt.h"
-#include "mainwindow.h"
+#include "options.h"
+#include "non_gui_functions.h"
+#include <QDir>
 
-#include <QBoxLayout>
-#include <QFontDialog>
-#include <QLabel>
-
-// **settings
-void MainWindow::setColors()
+Options::Options() :
+    m_rewrapColumn( 120 )
+    , m_tabSpacing( 4 )
+    , m_useSpaces( true )
+    , m_removeSpaces( false )
+    , m_autoLoad( true )
+    , m_autoDetect( false )
+    , m_formatDate( QString( "MM/dd/yyyy" ) )
+    , m_formatTime( QString( "h:mm ap" ) )
 {
-   // save the old colors
-   QColor old_TextColor = m_struct.colorText;
-   QColor old_BackColor = m_struct.colorBack;
+    // TODO:: These 2 should be class members.
+    //
+    // TODO:: kind of sucks having to have multiple classes know about appPath.
+    //        Redistribute the data so that only one class has all of the
+    //        path based information.
+    //
+    QString resourcePath = QCoreApplication::applicationDirPath();
+    QString libraryPath  = QDir::homePath() + "/.config/Diamond/";
 
-   //
-   Dialog_Colors *dw = new Dialog_Colors(this);
-   int result = dw->exec();
+    // TODO:: refactor this #if. We do much the same on both sides of it.
+    //
+#if defined(Q_OS_UNIX) && ! defined(Q_OS_MAC)
 
-   if (result == QDialog::Accepted) {
+    m_autoDetect = true;
 
-      QDialog tDialog(this);
-      tDialog.setWindowTitle("Diamond Settings");
-      tDialog.setModal(false);
-      tDialog.resize(335,100);
+    // get syntax folder (1)
+    m_syntaxPath        = resourcePath + "/syntax/";
+    m_mainDictionary    = libraryPath + "dictionary/en_US.dic";
+    m_userDictionary    = libraryPath + "dictionary/userDict.txt";
 
-      QLabel *label = new QLabel;
-      label->setAlignment(Qt::AlignCenter);
-      label->setText("Updating colors for each Tab. Please Wait...");
+    if ( ! QFile::exists( m_userDictionary ) )
+    {
+        QFile temp( m_userDictionary );
+        temp.open( QIODevice::WriteOnly );
+        temp.close();
+    }
 
-      QFont font = label->font();
-      font.setPointSize(11);
-      label->setFont(font);
+    QFile::copy( resourcePath + "/dictionary/en_US.aff", libraryPath + "dictionary/en_US.aff" );
+    QFile::copy( resourcePath + "/dictionary/en_US.dic", libraryPath + "dictionary/en_US.dic" );
 
-      QBoxLayout *layout = new QVBoxLayout();
-      layout->addWidget(label);
-      layout->setContentsMargins(9,9,9,20);
-      layout->itemAt(0)->setAlignment(Qt::AlignVCenter);
+#elif defined(Q_OS_MAC)
 
-      tDialog.setLayout(layout);
-      showDialog(tDialog);
+    if ( resourcePath.contains( ".app/Contents/MacOS" ) )
+    {
+        m_autoDetect = true;
+        resourcePath = pathName( QCoreApplication::applicationDirPath() )
+                       + "/../Contents/Resources";
+        libraryPath  = QDir::homePath() + "/Library/Diamond/";
 
-      if (m_struct.showLineHighlight)  {
-         // clear the old highlight first
-         QList<QTextEdit::ExtraSelection> extraSelections;
-         QTextEdit::ExtraSelection selection;
+        QDir dir = resourcePath;
+        dir.makeAbsolute();
 
-         selection.format.setForeground(old_TextColor);
-         selection.format.setBackground(old_BackColor);
-         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+        resourcePath        = dir.path();
+        m_syntaxPath        = resourcePath + "/syntax/";
+        m_mainDictionary    = libraryPath + "dictionary/en_US.dic";
+        m_userDictionary    = libraryPath + "dictionary/userDict.txt";
 
-         selection.cursor = m_textEdit->textCursor();
-         selection.cursor.clearSelection();
+        if ( ! QFile::exists( m_userDictionary ) )
+        {
+            QFile temp( dictFile );
+            temp.open( QIODevice::WriteOnly );
+            temp.close();
+        }
 
-         extraSelections.append(selection);
-         m_textEdit->setExtraSelections(extraSelections);
-      }
+        QFile::copy( resourcePath + "/dictionary/en_US.aff", libraryPath + "dictionary/en_US.aff" );
+        QFile::copy( resourcePath + "/dictionary/en_US.dic", libraryPath + "dictionary/en_US.dic" );
+#endif
 
-      // update colors in settings structure
-      m_struct = dw->get_Colors();
-      json_Write(COLORS);
+    if ( ! m_autoDetect )
+    {
+        m_syntaxPath = QCoreApplication::applicationDirPath() + "/syntax/";
+        // TODO:: Need to put some kind of test in MainWindow constructor or a singleshot
+        //        timer here to emit a signal once event loop is up.
+        //        We shouldn't be launcing a dialog from inside of a data class.
+#if 0
 
-      QPalette colors = m_textEdit->palette();
-      colors.setColor(QPalette::Text, m_struct.colorText);
-      colors.setColor(QPalette::Base, m_struct.colorBack);
-      m_textEdit->setPalette(colors);
+        if ( ! QFile::exists( m_syntaxPath + "syn_txt.json" ) )
+        {
+            m_syntaxPath = get_SyntaxPath( m_syntaxPath );
+        }
 
-      // get saved value
-      QString synFName = m_textEdit->get_SyntaxFile();
+#endif
+        m_mainDictionary = QCoreApplication::applicationDirPath() + "/dictionary/en_US.dic";
 
-      // change colors for  every tab
-      DiamondTextEdit *cur_textEdit  = m_textEdit;
-      int count = m_tabWidget->count();
+        // TODO:: Same^%*&%^* problem here. Too tightly coupled.
+        //
+#if 0
 
-      QWidget *temp;
-      DiamondTextEdit *textEdit;
+        if ( ! QFile::exists( m_mainDictionary ) )
+        {
+            dictFile = get_xxFile( "Dictionary File (*.dic)", "en_US.dic", "Dictionary Files (*.dic)" );
+        }
 
-      for (int k = 0; k < count; ++k)  {
-         temp     = m_tabWidget->widget(k);
-         textEdit = dynamic_cast<DiamondTextEdit *>(temp);
+#endif
+        m_userDictionary = pathName( m_mainDictionary ) + "/userDict.txt";
 
-         if (textEdit) {
-            m_textEdit = textEdit;
-
-            // get saved value
-            synFName = m_textEdit->get_SyntaxFile();
-
-            // reloads the syntax blocks based on new colors
-            runSyntax(synFName);
-         }
-      }
-
-      // reassign current tab
-      m_textEdit = cur_textEdit;
-
-      // for this tab only, it is updated every tab change
-      moveBar();
-
-      // all done
-      tDialog.close();
-   }
-
-   delete dw;
+        if ( ! QFile::exists( m_mainDictionary ) )
+        {
+            // add missing file
+            QFile temp( m_mainDictionary );
+            temp.open( QIODevice::WriteOnly );
+            temp.close();
+        }
+    }
 }
 
-void MainWindow::setFont()
+Options::Options( const Options &opt )
 {
-   Dialog_Fonts *dw = new Dialog_Fonts(m_struct.fontNormal, m_struct.fontColumn);
-   int result = dw->exec();
-
-   if (result == QDialog::Accepted) {
-
-      m_struct.fontNormal = dw->get_fontNormal();
-      m_struct.fontColumn = dw->get_fontColumn();
-
-      json_Write(FONT);
-      changeFont();
-   }
-
-   delete dw;
+    m_rewrapColumn      = opt.m_rewrapColumn;
+    m_tabSpacing        = opt.m_tabSpacing;
+    m_removeSpaces      = opt.m_removeSpaces;
+    m_useSpaces         = opt.m_useSpaces;
+    m_autoLoad          = opt.m_autoLoad;
+    m_formatDate        = opt.m_formatDate;
+    m_formatTime        = opt.m_formatTime;
+    m_mainDictionary    = opt.m_mainDictionary;
+    m_userDictionary    = opt.m_userDictionary;
+    m_syntaxPath        = opt.m_syntaxPath;
+    m_aboutUrl          = opt.m_aboutUrl;
+    m_keys              = opt.m_keys;
 }
 
-void MainWindow::setOptions()
+Options &Options::operator =( const Options &opt )
 {
-   struct Options options;
+    if ( this != &opt )
+    {
+        m_rewrapColumn      = opt.m_rewrapColumn;
+        m_tabSpacing        = opt.m_tabSpacing;
+        m_removeSpaces      = opt.m_removeSpaces;
+        m_useSpaces         = opt.m_useSpaces;
+        m_autoLoad          = opt.m_autoLoad;
+        m_formatDate        = opt.m_formatDate;
+        m_formatTime        = opt.m_formatTime;
+        m_mainDictionary    = opt.m_mainDictionary;
+        m_userDictionary    = opt.m_userDictionary;
+        m_syntaxPath        = opt.m_syntaxPath;
+        m_aboutUrl          = opt.m_aboutUrl;
+        m_keys              = opt.m_keys;
+    }
 
-   options.formatDate   = m_struct.formatDate;
-   options.formatTime   = m_struct.formatTime;
-   options.tabSpacing   = m_struct.tabSpacing;
-   options.useSpaces    = m_struct.useSpaces;
-   options.removeSpace  = m_struct.removeSpace;
-   options.autoLoad     = m_struct.autoLoad;
-   options.dictMain     = m_struct.dictMain;
-   options.dictUser     = m_struct.dictUser;
-   options.pathSyntax   = m_struct.pathSyntax;
-   options.aboutUrl     = m_struct.aboutUrl;
-
-   // tab 2
-   options.key_open        = m_struct.key_open;
-   options.key_close       = m_struct.key_close;
-   options.key_save        = m_struct.key_save;
-   options.key_saveAs      = m_struct.key_saveAs;
-   options.key_print       = m_struct.key_print;
-   options.key_undo        = m_struct.key_undo;
-   options.key_redo        = m_struct.key_redo;
-   options.key_cut         = m_struct.key_cut;
-   options.key_copy        = m_struct.key_copy;
-   options.key_paste       = m_struct.key_paste;
-   options.key_selectAll   = m_struct.key_selectAll;
-   options.key_find        = m_struct.key_find;
-   options.key_replace     = m_struct.key_replace;
-   options.key_findNext    = m_struct.key_findNext;
-   options.key_findPrev    = m_struct.key_findPrev;
-   options.key_goTop       = m_struct.key_goTop;
-   options.key_goBottom    = m_struct.key_goBottom;
-   options.key_newTab      = m_struct.key_newTab;
-
-   // tab 3
-   options.key_printPreview = m_struct.key_printPreview;
-   options.key_reload       = m_struct.key_reload;
-   options.key_selectLine   = m_struct.key_selectLine;
-   options.key_selectWord   = m_struct.key_selectWord;
-   options.key_selectBlock  = m_struct.key_selectBlock;
-   options.key_upper        = m_struct.key_upper;
-   options.key_lower        = m_struct.key_lower;
-   options.key_indentIncr   = m_struct.key_indentIncr;
-   options.key_indentDecr   = m_struct.key_indentDecr;
-   options.key_deleteLine   = m_struct.key_deleteLine;
-   options.key_deleteEOL    = m_struct.key_deleteEOL;
-   options.key_columnMode   = m_struct.key_columnMode;
-   options.key_goLine       = m_struct.key_goLine;
-   options.key_show_Spaces  = m_struct.key_show_Spaces;
-   options.key_show_Breaks  = m_struct.key_show_Breaks;
-   options.key_macroPlay    = m_struct.key_macroPlay;
-   options.key_spellCheck   = m_struct.key_spellCheck;
-   options.key_copyBuffer   = m_struct.key_copyBuffer;
-
-   Dialog_Options *dw = new Dialog_Options(this, options);
-   int result = dw->exec();
-
-   if ( result == QDialog::Accepted) {
-      options = dw->get_Results();
-
-      //
-      if ( m_struct.formatDate != options.formatDate)  {
-         m_struct.formatDate = options.formatDate;
-         json_Write(FORMAT_DATE);
-      }
-
-      if ( m_struct.formatTime != options.formatTime)  {
-         m_struct.formatTime = options.formatTime;
-         json_Write(FORMAT_TIME);
-      }
-
-      if ( m_struct.tabSpacing != options.tabSpacing)  {
-         m_struct.tabSpacing = options.tabSpacing;
-         json_Write(TAB_SPACING);
-
-         // update tab stops
-         this->setUpTabStops();
-      }
-
-      //
-      if ( m_struct.useSpaces != options.useSpaces)  {
-         m_struct.useSpaces = options.useSpaces;
-         json_Write(USESPACES);
-      }
-
-      if (m_struct.removeSpace != options.removeSpace ) {
-         m_struct.removeSpace = options.removeSpace;
-         json_Write(REMOVE_SPACE);
-      }
-
-      //
-      if (m_struct.autoLoad != options.autoLoad ) {
-         m_struct.autoLoad = options.autoLoad;
-         json_Write(AUTOLOAD);
-      }
-
-      //
-      if (m_struct.dictMain != options.dictMain ) {
-         m_struct.dictMain = options.dictMain;
-         json_Write(DICT_MAIN);
-      }
-
-      if (m_struct.dictUser != options.dictUser ) {
-         m_struct.dictUser = options.dictUser;
-         json_Write(DICT_USER);
-      }
-
-      if (m_struct.pathSyntax != options.pathSyntax ) {
-         m_struct.pathSyntax = options.pathSyntax;
-         json_Write(PATH_SYNTAX);
-      }
-
-      if (m_struct.aboutUrl != options.aboutUrl ) {
-         m_struct.aboutUrl = options.aboutUrl;
-         json_Write(ABOUTURL);
-      }
-
-      // keys 2
-      m_struct.key_open        = options.key_open;
-      m_struct.key_close       = options.key_close;
-      m_struct.key_save        = options.key_save;
-      m_struct.key_saveAs      = options.key_saveAs;
-      m_struct.key_print       = options.key_print;
-      m_struct.key_undo        = options.key_undo;
-      m_struct.key_redo        = options.key_redo;
-      m_struct.key_cut	       = options.key_cut;
-      m_struct.key_copy	       = options.key_copy;
-      m_struct.key_paste       = options.key_paste;
-      m_struct.key_selectAll   = options.key_selectAll;
-      m_struct.key_find	       = options.key_find;
-      m_struct.key_replace     = options.key_replace;
-      m_struct.key_findNext    = options.key_findNext;
-      m_struct.key_findPrev    = options.key_findPrev;
-      m_struct.key_goTop       = options.key_goTop;
-      m_struct.key_goBottom    = options.key_goBottom;
-      m_struct.key_newTab      = options.key_newTab;
-
-      // keys 3
-      m_struct.key_printPreview = options.key_printPreview;
-      m_struct.key_reload       = options.key_reload;
-      m_struct.key_selectLine   = options.key_selectLine;
-      m_struct.key_selectWord   = options.key_selectWord;
-      m_struct.key_selectBlock  = options.key_selectBlock;
-      m_struct.key_upper        = options.key_upper;
-      m_struct.key_lower        = options.key_lower;
-      m_struct.key_indentIncr   = options.key_indentIncr;
-      m_struct.key_indentDecr   = options.key_indentDecr;
-      m_struct.key_deleteLine   = options.key_deleteLine;
-      m_struct.key_deleteEOL    = options.key_deleteEOL;
-      m_struct.key_columnMode   = options.key_columnMode;
-      m_struct.key_goLine       = options.key_goLine;
-      m_struct.key_show_Spaces  = options.key_show_Spaces;
-      m_struct.key_show_Breaks  = options.key_show_Breaks;
-      m_struct.key_macroPlay    = options.key_macroPlay;
-      m_struct.key_spellCheck   = options.key_spellCheck;
-      m_struct.key_copyBuffer   = options.key_copyBuffer;
-
-      json_Write(KEYS);
-
-      // false will redisplay only user defined shortcuts
-      this->createShortCuts(true);
-   }
-
-   delete dw;
+    return *this;
 }
 
-void MainWindow::setPresetFolders()
-{
-   Dialog_Preset *dw = new Dialog_Preset(this, m_prefolder_List);
-   int result = dw->exec();
-
-   if (result == QDialog::Accepted) {
-
-      m_prefolder_List = dw->getData();
-
-      // save new list
-      json_Write(PRESET_FOLDER);
-
-      prefolder_RedoList();
-   }
-
-   delete dw;
-}
-
-void MainWindow::setPrintOptions()
-{
-   struct PrintSettings options;
-   options.lineNumbers   = m_printer.lineNumbers;
-   options.printHeader   = m_printer.printHeader;
-   options.printFooter   = m_printer.printFooter;
-
-   options.header_left   = m_printer.header_left;
-   options.header_center = m_printer.header_center;
-   options.header_right  = m_printer.header_right;
-   options.header_line2  = m_printer.header_line2;
-   options.footer_left   = m_printer.footer_left;
-   options.footer_center = m_printer.footer_center;
-   options.footer_right  = m_printer.footer_right;
-   options.footer_line2  = m_printer.footer_line2;
-
-   options.marTop        = m_printer.marTop;
-   options.marBottom     = m_printer.marBottom;
-   options.marLeft       = m_printer.marLeft;
-   options.marRight      = m_printer.marRight;
-   options.hdrGap        = m_printer.hdrGap;
-
-   options.fontHeader    = m_printer.fontHeader;
-   options.fontFooter    = m_printer.fontFooter;
-   options.fontText      = m_printer.fontText;
-
-   Dialog_PrintOptions *dw = new Dialog_PrintOptions(this, options);
-   int result = dw->exec();
-
-   if (result == QDialog::Accepted) {
-      options = dw->get_Results();
-
-      m_printer.lineNumbers    = options.lineNumbers;
-      m_printer.printHeader    = options.printHeader;
-      m_printer.printFooter    = options.printFooter;
-
-      m_printer.header_left    = options.header_left;
-      m_printer.header_center  = options.header_center;
-      m_printer.header_right   = options.header_right;
-      m_printer.header_line2   = options.header_line2;
-      m_printer.footer_left    = options.footer_left;
-      m_printer.footer_center  = options.footer_center;
-      m_printer.footer_right   = options.footer_right;
-      m_printer.footer_line2   = options.footer_line2;
-
-      m_printer.marTop         = options.marTop;
-      m_printer.marBottom      = options.marBottom;
-      m_printer.marLeft        = options.marLeft;
-      m_printer.marRight       = options.marRight;
-      m_printer.hdrGap         = options.hdrGap;
-
-      m_printer.fontHeader     = options.fontHeader;
-      m_printer.fontFooter     = options.fontFooter;
-      m_printer.fontText       = options.fontText;
-
-      json_Write(PRINT_OPTIONS);
-   }
-
-   delete dw;
-}

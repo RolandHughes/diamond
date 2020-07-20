@@ -19,11 +19,9 @@
 #include <QStringList>
 #include <QStringListModel>
 
-Dialog_Symbols::Dialog_Symbols(MainWindow *parent)
+Dialog_Symbols::Dialog_Symbols(QWidget *parent)
    : QDialog(parent), m_ui(new Ui::Dialog_Symbols)
 {
-   m_parent = parent;
-
    m_ui->setupUi(this);
    this->setWindowIcon(QIcon("://resources/diamond.png"));
 

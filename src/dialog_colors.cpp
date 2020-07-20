@@ -22,466 +22,632 @@
 #include <QString>
 #include <QStringList>
 #include <QToolButton>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QDebug>
 
-Dialog_Colors::Dialog_Colors(MainWindow *parent)
-   : QDialog(parent), m_ui(new Ui::Dialog_Colors)
+Dialog_Colors::Dialog_Colors( QWidget *parent, Settings& settings )
+    : QDialog( parent )
+    , m_ui( new Ui::Dialog_Colors )
+    , m_syntaxParser(nullptr)
 {
-   m_mainWindow = parent;
+    m_ui->setupUi( this );
+    this->setWindowIcon( QIcon( "://resources/diamond.png" ) );
 
-   m_ui->setupUi(this);
-   this->setWindowIcon(QIcon("://resources/diamond.png"));
+    qDebug() << "Dialog_Colors: " << settings.activeTheme();
+    m_settings = settings;
+    m_syntaxFname  = m_settings.syntaxPath() + "syn_cpp.json";
 
-   m_struSettings = m_mainWindow->get_StructData();
-   m_syntaxFname  = m_struSettings.pathSyntax + "syn_cpp.json";  
+    m_syntaxParser = new Syntax( m_ui->sample->document(), m_syntaxFname, m_settings );
+    updateParser( false );
 
-   m_syntaxParser = new Syntax(m_ui->sample->document(), m_syntaxFname, m_struSettings);
-   updateParser(false);
 
-   //
-   initData();
+    connect( m_ui->text_TB,           &QToolButton::clicked, this, &Dialog_Colors::text_TB       );
+    connect( m_ui->back_TB,           &QToolButton::clicked, this, &Dialog_Colors::back_TB       );
+    connect( m_ui->gutterText_TB,     &QToolButton::clicked, this, &Dialog_Colors::gutterText_TB );
+    connect( m_ui->gutterBack_TB,     &QToolButton::clicked, this, &Dialog_Colors::gutterBack_TB );
+    connect( m_ui->current_TB,        &QToolButton::clicked, this, &Dialog_Colors::current_TB    );
 
-   connect(m_ui->text_TB,           &QToolButton::clicked, this, &Dialog_Colors::text_TB     );
-   connect(m_ui->back_TB,           &QToolButton::clicked, this, &Dialog_Colors::back_TB     );
-   connect(m_ui->highText_TB,       &QToolButton::clicked, this, &Dialog_Colors::highText_TB );
-   connect(m_ui->highBack_TB,       &QToolButton::clicked, this, &Dialog_Colors::highBack_TB );
+    connect( m_ui->key_TB,            &QToolButton::clicked, this, &Dialog_Colors::key_TB      );
+    connect( m_ui->type_TB,           &QToolButton::clicked, this, &Dialog_Colors::type_TB     );
+    connect( m_ui->class_TB,          &QToolButton::clicked, this, &Dialog_Colors::class_TB    );
+    connect( m_ui->func_TB,           &QToolButton::clicked, this, &Dialog_Colors::func_TB     );
+    connect( m_ui->quote_TB,          &QToolButton::clicked, this, &Dialog_Colors::quote_TB    );
+    connect( m_ui->comment_TB,        &QToolButton::clicked, this, &Dialog_Colors::comment_TB  );
+    connect( m_ui->mline_TB,          &QToolButton::clicked, this, &Dialog_Colors::mline_TB    );
+    connect( m_ui->const_TB,          &QToolButton::clicked, this, &Dialog_Colors::const_TB    );
 
-   connect(m_ui->key_TB,            &QToolButton::clicked, this, &Dialog_Colors::key_TB      );
-   connect(m_ui->type_TB,           &QToolButton::clicked, this, &Dialog_Colors::type_TB     );
-   connect(m_ui->class_TB,          &QToolButton::clicked, this, &Dialog_Colors::class_TB    );
-   connect(m_ui->func_TB,           &QToolButton::clicked, this, &Dialog_Colors::func_TB     );
-   connect(m_ui->quote_TB,          &QToolButton::clicked, this, &Dialog_Colors::quote_TB    );
-   connect(m_ui->comment_TB,        &QToolButton::clicked, this, &Dialog_Colors::comment_TB  );
-   connect(m_ui->mline_TB,          &QToolButton::clicked, this, &Dialog_Colors::mline_TB    );
+    connect( m_ui->key_Bold_CB,       &QCheckBox::clicked,   this, &Dialog_Colors::key_bold       );
+    connect( m_ui->key_Italic_CB,     &QCheckBox::clicked,   this, &Dialog_Colors::key_italic     );
+    connect( m_ui->type_Bold_CB,      &QCheckBox::clicked,   this, &Dialog_Colors::type_bold      );
+    connect( m_ui->type_Italic_CB,    &QCheckBox::clicked,   this, &Dialog_Colors::type_italic    );
+    connect( m_ui->class_Bold_CB,     &QCheckBox::clicked,   this, &Dialog_Colors::class_bold     );
+    connect( m_ui->class_Italic_CB,   &QCheckBox::clicked,   this, &Dialog_Colors::class_italic   );
+    connect( m_ui->func_Bold_CB,      &QCheckBox::clicked,   this, &Dialog_Colors::func_bold      );
+    connect( m_ui->func_Italic_CB,    &QCheckBox::clicked,   this, &Dialog_Colors::func_italic    );
+    connect( m_ui->quote_Bold_CB,     &QCheckBox::clicked,   this, &Dialog_Colors::quote_bold     );
+    connect( m_ui->quote_Italic_CB,   &QCheckBox::clicked,   this, &Dialog_Colors::quote_italic   );
+    connect( m_ui->comment_Bold_CB,   &QCheckBox::clicked,   this, &Dialog_Colors::comment_bold   );
+    connect( m_ui->comment_Italic_CB, &QCheckBox::clicked,   this, &Dialog_Colors::comment_italic );
+    connect( m_ui->mline_Bold_CB,     &QCheckBox::clicked,   this, &Dialog_Colors::mline_bold     );
+    connect( m_ui->mline_Italic_CB,   &QCheckBox::clicked,   this, &Dialog_Colors::mline_italic   );
 
-   connect(m_ui->key_Bold_CB,       &QCheckBox::clicked,   this, &Dialog_Colors::key_bold       );
-   connect(m_ui->key_Italic_CB,     &QCheckBox::clicked,   this, &Dialog_Colors::key_italic     );
-   connect(m_ui->type_Bold_CB,      &QCheckBox::clicked,   this, &Dialog_Colors::type_bold      );
-   connect(m_ui->type_Italic_CB,    &QCheckBox::clicked,   this, &Dialog_Colors::type_italic    );
-   connect(m_ui->class_Bold_CB,     &QCheckBox::clicked,   this, &Dialog_Colors::class_bold     );
-   connect(m_ui->class_Italic_CB,   &QCheckBox::clicked,   this, &Dialog_Colors::class_italic   );
-   connect(m_ui->func_Bold_CB,      &QCheckBox::clicked,   this, &Dialog_Colors::func_bold      );
-   connect(m_ui->func_Italic_CB,    &QCheckBox::clicked,   this, &Dialog_Colors::func_italic    );
-   connect(m_ui->quote_Bold_CB,     &QCheckBox::clicked,   this, &Dialog_Colors::quote_bold     );
-   connect(m_ui->quote_Italic_CB,   &QCheckBox::clicked,   this, &Dialog_Colors::quote_italic   );
-   connect(m_ui->comment_Bold_CB,   &QCheckBox::clicked,   this, &Dialog_Colors::comment_bold   );
-   connect(m_ui->comment_Italic_CB, &QCheckBox::clicked,   this, &Dialog_Colors::comment_italic );
-   connect(m_ui->mline_Bold_CB,     &QCheckBox::clicked,   this, &Dialog_Colors::mline_bold     );
-   connect(m_ui->mline_Italic_CB,   &QCheckBox::clicked,   this, &Dialog_Colors::mline_italic   );
+    connect( m_ui->save_PB,           &QPushButton::clicked, this, &Dialog_Colors::save          );
+    connect( m_ui->cancel_PB,         &QPushButton::clicked, this, &Dialog_Colors::cancel        );
+    connect( m_ui->copy_button,       &QPushButton::clicked, this, &Dialog_Colors::copyClicked   );
+    connect( m_ui->delete_button,     &QPushButton::clicked, this, &Dialog_Colors::deleteClicked );
+    connect( m_ui->export_button,     &QPushButton::clicked, this, &Dialog_Colors::exportClicked );
+    connect( m_ui->import_button,     &QPushButton::clicked, this, &Dialog_Colors::importClicked );
 
-   connect(m_ui->save_PB,           &QPushButton::clicked, this, &Dialog_Colors::save);
-   connect(m_ui->cancel_PB,         &QPushButton::clicked, this, &Dialog_Colors::cancel);
+    m_ui->theme_comboBox->clear();
+    m_ui->theme_comboBox->addItems( m_settings.availableThemes() );
+
+    // Do not connect before assigning data as that will cause syntax update with
+    // ill-formed m_settings.
+    //
+    connect( m_ui->theme_comboBox,
+             static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged),
+             this,
+             &Dialog_Colors::themeChanged );
+
+    m_ui->theme_comboBox->setCurrentIndex(
+        m_ui->theme_comboBox->findText( m_settings.activeTheme() ) );
+
 }
 
 Dialog_Colors::~Dialog_Colors()
 {
-   delete m_ui;
+    delete m_ui;
+    if (m_syntaxParser != nullptr)
+        delete m_syntaxParser;
 }
 
-void Dialog_Colors::colorBox(QLineEdit *field, QColor color)
+void Dialog_Colors::colorBox( QLineEdit *field, QColor color )
 {
-   QPalette temp;
+    QPalette temp;
 
-   temp = field->palette();
-   temp.setColor(QPalette::Base, color);
-   field->setPalette(temp);
+    temp = field->palette();
+    temp.setColor( QPalette::Base, color );
+    field->setPalette( temp );
 }
 
-void Dialog_Colors::initData()
-{   
-   // 1
-   m_ui->text_Color->setReadOnly(true);
-   colorBox(m_ui->text_Color, m_struSettings.colorText);
-
-   m_ui->back_Color->setReadOnly(true);
-   colorBox(m_ui->back_Color, m_struSettings.colorBack);
-
-   m_ui->highText_Color->setReadOnly(true);
-   colorBox(m_ui->highText_Color, m_struSettings.colorHighText);
-
-   m_ui->highBack_Color->setReadOnly(true);
-   colorBox(m_ui->highBack_Color, m_struSettings.colorHighBack);
-
-   // 2
-   m_ui->key_Color->setReadOnly(true);
-   colorBox(m_ui->key_Color, m_struSettings.syn_KeyText);
-
-   if (m_struSettings.syn_KeyWeight == QFont::Bold) {
-      m_ui->key_Bold_CB->setChecked(true);
-   }
-   m_ui->key_Italic_CB->setChecked(m_struSettings.syn_KeyItalic);
-
-   /**/
-   m_ui->type_Color->setReadOnly(true);
-   colorBox(m_ui->type_Color, m_struSettings.syn_TypeText);
-
-   if (m_struSettings.syn_TypeWeight == QFont::Bold) {
-      m_ui->type_Bold_CB->setChecked(true);
-   }
-   m_ui->type_Italic_CB->setChecked(m_struSettings.syn_TypeItalic);
-
-   /**/
-   m_ui->class_Color->setReadOnly(true);
-   colorBox(m_ui->class_Color, m_struSettings.syn_ClassText);
-
-   if (m_struSettings.syn_ClassWeight == QFont::Bold) {
-      m_ui->class_Bold_CB->setChecked(true);
-   }
-   m_ui->class_Italic_CB->setChecked(m_struSettings.syn_ClassItalic);
-
-   /**/
-   m_ui->func_Color->setReadOnly(true);
-   colorBox(m_ui->func_Color, m_struSettings.syn_FuncText);
-
-   if (m_struSettings.syn_FuncWeight == QFont::Bold) {
-      m_ui->func_Bold_CB->setChecked(true);
-   }
-   m_ui->func_Italic_CB->setChecked(m_struSettings.syn_FuncItalic);
-
-   /**/
-   m_ui->quote_Color->setReadOnly(true);
-   colorBox(m_ui->quote_Color, m_struSettings.syn_QuoteText);
-
-   if (m_struSettings.syn_QuoteWeight == QFont::Bold) {
-      m_ui->quote_Bold_CB->setChecked(true);
-   }
-   m_ui->quote_Italic_CB->setChecked(m_struSettings.syn_QuoteItalic);
-
-   /**/
-   m_ui->comment_Color->setReadOnly(true);
-   colorBox(m_ui->comment_Color, m_struSettings.syn_CommentText);
-
-   if (m_struSettings.syn_CommentWeight == QFont::Bold) {
-      m_ui->comment_Bold_CB->setChecked(true);
-   }
-   m_ui->comment_Italic_CB->setChecked(m_struSettings.syn_CommentItalic);
-
-   /**/
-   m_ui->mline_Color->setReadOnly(true);
-   colorBox(m_ui->mline_Color, m_struSettings.syn_MLineText);
-
-   if (m_struSettings.syn_MLineWeight == QFont::Bold) {
-      m_ui->mline_Bold_CB->setChecked(true);
-   }
-   m_ui->mline_Italic_CB->setChecked(m_struSettings.syn_MLineItalic);
-
-}
-
-void Dialog_Colors::updateParser(bool newSettings)
+void Dialog_Colors::themeChanged( const QString& themeName )
 {
-   if (newSettings) {
-      m_syntaxParser->processSyntax(m_struSettings);
+    if ( themeName.isEmpty() )
+    { return; }
 
-   } else  {
-      m_syntaxParser->processSyntax();
-   }
+    m_settings.set_activeTheme(themeName);
+
+    // ordinary text
+    m_ui->text_Color->setReadOnly( true );
+    colorBox( m_ui->text_Color, m_settings.currentTheme().colorText() );
+
+    m_ui->back_Color->setReadOnly( true );
+    colorBox( m_ui->back_Color, m_settings.currentTheme().colorBack() );
+
+    // line number margin/gutter
+    m_ui->gutterText_Color->setReadOnly( true );
+    colorBox( m_ui->gutterText_Color, m_settings.currentTheme().gutterText() );
+
+    m_ui->gutterBack_Color->setReadOnly( true );
+    colorBox( m_ui->gutterBack_Color, m_settings.currentTheme().gutterBack() );
+
+    // current line background color
+    m_ui->current_Color->setReadOnly( true );
+    colorBox( m_ui->current_Color, m_settings.currentTheme().currentLineBack() );
+
+    /* Key */
+    m_ui->key_Color->setReadOnly( true );
+    colorBox( m_ui->key_Color, m_settings.currentTheme().syntaxKey().color() );
+
+    if ( m_settings.currentTheme().syntaxKey().weight() == QFont::Bold )
+    {
+        m_ui->key_Bold_CB->setChecked( true );
+    }
+
+    m_ui->key_Italic_CB->setChecked( m_settings.currentTheme().syntaxKey().italic() );
+
+    /* Type */
+    m_ui->type_Color->setReadOnly( true );
+    colorBox( m_ui->type_Color, m_settings.currentTheme().syntaxType().color() );
+
+    if ( m_settings.currentTheme().syntaxType().weight() == QFont::Bold )
+    {
+        m_ui->type_Bold_CB->setChecked( true );
+    }
+
+    m_ui->type_Italic_CB->setChecked( m_settings.currentTheme().syntaxType().italic() );
+
+    /* Class */
+    m_ui->class_Color->setReadOnly( true );
+    colorBox( m_ui->class_Color, m_settings.currentTheme().syntaxClass().color() );
+
+    if ( m_settings.currentTheme().syntaxClass().weight() == QFont::Bold )
+    {
+        m_ui->class_Bold_CB->setChecked( true );
+    }
+
+    m_ui->class_Italic_CB->setChecked( m_settings.currentTheme().syntaxClass().italic() );
+
+    /* Func */
+    m_ui->func_Color->setReadOnly( true );
+    colorBox( m_ui->func_Color, m_settings.currentTheme().syntaxFunc().color() );
+
+    if ( m_settings.currentTheme().syntaxFunc().weight() == QFont::Bold )
+    {
+        m_ui->func_Bold_CB->setChecked( true );
+    }
+
+    m_ui->func_Italic_CB->setChecked( m_settings.currentTheme().syntaxFunc().italic() );
+
+    /* Quote */
+    m_ui->quote_Color->setReadOnly( true );
+    colorBox( m_ui->quote_Color, m_settings.currentTheme().syntaxQuote().color() );
+
+    if ( m_settings.currentTheme().syntaxQuote().weight() == QFont::Bold )
+    {
+        m_ui->quote_Bold_CB->setChecked( true );
+    }
+
+    m_ui->quote_Italic_CB->setChecked( m_settings.currentTheme().syntaxQuote().italic() );
+
+    /* Comment */
+    m_ui->comment_Color->setReadOnly( true );
+    colorBox( m_ui->comment_Color, m_settings.currentTheme().syntaxComment().color() );
+
+    if ( m_settings.currentTheme().syntaxComment().weight() == QFont::Bold )
+    {
+        m_ui->comment_Bold_CB->setChecked( true );
+    }
+
+    m_ui->comment_Italic_CB->setChecked( m_settings.currentTheme().syntaxComment().italic() );
+
+    /* MLine comment*/
+    m_ui->mline_Color->setReadOnly( true );
+    colorBox( m_ui->mline_Color, m_settings.currentTheme().syntaxMLine().color() );
+
+    if ( m_settings.currentTheme().syntaxMLine().weight() == QFont::Bold )
+    {
+        m_ui->mline_Bold_CB->setChecked( true );
+    }
+
+    m_ui->mline_Italic_CB->setChecked( m_settings.currentTheme().syntaxMLine().italic() );
+
+    /* Constant */
+    m_ui->const_Color->setReadOnly( true );
+    colorBox( m_ui->const_Color, m_settings.currentTheme().syntaxConstant().color() );
+
+    if ( m_settings.currentTheme().syntaxConstant().weight() == QFont::Bold )
+    {
+        m_ui->constant_Bold_CB->setChecked( true );
+    }
+
+    m_ui->constant_Italic_CB->setChecked( m_settings.currentTheme().syntaxConstant().italic() );
+
+    if (m_settings.currentTheme().isProtected())
+    {
+        m_ui->delete_button->setEnabled(false);
+    }
+    else
+    {
+        m_ui->delete_button->setEnabled(true);
+    }
+
+    updateParser( true);
 }
 
-QColor Dialog_Colors::pickColor(QColor oldColor)
+void Dialog_Colors::copyClicked()
 {
-   QColor color = oldColor;
+    QString destName;
+    bool okFlag = false;
 
-   if (false)  {      // (useNative)
-       color = QColorDialog::getColor(color, this);
-   } else  {
-       color = QColorDialog::getColor(color, this, "Select Color", QColorDialog::DontUseNativeDialog);
-   }
+    //  TODO:: Really need to get an AlphaNumeric hint added
+    destName = QInputDialog::getText(this, "New Theme name", "Name: ", QLineEdit::Normal,
+                                     destName, &okFlag, Qt::Dialog, Qt::ImhNone);
+    if (okFlag)
+    {
+        m_settings.copyTheme(m_ui->theme_comboBox->currentText(), destName);
+        m_ui->theme_comboBox->addItem( destName );
+        m_ui->theme_comboBox->setCurrentIndex( m_ui->theme_comboBox->findText( destName ) );
+    }
+}
 
-   if (color.isValid()) {
-      return color;
-   }
+void Dialog_Colors::deleteClicked()
+{
+    int btn = QMessageBox::question(this, "Confirm Deletion", "Really delete selected theme?",
+                                    QMessageBox::Yes, QMessageBox::No);
+    if (btn == QMessageBox::Yes)
+    {
+        m_settings.deleteTheme(m_ui->theme_comboBox->currentText());
+        m_ui->theme_comboBox->removeItem(m_ui->theme_comboBox->currentIndex());
+        m_ui->theme_comboBox->setCurrentIndex(0);
+    }
+}
 
-   return oldColor;
+void Dialog_Colors::exportClicked()
+{
+    // TODO:: Need to use file choose to obtain destination name
+    //        Also need to add export function to settings
+}
+
+void Dialog_Colors::importClicked()
+{
+    // TODO:: Need to use file choose to obtain input file name
+    //        Also need to add import function to settings
+}
+
+void Dialog_Colors::updateParser( bool newSettings )
+{
+    if ( newSettings )
+    {
+        m_syntaxParser->processSyntax( m_settings );
+
+    }
+    else
+    {
+        m_syntaxParser->processSyntax();
+    }
+}
+
+QColor Dialog_Colors::pickColor( QColor oldColor )
+{
+    QColor color = oldColor;
+
+    if ( false )       // (useNative)
+    {
+        color = QColorDialog::getColor( color, this );
+    }
+    else
+    {
+        color = QColorDialog::getColor( color, this, "Select Color", QColorDialog::DontUseNativeDialog );
+    }
+
+    if ( color.isValid() )
+    {
+        return color;
+    }
+
+    return oldColor;
 }
 
 void Dialog_Colors::text_TB()
 {
-   QColor color = m_struSettings.colorText;
-   m_struSettings.colorText = pickColor(color);
+    QColor color = m_settings.currentTheme().colorText();
+    m_settings.currentTheme().set_colorText( pickColor( color ) );
 
-   //
-   colorBox(m_ui->text_Color, m_struSettings.colorText);
+    //
+    colorBox( m_ui->text_Color, m_settings.currentTheme().colorText() );
 
-   //
-   QPalette temp;
-   temp = m_ui->sample->palette();
-   temp.setColor(QPalette::Text, m_struSettings.colorText);
-   temp.setColor(QPalette::Base, m_struSettings.colorBack);
-   m_ui->sample->setPalette(temp);
+    //
+    QPalette temp;
+    temp = m_ui->sample->palette();
+    temp.setColor( QPalette::Text, m_settings.currentTheme().colorText() );
+    temp.setColor( QPalette::Base, m_settings.currentTheme().colorBack() );
+    m_ui->sample->setPalette( temp );
 }
 
 void Dialog_Colors::back_TB()
 {
-   QColor color = m_struSettings.colorBack;
-   m_struSettings.colorBack = pickColor(color);
+    QColor color = m_settings.currentTheme().colorBack();
+    m_settings.currentTheme().set_colorBack( pickColor( color ) );
 
-   //
-   colorBox(m_ui->back_Color, m_struSettings.colorBack);
+    //
+    colorBox( m_ui->back_Color, m_settings.currentTheme().colorBack() );
 
-   //
-   QPalette temp;
-   temp = m_ui->sample->palette();
-   temp.setColor(QPalette::Text, m_struSettings.colorText);
-   temp.setColor(QPalette::Base, m_struSettings.colorBack);
-   m_ui->sample->setPalette(temp);
+    //
+    QPalette temp;
+    temp = m_ui->sample->palette();
+    temp.setColor( QPalette::Text, m_settings.currentTheme().colorText() );
+    temp.setColor( QPalette::Base, m_settings.currentTheme().colorBack() );
+    m_ui->sample->setPalette( temp );
 }
 
-void Dialog_Colors::highText_TB()
+void Dialog_Colors::gutterText_TB()
 {
-   QColor color = m_struSettings.colorHighText;
-   m_struSettings.colorHighText = pickColor(color);
+    QColor color = m_settings.currentTheme().gutterText();
+    m_settings.currentTheme().set_gutterText( pickColor( color ) );
 
-   //
-   colorBox(m_ui->highText_Color, m_struSettings.colorHighText);
-   updateParser(true);
+    //
+    colorBox( m_ui->gutterText_Color, m_settings.currentTheme().gutterText() );
+    updateParser( true );
 }
 
-void Dialog_Colors::highBack_TB()
+void Dialog_Colors::gutterBack_TB()
 {
-   QColor color = m_struSettings.colorHighBack;
-   m_struSettings.colorHighBack = pickColor(color);
+    QColor color = m_settings.currentTheme().gutterBack();
+    m_settings.currentTheme().set_gutterBack( pickColor( color ) );
 
-   //
-   colorBox(m_ui->highBack_Color, m_struSettings.colorHighBack);
-   updateParser(true);
+    //
+    colorBox( m_ui->gutterBack_Color, m_settings.currentTheme().gutterBack() );
+    updateParser( true );
+}
+
+void Dialog_Colors::current_TB()
+{
+    QColor color = m_settings.currentTheme().currentLineBack();
+    m_settings.currentTheme().set_currentLineBack( pickColor( color ) );
+
+    //
+    colorBox( m_ui->current_Color, m_settings.currentTheme().currentLineBack() );
+    updateParser( true );
 }
 
 void Dialog_Colors::key_TB()
 {
-   QColor color = m_struSettings.syn_KeyText;
-   m_struSettings.syn_KeyText = pickColor(color);
+    QColor color = m_settings.currentTheme().syntaxKey().color();
+    m_settings.currentTheme().syntaxKey().set_color( pickColor( color ) );
 
-   //
-   colorBox(m_ui->key_Color, m_struSettings.syn_KeyText);
-   updateParser(true);
+    //
+    colorBox( m_ui->key_Color, m_settings.currentTheme().syntaxKey().color() );
+    updateParser( true );
 }
 
 void Dialog_Colors::type_TB()
 {
-   QColor color = m_struSettings.syn_TypeText;
-   m_struSettings.syn_TypeText = pickColor(color);
+    QColor color = m_settings.currentTheme().syntaxType().color();
+    m_settings.currentTheme().syntaxType().set_color( pickColor( color ) );
 
-   //
-   colorBox(m_ui->type_Color, m_struSettings.syn_TypeText);
-   updateParser(true);
+    //
+    colorBox( m_ui->type_Color, m_settings.currentTheme().syntaxType().color() );
+    updateParser( true );
 }
 
 void Dialog_Colors::class_TB()
 {
-   QColor color = m_struSettings.syn_ClassText;
-   m_struSettings.syn_ClassText = pickColor(color);
+    QColor color = m_settings.currentTheme().syntaxClass().color();
+    m_settings.currentTheme().syntaxClass().set_color( pickColor( color ) );
 
-   //
-   colorBox(m_ui->class_Color, m_struSettings.syn_ClassText);
-   updateParser(true);
+    //
+    colorBox( m_ui->class_Color, m_settings.currentTheme().syntaxClass().color() );
+    updateParser( true );
 }
 
 void Dialog_Colors::func_TB()
 {
-   QColor color = m_struSettings.syn_FuncText;
-   m_struSettings.syn_FuncText = pickColor(color);
+    QColor color = m_settings.currentTheme().syntaxFunc().color();
+    m_settings.currentTheme().syntaxFunc().set_color( pickColor( color ) );
 
-   //
-   colorBox(m_ui->func_Color, m_struSettings.syn_FuncText);
-   updateParser(true);
+    //
+    colorBox( m_ui->func_Color, m_settings.currentTheme().syntaxFunc().color() );
+    updateParser( true );
 }
 
 void Dialog_Colors::quote_TB()
 {
-   QColor color = m_struSettings.syn_QuoteText;
-   m_struSettings.syn_QuoteText = pickColor(color);
+    QColor color = m_settings.currentTheme().syntaxQuote().color();
+    m_settings.currentTheme().syntaxQuote().set_color( pickColor( color ) );
 
-   //
-   colorBox(m_ui->quote_Color, m_struSettings.syn_QuoteText);
-   updateParser(true);
+    //
+    colorBox( m_ui->quote_Color, m_settings.currentTheme().syntaxQuote().color() );
+    updateParser( true );
 }
 
 void Dialog_Colors::comment_TB()
 {
-   QColor color = m_struSettings.syn_CommentText;
-   m_struSettings.syn_CommentText = pickColor(color);
+    QColor color = m_settings.currentTheme().syntaxComment().color();
+    m_settings.currentTheme().syntaxComment().set_color( pickColor( color ) );
 
-   //
-   colorBox(m_ui->comment_Color, m_struSettings.syn_CommentText);
-   updateParser(true);
+    //
+    colorBox( m_ui->comment_Color, m_settings.currentTheme().syntaxComment().color() );
+    updateParser( true );
 }
 
 void Dialog_Colors::mline_TB()
 {
-   QColor color = m_struSettings.syn_MLineText;
-   m_struSettings.syn_MLineText = pickColor(color);
+    QColor color = m_settings.currentTheme().syntaxMLine().color();
+    m_settings.currentTheme().syntaxMLine().set_color( pickColor( color ) );
 
-   //
-   colorBox(m_ui->mline_Color, m_struSettings.syn_MLineText);
-   updateParser(true);
+    //
+    colorBox( m_ui->mline_Color, m_settings.currentTheme().syntaxMLine().color() );
+    updateParser( true );
+}
+
+void Dialog_Colors::const_TB()
+{
+    QColor color = m_settings.currentTheme().syntaxConstant().color();
+    m_settings.currentTheme().syntaxConstant().set_color( pickColor( color ) );
+
+    //
+    colorBox( m_ui->const_Color, m_settings.currentTheme().syntaxConstant().color() );
+    updateParser( true );
 }
 
 
 /**/
 void Dialog_Colors::key_bold()
 {
-   if(m_ui->key_Bold_CB->isChecked())  {
-      m_struSettings.syn_KeyWeight = QFont::Bold;
-   } else   {
-      m_struSettings.syn_KeyWeight = QFont::Normal;
-   }
+    QFont::Weight f = QFont::Normal;
 
-   updateParser(true);
+    if ( m_ui->key_Bold_CB->isChecked() )
+    {
+        f = QFont::Bold;
+    }
+
+    m_settings.currentTheme().syntaxKey().set_weight( f );
+    updateParser( true );
 }
 
 void Dialog_Colors::key_italic()
 {
-   if(m_ui->key_Italic_CB->isChecked())  {
-      m_struSettings.syn_KeyItalic = true;
-   } else   {
-      m_struSettings.syn_KeyItalic = false;
-   }
+    bool b = false;
 
-   updateParser(true);
+    if ( m_ui->key_Italic_CB->isChecked() )
+    {
+        b = true;
+    }
+
+    m_settings.currentTheme().syntaxKey().set_italic( b );
+
+    updateParser( true );
 }
 
 void Dialog_Colors::type_bold()
 {
-   if(m_ui->type_Bold_CB->isChecked())  {
-      m_struSettings.syn_TypeWeight = QFont::Bold;
-   } else   {
-      m_struSettings.syn_TypeWeight = QFont::Normal;
-   }
+    QFont::Weight f = QFont::Normal;
 
-   updateParser(true);
+    if ( m_ui->type_Bold_CB->isChecked() )
+    {
+        f = QFont::Normal;
+    }
+
+    m_settings.currentTheme().syntaxType().set_weight( f );
+    updateParser( true );
 }
 
 void Dialog_Colors::type_italic()
 {
-   if(m_ui->type_Italic_CB->isChecked())  {
-      m_struSettings.syn_TypeItalic = true;
-   } else   {
-      m_struSettings.syn_TypeItalic = false;
-   }
+    bool b = false;
 
-   updateParser(true);
+    if ( m_ui->type_Italic_CB->isChecked() )
+    {
+        b = true;
+    }
+
+    m_settings.currentTheme().syntaxType().set_italic( b );
+    updateParser( true );
 }
 
 void Dialog_Colors::class_bold()
 {
-   if(m_ui->class_Bold_CB->isChecked())  {
-      m_struSettings.syn_ClassWeight = QFont::Bold;
-   } else   {
-      m_struSettings.syn_ClassWeight = QFont::Normal;
-   }
+    QFont::Weight f = QFont::Normal;
 
-   updateParser(true);
+    if ( m_ui->class_Bold_CB->isChecked() )
+    {
+        f = QFont::Bold;
+    }
+
+    m_settings.currentTheme().syntaxClass().set_weight( f );
+    updateParser( true );
 }
 
 void Dialog_Colors::class_italic()
 {
-   if(m_ui->class_Italic_CB->isChecked())  {
-      m_struSettings.syn_ClassItalic = true;
-   } else   {
-      m_struSettings.syn_ClassItalic = false;
-   }
+    bool b = false;
 
-   updateParser(true);
+    if ( m_ui->class_Italic_CB->isChecked() )
+    {
+        b = true;
+    }
+
+    m_settings.currentTheme().syntaxClass().set_italic( b );
+    updateParser( true );
 }
 
 void Dialog_Colors::func_bold()
 {
-   if(m_ui->func_Bold_CB->isChecked())  {
-      m_struSettings.syn_FuncWeight = QFont::Bold;
-   } else   {
-      m_struSettings.syn_FuncWeight = QFont::Normal;
-   }
+    QFont::Weight f = QFont::Normal;
 
-   updateParser(true);;
+    if ( m_ui->func_Bold_CB->isChecked() )
+    {
+        f = QFont::Bold;
+    }
+
+    m_settings.currentTheme().syntaxFunc().set_weight( f );
+    updateParser( true );;
 }
 
 void Dialog_Colors::func_italic()
 {
-   if(m_ui->func_Italic_CB->isChecked())  {
-      m_struSettings.syn_FuncItalic = true;
-   } else   {
-      m_struSettings.syn_FuncItalic = false;
-   }
+    bool b = false;
 
-   updateParser(true);
+    if ( m_ui->func_Italic_CB->isChecked() )
+    {
+        b = true;
+    }
+
+    m_settings.currentTheme().syntaxFunc().set_italic( b );
+    updateParser( true );
 }
 
 void Dialog_Colors::quote_bold()
 {
-   if(m_ui->quote_Bold_CB->isChecked())  {
-      m_struSettings.syn_QuoteWeight = QFont::Bold;
-   } else   {
-      m_struSettings.syn_QuoteWeight = QFont::Normal;
-   }
+    QFont::Weight f = QFont::Normal;
 
-   updateParser(true);
+    if ( m_ui->quote_Bold_CB->isChecked() )
+    {
+        f = QFont::Bold;
+    }
+
+    m_settings.currentTheme().syntaxQuote().set_weight( f );
+    updateParser( true );
 }
 
 void Dialog_Colors::quote_italic()
 {
-   if(m_ui->quote_Italic_CB->isChecked())  {
-      m_struSettings.syn_QuoteItalic = true;
-   } else   {
-      m_struSettings.syn_QuoteItalic = false;
-   }
+    bool b = false;
 
-   updateParser(true);
+    if ( m_ui->quote_Italic_CB->isChecked() )
+    {
+        b = true;
+    }
+
+    m_settings.currentTheme().syntaxQuote().set_italic( b );
+    updateParser( true );
 }
 
 void Dialog_Colors::comment_bold()
 {
-   if(m_ui->comment_Bold_CB->isChecked())  {
-      m_struSettings.syn_CommentWeight = QFont::Bold;
-   } else   {
-      m_struSettings.syn_CommentWeight = QFont::Normal;
-   }
+    QFont::Weight f = QFont::Normal;
 
-   updateParser(true);
+    if ( m_ui->comment_Bold_CB->isChecked() )
+    {
+        f = QFont::Bold;
+    }
+
+    m_settings.currentTheme().syntaxComment().set_weight( f );
+    updateParser( true );
 }
 
 void Dialog_Colors::comment_italic()
 {
-   if(m_ui->comment_Italic_CB->isChecked())  {
-      m_struSettings.syn_CommentItalic = true;
-   } else   {
-      m_struSettings.syn_CommentItalic = false;
-   }
+    bool b = false;
 
-   updateParser(true);
+    if ( m_ui->comment_Italic_CB->isChecked() )
+    {
+        b = true;
+    }
+
+    m_settings.currentTheme().syntaxComment().set_italic( b );
+    updateParser( true );
 }
 
 void Dialog_Colors::mline_bold()
 {
-   if(m_ui->mline_Bold_CB->isChecked())  {
-      m_struSettings.syn_MLineWeight = QFont::Bold;
-   } else   {
-      m_struSettings.syn_MLineWeight = QFont::Normal;
-   }
+    QFont::Weight f = QFont::Normal;
 
-   updateParser(true);
+    if ( m_ui->mline_Bold_CB->isChecked() )
+    {
+        f = QFont::Bold;
+    }
+
+    m_settings.currentTheme().syntaxMLine().set_weight( f );
+    updateParser( true );
 }
 
 void Dialog_Colors::mline_italic()
 {
-   if(m_ui->mline_Italic_CB->isChecked())  {
-      m_struSettings.syn_MLineItalic = true;
-   } else   {
-      m_struSettings.syn_MLineItalic = false;
-   }
+    bool b = false;
 
-   updateParser(true);
+    if ( m_ui->mline_Italic_CB->isChecked() )
+    {
+        b = true;
+    }
+
+    m_settings.currentTheme().syntaxMLine().set_italic( b );
+    updateParser( true );
 }
 
 void Dialog_Colors::save()
 {
-   this->done(QDialog::Accepted);
+    this->done( QDialog::Accepted );
 }
 
 void Dialog_Colors::cancel()
 {
-   this->done(QDialog::Rejected);
+    this->done( QDialog::Rejected );
 }
 
-struct Settings Dialog_Colors::get_Colors()
+Settings &Dialog_Colors::get_Colors()
 {
-   return m_struSettings;
+    return m_settings;
 }

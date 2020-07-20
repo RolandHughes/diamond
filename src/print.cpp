@@ -14,6 +14,7 @@
 
 #include "mainwindow.h"
 #include "util.h"
+#include "non_gui_functions.h"
 
 #include <QDialog>
 #include <QFileInfo>
@@ -36,417 +37,475 @@ static const double SOURCE_DPI = 100.00;
 
 void MainWindow::print()
 {
-   QPrinter printer(QPrinter::HighResolution);
+    QPrinter printer( QPrinter::HighResolution );
 
-   QPrintDialog dialog(&printer, this);
-   dialog.setWindowTitle("Print Document");
+    QPrintDialog dialog( &printer, this );
+    dialog.setWindowTitle( "Print Document" );
 
-   if (m_textEdit->textCursor().hasSelection()) {
-      dialog.addEnabledOption(QAbstractPrintDialog::PrintSelection);
-   }
+    if ( m_textEdit->textCursor().hasSelection() )
+    {
+        dialog.addEnabledOption( QAbstractPrintDialog::PrintSelection );
+    }
 
-   if (dialog.exec() == QDialog::Accepted) {
-      this->printOut(&printer);
-   }
+    if ( dialog.exec() == QDialog::Accepted )
+    {
+        this->printOut( &printer );
+    }
 }
 
 void MainWindow::printPreview()
 {
-   // called from menu
-   QPrinter printer(QPrinter::HighResolution);
+    // called from menu
+    QPrinter printer( QPrinter::HighResolution );
 
-   QPrintPreviewDialog preview(&printer, this);
-   preview.setWindowTitle(m_curFile);
+    QPrintPreviewDialog preview( &printer, this );
+    preview.setWindowTitle( m_curFile );
 
-   connect(&preview, &QPrintPreviewDialog::paintRequested, this, &MainWindow::printOut);
-   preview.exec();
+    connect( &preview, &QPrintPreviewDialog::paintRequested, this, &MainWindow::printOut );
+    preview.exec();
 }
 
 void MainWindow::printPdf()
 {
-   QString outputName = QFileInfo(m_curFile).baseName() + ".pdf";
+    QString outputName = QFileInfo( m_curFile ).baseName() + ".pdf";
 
-   QString selectedFilter;
-   QFileDialog::Options options;
+    QString selectedFilter;
+    QFileDialog::Options options;
 
-   QString fileName = QFileDialog::getSaveFileName(this, tr("Print to PDF"),
-         outputName, tr("PDF File (*.pdf)"), &selectedFilter, options);
+    QString fileName = QFileDialog::getSaveFileName( this, tr( "Print to PDF" ),
+                       outputName, tr( "PDF File (*.pdf)" ), &selectedFilter, options );
 
-   if (! fileName.isEmpty()) {
+    if ( ! fileName.isEmpty() )
+    {
 
-      if (QFileInfo(fileName).suffix().isEmpty()) {
-         fileName.append(".pdf");
-      }
+        if ( QFileInfo( fileName ).suffix().isEmpty() )
+        {
+            fileName.append( ".pdf" );
+        }
 
-      QPrinter printer(QPrinter::HighResolution);
+        QPrinter printer( QPrinter::HighResolution );
 
-      printer.setOutputFormat(QPrinter::PdfFormat);
-      printer.setOutputFileName(fileName);
+        printer.setOutputFormat( QPrinter::PdfFormat );
+        printer.setOutputFileName( fileName );
 
-      this->printOut(&printer);
-   }
+        this->printOut( &printer );
+    }
 }
 
 
 // * *
-void MainWindow::printOut(QPrinter *printer)
+void MainWindow::printOut( QPrinter *printer )
 {
-   QTextDocument *td = new QTextDocument;
+    QTextDocument *td = new QTextDocument;
+    PrintSettings settings = m_settings.copyOfPrintSettings();
 
-/*
-   // consider this later one
-   if (m_ui->actionWord_Wrap->isChecked()) {
-      td->setWordWrapMode(QTextOption::WordWrap);
-   }
-*/
+    /*
+       // consider this later one
+       if (m_ui->actionWord_Wrap->isChecked()) {
+          td->setWordWrapMode(QTextOption::WordWrap);
+       }
+    */
 
-   QString html = "";
+    QString html = "";
 
-   if (m_printer.lineNumbers)  {
+    if ( settings.lineNumbers() )
+    {
 
-      QTextBlock block = m_textEdit->document()->firstBlock();
-      int blockNumber  = block.blockNumber();
+        QTextBlock block = m_textEdit->document()->firstBlock();
+        int blockNumber  = block.blockNumber();
 
-      html += "<html><head></head>";
-      html += "<body><table border='none' cellspacing='0' cellpadding='0'>";
+        html += "<html><head></head>";
+        html += "<body><table border='none' cellspacing='0' cellpadding='0'>";
 
-      while ( block.isValid() ) {
+        while ( block.isValid() )
+        {
 
-         html += "<tr>";
-         html += "<td  align='right' valign='middle'><b><font size='2'>" + QString::number(blockNumber + 1) + "</b></font></td>";
-         html += "<td> &nbsp;&nbsp; </td>";
-         html += "<td> " + this->convertBlockToHTML(block.text()) + "</td>";
-         html += "</tr>";
+            html += "<tr>";
+            html += "<td  align='right' valign='middle'><b><font size='2'>" + QString::number( blockNumber + 1 ) + "</b></font></td>";
+            html += "<td> &nbsp;&nbsp; </td>";
+            html += "<td> " + this->convertBlockToHTML( block.text(), m_settings.tabSpacing() ) + "</td>";
+            html += "</tr>";
 
-         block = block.next();
-         ++blockNumber;
-      }
+            block = block.next();
+            ++blockNumber;
+        }
 
-      html += "</table></body></html>";
+        html += "</table></body></html>";
 
-   }  else  {
-      html = Qt::convertFromPlainText(m_textEdit->toPlainText());
+    }
+    else
+    {
+        html = Qt::convertFromPlainText( m_textEdit->toPlainText() );
 
-   }
+    }
 
-   td->setHtml(html);
+    td->setHtml( html );
 
-   printer->setPaperSize(QPageSize::Letter);
-   printer->setPageMargins( QMarginsF{ m_printer.marLeft, m_printer.marTop,
-                           m_printer.marRight, m_printer.marBottom}, QPageSize::Inch);
+    printer->setPaperSize( QPageSize::Letter );
+    printer->setPageMargins( QMarginsF{ settings.marginLeft(), settings.marginTop(),
+                                        settings.marginRight(), settings.marginBottom()},
+                             QPageSize::Inch );
 
-   QPainter painter;
+    QPainter painter;
 
-   if (painter.begin(printer)) {
+    if ( painter.begin( printer ) )
+    {
 
-      m_resolution = printer->logicalDpiX();
+        m_resolution = printer->logicalDpiX();
 
-      painter.setViewport(printer->paperRect());
+        painter.setViewport( printer->paperRect() );
 
-      int winX = 8.5  * m_resolution;
-      int winY = 11.0 * m_resolution;
-      painter.setWindow(0, 0, winX, winY);
+        int winX = 8.5  * m_resolution;
+        int winY = 11.0 * m_resolution;
+        painter.setWindow( 0, 0, winX, winY );
 
-      td->documentLayout()->setPaintDevice(painter.device());
-      td->setDefaultFont(m_printer.fontText);
+        td->documentLayout()->setPaintDevice( painter.device() );
+        td->setDefaultFont( settings.fontText() );
 
-      // save printarea for header and footer
-      double xx = (8.5 - m_printer.marLeft - m_printer.marRight) * m_resolution;
-      double yy = (11.0 - m_printer.marTop - m_printer.marBottom) * m_resolution;
-      QRectF printArea = QRectF(0, 0, xx, yy);
+        // save printarea for header and footer
+        double xx = ( 8.5 - settings.marginLeft() - settings.marginRight() ) * m_resolution;
+        double yy = ( 11.0 - settings.marginTop() - settings.marginBottom() ) * m_resolution;
+        QRectF printArea = QRectF( 0, 0, xx, yy );
 
-      // between the header and the body, and the body and the footer
-      int spacer = m_printer.hdrGap * m_resolution;
+        // between the header and the body, and the body and the footer
+        int spacer = settings.headerGap() * m_resolution;
 
-      m_printArea = printArea;
+        m_printArea = printArea;
 
-      int headHeight = get_HeaderSize(&painter);
-      int footHeight = get_FooterSize(&painter);
+        int headHeight = get_HeaderSize( &painter );
+        int footHeight = get_FooterSize( &painter );
 
-      printArea.setTop(printArea.top() + headHeight + spacer);
-      printArea.setBottom(printArea.bottom() - (footHeight + spacer) );
+        printArea.setTop( printArea.top() + headHeight + spacer );
+        printArea.setBottom( printArea.bottom() - ( footHeight + spacer ) );
 
-      QRectF printableRect = QRectF(QPoint(0,0), printArea.size());
-      td->setPageSize(printableRect.size());
+        QRectF printableRect = QRectF( QPoint( 0,0 ), printArea.size() );
+        td->setPageSize( printableRect.size() );
 
-      m_pageNo    = 1;
-      m_pageCount = td->pageCount();
+        m_pageNo    = 1;
+        m_pageCount = td->pageCount();
 
-      // print header and footer
-      this->doHeader(&painter);
-      this->doFooter(&painter);
+        // print header and footer
+        this->doHeader( &painter );
+        this->doFooter( &painter );
 
-      int headerSpace = + headHeight + spacer;
+        int headerSpace = + headHeight + spacer;
 
-      for (int k = 1; k <= m_pageCount; ++k) {
+        for ( int k = 1; k <= m_pageCount; ++k )
+        {
 
-         painter.save();
+            painter.save();
 
-         // move the painter "down"
-         painter.translate(0, (printableRect.height() * (k-1) * (-1) ) + headerSpace);
+            // move the painter "down"
+            painter.translate( 0, ( printableRect.height() * ( k-1 ) * ( -1 ) ) + headerSpace );
 
-         // print one page worth of text
-         td->drawContents(&painter, printableRect);
-         m_pageNo++;
+            // print one page worth of text
+            td->drawContents( &painter, printableRect );
+            m_pageNo++;
 
-         // move the document "up"
-         printableRect.translate(0, printableRect.height());
+            // move the document "up"
+            printableRect.translate( 0, printableRect.height() );
 
-         painter.restore();
+            painter.restore();
 
-         if (k < m_pageCount) {
-            printer->newPage();
+            if ( k < m_pageCount )
+            {
+                printer->newPage();
 
-            this->doHeader(&painter);
-            this->doFooter(&painter);
-         }
-      }
+                this->doHeader( &painter );
+                this->doFooter( &painter );
+            }
+        }
 
-      painter.end();
-   }
+        painter.end();
+    }
 }
 
-int MainWindow::get_HeaderSize(QPainter *painter)
+int MainWindow::get_HeaderSize( QPainter *painter )
 {
-   if ( ! m_printer.printHeader) {
-      return 0;
-   }
+    PrintSettings settings = m_settings.copyOfPrintSettings();
 
-   painter->save();
-   painter->setFont(m_printer.fontHeader);
+    if ( ! settings.printHeader() )
+    {
+        return 0;
+    }
 
-   QString header = "Test line";
-   QRect rect     = painter->boundingRect(painter->window(), Qt::AlignLeft, header);
+    painter->save();
+    painter->setFont( settings.fontHeader() );
 
-   int size = rect.height();
+    QString header = "Test line";
+    QRect rect     = painter->boundingRect( painter->window(), Qt::AlignLeft, header );
 
-   if (! m_printer.header_line2.isEmpty()) {
-      size = size * 2;
-   }
+    int size = rect.height();
 
-   painter->restore();
+    if ( !settings.headerLine2().isEmpty() )
+    {
+        size = size * 2;
+    }
 
-   return size;
+    painter->restore();
+
+    return size;
 }
 
-int MainWindow::get_FooterSize(QPainter *painter)
+int MainWindow::get_FooterSize( QPainter *painter )
 {
-   if ( ! m_printer.printFooter) {
-      return 0;
-   }
+    PrintSettings settings = m_settings.copyOfPrintSettings();
 
-   painter->save();
-   painter->setFont(m_printer.fontFooter);
+    if ( ! settings.printFooter() )
+    {
+        return 0;
+    }
 
-   QString footer = "Test line";
-   QRect rect     = painter->boundingRect(painter->window(), Qt::AlignLeft, footer);
+    painter->save();
+    painter->setFont( settings.fontFooter() );
 
-   int size = rect.height();
+    QString footer = "Test line";
+    QRect rect     = painter->boundingRect( painter->window(), Qt::AlignLeft, footer );
 
-   if (! m_printer.footer_line2.isEmpty()) {
-      size = size * 2;
-   }
+    int size = rect.height();
 
-   painter->restore();
+    if ( ! settings.footerLine2().isEmpty() )
+    {
+        size = size * 2;
+    }
 
-   return size;;
+    painter->restore();
+
+    return size;;
 }
 
-void MainWindow::doHeader(QPainter *painter)
+void MainWindow::doHeader( QPainter *painter )
 {
-   if ( ! m_printer.printHeader) {
-      return;
-   }
+    PrintSettings settings = m_settings.copyOfPrintSettings();
 
-   QString header;
-   QRectF rect1;
-   QRectF rectBig =  m_printArea;
+    if ( ! settings.printHeader() )
+    {
+        return;
+    }
 
-   painter->save();
-   painter->setFont(m_printer.fontHeader);
+    QString header;
+    QRectF rect1;
+    QRectF rectBig =  m_printArea;
 
-   //
-   header = macroExpand(m_printer.header_left);
-   rect1  = painter->boundingRect(rectBig, Qt::AlignLeft, header);
-   painter->drawText(rect1, Qt::AlignLeft, header);
+    painter->save();
+    painter->setFont( settings.fontHeader() );
 
-   //
-   header = macroExpand(m_printer.header_center);
-   rect1  = painter->boundingRect(rectBig, Qt::AlignHCenter, header);
-   painter->drawText(rect1, Qt::AlignHCenter, header);
+    //
+    header = macroExpand( settings.headerLeft() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignLeft, header );
+    painter->drawText( rect1, Qt::AlignLeft, header );
 
-   //
-   header = macroExpand(m_printer.header_right);
-   rect1  = painter->boundingRect(rectBig, Qt::AlignRight, header);
-   painter->drawText(rect1, Qt::AlignRight, header);
+    //
+    header = macroExpand( settings.headerCenter() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignHCenter, header );
+    painter->drawText( rect1, Qt::AlignHCenter, header );
 
-   //
-   header = m_printer.header_line2;
+    //
+    header = macroExpand( settings.headerRight() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignRight, header );
+    painter->drawText( rect1, Qt::AlignRight, header );
 
-   if (header.isEmpty()) {
-      // line after header
-      painter->drawLine(rectBig.left(), rect1.bottom()+8, rectBig.right(), rect1.bottom()+8);
+    //
+    header = settings.headerLine2();
 
-   } else {
-      QRectF rect2 = rectBig;
-      rect2.translate(0, rect1.height());
+    if ( header.isEmpty() )
+    {
+        // line after header
+        painter->drawLine( rectBig.left(), rect1.bottom()+8, rectBig.right(), rect1.bottom()+8 );
 
-      rect2 = painter->boundingRect(rect2, Qt::AlignLeft, header);
-      painter->drawText(rect2, Qt::AlignLeft, header);
+    }
+    else
+    {
+        QRectF rect2 = rectBig;
+        rect2.translate( 0, rect1.height() );
 
-      // line after header
-      painter->drawLine(rectBig.left(), rect2.bottom()+8, rectBig.right(), rect2.bottom()+8);
-   }
+        rect2 = painter->boundingRect( rect2, Qt::AlignLeft, header );
+        painter->drawText( rect2, Qt::AlignLeft, header );
 
-   painter->restore();
+        // line after header
+        painter->drawLine( rectBig.left(), rect2.bottom()+8, rectBig.right(), rect2.bottom()+8 );
+    }
 
-   return;
+    painter->restore();
+
+    return;
 }
 
-void MainWindow::doFooter(QPainter *painter)
+void MainWindow::doFooter( QPainter *painter )
 {
-   if ( ! m_printer.printFooter) {
-      return;
-   }
+    PrintSettings settings = m_settings.copyOfPrintSettings();
 
-   QString footer;
-   QRectF rect1;
-   QRectF rectBig = m_printArea;
+    if ( ! settings.printFooter() )
+    {
+        return;
+    }
 
-   painter->save();
-   painter->setFont(m_printer.fontFooter);
+    QString footer;
+    QRectF rect1;
+    QRectF rectBig = m_printArea;
 
-   //
-   QString footer_L2 = footer = m_printer.footer_line2;
-   QRectF rect_L2;
+    painter->save();
+    painter->setFont( settings.fontFooter() );
 
-   if (! footer_L2.isEmpty()) {
-      rect_L2 = painter->boundingRect(rectBig, Qt::AlignLeft, footer_L2);
+    //
+    QString footer_L2 = footer = settings.footerLine2();
+    QRectF rect_L2;
 
-      rect_L2.translate(0, rectBig.height() - rect_L2.height());
-      painter->drawText(rect_L2, Qt::AlignLeft, footer_L2);
-   }
+    if ( ! footer_L2.isEmpty() )
+    {
+        rect_L2 = painter->boundingRect( rectBig, Qt::AlignLeft, footer_L2 );
 
-   //
-   footer = macroExpand(m_printer.footer_left);
-   rect1  = painter->boundingRect(rectBig, Qt::AlignLeft, footer);
+        rect_L2.translate( 0, rectBig.height() - rect_L2.height() );
+        painter->drawText( rect_L2, Qt::AlignLeft, footer_L2 );
+    }
 
-   rect1.translate(0, rectBig.height() - rect1.height() - rect_L2.height() );
-   painter->drawText(rect1, Qt::AlignLeft, footer);
+    //
+    footer = macroExpand( settings.footerLeft() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignLeft, footer );
 
-   //
-   footer = macroExpand(m_printer.footer_center);
-   rect1  = painter->boundingRect(rectBig, Qt::AlignHCenter, footer);
+    rect1.translate( 0, rectBig.height() - rect1.height() - rect_L2.height() );
+    painter->drawText( rect1, Qt::AlignLeft, footer );
 
-   rect1.translate(0, rectBig.height() - rect1.height() - rect_L2.height() );
-   painter->drawText(rect1, Qt::AlignHCenter, footer);
+    //
+    footer = macroExpand( settings.footerCenter() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignHCenter, footer );
 
-   //
-   footer = macroExpand(m_printer.footer_right);
-   rect1  = painter->boundingRect(rectBig, Qt::AlignRight, footer);
+    rect1.translate( 0, rectBig.height() - rect1.height() - rect_L2.height() );
+    painter->drawText( rect1, Qt::AlignHCenter, footer );
 
-   rect1.translate(0, rectBig.height() - rect1.height() - rect_L2.height() );
-   painter->drawText(rect1, Qt::AlignRight, footer);
+    //
+    footer = macroExpand( settings.footerRight() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignRight, footer );
 
-   // line before footer
-   painter->drawLine( rectBig.left(), rect1.top()-3, rectBig.right(), rect1.top()-3 );
+    rect1.translate( 0, rectBig.height() - rect1.height() - rect_L2.height() );
+    painter->drawText( rect1, Qt::AlignRight, footer );
 
-   painter->restore();
+    // line before footer
+    painter->drawLine( rectBig.left(), rect1.top()-3, rectBig.right(), rect1.top()-3 );
 
-   return;
+    painter->restore();
+
+    return;
 }
 
-QString MainWindow::macroExpand(QString data)
+QString MainWindow::macroExpand( QString data )
 {
-   QString macro;
-   QString text;
+    QString macro;
+    QString text;
 
-   int begin;
-   int end;
+    int begin;
+    int end;
 
-   while (true)  {
+    while ( true )
+    {
 
-      begin = data.indexOf("$(");
+        begin = data.indexOf( "$(" );
 
-      if (begin == -1)  {
-         break;
-      }
+        if ( begin == -1 )
+        {
+            break;
+        }
 
-      end = data.indexOf(")", begin);
+        end = data.indexOf( ")", begin );
 
-      if (end == -1)  {
-         data = data.replace(begin, 2, "");
-         continue;
-      }
+        if ( end == -1 )
+        {
+            data = data.replace( begin, 2, "" );
+            continue;
+        }
 
-      macro = data.mid(begin, end-begin+1);
-      text  = "";
+        macro = data.mid( begin, end-begin+1 );
+        text  = "";
 
-      if (macro == "$(FileName)") {
-         text = strippedName(m_curFile);
+        if ( macro == "$(FileName)" )
+        {
+            text = strippedName( m_curFile );
 
-      } else if (macro == "$(PathFileName)") {
-         text = m_curFile;
+        }
+        else if ( macro == "$(PathFileName)" )
+        {
+            text = m_curFile;
 
-      } else if (macro == "$(PageNo)") {
-         text = QString::number(m_pageNo);
+        }
+        else if ( macro == "$(PageNo)" )
+        {
+            text = QString::number( m_pageNo );
 
-      } else if (macro == "$(TotalPages)") {
-         text = QString::number(m_pageCount);
+        }
+        else if ( macro == "$(TotalPages)" )
+        {
+            text = QString::number( m_pageCount );
 
-      } else if (macro == "$(Date)") {
-         QDate date   = QDate::currentDate();
-         text= date.toString(m_struct.formatDate);
+        }
+        else if ( macro == "$(Date)" )
+        {
+            QDate date   = QDate::currentDate();
+            text= date.toString( m_settings.formatDate() );
 
-      } else if (macro == "$(Time)") {
-         QTime time   = QTime::currentTime();
-         text = time.toString(m_struct.formatTime);
+        }
+        else if ( macro == "$(Time)" )
+        {
+            QTime time   = QTime::currentTime();
+            text = time.toString( m_settings.formatTime() );
 
-      }
+        }
 
-      data = data.replace(begin, end-begin+1, text);
-   }
+        data = data.replace( begin, end-begin+1, text );
+    }
 
-   return data;
+    return data;
 }
 
-QString MainWindow::convertBlockToHTML(const QString &plain) const
+QString MainWindow::convertBlockToHTML( const QString &plain, int tabSpacing ) const
 {
-   int col = 0;
-   QString retval;
+    int col = 0;
+    QString retval;
 
-   for (QChar c : plain) {
+    for ( QChar c : plain )
+    {
 
-      if (c == '\t')  {
-         retval.append(QChar(0x00A0));
-         ++col;
-
-         while (col % m_struct.tabSpacing) {
-            retval.append(QChar(0x00A0));
+        if ( c == '\t' )
+        {
+            retval.append( QChar( 0x00A0 ) );
             ++col;
-         }
 
-      } else if (c.isSpace()) {
-         retval.append(QChar(0x00A0));
+            while ( col % tabSpacing )
+            {
+                retval.append( QChar( 0x00A0 ) );
+                ++col;
+            }
 
-      } else if (c == '<') {
-         retval.append("&lt;");
+        }
+        else if ( c.isSpace() )
+        {
+            retval.append( QChar( 0x00A0 ) );
 
-      } else if (c == '>')  {
-         retval.append("&gt;");
+        }
+        else if ( c == '<' )
+        {
+            retval.append( "&lt;" );
 
-      } else if (c == '&')  {
-         retval.append("&amp;");
+        }
+        else if ( c == '>' )
+        {
+            retval.append( "&gt;" );
 
-      } else  {
-         retval.append(c);
+        }
+        else if ( c == '&' )
+        {
+            retval.append( "&amp;" );
 
-      }
+        }
+        else
+        {
+            retval.append( c );
 
-      ++col;
-   }
+        }
 
-   return retval;
+        ++col;
+    }
+
+    return retval;
 }
 
 
