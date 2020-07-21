@@ -27,6 +27,8 @@ public:
     Themes( const Themes &theme );
 
     Themes &operator = ( const Themes &theme );
+    friend bool operator ==( const Themes &left, const Themes &right );
+    friend bool operator !=( const Themes &left, const Themes &right );
 
     //
     // getters
@@ -50,6 +52,7 @@ public:
     //
     // setters
     //
+    void set_protection( bool yesNo )                 { m_protected = yesNo;}
     void set_colorText( QColor color )                { m_colorText = color;}
     void set_colorBack( QColor color )                { m_colorBack = color;}
     void set_gutterText( QColor color )               { m_gutterText = color;}

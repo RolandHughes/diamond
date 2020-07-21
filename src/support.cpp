@@ -112,18 +112,6 @@ void MainWindow::closeEvent( QCloseEvent *event )
     }
 }
 
-void MainWindow::changeFont()
-{
-    if ( m_textEdit->get_ColumnMode() )
-    {
-        m_textEdit->setFont( m_settings.fontColumn() );
-    }
-    else
-    {
-        m_textEdit->setFont( m_settings.fontNormal() );
-    }
-}
-
 void MainWindow::documentWasModified()
 {
     bool isModified;

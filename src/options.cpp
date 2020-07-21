@@ -159,3 +159,81 @@ Options &Options::operator =( const Options &opt )
     return *this;
 }
 
+bool operator ==(const Options& left, const Options& right)
+{
+    bool retVal = false;
+
+    if (left.m_rewrapColumn != right.m_rewrapColumn)
+    {
+        retVal = false;
+    }
+
+    if (left.m_tabSpacing != right.m_tabSpacing)
+    {
+        retVal = false;
+    }
+
+    if (left.m_useSpaces != right.m_useSpaces)
+    {
+        retVal = false;
+    }
+
+    if (left.m_removeSpaces != right.m_removeSpaces)
+    {
+        retVal = false;
+    }
+
+    if (left.m_autoLoad != right.m_autoLoad)
+    {
+        retVal = false;
+    }
+
+    if (left.m_autoDetect != right.m_autoDetect)
+    {
+        retVal = false;
+    }
+
+    if (left.m_formatDate != right.m_formatDate)
+    {
+        retVal = false;
+    }
+
+    if (left.m_formatTime != right.m_formatTime)
+    {
+        retVal = false;
+    }
+
+    if (left.m_mainDictionary != right.m_mainDictionary)
+    {
+        retVal = false;
+    }
+
+    if (left.m_userDictionary != right.m_userDictionary)
+    {
+        retVal = false;
+    }
+
+    if (left.m_syntaxPath != right.m_syntaxPath)
+    {
+        retVal = false;
+    }
+
+    if (left.m_aboutUrl != right.m_aboutUrl)
+    {
+        retVal = false;
+    }
+
+    return retVal;
+}
+
+bool operator !=(const Options& left, const Options& right)
+{
+    bool retVal = true;
+
+    if (left == right)
+    {
+        retVal = false;
+    }
+
+    return retVal;
+}

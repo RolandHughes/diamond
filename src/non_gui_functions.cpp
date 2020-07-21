@@ -88,3 +88,11 @@ QString getRGBString( QColor color )
 
     return values;
 }
+
+bool doubleEqualFourDigits( double left, double right)
+{
+    long long ll_left = left * 10000;
+    long long ll_right = right * 10000;
+
+    return (ll_left == ll_right);
+}

@@ -3,7 +3,6 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
 *) Need dialogs for copy/delete theme buttons
     If deleted theme is current theme change to "Classic" theme. "Classic" theme
     cannot be deleted.
-    Rename "Default" theme to "Classic"
 
 *) Load needs to actually load the new fields.
 

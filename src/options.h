@@ -30,8 +30,10 @@ public:
     Options( const Options &opt );
 
     Options &operator = ( const Options &opt );
-    const QString STANDARD_KEYS = "STANDARD";
-    const QString EDT_KEYS = "EDT";
+
+    friend bool operator ==( const Options &left, const Options &right );
+    friend bool operator !=( const Options &left, const Options &right );
+    
     //
     // getters
     //

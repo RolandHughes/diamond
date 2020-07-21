@@ -149,6 +149,312 @@ KeyDefinitions &KeyDefinitions::operator =( const KeyDefinitions &def )
     return *this;
 }
 
+bool operator ==( const KeyDefinitions &left, const KeyDefinitions &right )
+{
+    bool retVal = true;
+
+    if ( left.m_close != right.m_close )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_columnMode != right.m_columnMode )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_copy != right.m_copy )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_copyBuffer != right.m_copyBuffer )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_cut != right.m_cut )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_deleteLine != right.m_deleteLine )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_deleteThroughEOL != right.m_deleteThroughEOL )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_deleteToEOL != right.m_deleteToEOL )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_find != right.m_find )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_findNext != right.m_findNext )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_findPrev != right.m_findPrev )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_goBottom != right.m_goBottom )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_goTop != right.m_goTop )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_gotoLine != right.m_gotoLine )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_indentDecrement != right.m_indentDecrement )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_indentIncrement != right.m_indentIncrement )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_lower != right.m_lower )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_macroPlay != right.m_macroPlay )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_newTab != right.m_newTab )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_open != right.m_open )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_paste != right.m_paste )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_print != right.m_print )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_printPreview != right.m_printPreview )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_redo != right.m_redo )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_reload != right.m_reload )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_replace != right.m_replace )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_save != right.m_save )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_saveAs != right.m_saveAs )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_selectAll != right.m_selectAll )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_selectBlock != right.m_selectBlock )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_selectLine != right.m_selectLine )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_selectWord != right.m_selectWord )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_showBreaks != right.m_showBreaks )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_showSpaces != right.m_showSpaces )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_spellCheck != right.m_spellCheck )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_undo != right.m_undo )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_upper != right.m_upper )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtEnabled != right.m_edtEnabled )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtDeleteWord != right.m_edtDeleteWord )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtGold != right.m_edtGold )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtHelp != right.m_edtHelp )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtFindNext != right.m_edtFindNext )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtDeleteLine != right.m_edtDeleteLine )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtPage != right.m_edtPage )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtSection != right.m_edtSection )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtAppend != right.m_edtAppend )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtDeleteChar != right.m_edtDeleteChar )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtAdvance != right.m_edtAdvance )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtBackup != right.m_edtBackup )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtCut != right.m_edtCut )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtWord != right.m_edtWord )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtEOL != right.m_edtEOL )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtChar != right.m_edtChar )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtLine != right.m_edtLine )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtSelect != right.m_edtSelect )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtEnter != right.m_edtEnter )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtGotoLine != right.m_edtGotoLine )
+    {
+        retVal = false;
+    }
+
+    return retVal;
+
+}
+
+bool operator !=( const KeyDefinitions &left, const KeyDefinitions &right )
+{
+    bool retVal = true;
+
+    if ( left == right )
+    {
+        retVal = false;
+    }
+
+    return retVal;
+}
+
+
 void KeyDefinitions::setDefaultKeyValues()
 {
     qDebug() << "setDefaultKeyValues() called";

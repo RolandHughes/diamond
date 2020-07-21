@@ -254,6 +254,15 @@ void Dialog_Colors::copyClicked()
 
 void Dialog_Colors::deleteClicked()
 {
+    qDebug() << "Theme: " << m_settings.currentTheme().name() << "  protected: "
+             << m_settings.currentTheme().isProtected();
+    if (m_settings.currentTheme().isProtected())
+    {
+        int rsp = QMessageBox::warning(this, "Delete", "Cannot delete pre-installed theme",
+                                       QMessageBox::Ok);
+        return;
+    }
+    
     int btn = QMessageBox::question(this, "Confirm Deletion", "Really delete selected theme?",
                                     QMessageBox::Yes, QMessageBox::No);
     if (btn == QMessageBox::Yes)
@@ -268,12 +277,14 @@ void Dialog_Colors::exportClicked()
 {
     // TODO:: Need to use file choose to obtain destination name
     //        Also need to add export function to settings
+    int btn = QMessageBox::information(this, "Export", "Not yet implemented", QMessageBox::Ok);
 }
 
 void Dialog_Colors::importClicked()
 {
     // TODO:: Need to use file choose to obtain input file name
     //        Also need to add import function to settings
+    int btn = QMessageBox::information(this, "Import", "Not yet implemented", QMessageBox::Ok);
 }
 
 void Dialog_Colors::updateParser( bool newSettings )

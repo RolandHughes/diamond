@@ -162,6 +162,227 @@ Settings &Settings::operator =( const Settings &other )
     return *this;
 }
 
+bool operator ==( const Settings &left, const Settings &right )
+{
+    bool retVal = true;
+
+    if ( left.m_advancedFCase != right.m_advancedFCase )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_advancedFSearchFolders != right.m_advancedFSearchFolders )
+    {
+        retVal = false;
+    }
+    
+    if (left.m_advancedFWholeWords != right.m_advancedFWholeWords)
+    {
+        retVal = false;
+    }
+
+    if (left.m_findCase != right.m_findCase)
+    {
+        retVal = false;
+    }
+
+    if (left.m_findDirection != right.m_findDirection)
+    {
+        retVal = false;
+    }
+
+    if (left.m_findWholeWords != right.m_findWholeWords)
+    {
+        retVal = false;
+    }
+
+    // skip testing "flag" members as they are command line only
+    //
+    if (left.m_isColumnMode != right.m_isColumnMode)
+    {
+        retVal = false;
+    }
+
+    if (left.m_isComplete != right.m_isComplete)
+    {
+        retVal = false;
+    }
+
+    if (left.m_isSpellCheck != right.m_isSpellCheck)
+    {
+        retVal = false;
+    }
+
+    if (left.m_isWordWrap != right.m_isWordWrap)
+    {
+        retVal = false;
+    }
+
+    if (left.m_showBreaks != right.m_showBreaks)
+    {
+        retVal = false;
+    }
+
+    if (left.m_showLineHighlight != right.m_showLineHighlight)
+    {
+        retVal = false;
+    }
+
+    if (left.m_showLineNumbers != right.m_showLineNumbers)
+    {
+        retVal = false;
+    }
+
+    if (left.m_showSpaces != right.m_showSpaces)
+    {
+        retVal = false;
+    }
+
+    if (left.m_activeTheme != right.m_activeTheme)
+    {
+        retVal = false;
+    }
+
+    if (left.m_advancedFindFileType != right.m_advancedFindFileType)
+    {
+        retVal = false;
+    }
+
+    if (left.m_advancedFindFolder != right.m_advancedFindFolder)
+    {
+        retVal = false;
+    }
+
+    if (left.m_advancedFindText != right.m_advancedFindText)
+    {
+        retVal = false;
+    }
+
+    if (left.m_appPath != right.m_appPath)
+    {
+        retVal = false;
+    }
+
+    if (left.m_configFileName != right.m_configFileName)
+    {
+        retVal = false;
+    }
+
+    if (left.m_findText != right.m_findText)
+    {
+        retVal = false;
+    }
+
+    if (left.m_priorPath != right.m_priorPath)
+    {
+        retVal = false;
+    }
+
+    if (left.m_replaceText != right.m_replaceText)
+    {
+        retVal = false;
+    }
+
+    if (left.m_findList != right.m_findList)
+    {
+        retVal = false;
+    }
+
+    if (left.m_macroNames != right.m_macroNames)
+    {
+        retVal = false;
+    }
+
+    if (left.m_openedFiles != right.m_openedFiles)
+    {
+        retVal = false;
+    }
+
+    if (left.m_preFolderList != right.m_preFolderList)
+    {
+        retVal = false;
+    }
+
+    if (left.m_rFolderList != right.m_rFolderList)
+    {
+        retVal = false;
+    }
+
+    if (left.m_replaceList != right.m_replaceList)
+    {
+        retVal = false;
+    }
+
+    if (left.m_recentFilesList != right.m_recentFilesList)
+    {
+        retVal = false;
+    }
+
+    if (left.m_fontColumn != right.m_fontColumn)
+    {
+        retVal = false;
+    }
+
+    if (left.m_fontNormal != right.m_fontNormal)
+    {
+        retVal = false;
+    }
+
+    if (left.m_lastPosition != right.m_lastPosition)
+    {
+        retVal = false;
+    }
+
+    if (left.m_lastPosition != right.m_lastPosition)
+    {
+        retVal = false;
+    }
+
+    if (left.m_lastSize != right.m_lastSize)
+    {
+        retVal = false;
+    }
+
+    if (left.m_openedModified != right.m_openedModified)
+    {
+        retVal = false;
+    }
+
+    if (left.m_findFlags != right.m_findFlags)
+    {
+        retVal = false;
+    }
+
+    if (left.m_options != right.m_options)
+    {
+        retVal = false;
+    }
+
+    if (left.m_themes != right.m_themes)
+    {
+        retVal = false;
+    }
+
+    if (left.m_printSettings != right.m_printSettings)
+    {
+        retVal = false;
+    }
+    
+    return retVal;
+}
+
+bool operator !=( const Settings &left, const Settings &right )
+{
+    bool retVal = true;
+
+    if (left == right)
+    {
+        retVal = false;
+    }
+
+    return retVal;
+}
+
 void Settings::copyTheme( QString name, QString dest )
 {
     if ( themeNameExists( name ) )
@@ -170,6 +391,7 @@ void Settings::copyTheme( QString name, QString dest )
         {
             Themes tempTheme = m_themes[name];
             m_themes[dest] = tempTheme;
+            m_themes[dest].set_protection( false );
             m_activeTheme = dest;       // TODO:: Need to refresh display
         }
         else
@@ -549,6 +771,7 @@ void Settings::createThemeArray( QJsonObject &object )
         QJsonObject arrayElement;
 
         arrayElement.insert( "theme-name", theme.name() );
+        arrayElement.insert( "theme-protected", theme.isProtected() );
         arrayElement.insert( "theme-color-text", getRGBString( theme.colorText() ) );
         arrayElement.insert( "theme-color-back", getRGBString( theme.colorBack() ) );
         arrayElement.insert( "theme-color-gutterText", getRGBString( theme.gutterText() ) );
@@ -593,7 +816,7 @@ void Settings::createThemeArray( QJsonObject &object )
         list.replace( 0, theme.syntaxConstant().weight() );
         list.replace( 1, theme.syntaxConstant().italic() );
         list.replace( 2, getRGBString( theme.syntaxConstant().color() ) );
-        arrayElement.insert( "theme-syntax-mline", list );
+        arrayElement.insert( "theme-syntax-constant", list );
 
         themeArray.append( arrayElement );
     }

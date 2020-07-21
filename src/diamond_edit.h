@@ -139,6 +139,9 @@ protected:
     void mousePressEvent( QMouseEvent *event );
 
 private:
+    void setScreenColors();
+    void changeFont();
+    
     QWidget *m_lineNumArea;
     Settings m_settings;
     QString m_curFile; // TODO:: need to set this each time file opened

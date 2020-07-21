@@ -180,7 +180,6 @@ void MainWindow::tabNew()
     int index = m_tabWidget->addTab( m_textEdit, "untitled.txt" );
     m_tabWidget->setCurrentIndex( index );
 
-    setScreenColors();
     int tmp = m_textEdit->fontMetrics().width( " " );
     m_textEdit->setTabStopWidth( tmp * m_settings.tabSpacing() );
 
@@ -412,17 +411,6 @@ void MainWindow::about()
     msgB.setDefaultButton( QMessageBox::Ok );
 
     msgB.exec();
-}
-
-// connections, displays, toolbar
-void MainWindow::setScreenColors()
-{
-    changeFont();
-
-    QPalette tmp = m_textEdit->palette();
-    tmp.setColor( QPalette::Text, m_settings.currentTheme().colorText() );
-    tmp.setColor( QPalette::Base, m_settings.currentTheme().colorBack() );
-    m_textEdit->setPalette( tmp );
 }
 
 void MainWindow::createConnections()
@@ -903,7 +891,6 @@ void MainWindow::setFont()
         m_settings.set_fontColumn( dw->get_fontColumn() );
 
         saveAndBroadcastSettings();
-        changeFont();   // TODO:: this should be in DiamondTextEdit class
     }
 
     delete dw;

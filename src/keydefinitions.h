@@ -24,6 +24,9 @@ public:
     KeyDefinitions( const KeyDefinitions &def );
 
     KeyDefinitions &operator =( const KeyDefinitions &def );
+    
+    friend bool operator ==( const KeyDefinitions &left, const KeyDefinitions &right );
+    friend bool operator !=( const KeyDefinitions &left, const KeyDefinitions &right );
 
     void setDefaultKeyValues();
     void platformAdjustKeyValues();

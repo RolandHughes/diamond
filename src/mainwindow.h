@@ -60,8 +60,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow( QStringList fileList, QStringList flagList );
 
-    // fonts
-    void changeFont();
 
     // indent
     void indentIncr( QString route );
@@ -205,8 +203,6 @@ private:
     void openDoc( QString path );
     bool closeAll_Doc( bool isExit );
     void save_ConfigFile();
-
-    void setScreenColors();
 
     // create shortcuts, menus, status bar
     void createShortCuts( bool setupAll );

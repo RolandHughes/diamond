@@ -55,6 +55,8 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, Settings &settings, QString o
 
     createSpellCheck();
     setUpTabStops();
+    setScreenColors();
+    changeFont();
 }
 
 DiamondTextEdit::~DiamondTextEdit()
@@ -314,9 +316,8 @@ void DiamondTextEdit::set_Spell( bool value )
 void DiamondTextEdit::set_ColumnMode( bool yesNo )
 {
     m_settings.set_isColumnMode( yesNo);
-    // TODO:: changeFont() needs to move here
-    //m_mainWindow->changeFont();
-
+    changeFont();
+    
     // leaving column mode
     if ( ! m_settings.isColumnMode() )
     {
@@ -2034,7 +2035,28 @@ void DiamondTextEdit::changeSettings( Settings &settings )
     m_settings = settings;
     setUpTabStops();
     setSyntax();
+    // TODO:: need to test for theme change
+    setScreenColors();
+    changeFont();
     update();
 }
 
+void DiamondTextEdit::setScreenColors()
+{
+    QPalette tmp = palette();
+    tmp.setColor( QPalette::Text, m_settings.currentTheme().colorText() );
+    tmp.setColor( QPalette::Base, m_settings.currentTheme().colorBack() );
+    setPalette( tmp );
+}    
 
+void DiamondTextEdit::changeFont()
+{
+    if ( get_ColumnMode() )
+    {
+        setFont( m_settings.fontColumn() );
+    }
+    else
+    {
+        setFont( m_settings.fontNormal() );
+    }
+}    

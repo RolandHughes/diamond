@@ -41,6 +41,9 @@ public:
     Settings( const Settings &other );
 
     Settings &operator =( const Settings &other );
+    
+    friend bool operator ==( const Settings &left, const Settings &right );
+    friend bool operator !=( const Settings &left, const Settings &right );
 
     void copyTheme( QString name, QString dest );
     void deleteTheme( QString name );
@@ -213,8 +216,8 @@ public:
     CS_SIGNAL_2( Resize, size )
 
 private:
-    void trimBackups(QString path);
-    void createThemeArray( QJsonObject& object );
+    void trimBackups( QString path );
+    void createThemeArray( QJsonObject &object );
 
     bool m_advancedFCase;
     bool m_advancedFSearchFolders;

@@ -27,6 +27,9 @@ public:
 
     TextAttributes &operator = ( const TextAttributes &attr );
 
+    friend bool operator ==( const TextAttributes &left, const TextAttributes &right );
+    friend bool operator !=( const TextAttributes &left, const TextAttributes &right );
+    
     //
     // getters
     //

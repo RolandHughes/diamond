@@ -12,6 +12,7 @@
 *
 ***************************************************************************/
 #include "printsettings.h"
+#include "non_gui_functions.h"
 
 PrintSettings::PrintSettings() :
     m_lineNumbers(true)
@@ -85,4 +86,119 @@ PrintSettings& PrintSettings::operator =(const PrintSettings& other)
     }
 
     return *this;
+}
+
+bool operator ==(const PrintSettings& left, const PrintSettings& right)
+{
+    bool retVal = true;
+
+    if (left.m_lineNumbers != right.m_lineNumbers)
+    {
+        retVal = false;
+    }
+
+    if (left.m_printHeader != right.m_printHeader)
+    {
+        retVal = false;
+    }
+
+    if (left.m_printFooter != right.m_printFooter)
+    {
+        retVal = false;
+    }
+
+    if (left.m_headerLeft != right.m_headerLeft)
+    {
+        retVal = false;
+    }
+
+    if (left.m_headerCenter != right.m_headerCenter)
+    {
+        retVal = false;
+    }
+
+    if (left.m_headerRight != right.m_headerRight)
+    {
+        retVal = false;
+    }
+
+    if (left.m_headerLine2 != right.m_headerLine2)
+    {
+        retVal = false;
+    }
+
+    if (left.m_footerLeft != right.m_footerLeft)
+    {
+        retVal = false;
+    }
+
+    if (left.m_footerCenter != right.m_footerCenter)
+    {
+        retVal = false;
+    }
+
+    if (left.m_footerRight != right.m_footerRight)
+    {
+        retVal = false;
+    }
+
+    if (left.m_footerLine2 != right.m_footerLine2)
+    {
+        retVal = false;
+    }
+
+    if (!doubleEqualFourDigits(left.m_marginLeft, right.m_marginLeft))
+    {
+        retVal = false;
+    }
+
+    if (!doubleEqualFourDigits(left.m_marginTop, right.m_marginTop))
+    {
+        retVal = false;
+    }
+
+    if (!doubleEqualFourDigits(left.m_marginRight, right.m_marginRight))
+    {
+        retVal = false;
+    }
+
+    if (!doubleEqualFourDigits(left.m_marginBottom, right.m_marginBottom))
+    {
+        retVal = false;
+    }
+
+    if (!doubleEqualFourDigits(left.m_headerGap, right.m_headerGap))
+    {
+        retVal = false;
+    }
+
+    if (left.m_fontHeader != right.m_fontHeader)
+    {
+        retVal = false;
+    }
+
+    if (left.m_fontFooter != right.m_fontFooter)
+    {
+        retVal = false;
+    }
+
+    if (left.m_fontText != right.m_fontText)
+    {
+        retVal = false;
+    }
+
+    return retVal;
+
+}
+
+bool operator !=(const PrintSettings& left, const PrintSettings& right)
+{
+    bool retVal = true;
+
+    if (left == right)
+    {
+        retVal = false;
+    }
+
+    return retVal;
 }
