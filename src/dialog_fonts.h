@@ -28,9 +28,6 @@ class Dialog_Fonts : public QDialog
       Dialog_Fonts(QFont normal, QFont column);
       ~Dialog_Fonts();
 
-      QFont get_fontNormal();
-      QFont get_fontColumn();
-
    private:
       Ui::Dialog_Fonts *m_ui;
       QFont m_fontNormal;

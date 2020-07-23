@@ -22,14 +22,13 @@
 #include <QTableView>
 
 Dialog_Macro::Dialog_Macro( MainWindow *parent, MacroEnum enumValue, QStringList macroIds,
-                            QStringList macroNames, Settings &settings )
+                            QStringList macroNames)
     : QDialog( parent )
     , m_ui( new Ui::Dialog_Macro )
     , m_parent( parent )
     , m_enum( enumValue )
     , m_macroIds_D( macroIds )
     , m_macroNames_D( macroNames )
-    , m_settings( settings )
 {
     m_ui->setupUi( this );
     this->setWindowIcon( QIcon( "://resources/diamond.png" ) );
@@ -144,7 +143,7 @@ void Dialog_Macro::select()
             m_macroNames_D.replace( row, data );
         }
 
-        m_settings.json_Save_MacroNames( m_macroNames_D );
+        Overlord::getInstance()->set_macroNames( m_macroNames_D );
     }
 
     this->done( QDialog::Accepted );
@@ -162,7 +161,7 @@ void Dialog_Macro::view()
 
     // get the macro
     QList<macroStruct> data;
-    data = m_settings.json_View_Macro( macro );
+    data = Overlord::getInstance()->viewMacro( macro );
 
     QString msg = "<table style=margin-right:35>";
 

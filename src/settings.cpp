@@ -175,199 +175,199 @@ bool operator ==( const Settings &left, const Settings &right )
     {
         retVal = false;
     }
-    
-    if (left.m_advancedFWholeWords != right.m_advancedFWholeWords)
+
+    if ( left.m_advancedFWholeWords != right.m_advancedFWholeWords )
     {
         retVal = false;
     }
 
-    if (left.m_findCase != right.m_findCase)
+    if ( left.m_findCase != right.m_findCase )
     {
         retVal = false;
     }
 
-    if (left.m_findDirection != right.m_findDirection)
+    if ( left.m_findDirection != right.m_findDirection )
     {
         retVal = false;
     }
 
-    if (left.m_findWholeWords != right.m_findWholeWords)
+    if ( left.m_findWholeWords != right.m_findWholeWords )
     {
         retVal = false;
     }
 
     // skip testing "flag" members as they are command line only
     //
-    if (left.m_isColumnMode != right.m_isColumnMode)
+    if ( left.m_isColumnMode != right.m_isColumnMode )
     {
         retVal = false;
     }
 
-    if (left.m_isComplete != right.m_isComplete)
+    if ( left.m_isComplete != right.m_isComplete )
     {
         retVal = false;
     }
 
-    if (left.m_isSpellCheck != right.m_isSpellCheck)
+    if ( left.m_isSpellCheck != right.m_isSpellCheck )
     {
         retVal = false;
     }
 
-    if (left.m_isWordWrap != right.m_isWordWrap)
+    if ( left.m_isWordWrap != right.m_isWordWrap )
     {
         retVal = false;
     }
 
-    if (left.m_showBreaks != right.m_showBreaks)
+    if ( left.m_showBreaks != right.m_showBreaks )
     {
         retVal = false;
     }
 
-    if (left.m_showLineHighlight != right.m_showLineHighlight)
+    if ( left.m_showLineHighlight != right.m_showLineHighlight )
     {
         retVal = false;
     }
 
-    if (left.m_showLineNumbers != right.m_showLineNumbers)
+    if ( left.m_showLineNumbers != right.m_showLineNumbers )
     {
         retVal = false;
     }
 
-    if (left.m_showSpaces != right.m_showSpaces)
+    if ( left.m_showSpaces != right.m_showSpaces )
     {
         retVal = false;
     }
 
-    if (left.m_activeTheme != right.m_activeTheme)
+    if ( left.m_activeTheme != right.m_activeTheme )
     {
         retVal = false;
     }
 
-    if (left.m_advancedFindFileType != right.m_advancedFindFileType)
+    if ( left.m_advancedFindFileType != right.m_advancedFindFileType )
     {
         retVal = false;
     }
 
-    if (left.m_advancedFindFolder != right.m_advancedFindFolder)
+    if ( left.m_advancedFindFolder != right.m_advancedFindFolder )
     {
         retVal = false;
     }
 
-    if (left.m_advancedFindText != right.m_advancedFindText)
+    if ( left.m_advancedFindText != right.m_advancedFindText )
     {
         retVal = false;
     }
 
-    if (left.m_appPath != right.m_appPath)
+    if ( left.m_appPath != right.m_appPath )
     {
         retVal = false;
     }
 
-    if (left.m_configFileName != right.m_configFileName)
+    if ( left.m_configFileName != right.m_configFileName )
     {
         retVal = false;
     }
 
-    if (left.m_findText != right.m_findText)
+    if ( left.m_findText != right.m_findText )
     {
         retVal = false;
     }
 
-    if (left.m_priorPath != right.m_priorPath)
+    if ( left.m_priorPath != right.m_priorPath )
     {
         retVal = false;
     }
 
-    if (left.m_replaceText != right.m_replaceText)
+    if ( left.m_replaceText != right.m_replaceText )
     {
         retVal = false;
     }
 
-    if (left.m_findList != right.m_findList)
+    if ( left.m_findList != right.m_findList )
     {
         retVal = false;
     }
 
-    if (left.m_macroNames != right.m_macroNames)
+    if ( left.m_macroNames != right.m_macroNames )
     {
         retVal = false;
     }
 
-    if (left.m_openedFiles != right.m_openedFiles)
+    if ( left.m_openedFiles != right.m_openedFiles )
     {
         retVal = false;
     }
 
-    if (left.m_preFolderList != right.m_preFolderList)
+    if ( left.m_preFolderList != right.m_preFolderList )
     {
         retVal = false;
     }
 
-    if (left.m_rFolderList != right.m_rFolderList)
+    if ( left.m_rFolderList != right.m_rFolderList )
     {
         retVal = false;
     }
 
-    if (left.m_replaceList != right.m_replaceList)
+    if ( left.m_replaceList != right.m_replaceList )
     {
         retVal = false;
     }
 
-    if (left.m_recentFilesList != right.m_recentFilesList)
+    if ( left.m_recentFilesList != right.m_recentFilesList )
     {
         retVal = false;
     }
 
-    if (left.m_fontColumn != right.m_fontColumn)
+    if ( left.m_fontColumn != right.m_fontColumn )
     {
         retVal = false;
     }
 
-    if (left.m_fontNormal != right.m_fontNormal)
+    if ( left.m_fontNormal != right.m_fontNormal )
     {
         retVal = false;
     }
 
-    if (left.m_lastPosition != right.m_lastPosition)
+    if ( left.m_lastPosition != right.m_lastPosition )
     {
         retVal = false;
     }
 
-    if (left.m_lastPosition != right.m_lastPosition)
+    if ( left.m_lastPosition != right.m_lastPosition )
     {
         retVal = false;
     }
 
-    if (left.m_lastSize != right.m_lastSize)
+    if ( left.m_lastSize != right.m_lastSize )
     {
         retVal = false;
     }
 
-    if (left.m_openedModified != right.m_openedModified)
+    if ( left.m_openedModified != right.m_openedModified )
     {
         retVal = false;
     }
 
-    if (left.m_findFlags != right.m_findFlags)
+    if ( left.m_findFlags != right.m_findFlags )
     {
         retVal = false;
     }
 
-    if (left.m_options != right.m_options)
+    if ( left.m_options != right.m_options )
     {
         retVal = false;
     }
 
-    if (left.m_themes != right.m_themes)
+    if ( left.m_themes != right.m_themes )
     {
         retVal = false;
     }
 
-    if (left.m_printSettings != right.m_printSettings)
+    if ( left.m_printSettings != right.m_printSettings )
     {
         retVal = false;
     }
-    
+
     return retVal;
 }
 
@@ -375,7 +375,7 @@ bool operator !=( const Settings &left, const Settings &right )
 {
     bool retVal = true;
 
-    if (left == right)
+    if ( left == right )
     {
         retVal = false;
     }
@@ -422,19 +422,8 @@ void Settings::deleteTheme( QString name )
     }
 }
 
-void Settings::set_options( const Options &opt )
-{
-    m_options = opt;
-    save();
-}
 
-void Settings::set_printSettings( const PrintSettings &prt )
-{
-    m_printSettings = prt;
-    save();
-}
-
-bool Settings::load( Config trail )
+bool Settings::load()
 {
     bool ok = true;
 
@@ -446,7 +435,8 @@ bool Settings::load( Config trail )
 
     if ( ! QFile::exists( m_configFileName ) )
     {
-        save();
+        save();  // TODO:: save should return bool and set ok
+        //        just in case we cannot write to disk for some reason
     }
 
     if ( ok )
@@ -840,7 +830,7 @@ void Settings::save()
     object.insert( "advFile-filetype",      m_advancedFindFileType );
     object.insert( "advFile-folder",        m_advancedFindFolder );
     object.insert( "advFile-searchFolders", m_advancedFSearchFolders );
-    object.insert( "autoLoad",              autoLoad() );
+    object.insert( "autoLoad",              m_options.autoLoad() );
     object.insert( "pos-x",                 m_lastPosition.x()  );
     object.insert( "pos-y",                 m_lastPosition.y()  );
     object.insert( "size-width",            m_lastSize.width()  );
@@ -849,7 +839,7 @@ void Settings::save()
     object.insert( "pos-y",                 m_lastPosition.y()  );
     object.insert( "size-width",            m_lastSize.width()  );
     object.insert( "size-height",           m_lastSize.height() );
-    object.insert( "about-url",             aboutUrl() );
+    object.insert( "about-url",             m_options.aboutUrl() );
 
     // opened files
     QJsonArray temp = QJsonArray::fromStringList( m_openedFiles );
@@ -858,8 +848,8 @@ void Settings::save()
     createThemeArray( object );
 
     object.insert( "column-mode",   m_isColumnMode );
-    object.insert( "dictMain",      mainDictionary() );
-    object.insert( "dictUser",      userDictionary() );
+    object.insert( "dictMain",      m_options.mainDictionary() );
+    object.insert( "dictUser",      m_options.userDictionary() );
 
     temp = QJsonArray::fromStringList( m_findList );
     object.insert( "find-list", temp );
@@ -876,8 +866,8 @@ void Settings::save()
     tempStr = m_fontColumn.toString();
     object.insert( "font-column", tempStr );
 
-    object.insert( "formatDate", formatDate() );
-    object.insert( "formatTime", formatTime() );
+    object.insert( "formatDate", m_options.formatDate() );
+    object.insert( "formatTime", m_options.formatTime() );
 
 
     // keys
@@ -1040,15 +1030,15 @@ void Settings::save()
     temp = QJsonArray::fromStringList( m_recentFilesList );
     object.insert( "recent-files", temp );
 
-    object.insert( "removeSpace", removeSpaces() );
-    object.insert( "rewrapColumn", rewrapColumn() );
+    object.insert( "removeSpace", m_options.removeSpaces() );
+    object.insert( "rewrapColumn", m_options.rewrapColumn() );
     object.insert( "showLineHighlight", m_showLineHighlight );
     object.insert( "showLineNumbers", m_showLineNumbers );
     object.insert( "showSpaces", m_showSpaces );
     object.insert( "showBreaks", m_showBreaks );
     object.insert( "spellcheck", m_isSpellCheck );
-    object.insert( "tabSpacing", tabSpacing() );
-    object.insert( "useSpaces", useSpaces() );
+    object.insert( "tabSpacing", m_options.tabSpacing() );
+    object.insert( "useSpaces", m_options.useSpaces() );
     object.insert( "word-wrap", m_isWordWrap );
 
 
@@ -1284,7 +1274,6 @@ QList<macroStruct> Settings::json_View_Macro( QString macroName )
 void Settings::json_Save_MacroNames( const QStringList &macroNames )
 {
     m_macroNames = macroNames;
-    save();
 }
 
 
@@ -1293,12 +1282,16 @@ bool Settings::openedFilesContains( QString name )
     return m_openedFiles.contains( name, Qt::CaseInsensitive );
 }
 
-void Settings::createAndLoadNew()
+#if 0
+void Settings::createAndLoadNew( QString name )
 {
+    // TODO:: this is wrong now
     Settings settings;
+
     settings.save();
     json_ReadFile();
 }
+#endif
 
 int Settings::openedFilesFind( QString name )
 {
@@ -1353,7 +1346,7 @@ void Settings::generateDefaultThemes()
         "SOLARIZEDLIGHT, #657B83, #FDF6E3, #657B83, #E0DBCD, #E0DBCD, #709D06, N, N, #B58900, N, N, #268BD2, N, N, #657B83, N, N, #2AA198, N, N, #93A1A1, N, Y,#93A1A1, N, Y, #FF518C, N, N",
         "GRAYGREY, #000000, #b9c3c5, #000000, #d1ded1, #d7dede, #98061A,  Y, N, #98061A, N, N, #0055FF, N, N, #2E6C33, N, N, #2c7631, N, N, #0000FF, N, Y, #0000FF, N, Y, #FF518C, N, N",
         "JUSTDARKENOUGH, #F4F4F4, #424244, #000000, #E0DBCD, #E0DBCD, #00C2C2, N, N, #C195B4, N, N, #55AAFF, N, N, #00EBAD, N, N, #FFFF00, N, N, #F59F00, N, Y, #F59F00, N, Y, #FF518C, N, N",
-        "TANGOLIGHT, #2E3436, #EEEEEC, #2E3436, #E0DBCD, #346604, #346604, N, N, #CE5C00, N, N, #234670, N, N, #A40000, N, N, #5C3566, N, N, #5F615C, N, Y, #5F615C, N, Y, #FF518C, N, N",
+        "TANGOLIGHT, #2E3436, #EEEEEC, #2E3436, #E0DBCD, #07E719, #346604, N, N, #CE5C00, N, N, #234670, N, N, #A40000, N, N, #5C3566, N, N, #5F615C, N, Y, #5F615C, N, Y, #FF518C, N, N",
         "COBALT, #F8F8F8, #09223F, #888888, #111111, #00162A, #FA9E18, N, N, #FFEF79, N, N, #42D915, N,N, #FFDD00, N, N, #42D915, N, N, #008AFF, N, N, #008AFF, N, N, #FF518C, N, N",
     };
 
@@ -1487,7 +1480,6 @@ void Settings::generateDefaultThemes()
         // MLine
         attr.set_color( QColor( lst[fld++].trimmed() ) );
         attr.set_weight( QFont::Normal );
-        qDebug() << "attr MLine: " << attr.color();
 
         if ( QString::compare( lst[fld++].trimmed(), "y", Qt::CaseInsensitive ) == 0 )
         {

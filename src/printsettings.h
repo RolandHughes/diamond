@@ -26,7 +26,7 @@ public:
     PrintSettings( const PrintSettings &other );
 
     PrintSettings &operator =( const PrintSettings &other );
-    
+
     friend bool operator ==( const PrintSettings &left, const PrintSettings &right );
     friend bool operator !=( const PrintSettings &left, const PrintSettings &right );
 

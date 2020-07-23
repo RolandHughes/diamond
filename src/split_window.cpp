@@ -21,370 +21,404 @@
 
 void MainWindow::split_Horizontal()
 {
-   // only allow one for now
-   if (m_isSplit) {
-      split_CloseButton();
-   }
+    // only allow one for now
+    if ( m_isSplit )
+    {
+        split_CloseButton();
+    }
 
-   m_split_textEdit = new DiamondTextEdit(this, m_settings, "split");
-   m_splitFileName  = m_curFile;
+    m_split_textEdit = new DiamondTextEdit( this, "split" );
+    m_splitFileName  = m_curFile;
 
-   // sync documents
-   m_split_textEdit->setDocument(m_textEdit->document());
+    // sync documents
+    m_split_textEdit->setDocument( m_textEdit->document() );
 
-   if (m_split_textEdit->get_ColumnMode()) {
-       m_split_textEdit->setFont(m_settings.fontColumn());
-   } else {
-       m_split_textEdit->setFont(m_settings.fontNormal());
-   }
+    if ( m_split_textEdit->get_ColumnMode() )
+    {
+        m_split_textEdit->setFont( Overlord::getInstance()->fontColumn() );
+    }
+    else
+    {
+        m_split_textEdit->setFont( Overlord::getInstance()->fontNormal() );
+    }
 
-   QPalette temp = m_split_textEdit->palette();
-   temp.setColor(QPalette::Text, m_settings.currentTheme().colorText());
-   temp.setColor(QPalette::Base, m_settings.currentTheme().colorBack());
-   m_split_textEdit->setPalette(temp);
+    QPalette temp = m_split_textEdit->palette();
+    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().colorText() );
+    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme().colorBack() );
+    m_split_textEdit->setPalette( temp );
 
-   // position on same line
-   QTextCursor cursor(m_textEdit->textCursor());
-   m_split_textEdit->setTextCursor(cursor);
+    // position on same line
+    QTextCursor cursor( m_textEdit->textCursor() );
+    m_split_textEdit->setTextCursor( cursor );
 
-   m_isSplit  = true;
-   m_textEdit = m_split_textEdit;
+    m_isSplit  = true;
+    m_textEdit = m_split_textEdit;
 
-   //
-   m_splitWidget = new QFrame(this);
-   m_splitWidget->setFrameShape(QFrame::Panel);
-   m_splitWidget->setWhatsThis("split_widget");
+    //
+    m_splitWidget = new QFrame( this );
+    m_splitWidget->setFrameShape( QFrame::Panel );
+    m_splitWidget->setWhatsThis( "split_widget" );
 
-   //
-   m_splitName_CB = new QComboBox();
-   m_splitName_CB->setMinimumWidth(175);
+    //
+    m_splitName_CB = new QComboBox();
+    m_splitName_CB->setMinimumWidth( 175 );
 
-   QFont font2 = m_splitName_CB->font();
-   font2.setPointSize(11);
-   m_splitName_CB->setFont(font2);
+    QFont font2 = m_splitName_CB->font();
+    font2.setPointSize( 11 );
+    m_splitName_CB->setFont( font2 );
 
-   for (int k = 0; k < m_settings.openedFilesCount(); ++k) {
+    for ( int k = 0; k < Overlord::getInstance()->openedFilesCount(); ++k )
+    {
 
-       QString fullName = m_settings.openedFiles(k);
-      add_splitCombo(fullName);
+        QString fullName = Overlord::getInstance()->openedFiles( k );
+        add_splitCombo( fullName );
 
-      if ( m_settings.openedModified(k) ) {
-        update_splitCombo(fullName, true);
-      }
-   }
+        if ( Overlord::getInstance()->openedModified( k ) )
+        {
+            update_splitCombo( fullName, true );
+        }
+    }
 
-   //
-   m_splitClose_PB = new QPushButton();
-   m_splitClose_PB->setText("Close");
+    //
+    m_splitClose_PB = new QPushButton();
+    m_splitClose_PB->setText( "Close" );
 
-   QBoxLayout *topbar_Layout = new QHBoxLayout();
-   topbar_Layout->addWidget(m_splitName_CB, 1);
-   topbar_Layout->addSpacing(25);
-   topbar_Layout->addWidget(m_splitClose_PB);
-   topbar_Layout->addStretch(2);
+    QBoxLayout *topbar_Layout = new QHBoxLayout();
+    topbar_Layout->addWidget( m_splitName_CB, 1 );
+    topbar_Layout->addSpacing( 25 );
+    topbar_Layout->addWidget( m_splitClose_PB );
+    topbar_Layout->addStretch( 2 );
 
-   //
-   QBoxLayout *layout = new QVBoxLayout();
-   layout->addLayout(topbar_Layout);
-   layout->addWidget(m_split_textEdit);
+    //
+    QBoxLayout *layout = new QVBoxLayout();
+    layout->addLayout( topbar_Layout );
+    layout->addWidget( m_split_textEdit );
 
-   m_splitWidget->setLayout(layout);
+    m_splitWidget->setLayout( layout );
 
-   m_splitter->setOrientation(Qt::Horizontal);        // difference Here
-   m_splitter->addWidget(m_splitWidget);
+    m_splitter->setOrientation( Qt::Horizontal );      // difference Here
+    m_splitter->addWidget( m_splitWidget );
 
-   //
-   int splitIndex = m_splitName_CB->findData(m_splitFileName);
-   m_splitName_CB->setCurrentIndex(splitIndex);
+    //
+    int splitIndex = m_splitName_CB->findData( m_splitFileName );
+    m_splitName_CB->setCurrentIndex( splitIndex );
 
-   moveBar();
+    moveBar();
 
-   connect(m_splitName_CB,   static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-               this, &MainWindow::split_NameChanged);
+    connect( m_splitName_CB,   static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
+             this, &MainWindow::split_NameChanged );
 
-   connect(m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::split_CloseButton);
+    connect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::split_CloseButton );
 
-   connect(m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo);
-   connect(m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar);
-   connect(m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::setStatus_LineCol);
+    connect( m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo );
+    connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar );
+    connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::setStatus_LineCol );
 
-   connect(m_split_textEdit, &DiamondTextEdit::undoAvailable, m_ui->actionUndo, &QAction::setEnabled);
-   connect(m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled);
-   connect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled);
-   connect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled);
+    connect( m_split_textEdit, &DiamondTextEdit::undoAvailable, m_ui->actionUndo, &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled );
 
-   connect(m_split_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType);
-   connect( this,            &MainWindow::changeSettings,
-            m_split_textEdit, &DiamondTextEdit::changeSettings);
+    connect( m_split_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType );
+    connect( Overlord::getInstance(), &Overlord::settingsChanged,
+             m_split_textEdit, &DiamondTextEdit::changeSettings );
 
 }
 
 void MainWindow::split_Vertical()
 {
-   // only allow one for now
-   if (m_isSplit) {
-      split_CloseButton();
-   }
+    // only allow one for now
+    if ( m_isSplit )
+    {
+        split_CloseButton();
+    }
 
-   m_split_textEdit = new DiamondTextEdit(this, m_settings, "split");
-   m_splitFileName  = m_curFile;
+    m_split_textEdit = new DiamondTextEdit( this, "split" );
+    m_splitFileName  = m_curFile;
 
-   // sync documents
-   m_split_textEdit->setDocument(m_textEdit->document());
+    // sync documents
+    m_split_textEdit->setDocument( m_textEdit->document() );
 
-   if (m_split_textEdit->get_ColumnMode()) {
-       m_split_textEdit->setFont(m_settings.fontColumn());
-   } else {
-       m_split_textEdit->setFont(m_settings.fontNormal());
-   }
+    if ( m_split_textEdit->get_ColumnMode() )
+    {
+        m_split_textEdit->setFont( Overlord::getInstance()->fontColumn() );
+    }
+    else
+    {
+        m_split_textEdit->setFont( Overlord::getInstance()->fontNormal() );
+    }
 
-   QPalette temp = m_split_textEdit->palette();
-   temp.setColor(QPalette::Text, m_settings.currentTheme().colorText());
-   temp.setColor(QPalette::Base, m_settings.currentTheme().colorBack());
-   m_split_textEdit->setPalette(temp);
+    QPalette temp = m_split_textEdit->palette();
+    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().colorText() );
+    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme().colorBack() );
+    m_split_textEdit->setPalette( temp );
 
-   // position on same line
-   QTextCursor cursor(m_textEdit->textCursor());
-   m_split_textEdit->setTextCursor(cursor);
+    // position on same line
+    QTextCursor cursor( m_textEdit->textCursor() );
+    m_split_textEdit->setTextCursor( cursor );
 
-   m_isSplit  = true;
-   m_textEdit = m_split_textEdit;
+    m_isSplit  = true;
+    m_textEdit = m_split_textEdit;
 
-   //
-   m_splitWidget = new QFrame(this);
-   m_splitWidget->setFrameShape(QFrame::Panel);
-   m_splitWidget->setWhatsThis("split_widget");
+    //
+    m_splitWidget = new QFrame( this );
+    m_splitWidget->setFrameShape( QFrame::Panel );
+    m_splitWidget->setWhatsThis( "split_widget" );
 
-   //
-   m_splitName_CB = new QComboBox();
-   m_splitName_CB->setMinimumWidth(175);
+    //
+    m_splitName_CB = new QComboBox();
+    m_splitName_CB->setMinimumWidth( 175 );
 
-   QFont font2 = m_splitName_CB->font();   font2.setPointSize(11);
-   m_splitName_CB->setFont(font2);
+    QFont font2 = m_splitName_CB->font();
+    font2.setPointSize( 11 );
+    m_splitName_CB->setFont( font2 );
 
-   for (int k = 0; k < m_settings.openedFilesCount(); ++k) {
-       QString fullName = m_settings.openedFiles(k);
-      add_splitCombo(fullName);
+    for ( int k = 0; k < Overlord::getInstance()->openedFilesCount(); ++k )
+    {
+        QString fullName = Overlord::getInstance()->openedFiles( k );
+        add_splitCombo( fullName );
 
-      if ( m_settings.openedModified(k) ) {
-        update_splitCombo(fullName, true);
-      }
-   }
+        if ( Overlord::getInstance()->openedModified( k ) )
+        {
+            update_splitCombo( fullName, true );
+        }
+    }
 
-   //
-   m_splitClose_PB = new QPushButton();
-   m_splitClose_PB->setText(tr("Close"));
+    //
+    m_splitClose_PB = new QPushButton();
+    m_splitClose_PB->setText( tr( "Close" ) );
 
-   QBoxLayout *topbar_Layout = new QHBoxLayout();
-   topbar_Layout->addWidget(m_splitName_CB, 1);
-   topbar_Layout->addSpacing(25);
-   topbar_Layout->addWidget(m_splitClose_PB);
-   topbar_Layout->addStretch(2);
+    QBoxLayout *topbar_Layout = new QHBoxLayout();
+    topbar_Layout->addWidget( m_splitName_CB, 1 );
+    topbar_Layout->addSpacing( 25 );
+    topbar_Layout->addWidget( m_splitClose_PB );
+    topbar_Layout->addStretch( 2 );
 
-   QBoxLayout *layout = new QVBoxLayout();
-   layout->addLayout(topbar_Layout);
-   layout->addWidget(m_split_textEdit);
+    QBoxLayout *layout = new QVBoxLayout();
+    layout->addLayout( topbar_Layout );
+    layout->addWidget( m_split_textEdit );
 
-   m_splitWidget->setLayout(layout);
+    m_splitWidget->setLayout( layout );
 
-   m_splitter->setOrientation(Qt::Vertical);          // Difference is here
-   m_splitter->addWidget(m_splitWidget);
+    m_splitter->setOrientation( Qt::Vertical );        // Difference is here
+    m_splitter->addWidget( m_splitWidget );
 
-   //
-   int splitIndex = m_splitName_CB->findData(m_splitFileName);
-   m_splitName_CB->setCurrentIndex(splitIndex);
+    //
+    int splitIndex = m_splitName_CB->findData( m_splitFileName );
+    m_splitName_CB->setCurrentIndex( splitIndex );
 
-   moveBar();
+    moveBar();
 
-   connect(m_splitName_CB,   static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-               this, &MainWindow::split_NameChanged);
+    connect( m_splitName_CB,   static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
+             this, &MainWindow::split_NameChanged );
 
-   connect(m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::split_CloseButton);
+    connect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::split_CloseButton );
 
-   connect(m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo);
-   connect(m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar);
-   connect(m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::setStatus_LineCol);
+    connect( m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo );
+    connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar );
+    connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::setStatus_LineCol );
 
-   connect(m_split_textEdit, &DiamondTextEdit::undoAvailable, m_ui->actionUndo, &QAction::setEnabled);
-   connect(m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled);
-   connect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled);
-   connect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled);
+    connect( m_split_textEdit, &DiamondTextEdit::undoAvailable, m_ui->actionUndo, &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled );
 
-   connect(m_split_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType);
-   connect( this,            &MainWindow::changeSettings,
-            m_split_textEdit, &DiamondTextEdit::changeSettings);
-   
+    connect( m_split_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType );
+    connect( Overlord::getInstance(), &Overlord::settingsChanged,
+             m_split_textEdit, &DiamondTextEdit::changeSettings );
+
 }
 
 void MainWindow::set_splitCombo()
 {
-   QString shortName = strippedName(m_splitFileName);
+    QString shortName = strippedName( m_splitFileName );
 
-   bool isModified = m_split_textEdit->document()->isModified();
+    bool isModified = m_split_textEdit->document()->isModified();
 
-   if (isModified) {
-      shortName += " *";
-   }
+    if ( isModified )
+    {
+        shortName += " *";
+    }
 
-   int index = m_settings.openedFilesFind(m_splitFileName);
-   if (index != -1)  {
-      m_settings.openedModifiedReplace(index,isModified);
-   }
+    int index = Overlord::getInstance()->openedFilesFind( m_splitFileName );
 
-   //
-   int splitIndex = m_splitName_CB->findData(m_splitFileName);
+    if ( index != -1 )
+    {
+        Overlord::getInstance()->openedModifiedReplace( index,isModified );
+    }
 
-   if (splitIndex != -1)  {
-      m_splitName_CB->setItemText(splitIndex, shortName);
-      m_splitName_CB->setItemData(splitIndex, m_splitFileName, Qt::ToolTipRole);
-   }
+    //
+    int splitIndex = m_splitName_CB->findData( m_splitFileName );
+
+    if ( splitIndex != -1 )
+    {
+        m_splitName_CB->setItemText( splitIndex, shortName );
+        m_splitName_CB->setItemData( splitIndex, m_splitFileName, Qt::ToolTipRole );
+    }
 }
 
-void MainWindow::update_splitCombo(QString fullName, bool isModified)
+void MainWindow::update_splitCombo( QString fullName, bool isModified )
 {
-   QString shortName = strippedName(fullName);
+    QString shortName = strippedName( fullName );
 
-   if (isModified) {
-      shortName += " *";
-   }
+    if ( isModified )
+    {
+        shortName += " *";
+    }
 
-   int splitIndex = m_splitName_CB->findData(fullName);
+    int splitIndex = m_splitName_CB->findData( fullName );
 
-   if (splitIndex != -1)  {
-      m_splitName_CB->setItemText(splitIndex, shortName);
-      m_splitName_CB->setItemData(splitIndex,fullName, Qt::ToolTipRole );
-   }
+    if ( splitIndex != -1 )
+    {
+        m_splitName_CB->setItemText( splitIndex, shortName );
+        m_splitName_CB->setItemData( splitIndex,fullName, Qt::ToolTipRole );
+    }
 }
 
-void MainWindow::add_splitCombo(QString fullName)
+void MainWindow::add_splitCombo( QString fullName )
 {
-   int splitIndex = m_splitName_CB->findData(fullName);
+    int splitIndex = m_splitName_CB->findData( fullName );
 
-   if (splitIndex == -1)  {
-      QString shortName = strippedName(fullName);
-      m_splitName_CB->addItem(shortName, fullName);
+    if ( splitIndex == -1 )
+    {
+        QString shortName = strippedName( fullName );
+        m_splitName_CB->addItem( shortName, fullName );
 
-      splitIndex = m_splitName_CB->count() - 1;
-      m_splitName_CB->setItemData(splitIndex,fullName, Qt::ToolTipRole );
+        splitIndex = m_splitName_CB->count() - 1;
+        m_splitName_CB->setItemData( splitIndex,fullName, Qt::ToolTipRole );
 
-   } else {
-      set_splitCombo();
+    }
+    else
+    {
+        set_splitCombo();
 
-   }
+    }
 }
 
-void MainWindow::rm_splitCombo(QString fullName)
+void MainWindow::rm_splitCombo( QString fullName )
 {
-   int splitIndex = m_splitName_CB->findData(fullName);
+    int splitIndex = m_splitName_CB->findData( fullName );
 
-   if (splitIndex != -1) {
-      m_splitName_CB->removeItem(splitIndex);
-   }
+    if ( splitIndex != -1 )
+    {
+        m_splitName_CB->removeItem( splitIndex );
+    }
 }
 
-void MainWindow::split_NameChanged(int data)
+void MainWindow::split_NameChanged( int data )
 {
-   QString newName = m_splitName_CB->itemData(data).toString();
+    QString newName = m_splitName_CB->itemData( data ).toString();
 
-   if (m_splitFileName != newName)  {
+    if ( m_splitFileName != newName )
+    {
 
-      // old doc
-      disconnect(m_split_textEdit->document(), &QTextDocument::contentsChanged,
-                     this, &MainWindow::set_splitCombo);
+        // old doc
+        disconnect( m_split_textEdit->document(), &QTextDocument::contentsChanged,
+                    this, &MainWindow::set_splitCombo );
 
-      // new doc
-      m_splitFileName = newName;
+        // new doc
+        m_splitFileName = newName;
 
-      int whichTab = -1;
-      for (int k = 0; k < m_tabWidget->count(); ++k) {
+        int whichTab = -1;
 
-         if (newName == this->get_curFileName(k)) {
-            whichTab = k;
-            break;
-         }
-      }
+        for ( int k = 0; k < m_tabWidget->count(); ++k )
+        {
 
-      if (whichTab == -1) {
-         csError(tr("Split Window Selection"), tr("Unable to locate selected document"));
+            if ( newName == this->get_curFileName( k ) )
+            {
+                whichTab = k;
+                break;
+            }
+        }
 
-         split_CloseButton();
-         return;
-      }
+        if ( whichTab == -1 )
+        {
+            csError( tr( "Split Window Selection" ), tr( "Unable to locate selected document" ) );
 
-      QWidget *temp = m_tabWidget->widget(whichTab);
-      DiamondTextEdit *textEdit = dynamic_cast<DiamondTextEdit *>(temp);
+            split_CloseButton();
+            return;
+        }
 
-      if (textEdit) {
-         // get document matching the file name
-         m_split_textEdit->setDocument(textEdit->document());
+        QWidget *temp = m_tabWidget->widget( whichTab );
+        DiamondTextEdit *textEdit = dynamic_cast<DiamondTextEdit *>( temp );
 
-         if (m_split_textEdit->get_ColumnMode()) {
-             m_split_textEdit->setFont(m_settings.fontColumn());
-         } else {
-             m_split_textEdit->setFont(m_settings.fontNormal());
-         }
+        if ( textEdit )
+        {
+            // get document matching the file name
+            m_split_textEdit->setDocument( textEdit->document() );
 
-         QPalette temp = m_split_textEdit->palette();
-         temp.setColor(QPalette::Text, m_settings.currentTheme().colorText());
-         temp.setColor(QPalette::Base, m_settings.currentTheme().colorBack());
-         m_split_textEdit->setPalette(temp);
+            if ( m_split_textEdit->get_ColumnMode() )
+            {
+                m_split_textEdit->setFont( Overlord::getInstance()->fontColumn() );
+            }
+            else
+            {
+                m_split_textEdit->setFont( Overlord::getInstance()->fontNormal() );
+            }
 
-         m_textEdit = m_split_textEdit;
+            QPalette temp = m_split_textEdit->palette();
+            temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().colorText() );
+            temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme().colorBack() );
+            m_split_textEdit->setPalette( temp );
 
-         set_splitCombo();
+            m_textEdit = m_split_textEdit;
 
-         //
-         m_curFile = m_splitFileName;
-         setStatus_FName(m_curFile);
+            set_splitCombo();
 
-         // ** retrieve slected syntax type
+            //
+            m_curFile = m_splitFileName;
+            setStatus_FName( m_curFile );
+
+            // ** retrieve slected syntax type
 //       m_syntaxParser = m_textEdit->get_SyntaxParser();
 
-         // retrieve the menu enum
+            // retrieve the menu enum
 //       m_syntaxEnum = m_textEdit->get_SyntaxEnum();
 
-         // check the menu item
+            // check the menu item
 //       setSynType(m_syntaxEnum);
 
-         moveBar();
-         show_Spaces();
-         show_Breaks();
+            moveBar();
+            show_Spaces();
+            show_Breaks();
 
-         connect(m_split_textEdit->document(), &QTextDocument::contentsChanged,
-                     this, &MainWindow::set_splitCombo);
+            connect( m_split_textEdit->document(), &QTextDocument::contentsChanged,
+                     this, &MainWindow::set_splitCombo );
 
-      } else {
-         // close the split
-         csError(tr("Split Window Selection"), tr("Selected document invalid"));
-         split_CloseButton();
-      }
-   }
+        }
+        else
+        {
+            // close the split
+            csError( tr( "Split Window Selection" ), tr( "Selected document invalid" ) );
+            split_CloseButton();
+        }
+    }
 }
 
 void MainWindow::split_CloseButton()
 {
-   // set focus to the current tab widget
-   QWidget *temp = m_tabWidget->currentWidget();
-   temp->setFocus();
+    // set focus to the current tab widget
+    QWidget *temp = m_tabWidget->currentWidget();
+    temp->setFocus();
 
-   m_isSplit = false;
+    m_isSplit = false;
 
-   disconnect(m_splitName_CB,   static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-               this, &MainWindow::split_NameChanged);
+    disconnect( m_splitName_CB,   static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
+                this, &MainWindow::split_NameChanged );
 
-   disconnect(m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::split_CloseButton);
+    disconnect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::split_CloseButton );
 
-   disconnect(m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo);
-   disconnect(m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar);
-   disconnect(m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::setStatus_LineCol);
+    disconnect( m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo );
+    disconnect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar );
+    disconnect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::setStatus_LineCol );
 
-   disconnect(m_split_textEdit, &DiamondTextEdit::undoAvailable, m_ui->actionUndo, &QAction::setEnabled);
-   disconnect(m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled);
-   disconnect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled);
-   disconnect(m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled);
+    disconnect( m_split_textEdit, &DiamondTextEdit::undoAvailable, m_ui->actionUndo, &QAction::setEnabled );
+    disconnect( m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled );
+    disconnect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled );
+    disconnect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled );
 
-   m_splitName_CB->clear();
-   m_split_textEdit = 0;
+    m_splitName_CB->clear();
+    m_split_textEdit = 0;
 
-   m_splitWidget->deleteLater();
+    m_splitWidget->deleteLater();
 }

@@ -31,6 +31,7 @@ list(APPEND DIAMOND_INCLUDES
    ${CMAKE_CURRENT_SOURCE_DIR}/themes.h
    ${CMAKE_CURRENT_SOURCE_DIR}/util.h
    ${CMAKE_CURRENT_SOURCE_DIR}/non_gui_functions.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/overlord.h
 
    ${CMAKE_CURRENT_SOURCE_DIR}/diamond_build_info.h
 )
@@ -73,6 +74,7 @@ list(APPEND DIAMOND_SOURCES
    ${CMAKE_CURRENT_SOURCE_DIR}/themes.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/non_gui_functions.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/overlord.cpp
 
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_advfind.ui
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_buffer.ui

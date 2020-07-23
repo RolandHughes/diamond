@@ -15,9 +15,6 @@
 #ifndef DIAMOND_TEXTEDIT_H
 #define DIAMOND_TEXTEDIT_H
 
-#include "spellcheck.h"
-#include "syntax.h"
-
 #include <QObject>
 #include <QList>
 #include <QPlainTextEdit>
@@ -27,6 +24,11 @@
 #include <QTextCursor>
 #include <QWidget>
 
+#include "spellcheck.h"
+#include "overlord.h"
+#include "syntax.h"
+
+
 class LineNumberArea;
 
 class DiamondTextEdit : public QPlainTextEdit
@@ -34,8 +36,7 @@ class DiamondTextEdit : public QPlainTextEdit
     CS_OBJECT( DiamondTextEdit )
 
 public:
-    DiamondTextEdit( QWidget *parent, Settings &settings, QString owner );
-    ~DiamondTextEdit();
+    DiamondTextEdit( QWidget *parent, QString owner );
 
     QString m_owner;
 
@@ -83,11 +84,11 @@ public:
     CS_SLOT_1( Public, void paste() )
     CS_SLOT_2( paste )
 
-    CS_SLOT_1( Public, void changeSettings( Settings &settings ) )
+    CS_SLOT_1( Public, void changeSettings( Settings *settings ) )
     CS_SLOT_2( changeSettings )
 
     CS_SLOT_1( Public, void rewrapParagraph() )
-    CS_SLOT_2( rewrapParagraph)
+    CS_SLOT_2( rewrapParagraph )
 
     CS_SIGNAL_1( Public, void setSynType( SyntaxTypes data ) )
     CS_SIGNAL_2( setSynType, data )
@@ -141,9 +142,13 @@ protected:
 private:
     void setScreenColors();
     void changeFont();
-    
+
+    Settings *m_settingsPtr;
+    Themes m_lastTheme;
+    QFont m_lastNormalFont;
+    QFont m_lastColumnFont;
+
     QWidget *m_lineNumArea;
-    Settings m_settings;
     QString m_curFile; // TODO:: need to set this each time file opened
 
     // tab stops

@@ -14,6 +14,7 @@
 
 #include "dialog_options.h"
 #include "util.h"
+#include "overlord.h"
 
 #include <QFileDialog>
 #include <QKeySequence>
@@ -23,10 +24,10 @@
 
 #include <qglobal.h>
 
-Dialog_Options::Dialog_Options( QWidget *parent, Options data )
+Dialog_Options::Dialog_Options( QWidget *parent )
     : QDialog( parent ), m_ui( new Ui::Dialog_Options )
 {
-    m_options  = data;
+    m_options  = Overlord::getInstance()->pullLocalCopyOfOptions();
 
     m_ui->setupUi( this );
     this->setWindowIcon( QIcon( "://resources/diamond.png" ) );
@@ -167,64 +168,6 @@ void Dialog_Options::initData()
 
 void Dialog_Options::save()
 {
-    this->done( QDialog::Accepted );
-}
-
-void Dialog_Options::cancel()
-{
-    this->done( QDialog::Rejected );
-}
-
-void Dialog_Options::pick_Main()
-{
-    QString selectedFilter;
-    QFileDialog::Options options;
-
-    // force windows 7 and 8 to honor initial path
-    options = QFileDialog::ForceInitialDir_Win7;
-
-    QString fileName = QFileDialog::getOpenFileName( this, tr( "Select Main Dictionary" ),
-                       m_ui->dictMain->text(), tr( "Dictionary File (*.dic)" ), &selectedFilter, options );
-
-    if ( ! fileName.isEmpty() )
-    {
-        m_ui->dictMain->setText( fileName );
-    }
-}
-
-void Dialog_Options::pick_User()
-{
-    QString selectedFilter;
-    QFileDialog::Options options;
-
-    // force windows 7 and 8 to honor initial path
-    options = QFileDialog::ForceInitialDir_Win7;
-
-    QString fileName = QFileDialog::getOpenFileName( this, tr( "Select User Dictionary" ),
-                       m_ui->dictUser->text(), tr( "User Dictionary File (*.txt)" ), &selectedFilter, options );
-
-    if ( ! fileName.isEmpty() )
-    {
-        m_ui->dictUser->setText( fileName );
-    }
-}
-
-void Dialog_Options::pick_Syntax()
-{
-    QString msg  = tr( "Select Diamond Syntax Folder" );
-    QString path = m_ui->syntax->text();
-
-    path = get_DirPath( this, msg, path );
-
-    if ( ! path.isEmpty() )
-    {
-        m_ui->syntax->setText( path );
-    }
-}
-
-struct Options Dialog_Options::get_Results()
-{
-
     // ** tab 1
     m_options.set_formatDate( m_ui->dateFormat_CB->currentText() );
     m_options.set_formatTime( m_ui->timeFormat_CB->currentText() );
@@ -301,7 +244,61 @@ struct Options Dialog_Options::get_Results()
     m_options.keys().set_edtGotoLine( m_ui->key_EDT_GotoLine->text() );
     m_options.keys().set_edtEnabled( m_ui->enable_EDT_CB->isChecked() );
 
-    return m_options;
+    Overlord::getInstance()->updateOptionsFromLocalCopy( m_options );
+
+    this->done( QDialog::Accepted );
+}
+
+void Dialog_Options::cancel()
+{
+    this->done( QDialog::Rejected );
+}
+
+void Dialog_Options::pick_Main()
+{
+    QString selectedFilter;
+    QFileDialog::Options options;
+
+    // force windows 7 and 8 to honor initial path
+    options = QFileDialog::ForceInitialDir_Win7;
+
+    QString fileName = QFileDialog::getOpenFileName( this, tr( "Select Main Dictionary" ),
+                       m_ui->dictMain->text(), tr( "Dictionary File (*.dic)" ), &selectedFilter, options );
+
+    if ( ! fileName.isEmpty() )
+    {
+        m_ui->dictMain->setText( fileName );
+    }
+}
+
+void Dialog_Options::pick_User()
+{
+    QString selectedFilter;
+    QFileDialog::Options options;
+
+    // force windows 7 and 8 to honor initial path
+    options = QFileDialog::ForceInitialDir_Win7;
+
+    QString fileName = QFileDialog::getOpenFileName( this, tr( "Select User Dictionary" ),
+                       m_ui->dictUser->text(), tr( "User Dictionary File (*.txt)" ), &selectedFilter, options );
+
+    if ( ! fileName.isEmpty() )
+    {
+        m_ui->dictUser->setText( fileName );
+    }
+}
+
+void Dialog_Options::pick_Syntax()
+{
+    QString msg  = tr( "Select Diamond Syntax Folder" );
+    QString path = m_ui->syntax->text();
+
+    path = get_DirPath( this, msg, path );
+
+    if ( ! path.isEmpty() )
+    {
+        m_ui->syntax->setText( path );
+    }
 }
 
 void Dialog_Options::reset_StandardKey()

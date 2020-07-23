@@ -25,8 +25,8 @@ void MainWindow::openTab_CreateMenus()
    QString tName;
 
    int cnt = m_tabWidget->count();
-   m_settings.openedFilesClear();
-   m_settings.openedModifiedClear();
+   Overlord::getInstance()->openedFilesClear();
+   Overlord::getInstance()->openedModifiedClear();
 
    for (int k = 0; k < cnt; ++k) {
       fullName = this->get_curFileName(k);
@@ -35,8 +35,8 @@ void MainWindow::openTab_CreateMenus()
          --cnt;
 
       } else {
-          m_settings.openedFilesAppend(fullName);
-          m_settings.openedModifiedAppend(false);
+          Overlord::getInstance()->openedFilesAppend(fullName);
+          Overlord::getInstance()->openedModifiedAppend(false);
       }
    }
 
@@ -47,10 +47,10 @@ void MainWindow::openTab_CreateMenus()
    for (int k = 0; k < DiamondLimits::OPENTABS_MAX; ++k) {
 
       if (k < cnt)  {
-          fullName = m_settings.openedFiles(k);
+          fullName = Overlord::getInstance()->openedFiles(k);
          tName    = fullName;
 
-         if (m_settings.openedModified(k)) {
+         if (Overlord::getInstance()->openedModified(k)) {
             tName += " *";
          }
 
@@ -77,7 +77,7 @@ void MainWindow::openTab_CreateMenus()
 void MainWindow::openTab_Select(int index)
 { 
    bool match = false;
-   QString fullName = m_settings.openedFiles(index);
+   QString fullName = Overlord::getInstance()->openedFiles(index);
 
    if (fullName.isEmpty()) {
       // something is pretty bogus
@@ -102,7 +102,7 @@ void MainWindow::openTab_Select(int index)
 
       } else {
          // delete entry from list since it did not exist
-          m_settings.openedFilesRemove(fullName);
+          Overlord::getInstance()->openedFilesRemove(fullName);
 
          // update actions
          openTab_UpdateActions();
@@ -141,14 +141,14 @@ void MainWindow::openTab_redo()
       QString tName;
       bool isModified;
 
-      m_settings.openedFilesClear();
-      m_settings.openedModifiedClear();
+      Overlord::getInstance()->openedFilesClear();
+      Overlord::getInstance()->openedModifiedClear();
 
       int cnt = m_tabWidget->count();
 
       for (int k = 0; k < cnt; ++k) {
          tName = this->get_curFileName(k);
-         m_settings.openedFilesAppend(tName);
+         Overlord::getInstance()->openedFilesAppend(tName);
 
          //
          temp = m_tabWidget->widget(k);
@@ -156,16 +156,16 @@ void MainWindow::openTab_redo()
 
          if (textEdit) {
             isModified = textEdit->document()->isModified();
-            m_settings.openedModifiedAppend(isModified);
+            Overlord::getInstance()->openedModifiedAppend(isModified);
          }
       }
 
       for (int i = 0; i < DiamondLimits::OPENTABS_MAX; ++i) {
 
          if (i < cnt)  {
-             tName = m_settings.openedFiles(i);
+             tName = Overlord::getInstance()->openedFiles(i);
 
-             if (m_settings.openedModified(i)) {
+             if (Overlord::getInstance()->openedModified(i)) {
                tName += " *";
             }
 
@@ -189,8 +189,8 @@ void MainWindow::openTab_Add()
       return;
    }
 
-   m_settings.openedFilesAppend(m_curFile);
-   m_settings.openedModifiedAppend(false);
+   Overlord::getInstance()->openedFilesAppend(m_curFile);
+   Overlord::getInstance()->openedModifiedAppend(false);
 
    // update actions
    openTab_UpdateActions();
@@ -198,7 +198,7 @@ void MainWindow::openTab_Add()
 
 void MainWindow::openTab_Delete()
 {
-    m_settings.openedFilesRemove(m_curFile);
+    Overlord::getInstance()->openedFilesRemove(m_curFile);
 
    // update actions
    openTab_UpdateActions();
@@ -206,18 +206,18 @@ void MainWindow::openTab_Delete()
 
 void MainWindow::openTab_UpdateActions()
 {
-    int cnt = m_settings.openedFilesCount();
+    int cnt = Overlord::getInstance()->openedFilesCount();
 
    for (int k = 0; k < DiamondLimits::OPENTABS_MAX; ++k) {
 
       if (k < cnt)  {
          QString modified;
 
-         if (m_settings.openedModified(k)) {
+         if (Overlord::getInstance()->openedModified(k)) {
             modified += " *";
          }
 
-         openTab_Actions[k]->setText(m_settings.openedFiles(k) + modified);
+         openTab_Actions[k]->setText(Overlord::getInstance()->openedFiles(k) + modified);
          openTab_Actions[k]->setVisible(true);
 
      } else {        
@@ -235,6 +235,6 @@ void MainWindow::openTab_UpdateOneAction(int index, bool isModified)
          modified += " *";
       }
 
-      openTab_Actions[index]->setText(m_settings.openedFiles(index) + modified);
+      openTab_Actions[index]->setText(Overlord::getInstance()->openedFiles(index) + modified);
    }
 }

@@ -16,6 +16,7 @@
 #include "dialog_open.h"
 #include "mainwindow.h"
 #include "non_gui_functions.h"
+#include "diamond_edit.h"
 
 #include <QDate>
 #include <QFileDialog>
@@ -25,6 +26,8 @@
 // ** file
 void MainWindow::newFile()
 {
+    // TODO:: this is wrong. It whacks the last opened tab. Needs to open a new tab.
+    //        never saw querySave();
     bool okClose = querySave();
 
     if ( okClose )
@@ -225,8 +228,8 @@ bool MainWindow::closeAll_Doc( bool isExit )
     int whichTab = 0;
 
     // clear open tab list
-    m_settings.openedFilesClear();
-    m_settings.openedModifiedClear();
+    Overlord::getInstance()->openedFilesClear();
+    Overlord::getInstance()->openedModifiedClear();
 
     for ( int k = 0; k < count; ++k )
     {
@@ -247,8 +250,8 @@ bool MainWindow::closeAll_Doc( bool isExit )
                 if ( isExit && ( m_curFile != "untitled.txt" ) )
                 {
                     // save for the auto reload
-                    m_settings.openedFilesAppend( m_curFile );
-                    m_settings.openedModifiedAppend( false );
+                    Overlord::getInstance()->openedFilesAppend( m_curFile );
+                    Overlord::getInstance()->openedModifiedAppend( false );
                 }
 
                 if ( m_tabWidget->count() == 1 )
@@ -274,8 +277,8 @@ bool MainWindow::closeAll_Doc( bool isExit )
                 if ( m_curFile != "untitled.txt" )
                 {
                     // save for the auto reload
-                    m_settings.openedFilesAppend( m_curFile );
-                    m_settings.openedModifiedAppend( true );
+                    Overlord::getInstance()->openedFilesAppend( m_curFile );
+                    Overlord::getInstance()->openedModifiedAppend( true );
                 }
 
                 // at least one tab is staying open
@@ -365,7 +368,7 @@ bool MainWindow::saveAs( SaveFiles saveType )
 
     if ( path.isEmpty() || path == "." )
     {
-        path = m_settings.priorPath();
+        path = Overlord::getInstance()->priorPath();
 
         if ( path.isEmpty() )
         {
@@ -605,15 +608,14 @@ void MainWindow::rewrapParagraph()
 void MainWindow::columnMode()
 {
     // alters cut, copy, paste
-    m_settings.set_isColumnMode( false );
+    Overlord::getInstance()->set_isColumnMode( false );
 
     if ( m_ui->actionColumn_Mode->isChecked() )
     {
         // on
-        m_settings.set_isColumnMode( true );
+        Overlord::getInstance()->set_isColumnMode( true );
     }
 
-    saveAndBroadcastSettings();
     setStatus_ColMode();    // TODO:: see if this needs to be in DiamondTextEdit
 }
 
@@ -644,15 +646,14 @@ void MainWindow::goBottom()
 // **view
 void MainWindow::lineHighlight()
 {
-    m_settings.set_showLineHighlight( false );
+    Overlord::getInstance()->set_showLineHighlight( false );
 
     if ( m_ui->actionLine_Highlight->isChecked() )
     {
         // on
-        m_settings.set_showLineHighlight( true );
+        Overlord::getInstance()->set_showLineHighlight( true );
     }
 
-    saveAndBroadcastSettings();
     moveBar();
 }
 
@@ -666,15 +667,14 @@ void MainWindow::lineNumbers()
     if ( m_ui->actionLine_Numbers->isChecked() )
     {
         //on
-        m_settings.set_showLineNumbers( true );
+        Overlord::getInstance()->set_showLineNumbers( true );
     }
     else
     {
         // off
-        m_settings.set_showLineNumbers( false );
+        Overlord::getInstance()->set_showLineNumbers( false );
     }
 
-    saveAndBroadcastSettings();
 }
 
 void MainWindow::wordWrap()
@@ -682,22 +682,18 @@ void MainWindow::wordWrap()
     if ( m_ui->actionWord_Wrap->isChecked() )
     {
         //on
-        m_settings.set_isWordWrap( true );
+        Overlord::getInstance()->set_isWordWrap( true );
         m_textEdit->setWordWrapMode( QTextOption::WordWrap );
 
     }
     else
     {
         // off
-        m_settings.set_isWordWrap( false );
+        Overlord::getInstance()->set_isWordWrap( false );
         m_textEdit->setWordWrapMode( QTextOption::NoWrap );
 
     }
 
-    // TODO:: need a signal emitted from save() to updadate all instances
-    //        of text editor
-    //
-    saveAndBroadcastSettings();
 }
 
 // TODO:: Move this into DiamondTextEdit
@@ -706,14 +702,14 @@ void MainWindow::show_Spaces()
     QTextDocument *td   = m_textEdit->document();
     QTextOption textOpt = td->defaultTextOption();
 
-    bool oldValue = m_settings.showSpaces();
+    bool oldValue = Overlord::getInstance()->showSpaces();
 
     if ( m_ui->actionShow_Spaces->isChecked() )
     {
         //on
-        m_settings.set_showSpaces( true );
+        Overlord::getInstance()->set_showSpaces( true );
 
-        if ( m_settings.showBreaks() )
+        if ( Overlord::getInstance()->showBreaks() )
         {
             textOpt.setFlags( QTextOption::ShowTabsAndSpaces | QTextOption::ShowLineAndParagraphSeparators );
 
@@ -729,9 +725,9 @@ void MainWindow::show_Spaces()
     else
     {
         // off
-        m_settings.set_showSpaces( false );
+        Overlord::getInstance()->set_showSpaces( false );
 
-        if ( m_settings.showBreaks() )
+        if ( Overlord::getInstance()->showBreaks() )
         {
             textOpt.setFlags( QTextOption::ShowLineAndParagraphSeparators );
 
@@ -742,11 +738,6 @@ void MainWindow::show_Spaces()
         }
 
         td->setDefaultTextOption( textOpt );
-    }
-
-    if ( oldValue != m_settings.showSpaces() )
-    {
-        saveAndBroadcastSettings();
     }
 }
 
@@ -756,14 +747,14 @@ void MainWindow::show_Breaks()
     QTextDocument *td = m_textEdit->document();
     QTextOption textOpt = td->defaultTextOption();
 
-    bool oldValue = m_settings.showBreaks();
+    bool oldValue = Overlord::getInstance()->showBreaks();
 
     if ( m_ui->actionShow_Breaks->isChecked() )
     {
         //on
-        m_settings.set_showBreaks( true );
+        Overlord::getInstance()->set_showBreaks( true );
 
-        if ( m_settings.showSpaces() )
+        if ( Overlord::getInstance()->showSpaces() )
         {
             textOpt.setFlags( QTextOption::ShowTabsAndSpaces | QTextOption::ShowLineAndParagraphSeparators );
 
@@ -780,9 +771,9 @@ void MainWindow::show_Breaks()
     else
     {
         // off
-        m_settings.set_showBreaks( false );
+        Overlord::getInstance()->set_showBreaks( false );
 
-        if ( m_settings.showSpaces() )
+        if ( Overlord::getInstance()->showSpaces() )
         {
             textOpt.setFlags( QTextOption::ShowTabsAndSpaces );
 
@@ -794,11 +785,6 @@ void MainWindow::show_Breaks()
         }
 
         td->setDefaultTextOption( textOpt );
-    }
-
-    if ( oldValue != m_settings.showBreaks() )
-    {
-        saveAndBroadcastSettings();
     }
 }
 
@@ -976,9 +962,6 @@ void MainWindow::mw_macroStop()
         m_record = false;
         m_textEdit->macroStop();
 
-        // save macro
-        saveAndBroadcastSettings();
-
         // save macro to global list
         m_macroList = m_textEdit->get_MacroKeyList();
 
@@ -1027,7 +1010,7 @@ void MainWindow::macroPlay()
 
 void MainWindow::macroLoad()
 {
-    QStringList macroIds = m_settings.json_Load_MacroIds();
+    QStringList macroIds = Overlord::getInstance()->loadMacroIds();
 
     if ( macroIds.count() == 0 )
     {
@@ -1035,16 +1018,14 @@ void MainWindow::macroLoad()
         return;
     }
 
-    //  TODO:: No need to pass macroNames when we pass settings reference
-    //
     Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_LOAD, macroIds,
-                                         m_settings.macroNames(), m_settings );
+                                         Overlord::getInstance()->macroNames() );
     int result = dw->exec();
 
     if ( result == QDialog::Accepted )
     {
         QString text = dw->get_Macro();
-        m_settings.json_Load_Macro( text );
+        Overlord::getInstance()->loadMacro( text );
     }
 
     delete dw;
@@ -1052,7 +1033,7 @@ void MainWindow::macroLoad()
 
 void MainWindow::macroEditNames()
 {
-    QStringList macroIds = m_settings.json_Load_MacroIds();
+    QStringList macroIds = Overlord::getInstance()->loadMacroIds();
 
     if ( macroIds.count() == 0 )
     {
@@ -1063,7 +1044,7 @@ void MainWindow::macroEditNames()
     //  TODO:: No need to pass macroNames when we pass settings reference
     //
     Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_EDITNAMES, macroIds,
-                                         m_settings.macroNames(), m_settings );
+                                         Overlord::getInstance()->macroNames() );
     dw->exec();
 
     delete dw;
@@ -1075,16 +1056,14 @@ void MainWindow::spellCheck()
     if ( m_ui->actionSpell_Check->isChecked() )
     {
         //on
-        m_settings.set_isSpellCheck( true );
+        Overlord::getInstance()->set_isSpellCheck( true );
 
     }
     else
     {
         // off
-        m_settings.set_isSpellCheck( false );
+        Overlord::getInstance()->set_isSpellCheck( false );
     }
-
-    saveAndBroadcastSettings();
 
     // run for every tab
     int count = m_tabWidget->count();
@@ -1101,7 +1080,7 @@ void MainWindow::spellCheck()
         if ( textEdit )
         {
             // save new values & reHighlight
-            textEdit->set_Spell( m_settings.isSpellCheck() );
+            textEdit->set_Spell( Overlord::getInstance()->isSpellCheck() );
         }
     }
 }

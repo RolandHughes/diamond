@@ -17,6 +17,7 @@
 #include "dialog_replace.h"
 #include "mainwindow.h"
 #include "search.h"
+#include "overlord.h"
 
 #include <QBoxLayout>
 #include <QDir>
@@ -28,66 +29,64 @@
 // * find
 void MainWindow::find()
 {
-    QString saveText = m_settings.findText();
+    QString saveText = Overlord::getInstance()->findText();
 
     QTextCursor cursor( m_textEdit->textCursor() );
     QString selectedText = cursor.selectedText();
 
     if ( ! selectedText.isEmpty() )
     {
-        m_settings.set_findText( selectedText );
+        Overlord::getInstance()->set_findText( selectedText );
     }
 
-    Dialog_Find *dw = new Dialog_Find( this, m_settings.findText(), m_settings.findList() );
+    Dialog_Find *dw = new Dialog_Find( this, Overlord::getInstance()->findText(), Overlord::getInstance()->findList() );
     int result = dw->exec();
 
     if ( result == QDialog::Accepted )
     {
 
-        m_settings.set_findText( dw->get_findText() );
-        m_settings.set_findList( dw->get_findList() );
+        Overlord::getInstance()->set_findText( dw->get_findText() );
+        Overlord::getInstance()->set_findList( dw->get_findList() );
 
         // add to combo list if not already there
-        int index = m_settings.findListFind( m_settings.findText() );
+        int index = Overlord::getInstance()->findListFind( Overlord::getInstance()->findText() );
 
         if ( index == -1 )
         {
-            m_settings.findList().prepend( m_settings.findText() );
+            Overlord::getInstance()->findList().prepend( Overlord::getInstance()->findText() );
         }
         else
         {
-            m_settings.findList().move( index,0 );
+            Overlord::getInstance()->findList().move( index,0 );
         }
-
-        saveAndBroadcastSettings();
 
         // get the flags
-        m_settings.set_findFlags( 0 );
+        Overlord::getInstance()->set_findFlags( 0 );
 
-        m_settings.set_findDirection( dw->get_Direction() );
+        Overlord::getInstance()->set_findDirection( dw->get_Direction() );
 
-        if ( ! m_settings.findDirection() )
+        if ( ! Overlord::getInstance()->findDirection() )
         {
-            m_settings.set_findFlagsBackward();
+            Overlord::getInstance()->set_findFlagsBackward();
         }
 
-        m_settings.set_findCase( dw->get_Case() );
+        Overlord::getInstance()->set_findCase( dw->get_Case() );
 
-        if ( m_settings.findCase() )
+        if ( Overlord::getInstance()->findCase() )
         {
-            m_settings.set_findFlagsCaseSensitive();
+            Overlord::getInstance()->set_findFlagsCaseSensitive();
         }
 
-        m_settings.set_findWholeWords( dw->get_WholeWords() );
+        Overlord::getInstance()->set_findWholeWords( dw->get_WholeWords() );
 
-        if ( m_settings.findWholeWords() )
+        if ( Overlord::getInstance()->findWholeWords() )
         {
-            m_settings.set_findFlagsWholeWords();
+            Overlord::getInstance()->set_findFlagsWholeWords();
         }
 
-        if ( ! m_settings.findText().isEmpty() )
+        if ( ! Overlord::getInstance()->findText().isEmpty() )
         {
-            bool found = m_textEdit->find( m_settings.findText(), m_settings.findFlags() );
+            bool found = m_textEdit->find( Overlord::getInstance()->findText(), Overlord::getInstance()->findFlags() );
 
             if ( ! found )
             {
@@ -99,14 +98,13 @@ void MainWindow::find()
     }
     else
     {
-        m_settings.set_findText( saveText );
+        Overlord::getInstance()->set_findText( saveText );
 
         bool upd_Find = dw->get_Upd_Find();
 
         if ( upd_Find )
         {
-            m_settings.set_findList( dw->get_findList() );
-            saveAndBroadcastSettings();
+            Overlord::getInstance()->set_findList( dw->get_findList() );
         }
     }
 
@@ -118,12 +116,12 @@ void MainWindow::findNext()
     // emerald - may want to modify m_FindText when text contains html
 
     QTextDocument::FindFlags flags = QTextDocument::FindFlags( ~QTextDocument::FindBackward
-                                     & m_settings.findFlags() );
-    bool found = m_textEdit->find( m_settings.findText(), flags );
+                                     & Overlord::getInstance()->findFlags() );
+    bool found = m_textEdit->find( Overlord::getInstance()->findText(), flags );
 
     if ( ! found )
     {
-        QString msg = "Not found: " + m_settings.findText() + "\n\n";
+        QString msg = "Not found: " + Overlord::getInstance()->findText() + "\n\n";
         msg += "Search from the beginning of this document?\n";
 
         QMessageBox msgFindNext( this );
@@ -149,12 +147,12 @@ void MainWindow::findNext()
 
 void MainWindow::findPrevious()
 {
-    bool found = m_textEdit->find( m_settings.findText(),
-                                   QTextDocument::FindBackward | m_settings.findFlags() );
+    bool found = m_textEdit->find( Overlord::getInstance()->findText(),
+                                   QTextDocument::FindBackward | Overlord::getInstance()->findFlags() );
 
     if ( ! found )
     {
-        csError( "Find", "Not found: " + m_settings.findText() );
+        csError( "Find", "Not found: " + Overlord::getInstance()->findText() );
     }
 }
 
@@ -162,21 +160,21 @@ void MainWindow::findPrevious()
 // * advanced find
 void MainWindow::advFind()
 {
-    QString saveText = m_settings.advancedFindText();
+    QString saveText = Overlord::getInstance()->advancedFindText();
 
     QTextCursor cursor( m_textEdit->textCursor() );
     QString selectedText = cursor.selectedText();
 
     if ( ! selectedText.isEmpty() )
     {
-        m_settings.set_advancedFindText( selectedText );
+        Overlord::getInstance()->set_advancedFindText( selectedText );
     }
 
     m_dwAdvFind = new Dialog_AdvFind( this,
-                                      m_settings.advancedFindText(),
-                                      m_settings.advancedFindFileType(),
-                                      m_settings.advancedFindFolder(),
-                                      m_settings.advancedFSearchFolders() );
+                                      Overlord::getInstance()->advancedFindText(),
+                                      Overlord::getInstance()->advancedFindFileType(),
+                                      Overlord::getInstance()->advancedFindFolder(),
+                                      Overlord::getInstance()->advancedFSearchFolders() );
 
     while ( true )
     {
@@ -185,28 +183,26 @@ void MainWindow::advFind()
         if ( result == QDialog::Accepted )
         {
 
-            m_settings.set_advancedFindText( m_dwAdvFind->get_findText() );
-            m_settings.set_advancedFindFileType( m_dwAdvFind->get_findType() );
-            m_settings.set_advancedFindFolder( m_dwAdvFind->get_findFolder() );
+            Overlord::getInstance()->set_advancedFindText( m_dwAdvFind->get_findText() );
+            Overlord::getInstance()->set_advancedFindFileType( m_dwAdvFind->get_findType() );
+            Overlord::getInstance()->set_advancedFindFolder( m_dwAdvFind->get_findFolder() );
 
             // get the flags
-            m_settings.set_advancedFCase( m_dwAdvFind->get_Case() );
-            m_settings.set_advancedFWholeWords( m_dwAdvFind->get_WholeWords() );
-            m_settings.set_advancedFSearchFolders( m_dwAdvFind->get_SearchSubFolders() );
+            Overlord::getInstance()->set_advancedFCase( m_dwAdvFind->get_Case() );
+            Overlord::getInstance()->set_advancedFWholeWords( m_dwAdvFind->get_WholeWords() );
+            Overlord::getInstance()->set_advancedFSearchFolders( m_dwAdvFind->get_SearchSubFolders() );
 
-            saveAndBroadcastSettings();
-
-            if ( ! m_settings.advancedFindText().isEmpty() )
+            if ( ! Overlord::getInstance()->advancedFindText().isEmpty() )
             {
 
-                if ( m_settings.advancedFindFileType().isEmpty() )
+                if ( Overlord::getInstance()->advancedFindFileType().isEmpty() )
                 {
-                    m_settings.set_advancedFindFileType( "*" );
+                    Overlord::getInstance()->set_advancedFindFileType( "*" );
                 }
 
-                if ( m_settings.advancedFindFolder().isEmpty() )
+                if ( Overlord::getInstance()->advancedFindFolder().isEmpty() )
                 {
-                    m_settings.set_advancedFindFolder( QDir::currentPath() );
+                    Overlord::getInstance()->set_advancedFindFolder( QDir::currentPath() );
                 }
 
                 //
@@ -220,7 +216,7 @@ void MainWindow::advFind()
                 }
                 else if ( foundList.isEmpty() )
                 {
-                    csError( "Advanced Find", "Not found: " + m_settings.advancedFindText() );
+                    csError( "Advanced Find", "Not found: " + Overlord::getInstance()->advancedFindText() );
 
                     // allow user to search again
                     m_dwAdvFind->showNotBusyMsg();
@@ -237,7 +233,7 @@ void MainWindow::advFind()
         }
         else
         {
-            m_settings.set_advancedFindText( saveText );
+            Overlord::getInstance()->set_advancedFindText( saveText );
 
         }
 
@@ -256,18 +252,18 @@ QList<advFindStruct> MainWindow::advFind_getResults( bool &aborted )
     QStringList searchList;
     QDir currentDir;
 
-    if ( m_settings.advancedFSearchFolders() )
+    if ( Overlord::getInstance()->advancedFSearchFolders() )
     {
         m_recursiveList.clear();
 
-        this->findRecursive( m_settings.advancedFindFolder() );
+        this->findRecursive( Overlord::getInstance()->advancedFindFolder() );
         searchList = m_recursiveList;
 
     }
     else
     {
-        currentDir = QDir( m_settings.advancedFindFolder() );
-        searchList = currentDir.entryList( QStringList( m_settings.advancedFindFileType() ),
+        currentDir = QDir( Overlord::getInstance()->advancedFindFolder() );
+        searchList = currentDir.entryList( QStringList( Overlord::getInstance()->advancedFindFileType() ),
                                            QDir::Files | QDir::NoSymLinks );
     }
 
@@ -295,9 +291,9 @@ QList<advFindStruct> MainWindow::advFind_getResults( bool &aborted )
     QString name;
 
     enum Qt::CaseSensitivity caseFlag;
-    QRegularExpression regExp = QRegularExpression( "\\b" + m_settings.advancedFindText() + "\\b" );
+    QRegularExpression regExp = QRegularExpression( "\\b" + Overlord::getInstance()->advancedFindText() + "\\b" );
 
-    if ( m_settings.advancedFCase() )
+    if ( Overlord::getInstance()->advancedFCase() )
     {
         caseFlag = Qt::CaseSensitive;
 
@@ -323,7 +319,7 @@ QList<advFindStruct> MainWindow::advFind_getResults( bool &aborted )
             break;
         }
 
-        if ( m_settings.advancedFSearchFolders() )
+        if ( Overlord::getInstance()->advancedFSearchFolders() )
         {
             name = searchList[k];
 
@@ -355,14 +351,14 @@ QList<advFindStruct> MainWindow::advFind_getResults( bool &aborted )
                 line = in.readLine();
                 lineNumber++;
 
-                if ( m_settings.advancedFWholeWords() )
+                if ( Overlord::getInstance()->advancedFWholeWords() )
                 {
                     position = line.indexOf( regExp );
 
                 }
                 else
                 {
-                    position = line.indexOf( m_settings.advancedFindText(), 0, caseFlag );
+                    position = line.indexOf( Overlord::getInstance()->advancedFindText(), 0, caseFlag );
 
                 }
 
@@ -391,7 +387,7 @@ void MainWindow::findRecursive( const QString &path, bool isFirstLoop )
     QDir dir( path );
     dir.setFilter( QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks );
 
-    QFileInfoList list = dir.entryInfoList( QStringList( m_settings.advancedFindFileType() ) );
+    QFileInfoList list = dir.entryInfoList( QStringList( Overlord::getInstance()->advancedFindFileType() ) );
     int cnt = list.count();
 
     if ( isFirstLoop && cnt > 0 )
@@ -570,77 +566,73 @@ void MainWindow::advFind_View( const QModelIndex &index )
 // * replace
 void MainWindow::replace()
 {
-    QString saveText = m_settings.findText();
+    QString saveText = Overlord::getInstance()->findText();
 
     QTextCursor cursor( m_textEdit->textCursor() );
     QString selectedText = cursor.selectedText();
 
     if ( ! selectedText.isEmpty() )
     {
-        m_settings.set_findText( selectedText );
+        Overlord::getInstance()->set_findText( selectedText );
     }
 
     Dialog_Replace *dw = new Dialog_Replace( this,
-            m_settings.findText(),
-            m_settings.findList(),
-            m_settings.replaceText(),
-            m_settings.replaceList() );
+            Overlord::getInstance()->findText(),
+            Overlord::getInstance()->findList(),
+            Overlord::getInstance()->replaceText(),
+            Overlord::getInstance()->replaceList() );
     int result = dw->exec();
 
     if ( result >= QDialog::Accepted )
     {
-        m_settings.set_findText( dw->get_findText() );
-        m_settings.set_findList( dw->get_findList() );
+        Overlord::getInstance()->set_findText( dw->get_findText() );
+        Overlord::getInstance()->set_findList( dw->get_findList() );
 
         // add to list if not found
-        int index = m_settings.findListFind( m_settings.findText() );
+        int index = Overlord::getInstance()->findListFind( Overlord::getInstance()->findText() );
 
         if ( index == -1 )
         {
-            m_settings.findListPrepend( m_settings.findText() );
+            Overlord::getInstance()->findListPrepend( Overlord::getInstance()->findText() );
         }
         else
         {
-            m_settings.findListMove( index,0 );
+            Overlord::getInstance()->findListMove( index,0 );
         }
 
-        m_settings.set_replaceText( dw->get_replaceText() );
-        m_settings.set_replaceList( dw->get_replaceList() );
+        Overlord::getInstance()->set_replaceText( dw->get_replaceText() );
+        Overlord::getInstance()->set_replaceList( dw->get_replaceList() );
 
         // add to list if not found
-        index = m_settings.replaceListFind( m_settings.replaceText() );
+        index = Overlord::getInstance()->replaceListFind( Overlord::getInstance()->replaceText() );
 
         if ( index == -1 )
         {
-            m_settings.replaceListPrepend( m_settings.replaceText() );
-
-            saveAndBroadcastSettings();
-
+            Overlord::getInstance()->replaceListPrepend( Overlord::getInstance()->replaceText() );
         }
         else
         {
-            m_settings.replaceListMove( index,0 );
-
+            Overlord::getInstance()->replaceListMove( index,0 );
         }
 
         // get the flags
-        m_settings.set_findFlags( 0 );
+        Overlord::getInstance()->set_findFlags( 0 );
 
-        m_settings.set_findCase( dw->get_Case() );
+        Overlord::getInstance()->set_findCase( dw->get_Case() );
 
-        if ( m_settings.findCase() )
+        if ( Overlord::getInstance()->findCase() )
         {
-            m_settings.set_findFlagsCaseSensitive();
+            Overlord::getInstance()->set_findFlagsCaseSensitive();
         }
 
-        m_settings.set_findWholeWords( dw->get_WholeWords() );
+        Overlord::getInstance()->set_findWholeWords( dw->get_WholeWords() );
 
-        if ( m_settings.findWholeWords() )
+        if ( Overlord::getInstance()->findWholeWords() )
         {
-            m_settings.set_findFlagsWholeWords();
+            Overlord::getInstance()->set_findFlagsWholeWords();
         }
 
-        if ( ! m_settings.findText().isEmpty() && ! m_settings.replaceText().isEmpty() )
+        if ( ! Overlord::getInstance()->findText().isEmpty() && ! Overlord::getInstance()->replaceText().isEmpty() )
         {
 
             if ( result == 1 )
@@ -658,24 +650,19 @@ void MainWindow::replace()
     }
     else
     {
-        m_settings.set_findText( saveText );
+        Overlord::getInstance()->set_findText( saveText );
 
         bool upd_Find    = dw->get_Upd_Find();
         bool upd_Replace = dw->get_Upd_Replace();
 
         if ( upd_Find && ! upd_Replace )
         {
-            m_settings.set_findList( dw->get_findList() );
-
-            saveAndBroadcastSettings();
-
+            Overlord::getInstance()->set_findList( dw->get_findList() );
         }
         else if ( upd_Replace )
         {
-            m_settings.set_findList( dw->get_findList() );
-            m_settings.set_replaceList( dw->get_replaceList() );
-
-            saveAndBroadcastSettings();
+            Overlord::getInstance()->set_findList( dw->get_findList() );
+            Overlord::getInstance()->set_replaceList( dw->get_replaceList() );
         }
     }
 
@@ -695,7 +682,7 @@ void MainWindow::replaceQuery()
 
     while ( true )
     {
-        found = m_textEdit->find( m_settings.findText(), m_settings.findFlags() );
+        found = m_textEdit->find( Overlord::getInstance()->findText(), Overlord::getInstance()->findFlags() );
 
         if ( found )
         {
@@ -740,7 +727,7 @@ void MainWindow::replaceQuery()
             else if ( key == Qt::Key_O )
             {
                 cursor  = m_textEdit->textCursor();
-                cursor.insertText( m_settings.replaceText() );
+                cursor.insertText( Overlord::getInstance()->replaceText() );
 
                 break;
 
@@ -753,7 +740,7 @@ void MainWindow::replaceQuery()
             else if ( key == Qt::Key_Y )
             {
                 cursor  = m_textEdit->textCursor();
-                cursor.insertText( m_settings.replaceText() );
+                cursor.insertText( Overlord::getInstance()->replaceText() );
 
             }
 
@@ -775,7 +762,7 @@ void MainWindow::replaceQuery()
 
     if ( isFirst )
     {
-        csError( "Replace", "Not found: " + m_settings.findText() );
+        csError( "Replace", "Not found: " + Overlord::getInstance()->findText() );
     }
 }
 
@@ -790,14 +777,14 @@ void MainWindow::replaceAll()
 
     while ( true )
     {
-        found = m_textEdit->find( m_settings.findText(), m_settings.findFlags() );
+        found = m_textEdit->find( Overlord::getInstance()->findText(), Overlord::getInstance()->findFlags() );
 
         if ( found )
         {
             isFirst = false;
 
             cursor  = m_textEdit->textCursor();
-            cursor.insertText( m_settings.replaceText() );
+            cursor.insertText( Overlord::getInstance()->replaceText() );
 
         }
         else
@@ -815,7 +802,7 @@ void MainWindow::replaceAll()
 
     if ( isFirst )
     {
-        csError( "Replace All", "Not found: " + m_settings.findText() );
+        csError( "Replace All", "Not found: " + Overlord::getInstance()->findText() );
     }
 }
 

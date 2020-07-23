@@ -23,7 +23,7 @@
 // ****  recent files
 void MainWindow::rf_CreateMenus()
 {
-    int cnt = m_settings.recentFiles().count();
+    int cnt = Overlord::getInstance()->recentFiles().count();
 
     QString tName;
 
@@ -35,7 +35,7 @@ void MainWindow::rf_CreateMenus()
 
         if ( i < cnt )
         {
-            tName = m_settings.recentFiles()[i];
+            tName = Overlord::getInstance()->recentFiles()[i];
         }
         else
         {
@@ -67,15 +67,14 @@ void MainWindow::rf_Open()
 
         if ( ! ok )
         {
+            // TODO:: move this logic into overlord so we can set changed flag
+            //
             // remove file from list since it did not load
-            int index = m_settings.recentFiles().indexOf( action->text() );
+            int index = Overlord::getInstance()->recentFiles().indexOf( action->text() );
 
             if ( index >= 0 )
             {
-                m_settings.recentFiles().removeAt( index );
-
-                // save new list of files
-                saveAndBroadcastSettings();
+                Overlord::getInstance()->recentFiles().removeAt( index );
 
                 // update actions
                 rf_UpdateActions();
@@ -115,10 +114,7 @@ void MainWindow::rf_ClearList()
 
     if ( action )
     {
-        m_settings.recentFileListClear();
-
-        // save new list of files
-        saveAndBroadcastSettings();
+        Overlord::getInstance()->recentFileListClear();
 
         // update actions
         rf_UpdateActions();
@@ -134,14 +130,13 @@ void MainWindow::rf_RemoveFName()
     {
         QString fName = action->data().toString();
 
-        int index = m_settings.recentFiles().indexOf( fName );
+        // TODO:: move this logic into overlord so we can set change flag
+        //
+        int index = Overlord::getInstance()->recentFiles().indexOf( fName );
 
         if ( index >= 0 )
         {
-            m_settings.recentFiles().removeAt( index );
-
-            // save new list of files
-            saveAndBroadcastSettings();
+            Overlord::getInstance()->recentFiles().removeAt( index );
 
             // update actions
             rf_UpdateActions();
@@ -151,17 +146,14 @@ void MainWindow::rf_RemoveFName()
 
 void MainWindow::rf_Update()
 {
-    int cnt = m_settings.recentFiles().count();
+    int cnt = Overlord::getInstance()->recentFiles().count();
 
     if ( cnt >= DiamondLimits::RECENT_FILES_MAX )
     {
-        m_settings.recentFiles().removeFirst();
+        Overlord::getInstance()->recentFiles().removeFirst();
     }
 
-    m_settings.recentFiles().append( m_curFile );
-
-    // save new list of files
-    saveAndBroadcastSettings();
+    Overlord::getInstance()->recentFiles().append( m_curFile );
 
     // update actions
     rf_UpdateActions();
@@ -169,14 +161,14 @@ void MainWindow::rf_Update()
 
 void MainWindow::rf_UpdateActions()
 {
-    int cnt = m_settings.recentFiles().count();
+    int cnt = Overlord::getInstance()->recentFiles().count();
 
     for ( int i = 0; i < DiamondLimits::RECENT_FILES_MAX; ++i )
     {
 
         if ( i < cnt )
         {
-            rf_Actions[i]->setText( m_settings.recentFiles()[i] );
+            rf_Actions[i]->setText( Overlord::getInstance()->recentFiles()[i] );
             rf_Actions[i]->setVisible( true );
 
         }
@@ -194,7 +186,7 @@ void MainWindow::rf_UpdateActions()
 // ****  recent folders
 void MainWindow::rfolder_CreateMenus()
 {
-    int cnt = m_settings.recentFolders().count();
+    int cnt = Overlord::getInstance()->recentFolders().count();
 
     QString tName;
     QMenu *menu = new QMenu( this );
@@ -204,7 +196,7 @@ void MainWindow::rfolder_CreateMenus()
 
         if ( i < cnt )
         {
-            tName = m_settings.recentFolders()[i];
+            tName = Overlord::getInstance()->recentFolders()[i];
         }
         else
         {
@@ -271,10 +263,7 @@ void MainWindow::rfolder_ClearList()
 
     if ( action )
     {
-        m_settings.recentFolders().clear();
-
-        // save new list
-        saveAndBroadcastSettings();
+        Overlord::getInstance()->recentFolders().clear();
 
         // update actions
         rfolder_UpdateActions();
@@ -290,14 +279,11 @@ void MainWindow::rfolder_RemoveFName()
     {
         QString fName = action->data().toString();
 
-        int index = m_settings.recentFolders().indexOf( fName );
+        int index = Overlord::getInstance()->recentFolders().indexOf( fName );
 
         if ( index >= 0 )
         {
-            m_settings.recentFolders().removeAt( index );
-
-            // save new list
-            saveAndBroadcastSettings();
+            Overlord::getInstance()->recentFolders().removeAt( index );
 
             // update actions
             rfolder_UpdateActions();
@@ -312,22 +298,19 @@ void MainWindow::rfolder_Add()
         return;
     }
 
-    int cnt = m_settings.recentFolders().count();
+    int cnt = Overlord::getInstance()->recentFolders().count();
 
     if ( cnt >= DiamondLimits::RECENT_FOLDERS_MAX )
     {
-        m_settings.recentFolders().removeFirst();
+        Overlord::getInstance()->recentFolders().removeFirst();
     }
 
     QString fileName = pathName( m_curFile );
 
-    if ( ! m_settings.recentFolders().contains( fileName ) )
+    if ( ! Overlord::getInstance()->recentFolders().contains( fileName ) )
     {
-        m_settings.recentFolders().append( fileName );
+        Overlord::getInstance()->recentFolders().append( fileName );
     }
-
-    // save new list
-    saveAndBroadcastSettings();
 
     // update actions
     rfolder_UpdateActions();
@@ -335,14 +318,14 @@ void MainWindow::rfolder_Add()
 
 void MainWindow::rfolder_UpdateActions()
 {
-    int cnt = m_settings.recentFolders().count();
+    int cnt = Overlord::getInstance()->recentFolders().count();
 
     for ( int i = 0; i < DiamondLimits::RECENT_FOLDERS_MAX; ++i )
     {
 
         if ( i < cnt )
         {
-            rfolder_Actions[i]->setText( m_settings.recentFolders()[i] );
+            rfolder_Actions[i]->setText( Overlord::getInstance()->recentFolders()[i] );
             rfolder_Actions[i]->setVisible( true );
 
         }
@@ -365,7 +348,7 @@ void MainWindow::prefolder_CreateMenus()
     for ( int i = 0; i < DiamondLimits::PRESET_FOLDERS_MAX; ++i )
     {
 
-        tName = m_settings.presetFolders()[i];
+        tName = Overlord::getInstance()->presetFolders()[i];
 
         if ( tName.isEmpty() )
         {

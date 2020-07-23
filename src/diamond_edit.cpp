@@ -12,6 +12,22 @@
 *
 ***************************************************************************/
 
+/**************************************************************************
+ * Some of this might look weird at first.
+ *
+ * When setting a value found in the settings object, we must always set
+ * using Overlord::getInstance().
+ *
+ * When reading a value that impacts the display we must always use the
+ * local pointer.
+ *
+ * The reason behind this is the dialog adjusting color and theme. It uses
+ * a local copy of the settings so user changes do not impact the running
+ * application until the user saves/accepts them. That dialog will connect
+ * a signal to the slot of the instance of this class appearing on it.
+ * User can then instantly see what their color choices look like.
+ ***************************************************************************/
+
 #include "diamond_edit.h"
 #include "non_gui_functions.h"
 #include "dialog_symbols.h"
@@ -25,12 +41,12 @@
 #include <QDate>
 #include <QTime>
 
-DiamondTextEdit::DiamondTextEdit( QWidget *parent, Settings &settings, QString owner )
-    : QPlainTextEdit()
+DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
+    : QPlainTextEdit( parent )
     , m_record( false )
     , m_owner( owner )
-    , m_settings( settings )
     , m_spellCheck( nullptr )
+    , m_settingsPtr( nullptr )
 {
     // drag & drop
     setAcceptDrops( false );
@@ -46,31 +62,42 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, Settings &settings, QString o
     m_synFName     = "";
     m_syntaxParser = 0;
 
+    // I really kind of hate this. I have to keep a local pointer
+    // because I want to re-use this editor inside of the colors dialog.
+    // That dialog keeps a local copy of changes until the user chooses to save.
+    //
+    m_settingsPtr = Overlord::getInstance()->pointerToSettings();
+
     // spell check
-    m_isSpellCheck = settings.isSpellCheck();
+    m_isSpellCheck = Overlord::getInstance()->isSpellCheck();
+
+    // make local copies of the things that require a lot of work
+    // so we only want to update that stuff when it actually changes.
+    //
+    m_lastTheme      = m_settingsPtr->currentTheme();
+    m_lastNormalFont = m_settingsPtr->fontNormal();
+    m_lastColumnFont = m_settingsPtr->fontColumn();
 
     // line highlight bar
     connect( this, &DiamondTextEdit::blockCountChanged, this, &DiamondTextEdit::update_LineNumWidth );
     connect( this, &DiamondTextEdit::updateRequest,     this, &DiamondTextEdit::update_LineNumArea );
 
+    connect( Overlord::getInstance(), &Overlord::settingsChanged,
+             this, &DiamondTextEdit::changeSettings );
     createSpellCheck();
     setUpTabStops();
     setScreenColors();
     changeFont();
 }
 
-DiamondTextEdit::~DiamondTextEdit()
-{
-}
-
 // ** line numbers
 void DiamondTextEdit::lineNum_PaintEvent( QPaintEvent *event )
 {
-    if ( m_settings.showLineNumbers() )
+    if ( m_settingsPtr->showLineNumbers() )
     {
 
         QPainter painter( m_lineNumArea );
-        painter.fillRect( event->rect(), m_settings.currentTheme().gutterBack() );
+        painter.fillRect( event->rect(), m_settingsPtr->currentTheme().gutterBack() );
 
         QTextBlock block = firstVisibleBlock();
         int blockNumber = block.blockNumber();
@@ -83,7 +110,7 @@ void DiamondTextEdit::lineNum_PaintEvent( QPaintEvent *event )
             {
                 QString number = QString::number( blockNumber + 1 );
 
-                painter.setPen( m_settings.currentTheme().gutterText() );
+                painter.setPen( m_settingsPtr->currentTheme().gutterText() );
                 painter.drawText( 0, top, m_lineNumArea->width()-7, fontMetrics().height(), Qt::AlignRight, number );
             }
 
@@ -158,7 +185,7 @@ void DiamondTextEdit::contextMenuEvent( QContextMenuEvent *event )
         isSelected = true;
     }
 
-    if ( ! isSelected && m_settings.isColumnMode() )
+    if ( ! isSelected && m_settingsPtr->isColumnMode() )
     {
         // check for extra selection
 
@@ -315,11 +342,13 @@ void DiamondTextEdit::set_Spell( bool value )
 // ** column mode
 void DiamondTextEdit::set_ColumnMode( bool yesNo )
 {
-    m_settings.set_isColumnMode( yesNo);
+    // this looks weird, but when setting a value in settings
+    // we must always use the singleton.
+    Overlord::getInstance()->set_isColumnMode( yesNo );
     changeFont();
-    
+
     // leaving column mode
-    if ( ! m_settings.isColumnMode() )
+    if ( ! yesNo )
     {
 
         if ( m_undoCount > 0 && ! m_colHighlight )
@@ -335,13 +364,12 @@ void DiamondTextEdit::set_ColumnMode( bool yesNo )
 
 bool DiamondTextEdit::get_ColumnMode()
 {
-    return m_settings.isColumnMode();
+    return m_settingsPtr->isColumnMode();
 }
 
 void DiamondTextEdit::set_ShowLineNum( bool yesNo )
 {
-    m_settings.set_showLineNumbers(yesNo);
-    // TODO:: probably need to update display here
+    Overlord::getInstance()->set_showLineNumbers( yesNo );
 }
 
 void DiamondTextEdit::removeColumnModeSpaces()
@@ -369,7 +397,7 @@ void DiamondTextEdit::removeColumnModeSpaces()
 
 void DiamondTextEdit::cut()
 {
-    if ( m_settings.isColumnMode() )
+    if ( m_settingsPtr->isColumnMode() )
     {
 
         QString text;
@@ -437,7 +465,7 @@ void DiamondTextEdit::cut()
 
 void DiamondTextEdit::copy()
 {
-    if ( m_settings.isColumnMode() )
+    if ( m_settingsPtr->isColumnMode() )
     {
 
         QString text;
@@ -485,7 +513,7 @@ void DiamondTextEdit::copy()
 
 void DiamondTextEdit::paste()
 {
-    if ( m_settings.isColumnMode() )
+    if ( m_settingsPtr->isColumnMode() )
     {
 
         QString text = QApplication::clipboard()->text();
@@ -608,7 +636,7 @@ bool DiamondTextEdit::event( QEvent *event )
             return false;
         }
 
-        if ( m_settings.isColumnMode() )
+        if ( m_settingsPtr->isColumnMode() )
         {
 
             if ( modifiers == Qt::ShiftModifier &&
@@ -779,7 +807,7 @@ void DiamondTextEdit::keyPressEvent( QKeyEvent *event )
         m_macroKeyList.append( newEvent );
     }
 
-    if ( m_settings.isColumnMode() )
+    if ( m_settingsPtr->isColumnMode() )
     {
 
         if ( m_undoCount > 0 && ! m_colHighlight )
@@ -828,7 +856,7 @@ void DiamondTextEdit::keyPressEvent( QKeyEvent *event )
 
 void DiamondTextEdit::mousePressEvent( QMouseEvent *event )
 {
-    if ( m_settings.isColumnMode() )
+    if ( m_settingsPtr->isColumnMode() )
     {
         if ( m_undoCount > 0 && ! m_colHighlight )
         {
@@ -845,7 +873,7 @@ void DiamondTextEdit::keyReleaseEvent( QKeyEvent *event )
 {
     int modifiers = event->modifiers();
 
-    if ( m_settings.isColumnMode() )
+    if ( m_settingsPtr->isColumnMode() )
     {
 
         if ( m_colHighlight && ( ( modifiers & Qt::ShiftModifier ) == 0 ) )
@@ -876,7 +904,7 @@ QStringList DiamondTextEdit::spell_getMaybe( QString word )
 
 void DiamondTextEdit::createSpellCheck()
 {
-    m_spellCheck = new SpellCheck( m_settings.mainDictionary(),  m_settings.userDictionary() );
+    m_spellCheck = new SpellCheck( m_settingsPtr->mainDictionary(),  m_settingsPtr->userDictionary() );
 }
 
 void DiamondTextEdit::spell_addUserDict()
@@ -899,88 +927,88 @@ void DiamondTextEdit::forceSyntax( SyntaxTypes data )
     switch ( data )
     {
         case SYN_C:
-            synFName = m_settings.syntaxPath() + "syn_cpp.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_cpp.json";
             break;
 
         case SYN_CLIPPER:
-            synFName = m_settings.syntaxPath() + "syn_clipper.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_clipper.json";
             break;
 
         case SYN_CMAKE:
-            synFName = m_settings.syntaxPath() + "syn_cmake.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_cmake.json";
             break;
 
         case SYN_CSS:
-            synFName = m_settings.syntaxPath() + "syn_css.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_css.json";
             break;
 
         case SYN_DOXY:
-            synFName = m_settings.syntaxPath() + "syn_doxy.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_doxy.json";
             break;
 
         case SYN_ERRLOG:
-            synFName = m_settings.syntaxPath() + "syn_errlog.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_errlog.json";
             break;
 
         case SYN_HTML:
-            synFName = m_settings.syntaxPath() + "syn_html.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_html.json";
             break;
 
         case SYN_JAVA:
-            synFName = m_settings.syntaxPath() + "syn_java.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_java.json";
             break;
 
         case SYN_JS:
-            synFName = m_settings.syntaxPath() + "syn_js.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_js.json";
             break;
 
         case SYN_JSON:
-            synFName = m_settings.syntaxPath() + "syn_json.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_json.json";
             break;
 
         case SYN_MAKE:
-            synFName = m_settings.syntaxPath() + "syn_make.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_make.json";
             break;
 
         case SYN_NSIS:
-            synFName = m_settings.syntaxPath() + "syn_nsi.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_nsi.json";
             break;
 
         case SYN_TEXT:
-            synFName = m_settings.syntaxPath() + "syn_txt.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_txt.json";
             break;
 
         case SYN_SHELL:
-            synFName = m_settings.syntaxPath() + "syn_sh.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_sh.json";
             break;
 
         case SYN_PERL:
-            synFName = m_settings.syntaxPath() + "syn_pl.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_pl.json";
             break;
 
         case SYN_PHP:
-            synFName = m_settings.syntaxPath() + "syn_php.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_php.json";
             break;
 
         case SYN_PYTHON:
-            synFName = m_settings.syntaxPath() + "syn_py.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_py.json";
             break;
 
         case SYN_XML:
-            synFName = m_settings.syntaxPath() + "syn_xml.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_xml.json";
             break;
 
         case SYN_NONE:
-            synFName = m_settings.syntaxPath() + "syn_none.json";
+            synFName = m_settingsPtr->syntaxPath() + "syn_none.json";
             break;
 
             /*
                   case SYN_UNUSED1:
-                     synFName = m_settings.syntaxPath() + "syn_unused1.json";
+                     synFName = m_settingsPtr->syntaxPath() + "syn_unused1.json";
                      break;
 
                   case SYN_UNUSED2:
-                     synFName = m_settings.syntaxPath() + "syn_unused2.json";
+                     synFName = m_settingsPtr->syntaxPath() + "syn_unused2.json";
                      break;
             */
 
@@ -1014,9 +1042,9 @@ void DiamondTextEdit::runSyntax( QString synFName )
         m_syntaxParser = nullptr;
     }
 
-    Syntax *parser = new Syntax( document(), synFName, m_settings, m_spellCheck );
+    Syntax *parser = new Syntax( document(), synFName, m_spellCheck );
 
-    if ( parser->processSyntax() )
+    if ( parser->processSyntax( Overlord::getInstance()->pointerToSettings() ) )
     {
         set_SyntaxParser( parser );
     }
@@ -1037,7 +1065,7 @@ void DiamondTextEdit::spell_replaceWord()
 
 void DiamondTextEdit::indentIncr( QString route )
 {
-    const QString tabLen = QString( m_settings.tabSpacing(), ' ' );
+    const QString tabLen = QString( m_settingsPtr->tabSpacing(), ' ' );
     QTextCursor cursor( textCursor() );
 
     cursor.beginEditBlock();
@@ -1061,10 +1089,10 @@ void DiamondTextEdit::indentIncr( QString route )
         {
             cursor.movePosition( QTextCursor::StartOfLine );
 
-            if ( m_settings.useSpaces() )
+            if ( m_settingsPtr->useSpaces() )
             {
                 cursor.insertText( tabLen );
-                posEnd += m_settings.tabSpacing();
+                posEnd += m_settingsPtr->tabSpacing();
 
             }
             else
@@ -1102,7 +1130,7 @@ void DiamondTextEdit::indentIncr( QString route )
             cursor.movePosition( QTextCursor::StartOfLine );
         }
 
-        if ( m_settings.useSpaces() )
+        if ( m_settingsPtr->useSpaces() )
         {
             cursor.insertText( tabLen );
 
@@ -1144,7 +1172,7 @@ void DiamondTextEdit::indentDecr( QString route )
         {
             cursor.movePosition( QTextCursor::StartOfLine );
 
-            for ( int k = 0; k < m_settings.tabSpacing(); ++k )
+            for ( int k = 0; k < m_settingsPtr->tabSpacing(); ++k )
             {
 
                 int t_block = cursor.block().blockNumber();
@@ -1163,7 +1191,7 @@ void DiamondTextEdit::indentDecr( QString route )
                     break;
                 }
 
-                if ( m_settings.useSpaces() )
+                if ( m_settingsPtr->useSpaces() )
                 {
                     cursor.deleteChar();
 
@@ -1210,7 +1238,7 @@ void DiamondTextEdit::indentDecr( QString route )
 
         QString tmp;
 
-        for ( int k=0; k < m_settings.tabSpacing(); ++k )
+        for ( int k=0; k < m_settingsPtr->tabSpacing(); ++k )
         {
 
             cursor.movePosition( QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1 );
@@ -1221,7 +1249,7 @@ void DiamondTextEdit::indentDecr( QString route )
                 break;
             }
 
-            if ( m_settings.useSpaces() )
+            if ( m_settingsPtr->useSpaces() )
             {
                 cursor.deleteChar();
             }
@@ -1377,7 +1405,7 @@ void DiamondTextEdit::caseCap()
 void DiamondTextEdit::insertDate()
 {
     QDate date  = QDate::currentDate();
-    QString tmp = date.toString( m_settings.formatDate() );
+    QString tmp = date.toString( m_settingsPtr->formatDate() );
 
     insertPlainText( tmp );
 }
@@ -1385,7 +1413,7 @@ void DiamondTextEdit::insertDate()
 void DiamondTextEdit::insertTime()
 {
     QTime time  = QTime::currentTime();
-    QString tmp = time.toString( m_settings.formatTime() );
+    QString tmp = time.toString( m_settingsPtr->formatTime() );
 
     insertPlainText( tmp );
 }
@@ -1395,9 +1423,9 @@ void DiamondTextEdit::rewrapParagraph()
     QTextCursor cursor( textCursor() );
     cursor.beginEditBlock();
 
-    if ( m_settings.rewrapColumn() == 0 )
+    if ( m_settingsPtr->rewrapColumn() == 0 )
     {
-        m_settings.set_rewrapColumn( 120 );
+        Overlord::getInstance()->set_rewrapColumn( 120 );
     }
 
     if ( cursor.hasSelection() )
@@ -1429,8 +1457,8 @@ void DiamondTextEdit::rewrapParagraph()
 
         while ( ! tmp.isEmpty() )
         {
-            lines.append( tmp.left( m_settings.rewrapColumn() ) );
-            tmp.remove( 0, m_settings.rewrapColumn() );
+            lines.append( tmp.left( m_settingsPtr->rewrapColumn() ) );
+            tmp.remove( 0, m_settingsPtr->rewrapColumn() );
         }
 
         QString hold;
@@ -1445,7 +1473,7 @@ void DiamondTextEdit::rewrapParagraph()
                 int len    = str.size();
                 QChar last = str[len - 1];
 
-                while ( len >= m_settings.rewrapColumn() )
+                while ( len >= m_settingsPtr->rewrapColumn() )
                 {
                     // line is too long
                     hold.prepend( last );
@@ -1482,7 +1510,7 @@ void DiamondTextEdit::rewrapParagraph()
             int len    = lastLine.size();
             QChar last = lastLine[len - 1];
 
-            while ( len >=  m_settings.rewrapColumn() )
+            while ( len >=  m_settingsPtr->rewrapColumn() )
             {
                 // line is too long
                 hold.prepend( last );
@@ -1596,13 +1624,13 @@ void DiamondTextEdit::moveBar()
     QColor textColor;
     QColor backColor;
 
-    textColor = m_settings.currentTheme().colorText();
-    backColor = m_settings.currentTheme().colorBack();
+    textColor = m_settingsPtr->currentTheme().colorText();
+    backColor = m_settingsPtr->currentTheme().colorBack();
 
-    if ( m_settings.showLineHighlight() )
+    if ( m_settingsPtr->showLineHighlight() )
     {
         // on
-        backColor = m_settings.currentTheme().currentLineBack();
+        backColor = m_settingsPtr->currentTheme().currentLineBack();
     }
 
     // TODO:: save foreground text color already in place. Only change background.
@@ -1634,7 +1662,7 @@ void DiamondTextEdit::fixTab_Spaces()
     // set for undo stack
     cursor.beginEditBlock();
 
-    int tabLen = m_settings.tabSpacing();
+    int tabLen = m_settingsPtr->tabSpacing();
     const QString findText = QString( QChar( 9 ) );
 
     while ( true )
@@ -1683,7 +1711,7 @@ void DiamondTextEdit::fixSpaces_Tab()
     cursor.beginEditBlock();
 
     int pos;
-    int tabLen = m_settings.tabSpacing();
+    int tabLen = m_settingsPtr->tabSpacing();
 
     QString tmp;
 
@@ -1889,13 +1917,13 @@ void DiamondTextEdit::setSyntax()
         }
     }
 
-    QString synFName = m_settings.syntaxPath() + "syn_"+ suffix + ".json";
+    QString synFName = m_settingsPtr->syntaxPath() + "syn_"+ suffix + ".json";
 
     if ( ! QFile::exists( synFName ) )
     {
         // use default
         suffix   = "txt";
-        synFName = m_settings.syntaxPath() + "syn_txt.json";
+        synFName = m_settingsPtr->syntaxPath() + "syn_txt.json";
     }
 
     //
@@ -2023,40 +2051,52 @@ void DiamondTextEdit::setUpTabStops()
 
     for ( int k = 1; k < 25; ++k )
     {
-        tabStop = ( m_settings.tabSpacing() * k ) + 1;
+        tabStop = ( m_settingsPtr->tabSpacing() * k ) + 1;
         m_tabStops.append( tabStop );
     }
 }
 
-void DiamondTextEdit::changeSettings( Settings &settings )
+void DiamondTextEdit::changeSettings( Settings *settings )
 {
-    // TODO:: look for other things that should be done when new settings provided
-    //
-    m_settings = settings;
+    m_settingsPtr = settings;
+
     setUpTabStops();
-    setSyntax();
-    // TODO:: need to test for theme change
-    setScreenColors();
-    changeFont();
+
+    if ( m_lastTheme != m_settingsPtr->currentTheme() )
+    {
+        setScreenColors();
+        m_lastTheme = m_settingsPtr->currentTheme();
+        runSyntax( m_synFName );
+    }
+
+    if ( ( m_lastNormalFont != m_settingsPtr->fontNormal() )
+            || ( m_lastColumnFont != m_settingsPtr->fontColumn() ) )
+    {
+        changeFont();
+        m_lastNormalFont = m_settingsPtr->fontNormal();
+        m_lastColumnFont = m_settingsPtr->fontColumn();
+    }
+
+    moveBar();
     update();
 }
 
 void DiamondTextEdit::setScreenColors()
 {
     QPalette tmp = palette();
-    tmp.setColor( QPalette::Text, m_settings.currentTheme().colorText() );
-    tmp.setColor( QPalette::Base, m_settings.currentTheme().colorBack() );
+    tmp.setColor( QPalette::Text, m_settingsPtr->currentTheme().colorText() );
+    tmp.setColor( QPalette::Base, m_settingsPtr->currentTheme().colorBack() );
     setPalette( tmp );
-}    
+}
 
 void DiamondTextEdit::changeFont()
 {
     if ( get_ColumnMode() )
     {
-        setFont( m_settings.fontColumn() );
+        setFont( m_settingsPtr->fontColumn() );
     }
     else
     {
-        setFont( m_settings.fontNormal() );
+        setFont( m_settingsPtr->fontNormal() );
     }
-}    
+}

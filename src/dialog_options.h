@@ -23,27 +23,25 @@
 
 class Dialog_Options : public QDialog
 {
-   CS_OBJECT(Dialog_Options)
+    CS_OBJECT( Dialog_Options )
 
-   public:
-      Dialog_Options(QWidget *parent, Options data);
-      ~Dialog_Options();
+public:
+    Dialog_Options( QWidget *parent );
+    ~Dialog_Options();
 
-      Options get_Results();
+private:
+    Ui::Dialog_Options *m_ui;
 
-   private:
-      Ui::Dialog_Options *m_ui;
+    Options m_options;
+    void initData();
 
-      Options m_options;
-      void initData();
+    void pick_Main();
+    void pick_User();
+    void pick_Syntax();
 
-      void pick_Main();
-      void pick_User();
-      void pick_Syntax();
-
-      void reset_StandardKey();
-      void save();
-      void cancel();
+    void reset_StandardKey();
+    void save();
+    void cancel();
 };
 
 #endif

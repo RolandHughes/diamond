@@ -97,7 +97,6 @@ void MainWindow::printPdf()
 void MainWindow::printOut( QPrinter *printer )
 {
     QTextDocument *td = new QTextDocument;
-    PrintSettings settings = m_settings.copyOfPrintSettings();
 
     /*
        // consider this later one
@@ -108,7 +107,7 @@ void MainWindow::printOut( QPrinter *printer )
 
     QString html = "";
 
-    if ( settings.lineNumbers() )
+    if ( Overlord::getInstance()->printLineNumbers() )
     {
 
         QTextBlock block = m_textEdit->document()->firstBlock();
@@ -123,7 +122,7 @@ void MainWindow::printOut( QPrinter *printer )
             html += "<tr>";
             html += "<td  align='right' valign='middle'><b><font size='2'>" + QString::number( blockNumber + 1 ) + "</b></font></td>";
             html += "<td> &nbsp;&nbsp; </td>";
-            html += "<td> " + this->convertBlockToHTML( block.text(), m_settings.tabSpacing() ) + "</td>";
+            html += "<td> " + this->convertBlockToHTML( block.text(), Overlord::getInstance()->tabSpacing() ) + "</td>";
             html += "</tr>";
 
             block = block.next();
@@ -142,8 +141,10 @@ void MainWindow::printOut( QPrinter *printer )
     td->setHtml( html );
 
     printer->setPaperSize( QPageSize::Letter );
-    printer->setPageMargins( QMarginsF{ settings.marginLeft(), settings.marginTop(),
-                                        settings.marginRight(), settings.marginBottom()},
+    printer->setPageMargins( QMarginsF{ Overlord::getInstance()->marginLeft(),
+                                        Overlord::getInstance()->marginTop(),
+                                        Overlord::getInstance()->marginRight(),
+                                        Overlord::getInstance()->marginBottom()},
                              QPageSize::Inch );
 
     QPainter painter;
@@ -160,15 +161,17 @@ void MainWindow::printOut( QPrinter *printer )
         painter.setWindow( 0, 0, winX, winY );
 
         td->documentLayout()->setPaintDevice( painter.device() );
-        td->setDefaultFont( settings.fontText() );
+        td->setDefaultFont( Overlord::getInstance()->printFontText() );
 
         // save printarea for header and footer
-        double xx = ( 8.5 - settings.marginLeft() - settings.marginRight() ) * m_resolution;
-        double yy = ( 11.0 - settings.marginTop() - settings.marginBottom() ) * m_resolution;
+        double xx = ( 8.5 - Overlord::getInstance()->marginLeft()
+                      - Overlord::getInstance()->marginRight() ) * m_resolution;
+        double yy = ( 11.0 - Overlord::getInstance()->marginTop()
+                      - Overlord::getInstance()->marginBottom() ) * m_resolution;
         QRectF printArea = QRectF( 0, 0, xx, yy );
 
         // between the header and the body, and the body and the footer
-        int spacer = settings.headerGap() * m_resolution;
+        int spacer = Overlord::getInstance()->headerGap() * m_resolution;
 
         m_printArea = printArea;
 
@@ -222,22 +225,20 @@ void MainWindow::printOut( QPrinter *printer )
 
 int MainWindow::get_HeaderSize( QPainter *painter )
 {
-    PrintSettings settings = m_settings.copyOfPrintSettings();
-
-    if ( ! settings.printHeader() )
+    if ( ! Overlord::getInstance()->printHeader() )
     {
         return 0;
     }
 
     painter->save();
-    painter->setFont( settings.fontHeader() );
+    painter->setFont( Overlord::getInstance()->printFontHeader() );
 
     QString header = "Test line";
     QRect rect     = painter->boundingRect( painter->window(), Qt::AlignLeft, header );
 
     int size = rect.height();
 
-    if ( !settings.headerLine2().isEmpty() )
+    if ( !Overlord::getInstance()->headerLine2().isEmpty() )
     {
         size = size * 2;
     }
@@ -249,22 +250,20 @@ int MainWindow::get_HeaderSize( QPainter *painter )
 
 int MainWindow::get_FooterSize( QPainter *painter )
 {
-    PrintSettings settings = m_settings.copyOfPrintSettings();
-
-    if ( ! settings.printFooter() )
+    if ( ! Overlord::getInstance()->printFooter() )
     {
         return 0;
     }
 
     painter->save();
-    painter->setFont( settings.fontFooter() );
+    painter->setFont( Overlord::getInstance()->printFontFooter() );
 
     QString footer = "Test line";
     QRect rect     = painter->boundingRect( painter->window(), Qt::AlignLeft, footer );
 
     int size = rect.height();
 
-    if ( ! settings.footerLine2().isEmpty() )
+    if ( ! Overlord::getInstance()->footerLine2().isEmpty() )
     {
         size = size * 2;
     }
@@ -276,9 +275,7 @@ int MainWindow::get_FooterSize( QPainter *painter )
 
 void MainWindow::doHeader( QPainter *painter )
 {
-    PrintSettings settings = m_settings.copyOfPrintSettings();
-
-    if ( ! settings.printHeader() )
+    if ( ! Overlord::getInstance()->printHeader() )
     {
         return;
     }
@@ -288,25 +285,25 @@ void MainWindow::doHeader( QPainter *painter )
     QRectF rectBig =  m_printArea;
 
     painter->save();
-    painter->setFont( settings.fontHeader() );
+    painter->setFont( Overlord::getInstance()->printFontHeader() );
 
     //
-    header = macroExpand( settings.headerLeft() );
+    header = macroExpand( Overlord::getInstance()->headerLeft() );
     rect1  = painter->boundingRect( rectBig, Qt::AlignLeft, header );
     painter->drawText( rect1, Qt::AlignLeft, header );
 
     //
-    header = macroExpand( settings.headerCenter() );
+    header = macroExpand( Overlord::getInstance()->headerCenter() );
     rect1  = painter->boundingRect( rectBig, Qt::AlignHCenter, header );
     painter->drawText( rect1, Qt::AlignHCenter, header );
 
     //
-    header = macroExpand( settings.headerRight() );
+    header = macroExpand( Overlord::getInstance()->headerRight() );
     rect1  = painter->boundingRect( rectBig, Qt::AlignRight, header );
     painter->drawText( rect1, Qt::AlignRight, header );
 
     //
-    header = settings.headerLine2();
+    header = Overlord::getInstance()->headerLine2();
 
     if ( header.isEmpty() )
     {
@@ -333,9 +330,7 @@ void MainWindow::doHeader( QPainter *painter )
 
 void MainWindow::doFooter( QPainter *painter )
 {
-    PrintSettings settings = m_settings.copyOfPrintSettings();
-
-    if ( ! settings.printFooter() )
+    if ( ! Overlord::getInstance()->printFooter() )
     {
         return;
     }
@@ -345,10 +340,10 @@ void MainWindow::doFooter( QPainter *painter )
     QRectF rectBig = m_printArea;
 
     painter->save();
-    painter->setFont( settings.fontFooter() );
+    painter->setFont( Overlord::getInstance()->printFontFooter() );
 
     //
-    QString footer_L2 = footer = settings.footerLine2();
+    QString footer_L2 = footer = Overlord::getInstance()->footerLine2();
     QRectF rect_L2;
 
     if ( ! footer_L2.isEmpty() )
@@ -360,21 +355,21 @@ void MainWindow::doFooter( QPainter *painter )
     }
 
     //
-    footer = macroExpand( settings.footerLeft() );
+    footer = macroExpand( Overlord::getInstance()->footerLeft() );
     rect1  = painter->boundingRect( rectBig, Qt::AlignLeft, footer );
 
     rect1.translate( 0, rectBig.height() - rect1.height() - rect_L2.height() );
     painter->drawText( rect1, Qt::AlignLeft, footer );
 
     //
-    footer = macroExpand( settings.footerCenter() );
+    footer = macroExpand( Overlord::getInstance()->footerCenter() );
     rect1  = painter->boundingRect( rectBig, Qt::AlignHCenter, footer );
 
     rect1.translate( 0, rectBig.height() - rect1.height() - rect_L2.height() );
     painter->drawText( rect1, Qt::AlignHCenter, footer );
 
     //
-    footer = macroExpand( settings.footerRight() );
+    footer = macroExpand( Overlord::getInstance()->footerRight() );
     rect1  = painter->boundingRect( rectBig, Qt::AlignRight, footer );
 
     rect1.translate( 0, rectBig.height() - rect1.height() - rect_L2.height() );
@@ -440,13 +435,13 @@ QString MainWindow::macroExpand( QString data )
         else if ( macro == "$(Date)" )
         {
             QDate date   = QDate::currentDate();
-            text= date.toString( m_settings.formatDate() );
+            text= date.toString( Overlord::getInstance()->formatDate() );
 
         }
         else if ( macro == "$(Time)" )
         {
             QTime time   = QTime::currentTime();
-            text = time.toString( m_settings.formatTime() );
+            text = time.toString( Overlord::getInstance()->formatTime() );
 
         }
 

@@ -22,26 +22,27 @@
 #include <QStringList>
 
 class Dialog_Preset : public QDialog
-{     
-   CS_OBJECT(Dialog_Preset)
+{
+    CS_OBJECT( Dialog_Preset )
 
-   public:
-      Dialog_Preset(QWidget *parent, QStringList data);
-      ~Dialog_Preset();
+public:
+    Dialog_Preset( QWidget *parent );
+    ~Dialog_Preset();
 
-      QStringList getData();
 
-   private:
-      Ui::Dialog_Preset *m_ui;
+private:
+    QStringList getData();
 
-      QPalette m_editPalette;
-      QStringList m_dataList;
+    Ui::Dialog_Preset *m_ui;
 
-      void verify_Folder(QLineEdit *field);
-      void pick_Folder(QString number, QLineEdit *field);
+    QPalette m_editPalette;
+    QStringList m_dataList;
 
-      void save();
-      void cancel();
+    void verify_Folder( QLineEdit *field );
+    void pick_Folder( QString number, QLineEdit *field );
+
+    void save();
+    void cancel();
 };
 
 #endif

@@ -16,7 +16,7 @@
 #define DIALOG_COLORS_H
 
 #include "ui_dialog_colors.h"
-#include "settings.h"
+#include "overlord.h"
 #include "syntax.h"
 
 #include <QDialog>
@@ -27,17 +27,16 @@ class Dialog_Colors : public QDialog
     CS_OBJECT( Dialog_Colors )
 
 public:
-    Dialog_Colors( QWidget *parent, Settings& settings );
+    Dialog_Colors( QWidget *parent );
     ~Dialog_Colors();
-    Settings &get_Colors();
 
 private:
     Ui::Dialog_Colors *m_ui;
 
     Syntax *m_syntaxParser;
 
+    Settings m_localSettings;
     QString m_syntaxFname;
-    Settings m_settings;
 
     void colorBox( QLineEdit *field, QColor color );
     void updateParser( bool newSettings );

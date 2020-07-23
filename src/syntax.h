@@ -15,7 +15,7 @@
 #ifndef SYNTAX_H
 #define SYNTAX_H
 
-#include "settings.h"
+#include "overlord.h"
 #include "spellcheck.h"
 
 #include <QHash>
@@ -30,12 +30,10 @@ class Syntax : public QSyntaxHighlighter
     CS_OBJECT( Syntax )
 
 public:
-    Syntax( QTextDocument *document,
-            QString synFName, const Settings &settings, SpellCheck *spell = 0 );
+    Syntax( QTextDocument *document, QString synFName, SpellCheck *spell = 0 );
 
     ~Syntax();
-    bool processSyntax();
-    bool processSyntax( const struct Settings &settings );
+    bool processSyntax( Settings *settings );
     void set_Spell( bool value );
 
 protected:
@@ -43,7 +41,6 @@ protected:
 
 private:
     QString m_syntaxFile;
-    Settings m_settings;
 
     SpellCheck *m_spellCheck;
     bool m_isSpellCheck;

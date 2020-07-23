@@ -27,29 +27,22 @@
 
 static const QRegularExpression DEFAULT_COMMENT = QRegularExpression( "(?!E)E" );
 
-Syntax::Syntax( QTextDocument *document, QString synFName, const Settings &settings, SpellCheck *spell )
+Syntax::Syntax( QTextDocument *document, QString synFName, SpellCheck *spell )
     : QSyntaxHighlighter( document )
     , m_syntaxFile( synFName )
-    , m_settings( settings )
     , m_spellCheck( spell )
 {
-    m_isSpellCheck = m_settings.isSpellCheck();
+    m_isSpellCheck = Overlord::getInstance()->isSpellCheck();
 }
 
 Syntax::~Syntax()
 {
 }
 
-bool Syntax::processSyntax( const Settings &settings )
-{
-    // only called from Dialog_Colors
-    m_settings = settings;
-    qDebug() << "processSyntax: " << m_settings.activeTheme();
-
-    return processSyntax();
-}
-
-bool Syntax::processSyntax()
+// only called from Dialog_Colors
+// might go away now that DiamondTextEdit does more
+//
+bool Syntax::processSyntax( Settings *settings )
 {
     // get existing json data
     QByteArray data = json_ReadFile( m_syntaxFile );
@@ -123,9 +116,9 @@ bool Syntax::processSyntax()
         }
 
         // key
-        rule.format.setFontWeight( m_settings.currentTheme().syntaxKey().weight() );
-        rule.format.setFontItalic( m_settings.currentTheme().syntaxKey().italic() );
-        rule.format.setForeground( m_settings.currentTheme().syntaxKey().color() );
+        rule.format.setFontWeight( settings->currentTheme().syntaxKey().weight() );
+        rule.format.setFontItalic( settings->currentTheme().syntaxKey().italic() );
+        rule.format.setForeground( settings->currentTheme().syntaxKey().color() );
         rule.pattern = QRegularExpression( pattern );
 
         if ( ignoreCase )
@@ -144,9 +137,9 @@ bool Syntax::processSyntax()
         }
 
         // class
-        rule.format.setFontWeight( m_settings.currentTheme().syntaxClass().weight() );
-        rule.format.setFontItalic( m_settings.currentTheme().syntaxClass().italic() );
-        rule.format.setForeground( m_settings.currentTheme().syntaxClass().color() );
+        rule.format.setFontWeight( settings->currentTheme().syntaxClass().weight() );
+        rule.format.setFontItalic( settings->currentTheme().syntaxClass().italic() );
+        rule.format.setForeground( settings->currentTheme().syntaxClass().color() );
         rule.pattern = QRegularExpression( pattern );
 
         if ( ignoreCase )
@@ -165,9 +158,9 @@ bool Syntax::processSyntax()
         }
 
         // func
-        rule.format.setFontWeight( m_settings.currentTheme().syntaxFunc().weight() );
-        rule.format.setFontItalic( m_settings.currentTheme().syntaxFunc().italic() );
-        rule.format.setForeground( m_settings.currentTheme().syntaxFunc().color() );
+        rule.format.setFontWeight( settings->currentTheme().syntaxFunc().weight() );
+        rule.format.setFontItalic( settings->currentTheme().syntaxFunc().italic() );
+        rule.format.setForeground( settings->currentTheme().syntaxFunc().color() );
         rule.pattern = QRegularExpression( pattern );
 
         if ( ignoreCase )
@@ -186,9 +179,9 @@ bool Syntax::processSyntax()
         }
 
         // types
-        rule.format.setFontWeight( m_settings.currentTheme().syntaxType().weight() );
-        rule.format.setFontItalic( m_settings.currentTheme().syntaxType().italic() );
-        rule.format.setForeground( m_settings.currentTheme().syntaxType().color() );
+        rule.format.setFontWeight( settings->currentTheme().syntaxType().weight() );
+        rule.format.setFontItalic( settings->currentTheme().syntaxType().italic() );
+        rule.format.setForeground( settings->currentTheme().syntaxType().color() );
         rule.pattern = QRegularExpression( pattern );
 
         if ( ignoreCase )
@@ -200,18 +193,18 @@ bool Syntax::processSyntax()
     }
 
     // quoted text - everyone
-    rule.format.setFontWeight( m_settings.currentTheme().syntaxQuote().weight() );
-    rule.format.setFontItalic( m_settings.currentTheme().syntaxQuote().italic() );
-    rule.format.setForeground( m_settings.currentTheme().syntaxQuote().color() );
+    rule.format.setFontWeight( settings->currentTheme().syntaxQuote().weight() );
+    rule.format.setFontItalic( settings->currentTheme().syntaxQuote().italic() );
+    rule.format.setForeground( settings->currentTheme().syntaxQuote().color() );
     rule.pattern = QRegularExpression( "\".*?\"" );
     highlightingRules.append( rule );
 
     // single line comment
     QString commentSingle = object.value( "comment-single" ).toString();
 
-    rule.format.setFontWeight( m_settings.currentTheme().syntaxComment().weight() );
-    rule.format.setFontItalic( m_settings.currentTheme().syntaxComment().italic() );
-    rule.format.setForeground( m_settings.currentTheme().syntaxComment().color() );
+    rule.format.setFontWeight( settings->currentTheme().syntaxComment().weight() );
+    rule.format.setFontItalic( settings->currentTheme().syntaxComment().italic() );
+    rule.format.setForeground( settings->currentTheme().syntaxComment().color() );
     rule.pattern = QRegularExpression( commentSingle );
     highlightingRules.append( rule );
 
@@ -219,9 +212,9 @@ bool Syntax::processSyntax()
     QString commentStart = object.value( "comment-multi-start" ).toString();
     QString commentEnd   = object.value( "comment-multi-end" ).toString();
 
-    m_multiLineCommentFormat.setFontWeight( m_settings.currentTheme().syntaxMLine().weight() );
-    m_multiLineCommentFormat.setFontItalic( m_settings.currentTheme().syntaxMLine().italic() );
-    m_multiLineCommentFormat.setForeground( m_settings.currentTheme().syntaxMLine().color() );
+    m_multiLineCommentFormat.setFontWeight( settings->currentTheme().syntaxMLine().weight() );
+    m_multiLineCommentFormat.setFontItalic( settings->currentTheme().syntaxMLine().italic() );
+    m_multiLineCommentFormat.setForeground( settings->currentTheme().syntaxMLine().color() );
     m_commentStartExpression = QRegularExpression( commentStart );
     m_commentEndExpression   = QRegularExpression( commentEnd );
 

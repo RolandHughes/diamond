@@ -29,6 +29,7 @@
 #include "dialog_print_opt.h"
 #include "mainwindow.h"
 #include "dialog_config.h"
+#include "overlord.h"
 
 
 #include <QBoxLayout>
@@ -43,18 +44,18 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     m_ui->setupUi( this );
     setDiamondTitle( "untitled.txt" );
 
-    // Because the user "could" be prompted to choose a file or location
-    // this critical part of Settings has to be done here.
-    //
-    getConfigFileName();
-    m_settings.set_configFileName( m_configFileName );
     m_appPath = QApplication::applicationDirPath();
-    m_settings.set_appPath( m_appPath );
+    Overlord::getInstance()->set_appPath( m_appPath );
 
     setIconSize( QSize( 32,32 ) );
     setWindowIcon( QIcon( "://resources/diamond.png" ) );
 
-    if ( ! m_settings.load( Settings::CFG_STARTUP ) )
+    // Because the user "could" be prompted to choose a file or location
+    // this critical part of Settings has to be done here.
+    //
+    getConfigFileName();
+
+    if ( ! Overlord::getInstance()->set_configFileName( m_configFileName ) )
     {
         // do not start program
         csError( tr( "Configuration File Missing" ), tr( "Unable to locate or open the Diamond Configuration file." ) );
@@ -119,15 +120,15 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     // set flags after reading config and before autoload
     if ( flagList.contains( "--no_autoload", Qt::CaseInsensitive ) )
     {
-        m_settings.set_flagNoAutoLoad( true );
+        Overlord::getInstance()->set_flagNoAutoLoad( true );
     }
 
     if ( flagList.contains( "--no_saveconfig", Qt::CaseInsensitive ) )
     {
-        m_settings.set_flagNoSaveConfig( true );
+        Overlord::getInstance()->set_flagNoSaveConfig( true );
     }
 
-    if ( m_settings.autoLoad() && ! m_settings.flagNoAutoLoad() )
+    if ( Overlord::getInstance()->autoLoad() && ! Overlord::getInstance()->flagNoAutoLoad() )
     {
         autoLoad();
     }
@@ -148,30 +149,30 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     openTab_CreateMenus();
 
     // find
-    if ( ! m_settings.findList().isEmpty() )
+    if ( ! Overlord::getInstance()->findList().isEmpty() )
     {
-        m_settings.set_findText( m_settings.findList().first() );
+        Overlord::getInstance()->set_findText( Overlord::getInstance()->findList().first() );
     }
 
     // replace
-    if ( ! m_settings.replaceList().isEmpty() )
+    if ( ! Overlord::getInstance()->replaceList().isEmpty() )
     {
-        m_settings.set_replaceText( m_settings.replaceList().first() );
+        Overlord::getInstance()->set_replaceText( Overlord::getInstance()->replaceList().first() );
     }
 
     setStatus_ColMode();
     setStatusBar( tr( "Ready" ), 0 );
     setUnifiedTitleAndToolBarOnMac( true );
 
-    connect( &m_settings, &Settings::Move, this, &MainWindow::Move );
-    connect( &m_settings, &Settings::Resize, this, &MainWindow::Resize );
+    connect( Overlord::getInstance(), &Overlord::Move, this, &MainWindow::Move );
+    connect( Overlord::getInstance(), &Overlord::Resize, this, &MainWindow::Resize );
 
 }
 
 // **window, tabs
 void MainWindow::tabNew()
 {
-    m_textEdit = new DiamondTextEdit( this, m_settings, "tab" );
+    m_textEdit = new DiamondTextEdit( this, "tab" );
 
     // keep reference
     m_noSplit_textEdit = m_textEdit;
@@ -181,7 +182,7 @@ void MainWindow::tabNew()
     m_tabWidget->setCurrentIndex( index );
 
     int tmp = m_textEdit->fontMetrics().width( " " );
-    m_textEdit->setTabStopWidth( tmp * m_settings.tabSpacing() );
+    m_textEdit->setTabStopWidth( tmp * Overlord::getInstance()->tabSpacing() );
 
     m_textEdit->setFocus();
 
@@ -197,7 +198,6 @@ void MainWindow::tabNew()
     connect( m_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled );
 
     connect( m_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType );
-    connect( this,       &MainWindow::changeSettings, m_textEdit, &DiamondTextEdit::changeSettings );
 }
 
 void MainWindow::mw_tabClose()
@@ -265,8 +265,8 @@ void MainWindow::tabChanged( int index )
 
         // **
         setStatus_LineCol();
-        m_textEdit->set_ColumnMode( m_settings.isColumnMode() );
-        m_textEdit->set_ShowLineNum( m_settings.showLineNumbers() );
+        m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
+        m_textEdit->set_ShowLineNum( Overlord::getInstance()->showLineNumbers() );
 
         moveBar();
         show_Spaces();
@@ -319,8 +319,8 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
 
                 // **
                 setStatus_LineCol();
-                m_textEdit->set_ColumnMode( m_settings.isColumnMode() );
-                m_textEdit->set_ShowLineNum( m_settings.showLineNumbers() );
+                m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
+                m_textEdit->set_ShowLineNum( Overlord::getInstance()->showLineNumbers() );
 
                 moveBar();
                 show_Spaces();
@@ -345,8 +345,8 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
 
                 // **
                 setStatus_LineCol();
-                m_textEdit->set_ColumnMode( m_settings.isColumnMode() );
-                m_textEdit->set_ShowLineNum( m_settings.showLineNumbers() );
+                m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
+                m_textEdit->set_ShowLineNum( Overlord::getInstance()->showLineNumbers() );
 
                 moveBar();
                 show_Spaces();
@@ -417,7 +417,7 @@ void MainWindow::createConnections()
 {
     // file
     connect( m_ui->actionNew,               &QAction::triggered, this, &MainWindow::newFile );
-    connect( m_ui->actionOpen,              &QAction::triggered, this, [this]( bool ) { openDoc( m_settings.priorPath() ); } );
+    connect( m_ui->actionOpen,              &QAction::triggered, this, [this]( bool ) { openDoc( Overlord::getInstance()->priorPath() ); } );
     connect( m_ui->actionOpen_RelatedFile,  &QAction::triggered, this, &MainWindow::open_RelatedFile );
     connect( m_ui->actionClose,             &QAction::triggered, this, [this]( bool ) { close_Doc(); } );
     connect( m_ui->actionClose_All,         &QAction::triggered, this, [this]( bool ) { closeAll_Doc( false ); } );
@@ -523,7 +523,6 @@ void MainWindow::createConnections()
     connect( m_ui->actionPresetFolders,     &QAction::triggered, this, &MainWindow::setPresetFolders );
     connect( m_ui->actionPrintOptions,      &QAction::triggered, this, &MainWindow::setPrintOptions );
     connect( m_ui->actionMove_ConfigFile,   &QAction::triggered, this, &MainWindow::move_ConfigFile );
-    connect( m_ui->actionSave_ConfigFile,   &QAction::triggered, this, &MainWindow::saveAndBroadcastSettings );
 
     // window
     connect( m_ui->actionTab_New,           &QAction::triggered, this, &MainWindow::tabNew );
@@ -562,25 +561,25 @@ void MainWindow::createToggles()
     // m_ui->actionSyn_Unused2->setCheckable(true);
 
     m_ui->actionLine_Highlight->setCheckable( true );
-    m_ui->actionLine_Highlight->setChecked( m_settings.showLineHighlight() );
+    m_ui->actionLine_Highlight->setChecked( Overlord::getInstance()->showLineHighlight() );
 
     m_ui->actionLine_Numbers->setCheckable( true );
-    m_ui->actionLine_Numbers->setChecked( m_settings.showLineNumbers() );
+    m_ui->actionLine_Numbers->setChecked( Overlord::getInstance()->showLineNumbers() );
 
     m_ui->actionWord_Wrap->setCheckable( true );
-    m_ui->actionWord_Wrap->setChecked( m_settings.isWordWrap() );
+    m_ui->actionWord_Wrap->setChecked( Overlord::getInstance()->isWordWrap() );
 
     m_ui->actionShow_Spaces->setCheckable( true );
-    m_ui->actionShow_Spaces->setChecked( m_settings.showSpaces() );
+    m_ui->actionShow_Spaces->setChecked( Overlord::getInstance()->showSpaces() );
 
     m_ui->actionShow_Breaks->setCheckable( true );
-    m_ui->actionShow_Breaks->setChecked( m_settings.showBreaks() );
+    m_ui->actionShow_Breaks->setChecked( Overlord::getInstance()->showBreaks() );
 
     m_ui->actionColumn_Mode->setCheckable( true );
-    m_ui->actionColumn_Mode->setChecked( m_settings.isColumnMode() );
+    m_ui->actionColumn_Mode->setChecked( Overlord::getInstance()->isColumnMode() );
 
     m_ui->actionSpell_Check->setCheckable( true );
-    m_ui->actionSpell_Check->setChecked( m_settings.isSpellCheck() );
+    m_ui->actionSpell_Check->setChecked( Overlord::getInstance()->isSpellCheck() );
 
     m_ui->actionUndo->setEnabled( false );
     m_ui->actionRedo->setEnabled( false );
@@ -598,32 +597,32 @@ void MainWindow::createShortCuts( bool setupAll )
     if ( setupAll )
     {
         // file
-        m_ui->actionOpen->setShortcut( QKeySequence( m_settings.keys().open() ) );
-        m_ui->actionClose->setShortcut( QKeySequence( m_settings.keys().close() ) );
-        m_ui->actionSave->setShortcut( QKeySequence( m_settings.keys().save() ) );
-        m_ui->actionSave_As->setShortcut( QKeySequence( m_settings.keys().saveAs() ) );
-        m_ui->actionPrint->setShortcut( QKeySequence( m_settings.keys().print() ) );
+        m_ui->actionOpen->setShortcut( QKeySequence( Overlord::getInstance()->keys().open() ) );
+        m_ui->actionClose->setShortcut( QKeySequence( Overlord::getInstance()->keys().close() ) );
+        m_ui->actionSave->setShortcut( QKeySequence( Overlord::getInstance()->keys().save() ) );
+        m_ui->actionSave_As->setShortcut( QKeySequence( Overlord::getInstance()->keys().saveAs() ) );
+        m_ui->actionPrint->setShortcut( QKeySequence( Overlord::getInstance()->keys().print() ) );
         m_ui->actionExit->setShortcuts( QKeySequence::Quit );
 
         // edit
-        m_ui->actionUndo->setShortcut( QKeySequence( m_settings.keys().undo() ) );
-        m_ui->actionRedo->setShortcut( QKeySequence( m_settings.keys().redo() ) );
-        m_ui->actionCut->setShortcut( QKeySequence( m_settings.keys().cut() ) );
-        m_ui->actionCopy->setShortcut( QKeySequence( m_settings.keys().copy() ) );
-        m_ui->actionPaste->setShortcut( QKeySequence( m_settings.keys().paste() ) );
+        m_ui->actionUndo->setShortcut( QKeySequence( Overlord::getInstance()->keys().undo() ) );
+        m_ui->actionRedo->setShortcut( QKeySequence( Overlord::getInstance()->keys().redo() ) );
+        m_ui->actionCut->setShortcut( QKeySequence( Overlord::getInstance()->keys().cut() ) );
+        m_ui->actionCopy->setShortcut( QKeySequence( Overlord::getInstance()->keys().copy() ) );
+        m_ui->actionPaste->setShortcut( QKeySequence( Overlord::getInstance()->keys().paste() ) );
 
-        m_ui->actionSelect_All->setShortcut( QKeySequence( m_settings.keys().selectAll() ) );
-        m_ui->actionGo_Top->setShortcut( QKeySequence( m_settings.keys().goTop() ) );
-        m_ui->actionGo_Bottom->setShortcut( QKeySequence( m_settings.keys().goBottom() ) );
+        m_ui->actionSelect_All->setShortcut( QKeySequence( Overlord::getInstance()->keys().selectAll() ) );
+        m_ui->actionGo_Top->setShortcut( QKeySequence( Overlord::getInstance()->keys().goTop() ) );
+        m_ui->actionGo_Bottom->setShortcut( QKeySequence( Overlord::getInstance()->keys().goBottom() ) );
 
         //search
-        m_ui->actionFind->setShortcut( QKeySequence( m_settings.keys().find() ) );
-        m_ui->actionReplace->setShortcut( QKeySequence( m_settings.keys().replace() ) );
-        m_ui->actionFind_Next->setShortcut( QKeySequence( m_settings.keys().findNext() ) );;
-        m_ui->actionFind_Prev->setShortcut( QKeySequence( m_settings.keys().findPrev() ) );
+        m_ui->actionFind->setShortcut( QKeySequence( Overlord::getInstance()->keys().find() ) );
+        m_ui->actionReplace->setShortcut( QKeySequence( Overlord::getInstance()->keys().replace() ) );
+        m_ui->actionFind_Next->setShortcut( QKeySequence( Overlord::getInstance()->keys().findNext() ) );;
+        m_ui->actionFind_Prev->setShortcut( QKeySequence( Overlord::getInstance()->keys().findPrev() ) );
 
         // tab
-        m_ui->actionTab_New->setShortcut( QKeySequence( m_settings.keys().newTab() ) );
+        m_ui->actionTab_New->setShortcut( QKeySequence( Overlord::getInstance()->keys().newTab() ) );
 
         // help
         m_ui->actionDiamond_Help->setShortcuts( QKeySequence::HelpContents );
@@ -632,35 +631,35 @@ void MainWindow::createShortCuts( bool setupAll )
     // ** user definded
 
     // edit
-    m_ui->actionPrint_Preview->setShortcut( QKeySequence( m_settings.keys().printPreview() ) );
-    m_ui->actionReload->setShortcut( QKeySequence( m_settings.keys().reload() ) );
+    m_ui->actionPrint_Preview->setShortcut( QKeySequence( Overlord::getInstance()->keys().printPreview() ) );
+    m_ui->actionReload->setShortcut( QKeySequence( Overlord::getInstance()->keys().reload() ) );
 
-    m_ui->actionSelect_Line->setShortcut( QKeySequence( m_settings.keys().selectLine() )   );
-    m_ui->actionSelect_Word->setShortcut( QKeySequence( m_settings.keys().selectWord() )   );
-    m_ui->actionSelect_Block->setShortcut( QKeySequence( m_settings.keys().selectBlock() ) );
-    m_ui->actionCase_Upper->setShortcut( QKeySequence( m_settings.keys().upper() ) );
-    m_ui->actionCase_Lower->setShortcut( QKeySequence( m_settings.keys().lower() ) );
+    m_ui->actionSelect_Line->setShortcut( QKeySequence( Overlord::getInstance()->keys().selectLine() )   );
+    m_ui->actionSelect_Word->setShortcut( QKeySequence( Overlord::getInstance()->keys().selectWord() )   );
+    m_ui->actionSelect_Block->setShortcut( QKeySequence( Overlord::getInstance()->keys().selectBlock() ) );
+    m_ui->actionCase_Upper->setShortcut( QKeySequence( Overlord::getInstance()->keys().upper() ) );
+    m_ui->actionCase_Lower->setShortcut( QKeySequence( Overlord::getInstance()->keys().lower() ) );
 
-    m_ui->actionIndent_Incr->setShortcut( QKeySequence( m_settings.keys().indentIncrement() ) );
-    m_ui->actionIndent_Decr->setShortcut( QKeySequence( m_settings.keys().indentDecrement() ) );
-    m_ui->actionDelete_Line->setShortcut( QKeySequence( m_settings.keys().deleteLine() ) );
-    m_ui->actionDelete_EOL->setShortcut( QKeySequence( m_settings.keys().deleteToEOL() )   );
-    m_ui->actionDelete_ThroughEOL->setShortcut( QKeySequence( m_settings.keys().deleteThroughEOL() ) );
-    m_ui->actionColumn_Mode->setShortcut( QKeySequence( m_settings.keys().columnMode() ) );
+    m_ui->actionIndent_Incr->setShortcut( QKeySequence( Overlord::getInstance()->keys().indentIncrement() ) );
+    m_ui->actionIndent_Decr->setShortcut( QKeySequence( Overlord::getInstance()->keys().indentDecrement() ) );
+    m_ui->actionDelete_Line->setShortcut( QKeySequence( Overlord::getInstance()->keys().deleteLine() ) );
+    m_ui->actionDelete_EOL->setShortcut( QKeySequence( Overlord::getInstance()->keys().deleteToEOL() )   );
+    m_ui->actionDelete_ThroughEOL->setShortcut( QKeySequence( Overlord::getInstance()->keys().deleteThroughEOL() ) );
+    m_ui->actionColumn_Mode->setShortcut( QKeySequence( Overlord::getInstance()->keys().columnMode() ) );
 
     // search
-    m_ui->actionGo_Line->setShortcut( QKeySequence( m_settings.keys().gotoLine() ) );
+    m_ui->actionGo_Line->setShortcut( QKeySequence( Overlord::getInstance()->keys().gotoLine() ) );
 
     // view
-    m_ui->actionShow_Spaces->setShortcut( QKeySequence( m_settings.keys().showSpaces() ) );
-    m_ui->actionShow_Breaks->setShortcut( QKeySequence( m_settings.keys().showBreaks() ) );
+    m_ui->actionShow_Spaces->setShortcut( QKeySequence( Overlord::getInstance()->keys().showSpaces() ) );
+    m_ui->actionShow_Breaks->setShortcut( QKeySequence( Overlord::getInstance()->keys().showBreaks() ) );
 
     // tools
-    m_ui->actionMacro_Play->setShortcut( QKeySequence( m_settings.keys().macroPlay() )   );
-    m_ui->actionSpell_Check->setShortcut( QKeySequence( m_settings.keys().spellCheck() ) );
+    m_ui->actionMacro_Play->setShortcut( QKeySequence( Overlord::getInstance()->keys().macroPlay() )   );
+    m_ui->actionSpell_Check->setShortcut( QKeySequence( Overlord::getInstance()->keys().spellCheck() ) );
 
     // copy buffer
-    m_actionCopyBuffer->setKey( QKeySequence( m_settings.keys().copyBuffer() ) );
+    m_actionCopyBuffer->setKey( QKeySequence( Overlord::getInstance()->keys().copyBuffer() ) );
 }
 
 
@@ -780,135 +779,30 @@ void MainWindow::showNotDone( QString item )
 // **settings
 void MainWindow::setColors()
 {
-    Dialog_Colors *dw = new Dialog_Colors( this, m_settings );
+    Dialog_Colors *dw = new Dialog_Colors( this );
     int result = dw->exec();
-
-    if ( result == QDialog::Accepted )
-    {
-
-        QDialog *tDialog = new QDialog( nullptr );
-        tDialog->setWindowTitle( "Diamond Settings" );
-        tDialog->setModal( false );
-        tDialog->resize( 335,100 );
-
-        QLabel *label = new QLabel;
-        label->setAlignment( Qt::AlignCenter );
-        label->setText( "Updating colors for each Tab. Please Wait..." );
-
-        QFont font = label->font();
-        font.setPointSize( 11 );
-        label->setFont( font );
-
-        QBoxLayout *layout = new QVBoxLayout();
-        layout->addWidget( label );
-        layout->setContentsMargins( 9,9,9,20 );
-        layout->itemAt( 0 )->setAlignment( Qt::AlignVCenter );
-
-        tDialog->setLayout( layout );
-        showDialog( tDialog );
-
-#if 0
-
-        // no idea what this is. Seems like a bit of a hack to get around a bug.
-        // Syntax highlighter should take care of everything once new theme is set.
-        //
-        if ( m_settings.showLineHighlight() )
-        {
-            // clear the old highlight first
-            QList<QTextEdit::ExtraSelection> extraSelections;
-            QTextEdit::ExtraSelection selection;
-
-            selection.format.setForeground( old_TextColor );
-            selection.format.setBackground( old_BackColor );
-            selection.format.setProperty( QTextFormat::FullWidthSelection, true );
-
-            selection.cursor = m_textEdit->textCursor();
-            selection.cursor.clearSelection();
-
-            extraSelections.append( selection );
-            m_textEdit->setExtraSelections( extraSelections );
-        }
-
-#endif
-        // update colors in settings structure
-        m_settings = dw->get_Colors();
-        saveAndBroadcastSettings();
-
-        QPalette colors = m_textEdit->palette();
-        colors.setColor( QPalette::Text, m_settings.currentTheme().colorText() );
-        colors.setColor( QPalette::Base, m_settings.currentTheme().colorBack() );
-        m_textEdit->setPalette( colors );
-
-        // get saved value
-        QString synFName = m_textEdit->get_SyntaxFile();
-
-        // change colors for  every tab
-        DiamondTextEdit *cur_textEdit  = m_textEdit;
-        int count = m_tabWidget->count();
-
-        QWidget *temp;
-        DiamondTextEdit *textEdit;
-
-        for ( int k = 0; k < count; ++k )
-        {
-            temp     = m_tabWidget->widget( k );
-            textEdit = dynamic_cast<DiamondTextEdit *>( temp );
-
-            if ( textEdit )
-            {
-                m_textEdit = textEdit;
-
-                // get saved value
-                synFName = m_textEdit->get_SyntaxFile();
-
-                // reloads the syntax blocks based on new colors
-                m_textEdit->runSyntax( synFName );
-            }
-        }
-
-        // reassign current tab
-        m_textEdit = cur_textEdit;
-
-        // for this tab only, it is updated every tab change
-        moveBar();
-
-        // all done
-        tDialog->close();
-    }
 
     delete dw;
 }
 
 void MainWindow::setFont()
 {
-    Dialog_Fonts *dw = new Dialog_Fonts( m_settings.fontNormal(), m_settings.fontColumn() );
+    Dialog_Fonts *dw = new Dialog_Fonts( Overlord::getInstance()->fontNormal(), Overlord::getInstance()->fontColumn() );
     int result = dw->exec();
-
-    if ( result == QDialog::Accepted )
-    {
-
-        m_settings.set_fontNormal( dw->get_fontNormal() );
-        m_settings.set_fontColumn( dw->get_fontColumn() );
-
-        saveAndBroadcastSettings();
-    }
 
     delete dw;
 }
 
 void MainWindow::setOptions()
 {
-    Options options = m_settings.copyOfOptions();
+    Options options = Overlord::getInstance()->pullLocalCopyOfOptions();
 
 
-    Dialog_Options *dw = new Dialog_Options( this, options );
+    Dialog_Options *dw = new Dialog_Options( this );
     int result = dw->exec();
 
     if ( result == QDialog::Accepted )
     {
-        bool tabsChanged = ( m_settings.tabSpacing() != options.tabSpacing() );
-        m_settings.set_options( dw->get_Results() );
-
         // false will redisplay only user defined shortcuts
         this->createShortCuts( true );
     }
@@ -918,16 +812,11 @@ void MainWindow::setOptions()
 
 void MainWindow::setPresetFolders()
 {
-    Dialog_Preset *dw = new Dialog_Preset( this, m_settings.copyOfPreFolderList() );
+    Dialog_Preset *dw = new Dialog_Preset( this );
     int result = dw->exec();
 
     if ( result == QDialog::Accepted )
     {
-
-        m_settings.set_preFolderList( dw->getData() );
-
-        saveAndBroadcastSettings();
-
         prefolder_RedoList();
     }
 
@@ -936,16 +825,8 @@ void MainWindow::setPresetFolders()
 
 void MainWindow::setPrintOptions()
 {
-    PrintSettings options = m_settings.copyOfPrintSettings();
-
-    Dialog_PrintOptions *dw = new Dialog_PrintOptions( this, options );
+    Dialog_PrintOptions *dw = new Dialog_PrintOptions( this );
     int result = dw->exec();
-
-    if ( result == QDialog::Accepted )
-    {
-        m_settings.set_printSettings( dw->get_Results() );
-        saveAndBroadcastSettings();
-    }
 
     delete dw;
 }
@@ -978,10 +859,8 @@ void MainWindow::Move( QPoint pos )
 {
     move( pos );
 
-    m_settings.set_lastPosition( this->pos() );
-    m_settings.set_lastSize( this->size() );
-
-    saveAndBroadcastSettings();
+    Overlord::getInstance()->set_lastPosition( this->pos() );
+    Overlord::getInstance()->set_lastSize( this->size() );
 }
 
 void MainWindow::Resize( QSize size )
@@ -993,10 +872,8 @@ void MainWindow::resizeEvent( QResizeEvent *e )
 {
     QMainWindow::resizeEvent( e );
 
-    m_settings.set_lastPosition( this->pos() );
-    m_settings.set_lastSize( this->size() );
-
-    saveAndBroadcastSettings();
+    Overlord::getInstance()->set_lastPosition( this->pos() );
+    Overlord::getInstance()->set_lastSize( this->size() );
 }
 
 void MainWindow::getConfigFileName()
@@ -1107,7 +984,8 @@ void MainWindow::move_ConfigFile()
             options = QFileDialog::ForceInitialDir_Win7;
 
             QString newName = QFileDialog::getSaveFileName( this, tr( "Create New Configuration File" ),
-                              m_appPath + "/config.json", tr( "Json Files (*.json)" ), &selectedFilter, options );
+                              m_appPath + "/config.json", tr( "Json Files (*.json)" ),
+                              &selectedFilter, options );
 
             if ( newName.isEmpty() )
             {
@@ -1117,18 +995,15 @@ void MainWindow::move_ConfigFile()
             else if ( QFile::exists( newName ) )
             {
                 // can this happen?
-                csError( "Diamond Configuration", "Configuration file already exists, unable to create new file." );
+                csError( "Diamond Configuration",
+                         "Configuration file already exists, unable to create new file." );
 
             }
             else
             {
                 m_configFileName = newName;
                 settings.setValue( "configName", m_configFileName );
-                m_settings.createAndLoadNew();
-
-                // maybe add reset later
-                csError( "Diamond Configuration", "New configuration file selected."
-                         " Restart Diamond to utilize the new configuration file settings." );
+                Overlord::getInstance()->set_newConfigFileName( m_configFileName );
             }
 
             break;
@@ -1140,8 +1015,11 @@ void MainWindow::move_ConfigFile()
             QString selectedFilter;
             QFileDialog::Options options;
 
-            QString newName = QFileDialog::getOpenFileName( this, tr( "Select Diamond Configuration File" ),
-                              "*.json", tr( "Json Files (*.json)" ), &selectedFilter, options );
+            QString newName = QFileDialog::getOpenFileName( this,
+                              tr( "Select Diamond Configuration File" ),
+                              "*.json",
+                              tr( "Json Files (*.json)" ),
+                              &selectedFilter, options );
 
             if ( newName.isEmpty() )
             {
@@ -1153,9 +1031,8 @@ void MainWindow::move_ConfigFile()
                 m_configFileName = newName;
                 settings.setValue( "configName", m_configFileName );
 
-                m_settings.json_ReadFile();
+                Overlord::getInstance()->set_configFileName( m_configFileName );
 
-                // maybe add reset later
                 csError( "Diamond Configuration", "New configuration file selected."
                          " Restart Diamond to utilize the new configuration file settings." );
             }
@@ -1206,8 +1083,3 @@ void MainWindow::move_ConfigFile()
     }
 }
 
-void MainWindow::saveAndBroadcastSettings()
-{
-    m_settings.save();
-    changeSettings( m_settings );
-}

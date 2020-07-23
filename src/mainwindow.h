@@ -16,7 +16,7 @@
 #define MAINWINDOW_H
 
 #include "diamond_edit.h"
-#include "settings.h"
+#include "overlord.h"
 #include "syntax.h"
 #include "ui_mainwindow.h"
 #include "util.h"
@@ -80,11 +80,6 @@ public:
     CS_SLOT_1( Public, void setSynType( SyntaxTypes data ) )
     CS_SLOT_2( setSynType )
 
-    CS_SIGNAL_1( Public, void changeSettings( Settings &settings ) )
-    CS_SIGNAL_2( changeSettings, settings )
-
-    CS_SLOT_1( Public, void saveAndBroadcastSettings() )
-    CS_SLOT_2( saveAndBroadcastSettings )
 
 protected:
     void closeEvent( QCloseEvent *event );
@@ -168,10 +163,6 @@ private:
     void rf_CreateMenus();
     void rf_Update();
     void rf_UpdateActions();
-
-    // settings
-    Settings m_settings;
-    struct PrintSettings m_printer;
 
 
     // open tabs

@@ -25,16 +25,17 @@
 #include <QMimeData>
 #include <QSysInfo>
 #include <QUrl>
+#include <QTime>
 
 void MainWindow::argLoad( QList<QString> argList )
 {
     int argCnt = argList.count();
 
-    if ( !m_settings.flagNoAutoLoad() )
+    if ( !Overlord::getInstance()->flagNoAutoLoad() )
     {
-        m_settings.openedFilesClear();
-        m_settings.openedModifiedClear();
-        m_settings.recentFileListClear();
+        Overlord::getInstance()->openedFilesClear();
+        Overlord::getInstance()->openedModifiedClear();
+        Overlord::getInstance()->recentFileListClear();
     }
 
     for ( int k = 1; k < argCnt; k++ )
@@ -53,7 +54,7 @@ void MainWindow::argLoad( QList<QString> argList )
             // do nothing
 
         }
-        else if ( m_settings.openedFilesContains( tempFile ) )
+        else if ( Overlord::getInstance()->openedFilesContains( tempFile ) )
         {
             // file is already open
 
@@ -62,7 +63,7 @@ void MainWindow::argLoad( QList<QString> argList )
         {
             if ( loadFile( tempFile, true, true ) )
             {
-                m_settings.openedFilesAppend( tempFile );
+                Overlord::getInstance()->openedFilesAppend( tempFile );
             }
         }
     }
@@ -71,7 +72,7 @@ void MainWindow::argLoad( QList<QString> argList )
 void MainWindow::autoLoad()
 {
     QString fileName;
-    int count = m_settings.openedFilesCount();
+    int count = Overlord::getInstance()->openedFilesCount();
 
     if ( count == 0 )
     {
@@ -83,7 +84,7 @@ void MainWindow::autoLoad()
 
         for ( int k = 0; k < count; k++ )
         {
-            fileName = m_settings.openedFiles( k );
+            fileName = Overlord::getInstance()->openedFiles( k );
 
             // load existing files
             loadFile( fileName, true, true );
@@ -99,9 +100,9 @@ void MainWindow::closeEvent( QCloseEvent *event )
     {
         // TODO:: this is where we need to obtain current size and position
         //        to store on close.
-        m_settings.set_lastPosition( pos() );
-        m_settings.set_lastSize( size() );
-        m_settings.save();
+        Overlord::getInstance()->set_lastPosition( pos() );
+        Overlord::getInstance()->set_lastSize( size() );
+        Overlord::getInstance()->close();
         event->accept();
 
     }
@@ -130,15 +131,15 @@ void MainWindow::documentWasModified()
 
     setWindowModified( isModified );
 
-    int index = m_settings.openedFilesFind( m_curFile );
+    int index = Overlord::getInstance()->openedFilesFind( m_curFile );
 
     if ( index != -1 )
     {
-        bool wasModified = m_settings.openedModified( index );
+        bool wasModified = Overlord::getInstance()->openedModified( index );
 
         if ( wasModified != isModified )
         {
-            m_settings.openedModifiedReplace( index,isModified );
+            Overlord::getInstance()->openedModifiedReplace( index,isModified );
             openTab_UpdateOneAction( index,isModified );
         }
     }
@@ -232,6 +233,7 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
         }
     }
 
+    qDebug() << "loading file " << QTime::currentTime().toString();
     setStatusBar( tr( "Loading File..." ), 0 );
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -242,17 +244,15 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
     {
         tabNew();
 
-        m_settings.set_priorPath( pathName( fileName ) );
-
-        if ( ! isAuto )
-        {
-            saveAndBroadcastSettings();
-        }
+        Overlord::getInstance()->set_priorPath( pathName( fileName ) );
     }
 
     QString fileData = QString::fromUtf8( temp );
     m_textEdit->setPlainText( fileData );
+    // TODO:: might need to drain the swamp here.
+    QCoreApplication::processEvents();
     QApplication::restoreOverrideCursor();
+    qDebug() << "finished loading file " << QTime::currentTime().toString();
 
     if ( m_textEdit->m_owner == "tab" )
     {
@@ -276,11 +276,11 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
         // update open tab list
         openTab_Add();
 
-        int index = m_settings.openedFilesFind( fileName );
+        int index = Overlord::getInstance()->openedFilesFind( fileName );
 
         if ( index != -1 )
         {
-            m_settings.openedModifiedReplace( index,false );
+            Overlord::getInstance()->openedModifiedReplace( index,false );
         }
     }
 
@@ -292,6 +292,8 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
 
 bool MainWindow::querySave()
 {
+    qDebug() << "querySave() called";
+
     if ( m_textEdit->document()->isModified() )
     {
 
@@ -357,7 +359,7 @@ bool MainWindow::saveFile( QString fileName, SaveFiles saveType )
         return false;
     }
 
-    if ( m_settings.removeSpaces() )
+    if ( Overlord::getInstance()->removeSpaces() )
     {
         deleteEOL_Spaces();
     }
@@ -368,11 +370,11 @@ bool MainWindow::saveFile( QString fileName, SaveFiles saveType )
 
     m_textEdit->document()->setModified( false );
 
-    int index = m_settings.openedFilesFind( fileName );
+    int index = Overlord::getInstance()->openedFilesFind( fileName );
 
     if ( index != -1 )
     {
-        m_settings.openedModifiedReplace( index,false );
+        Overlord::getInstance()->openedModifiedReplace( index,false );
         openTab_UpdateOneAction( index,false );
     }
 
@@ -415,7 +417,7 @@ void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool 
         m_tabWidget->setTabText( index, showName );
         m_tabWidget->setTabWhatsThis( index, showName );
 
-        if ( m_settings.isComplete() )
+        if ( Overlord::getInstance()->isComplete() )
         { m_textEdit->forceSyntax( SYN_TEXT ); }
 
     }
@@ -435,7 +437,7 @@ void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool 
         m_tabWidget->setTabText( index, strippedName( m_curFile ) );
         m_tabWidget->setTabWhatsThis( index, m_curFile );
 
-        if ( ! m_settings.recentFilesListContains( m_curFile ) )
+        if ( ! Overlord::getInstance()->recentFilesListContains( m_curFile ) )
         {
             rf_Update();
         }
@@ -469,7 +471,7 @@ void MainWindow::setStatus_LineCol()
 
 void MainWindow::setStatus_ColMode()
 {
-    if ( m_settings.isColumnMode() )
+    if ( Overlord::getInstance()->isColumnMode() )
     {
         m_statusMode->setText( " Column Mode  " );
 
@@ -479,7 +481,7 @@ void MainWindow::setStatus_ColMode()
         m_statusMode->setText( " Line Mode  " );
     }
 
-    m_textEdit->set_ColumnMode( m_settings.isColumnMode() );
+    m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
 }
 
 void MainWindow::setStatus_FName( QString fullName )
