@@ -250,7 +250,7 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
     QString fileData = QString::fromUtf8( temp );
     m_textEdit->setPlainText( fileData );
     // TODO:: might need to drain the swamp here.
-    QCoreApplication::processEvents();
+    //QCoreApplication::processEvents();
     QApplication::restoreOverrideCursor();
     qDebug() << "finished loading file " << QTime::currentTime().toString();
 

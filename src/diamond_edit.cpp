@@ -90,6 +90,19 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     changeFont();
 }
 
+DiamondTextEdit::~DiamondTextEdit()
+{
+    if ( m_syntaxParser )
+    {
+        delete m_syntaxParser;
+    }
+
+    if ( m_spellCheck )
+    {
+        delete m_spellCheck;
+    }
+}
+
 // ** line numbers
 void DiamondTextEdit::lineNum_PaintEvent( QPaintEvent *event )
 {
@@ -315,6 +328,11 @@ Syntax *DiamondTextEdit::get_SyntaxParser()
 void DiamondTextEdit::set_SyntaxParser( Syntax *parser )
 {
     m_syntaxParser = parser;
+
+    if ( parser )
+    {
+        m_syntaxParser->processSyntax( m_settingsPtr );
+    }
 }
 
 SyntaxTypes DiamondTextEdit::get_SyntaxEnum()
@@ -1044,10 +1062,7 @@ void DiamondTextEdit::runSyntax( QString synFName )
 
     Syntax *parser = new Syntax( document(), synFName, m_spellCheck );
 
-    if ( parser->processSyntax( Overlord::getInstance()->pointerToSettings() ) )
-    {
-        set_SyntaxParser( parser );
-    }
+    set_SyntaxParser( parser );
 }
 
 void DiamondTextEdit::spell_replaceWord()

@@ -455,7 +455,6 @@ bool Settings::load()
 {
     bool ok = true;
 
-    qDebug() << "Settings::load() called";
 
     if ( m_configFileName.isEmpty() )
     {
@@ -463,18 +462,13 @@ bool Settings::load()
     }
 
 
-    qDebug() << "checking for: " << m_configFileName;
 
     if ( ! QFile::exists( m_configFileName ) )
     {
-        qDebug() << "saving default";
         save();  // TODO:: save should return bool and set ok
         //        just in case we cannot write to disk for some reason
-        qDebug() << "returned from save";
         return true;
     }
-
-    qDebug() << "falling through to load";
 
     if ( ok )
     {

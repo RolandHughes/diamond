@@ -42,14 +42,14 @@ Syntax::~Syntax()
 // only called from Dialog_Colors
 // might go away now that DiamondTextEdit does more
 //
-bool Syntax::processSyntax( Settings *settings )
+void Syntax::processSyntax( Settings *settings )
 {
     // get existing json data
     QByteArray data = json_ReadFile( m_syntaxFile );
 
     if ( data.isEmpty() )
     {
-        return false;
+        return;
     }
 
     QJsonDocument doc = QJsonDocument::fromJson( data );
@@ -227,8 +227,6 @@ bool Syntax::processSyntax( Settings *settings )
 
     // redo the current document
     rehighlight();
-
-    return true;
 }
 
 QByteArray Syntax::json_ReadFile( QString fileName )

@@ -1,8 +1,7 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
 *) file selector called by File->Open needs to allow for hidden files.
-*) WTF? We have recent files in settings but I don't see it on the File menu, just folders.
-*) Why so much lag between "broadcasting settings" and screen update? Really need to thread off the syntax stuff.
+*) Why so much lag between "broadcasting settings" and screen update? 
 *) Need to remember which tab was on top. Really needs to remember tab order when starting new.
 *) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
 
@@ -11,12 +10,6 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
 *) File->New should not be whacking the current file tab, it should create a new
  tab
  
-*) Load needs to actually load the new fields.
-
-
-
-
-
 *) Insert DiamondTextEdit on colors dialog so we can see actual color changes
 *for gutter, etc. Load sample.cpp from resource file.
 

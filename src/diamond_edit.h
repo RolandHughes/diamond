@@ -37,6 +37,7 @@ class DiamondTextEdit : public QPlainTextEdit
 
 public:
     DiamondTextEdit( QWidget *parent, QString owner );
+    ~DiamondTextEdit();
 
     QString m_owner;
 
@@ -92,6 +93,9 @@ public:
 
     CS_SIGNAL_1( Public, void setSynType( SyntaxTypes data ) )
     CS_SIGNAL_2( setSynType, data )
+
+    CS_SIGNAL_1( Public, void processSyntax( Settings *settings ) )
+    CS_SIGNAL_2( processSyntax, settings )
 
     // editing API for use by MainWindow
     //

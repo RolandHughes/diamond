@@ -33,9 +33,11 @@ public:
     Syntax( QTextDocument *document, QString synFName, SpellCheck *spell = 0 );
 
     ~Syntax();
-    bool processSyntax( Settings *settings );
     void set_Spell( bool value );
 
+    CS_SLOT_1( Public, void processSyntax( Settings *settings ) )
+    CS_SLOT_2( processSyntax )
+    
 protected:
     void highlightBlock( const QString &text );
 
