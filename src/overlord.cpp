@@ -82,7 +82,9 @@ bool Overlord::set_configFileName( QString name )
 {
     m_configFileName = name;
     m_settings.m_configFileName = name;
+    qDebug() << "about to call settings load()";
     bool retVal = m_settings.load();
+    qDebug() << "returned from settings load()";
 
     if ( retVal )
     {
@@ -357,6 +359,7 @@ void Overlord::updateSettingsFromLocalCopy( Settings &settings )
 {
     m_settings = settings;
     markToNotify();
+    checkForChange();
 }
 
 Settings &Overlord::pullLocalSettingsCopy()

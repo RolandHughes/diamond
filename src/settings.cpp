@@ -64,6 +64,13 @@ Settings::Settings() :
 
     generateDefaultThemes();
 
+    // TODO:: find out why this list has to be full
+    // silly way to pad the list
+    for ( int k = 0; k < DiamondLimits::PRESET_FOLDERS_MAX; k++ )
+    {
+        m_preFolderList.append( "" );
+    }
+
     m_isComplete = true;
 }
 
@@ -101,9 +108,9 @@ Settings::Settings( const Settings &other ) :
     , m_printSettings( other.m_printSettings )
     , m_priorPath( other.m_priorPath )
     , m_rFolderList( other.m_rFolderList )
+    , m_recentFilesList( other.m_recentFilesList )
     , m_replaceList( other.m_replaceList )
     , m_replaceText( other.m_replaceText )
-    , m_recentFilesList( other.m_recentFilesList )
     , m_showBreaks( other.m_showBreaks )
     , m_showLineHighlight( other.m_showLineHighlight )
     , m_showLineNumbers( other.m_showLineNumbers )
@@ -149,9 +156,9 @@ Settings &Settings::operator =( const Settings &other )
         m_printSettings             = other.m_printSettings;
         m_priorPath                 = other.m_priorPath;
         m_rFolderList               = other.m_rFolderList;
+        m_recentFilesList           = other.m_recentFilesList;
         m_replaceList               = other.m_replaceList;
         m_replaceText               = other.m_replaceText;
-        m_recentFilesList           = other.m_recentFilesList;
         m_showBreaks                = other.m_showBreaks;
         m_showLineHighlight         = other.m_showLineHighlight;
         m_showLineNumbers           = other.m_showLineNumbers;
@@ -166,6 +173,11 @@ bool operator ==( const Settings &left, const Settings &right )
 {
     bool retVal = true;
 
+    if ( left.m_activeTheme != right.m_activeTheme )
+    {
+        retVal = false;
+    }
+
     if ( left.m_advancedFCase != right.m_advancedFCase )
     {
         retVal = false;
@@ -177,68 +189,6 @@ bool operator ==( const Settings &left, const Settings &right )
     }
 
     if ( left.m_advancedFWholeWords != right.m_advancedFWholeWords )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_findCase != right.m_findCase )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_findDirection != right.m_findDirection )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_findWholeWords != right.m_findWholeWords )
-    {
-        retVal = false;
-    }
-
-    // skip testing "flag" members as they are command line only
-    //
-    if ( left.m_isColumnMode != right.m_isColumnMode )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_isComplete != right.m_isComplete )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_isSpellCheck != right.m_isSpellCheck )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_isWordWrap != right.m_isWordWrap )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_showBreaks != right.m_showBreaks )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_showLineHighlight != right.m_showLineHighlight )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_showLineNumbers != right.m_showLineNumbers )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_showSpaces != right.m_showSpaces )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_activeTheme != right.m_activeTheme )
     {
         retVal = false;
     }
@@ -268,17 +218,17 @@ bool operator ==( const Settings &left, const Settings &right )
         retVal = false;
     }
 
-    if ( left.m_findText != right.m_findText )
+    if ( left.m_findCase != right.m_findCase )
     {
         retVal = false;
     }
 
-    if ( left.m_priorPath != right.m_priorPath )
+    if ( left.m_findDirection != right.m_findDirection )
     {
         retVal = false;
     }
 
-    if ( left.m_replaceText != right.m_replaceText )
+    if ( left.m_findFlags != right.m_findFlags )
     {
         retVal = false;
     }
@@ -288,32 +238,22 @@ bool operator ==( const Settings &left, const Settings &right )
         retVal = false;
     }
 
-    if ( left.m_macroNames != right.m_macroNames )
+    if ( left.m_findText != right.m_findText )
     {
         retVal = false;
     }
 
-    if ( left.m_openedFiles != right.m_openedFiles )
+    if ( left.m_findWholeWords != right.m_findWholeWords )
     {
         retVal = false;
     }
 
-    if ( left.m_preFolderList != right.m_preFolderList )
+    if ( left.m_flagNoAutoLoad != right.m_flagNoAutoLoad )
     {
         retVal = false;
     }
 
-    if ( left.m_rFolderList != right.m_rFolderList )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_replaceList != right.m_replaceList )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_recentFilesList != right.m_recentFilesList )
+    if ( left.m_flagNoSaveConfig != right.m_flagNoSaveConfig )
     {
         retVal = false;
     }
@@ -328,7 +268,22 @@ bool operator ==( const Settings &left, const Settings &right )
         retVal = false;
     }
 
-    if ( left.m_lastPosition != right.m_lastPosition )
+    if ( left.m_isColumnMode != right.m_isColumnMode )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_isComplete != right.m_isComplete )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_isSpellCheck != right.m_isSpellCheck )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_isWordWrap != right.m_isWordWrap )
     {
         retVal = false;
     }
@@ -343,12 +298,17 @@ bool operator ==( const Settings &left, const Settings &right )
         retVal = false;
     }
 
-    if ( left.m_openedModified != right.m_openedModified )
+    if ( left.m_macroNames != right.m_macroNames )
     {
         retVal = false;
     }
 
-    if ( left.m_findFlags != right.m_findFlags )
+    if ( left.m_openedFiles != right.m_openedFiles )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_openedModified != right.m_openedModified )
     {
         retVal = false;
     }
@@ -358,7 +318,7 @@ bool operator ==( const Settings &left, const Settings &right )
         retVal = false;
     }
 
-    if ( left.m_themes != right.m_themes )
+    if ( left.m_preFolderList != right.m_preFolderList )
     {
         retVal = false;
     }
@@ -367,6 +327,57 @@ bool operator ==( const Settings &left, const Settings &right )
     {
         retVal = false;
     }
+
+    if ( left.m_priorPath != right.m_priorPath )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_rFolderList != right.m_rFolderList )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_replaceList != right.m_replaceList )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_replaceText != right.m_replaceText )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_recentFilesList != right.m_recentFilesList )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_showBreaks != right.m_showBreaks )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_showLineHighlight != right.m_showLineHighlight )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_showLineNumbers != right.m_showLineNumbers )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_showSpaces != right.m_showSpaces )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_themes != right.m_themes )
+    {
+        retVal = false;
+    }
+
 
     return retVal;
 }
@@ -392,7 +403,7 @@ void Settings::copyTheme( QString name, QString dest )
             Themes tempTheme = m_themes[name];
             m_themes[dest] = tempTheme;
             m_themes[dest].set_protection( false );
-            m_activeTheme = dest;       // TODO:: Need to refresh display
+            m_activeTheme = dest;
         }
         else
         {
@@ -415,6 +426,11 @@ void Settings::deleteTheme( QString name )
     if ( themeNameExists( name ) )
     {
         m_themes.remove( name );
+
+        if ( m_activeTheme.compare( name ) == 0 )
+        {
+            m_activeTheme = "CLASSIC";  // TODO:: might want to just use first theme in list.
+        }
     }
     else
     {
@@ -422,10 +438,24 @@ void Settings::deleteTheme( QString name )
     }
 }
 
+void Settings::add_theme( Themes *theme )
+{
+    // Leaving name collision test in dialog for now.
+    // If it is a duplicate name at this point it will
+    // replace the existing theme.
+    if ( theme != nullptr )
+    {
+        qDebug() << "theme->name(): " << theme->name();
+        m_themes[theme->name()] = *theme;
+        m_activeTheme = theme->name();
+    }
+}
 
 bool Settings::load()
 {
     bool ok = true;
+
+    qDebug() << "Settings::load() called";
 
     if ( m_configFileName.isEmpty() )
     {
@@ -433,11 +463,18 @@ bool Settings::load()
     }
 
 
+    qDebug() << "checking for: " << m_configFileName;
+
     if ( ! QFile::exists( m_configFileName ) )
     {
+        qDebug() << "saving default";
         save();  // TODO:: save should return bool and set ok
         //        just in case we cannot write to disk for some reason
+        qDebug() << "returned from save";
+        return true;
     }
+
+    qDebug() << "falling through to load";
 
     if ( ok )
     {
@@ -520,55 +557,172 @@ bool Settings::load()
         m_printSettings.set_fontFooter( fontFromString( object.value( "prt-fontFooter" ).toString() ) );
         m_printSettings.set_fontText( fontFromString( object.value( "prt-fontText" ).toString() ) );
 
-        // TODO:: Have to handle map of keys here
-#if 0
         // standard keys
-        m_settings.key_open        = object.value( "key-open" ).toString();
-        m_settings.key_close       = object.value( "key-close" ).toString();
-        m_settings.key_save        = object.value( "key-save" ).toString();
-        m_settings.key_saveAs      = object.value( "key-saveAs" ).toString();
-        m_settings.key_print       = object.value( "key-print" ).toString();
-//    m_settings.key_exit        = object.value("key-exit").toString();
-
-        m_settings.key_undo        = object.value( "key-undo" ).toString();
-        m_settings.key_redo        = object.value( "key-redo" ).toString();
-        m_settings.key_cut         = object.value( "key-cut" ).toString();
-        m_settings.key_copy        = object.value( "key-copy" ).toString();
-        m_settings.key_paste       = object.value( "key-paste" ).toString();
-        m_settings.key_selectAll   = object.value( "key-selectAll" ).toString();
-        m_settings.key_find        = object.value( "key-find" ).toString();
-        m_settings.key_replace     = object.value( "key-replace" ).toString();
-        m_settings.key_findNext    = object.value( "key-findNext" ).toString();
-        m_settings.key_findPrev    = object.value( "key-findPrev" ).toString();
-        m_settings.key_goTop       = object.value( "key-goTop" ).toString();
-        m_settings.key_goBottom    = object.value( "key-goBottom" ).toString();
-        m_settings.key_newTab      = object.value( "key-newTab" ).toString();
-//    m_settings.key_help        = object.value("key-help").toString();
+        m_options.keys().set_open( object.value( "key-open" ).toString() );
+        m_options.keys().set_close( object.value( "key-close" ).toString() );
+        m_options.keys().set_save( object.value( "key-save" ).toString() );
+        m_options.keys().set_saveAs( object.value( "key-saveAs" ).toString() );
+        m_options.keys().set_print( object.value( "key-print" ).toString() );
+        m_options.keys().set_undo( object.value( "key-undo" ).toString() );
+        m_options.keys().set_redo( object.value( "key-redo" ).toString() );
+        m_options.keys().set_cut( object.value( "key-cut" ).toString() );
+        m_options.keys().set_copy( object.value( "key-copy" ).toString() );
+        m_options.keys().set_paste( object.value( "key-paste" ).toString() );
+        m_options.keys().set_selectAll( object.value( "key-selectAll" ).toString() );
+        m_options.keys().set_find( object.value( "key-find" ).toString() );
+        m_options.keys().set_replace( object.value( "key-replace" ).toString() );
+        m_options.keys().set_findNext( object.value( "key-findNext" ).toString() );
+        m_options.keys().set_findPrev( object.value( "key-findPrev" ).toString() );
+        m_options.keys().set_goTop( object.value( "key-goTop" ).toString() );
+        m_options.keys().set_goBottom( object.value( "key-goBottom" ).toString() );
+        m_options.keys().set_newTab( object.value( "key-newTab" ).toString() );
 
         // user keys
-        m_settings.key_printPreview = object.value( "key-printPreview" ).toString();
-        m_settings.key_reload       = object.value( "key-reload" ).toString();
-        m_settings.key_selectLine   = object.value( "key-selectLine" ).toString();
-        m_settings.key_selectWord   = object.value( "key-selectWord" ).toString();
-        m_settings.key_selectBlock  = object.value( "key-selectBlock" ).toString();
-        m_settings.key_upper        = object.value( "key-upper" ).toString();
-        m_settings.key_lower        = object.value( "key-lower" ).toString();
-        m_settings.key_indentIncr   = object.value( "key-indentIncr" ).toString();
-        m_settings.key_indentDecr   = object.value( "key-indentDecr" ).toString();
-        m_settings.key_deleteLine   = object.value( "key-deleteLine" ).toString();
-        m_settings.key_deleteEOL    = object.value( "key-deleteEOL" ).toString();
-        m_settings.key_columnMode   = object.value( "key-columnMode" ).toString();
-        m_settings.key_goLine       = object.value( "key-goLine" ).toString();
-        m_settings.key_show_Spaces  = object.value( "key-showShow" ).toString();
-        m_settings.key_show_Breaks  = object.value( "key-showBreaks" ).toString();
-        m_settings.key_macroPlay    = object.value( "key-macroPlay" ).toString();
-        m_settings.key_spellCheck   = object.value( "key-spellCheck" ).toString();
-        m_settings.key_copyBuffer   = object.value( "key-copyBuffer" ).toString();
-#endif
+        m_options.keys().set_printPreview( object.value( "key-printPreview" ).toString() );
+        m_options.keys().set_reload( object.value( "key-reload" ).toString() );
+        m_options.keys().set_selectLine( object.value( "key-selectLine" ).toString() );
+        m_options.keys().set_selectWord( object.value( "key-selectWord" ).toString() );
+        m_options.keys().set_selectBlock( object.value( "key-selectBlock" ).toString() );
+        m_options.keys().set_upper( object.value( "key-upper" ).toString() );
+        m_options.keys().set_lower( object.value( "key-lower" ).toString() );
+        m_options.keys().set_indentIncrement( object.value( "key-indentIncr" ).toString() );
+        m_options.keys().set_indentDecrement( object.value( "key-indentDecr" ).toString() );
+        m_options.keys().set_deleteLine( object.value( "key-deleteLine" ).toString() );
+        m_options.keys().set_deleteToEOL( object.value( "key-deleteToEOL" ).toString() );
+        m_options.keys().set_deleteThroughEOL( object.value( "key_deleteThroughEOL" ).toString() );
+        m_options.keys().set_columnMode( object.value( "key-columnMode" ).toString() );
+        m_options.keys().set_gotoLine( object.value( "key-goLine" ).toString() );
+        m_options.keys().set_showSpaces( object.value( "key-showShow" ).toString() );
+        m_options.keys().set_showBreaks( object.value( "key-showBreaks" ).toString() );
+        m_options.keys().set_macroPlay( object.value( "key-macroPlay" ).toString() );
+        m_options.keys().set_spellCheck( object.value( "key-spellCheck" ).toString() );
+        m_options.keys().set_copyBuffer( object.value( "key-copyBuffer" ).toString() );
+        m_options.keys().set_edtDirectionAdvance( object.value( "key-edt-advance" ).toString() );
+        m_options.keys().set_edtAppend( object.value( "key-edt-append" ).toString() );
+        m_options.keys().set_edtDirectionBack( object.value( "key-edt-back" ).toString() );
+        m_options.keys().set_edtChar( object.value( "key-edt-char" ).toString() );
+        m_options.keys().set_edtCut( object.value( "key-edt-cut" ).toString() );
+        m_options.keys().set_edtDeleteChar( object.value( "key-edt-del-char" ).toString() );
+        m_options.keys().set_edtDeleteWord( object.value( "key-edt-del-word" ).toString() );
+        m_options.keys().set_edtDeleteLine( object.value( "key-edt-deleteLine" ).toString() );
+        m_options.keys().set_edtEnter( object.value( "key-edt-enter" ).toString() );
+        m_options.keys().set_edtEOL( object.value( "key-edt-eol" ).toString() );
+        m_options.keys().set_edtFindNext( object.value( "key-edt-findNext" ).toString() );
+        m_options.keys().set_edtGold( object.value( "key-edt-gold" ).toString() );
+        m_options.keys().set_edtHelp( object.value( "key-edt-help" ).toString() );
+        m_options.keys().set_edtLine( object.value( "key-edt-line" ).toString() );
+        m_options.keys().set_edtPage( object.value( "key-edt-page" ).toString() );
+        m_options.keys().set_edtSection( object.value( "key-edt-section" ).toString() );
+        m_options.keys().set_edtSelect( object.value( "key-edt-select" ).toString() );
+        m_options.keys().set_edtWord( object.value( "key-edt-word" ).toString() );
 
         // TODO:: Need to load multiple themes here.
         //        Need to handle legacy conversion as well
         //
+        m_activeTheme = object.value( "active-theme" ).toString();
+        QJsonArray themesArray = object.value( "themes" ).toArray();
+
+        int themeCount = themesArray.count();
+
+        for ( int x=0; x < themeCount; x++ )
+        {
+            QJsonObject theme = themesArray[x].toObject();
+            Themes elm;
+
+            elm.set_colorText( colorFromValueString( theme.value( "theme-color-text" ).toString() ) );
+            elm.set_colorBack( colorFromValueString( theme.value( "theme-color-back" ).toString() ) );
+            elm.set_gutterText( colorFromValueString( theme.value( "theme-color-gutterText" ).toString() ) );
+            elm.set_gutterBack( colorFromValueString( theme.value( "theme-color-gutterBack" ).toString() ) );
+            elm.set_currentLineBack( colorFromValueString( theme.value( "theme-color-currentLineBack" ).toString() ) );
+            elm.set_name( theme.value( "theme-name" ).toString() );
+            elm.set_protected( theme.value( "theme-protected" ).toBool() );
+
+            list = theme.value( "theme-syntax-key" ).toArray();
+
+            TextAttributes attr;
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxKey( attr );
+            }
+
+            list = theme.value( "theme-syntax-type" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxType( attr );
+            }
+
+            list = theme.value( "theme-syntax-class" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxClass( attr );
+            }
+
+            list = theme.value( "theme-syntax-func" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxFunc( attr );
+            }
+
+            list = theme.value( "theme-syntax-quote" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxQuote( attr );
+            }
+
+            list = theme.value( "theme-syntax-comment" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxComment( attr );
+            }
+
+            list = theme.value( "theme-syntax-mline" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxMLine( attr );
+            }
+
+            list = theme.value( "theme-syntax-mline" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxMLine( attr );
+            }
+
+            m_themes[elm.name()] = elm;
+        }
+
+
 #if 0
         // colors
         m_settings.colorText      = colorFromValueString( object.value( "color-text" ).toString()    );
@@ -583,40 +737,6 @@ bool Settings::load()
                      "To change the colors select 'Settings' from the main Menu, then select 'Colors'.\n" );
         }
 
-        list = object.value( "syntax-key" ).toArray();
-        m_settings.syn_KeyWeight  = list.at( 0 ).toDouble();
-        m_settings.syn_KeyItalic  = list.at( 1 ).toBool();
-        m_settings.syn_KeyText    = colorFromValueString( list.at( 2 ).toString() );
-
-        list = object.value( "syntax-type" ).toArray();
-        m_settings.syn_TypeWeight = list.at( 0 ).toDouble();
-        m_settings.syn_TypeItalic = list.at( 1 ).toBool();
-        m_settings.syn_TypeText   = colorFromValueString( list.at( 2 ).toString() );
-
-        list = object.value( "syntax-class" ).toArray();
-        m_settings.syn_ClassWeight = list.at( 0 ).toDouble();
-        m_settings.syn_ClassItalic = list.at( 1 ).toBool();
-        m_settings.syn_ClassText   = colorFromValueString( list.at( 2 ).toString() );
-
-        list = object.value( "syntax-func" ).toArray();
-        m_settings.syn_FuncWeight = list.at( 0 ).toDouble();
-        m_settings.syn_FuncItalic = list.at( 1 ).toBool();
-        m_settings.syn_FuncText   = colorFromValueString( list.at( 2 ).toString() );
-
-        list = object.value( "syntax-quote" ).toArray();
-        m_settings.syn_QuoteWeight = list.at( 0 ).toDouble();
-        m_settings.syn_QuoteItalic = list.at( 1 ).toBool();
-        m_settings.syn_QuoteText   = colorFromValueString( list.at( 2 ).toString() );
-
-        list = object.value( "syntax-comment" ).toArray();
-        m_settings.syn_CommentWeight = list.at( 0 ).toDouble();
-        m_settings.syn_CommentItalic = list.at( 1 ).toBool();
-        m_settings.syn_CommentText   = colorFromValueString( list.at( 2 ).toString() );
-
-        list = object.value( "syntax-mline" ).toArray();
-        m_settings.syn_MLineWeight = list.at( 0 ).toDouble();
-        m_settings.syn_MLineItalic = list.at( 1 ).toBool();
-        m_settings.syn_MLineText   = colorFromValueString( list.at( 2 ).toString() );
 #endif
         // adv find
         m_advancedFindText       = object.value( "advFile-text" ).toString();
@@ -845,6 +965,7 @@ void Settings::save()
     QJsonArray temp = QJsonArray::fromStringList( m_openedFiles );
     object.insert( "opened-files", temp );
 
+    object.insert( "active-theme", m_activeTheme );
     createThemeArray( object );
 
     object.insert( "column-mode",   m_isColumnMode );

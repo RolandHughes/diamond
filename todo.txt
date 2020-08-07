@@ -1,6 +1,10 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
-*) "Please wait while color changes are applied"
+*) file selector called by File->Open needs to allow for hidden files.
+*) WTF? We have recent files in settings but I don't see it on the File menu, just folders.
+*) Why so much lag between "broadcasting settings" and screen update? Really need to thread off the syntax stuff.
+*) Need to remember which tab was on top. Really needs to remember tab order when starting new.
+*) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
 
 *) Fix current line highlight to only change background
 
@@ -9,9 +13,6 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
  
 *) Load needs to actually load the new fields.
 
-*) Add importOldColors() to be called if JSON tags found for old colors.
-    It creates a theme called User-1 and makes it active.
-    Since we no longer update/overwrite old stuff won't be saved again.
 
 
 

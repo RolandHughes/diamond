@@ -40,7 +40,10 @@ private:
 
     void colorBox( QLineEdit *field, QColor color );
     void updateParser( bool newSettings );
+    void rebuildComboBox( bool needToDisconnect );
     QColor pickColor( QColor oldColor );
+
+    bool nameCollision( QString &themeName, bool &abortFlag );
 
     void text_TB();
     void back_TB();

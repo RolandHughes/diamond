@@ -23,7 +23,7 @@
 #include <QSize>
 #include <QTextDocument>
 #include "themes.h"
-#include "keydefinitions.h"
+//#include "keydefinitions.h"
 #include "options.h"
 #include "printsettings.h"
 #include "macrostruct.h"
@@ -73,6 +73,7 @@ public:
     // setters
     //
     void set_activeTheme( const QString &name )     { m_activeTheme = name;}
+    void add_theme( Themes *theme );
 
 
 private:
@@ -123,55 +124,48 @@ private:
     void save();
 
 
-    bool m_advancedFCase;
-    bool m_advancedFSearchFolders;
-    bool m_advancedFWholeWords;
-    bool m_findCase;
-    bool m_findDirection;
-    bool m_findWholeWords;
-    bool m_flagNoAutoLoad;        // command line param - do not save
-    bool m_flagNoSaveConfig;      // command line param - do not save
-    bool m_isColumnMode;
-    bool m_isComplete;
-    bool m_isSpellCheck;
-    bool m_isWordWrap;
-    bool m_showBreaks;
-    bool m_showLineHighlight;
-    bool m_showLineNumbers;
-    bool m_showSpaces;
-
-    QString  m_activeTheme;
-    QString  m_advancedFindFileType;
-    QString  m_advancedFindFolder;
-    QString  m_advancedFindText;
-    QString  m_appPath;
-    QString  m_configFileName;
-    QString  m_findText;
-    QString  m_priorPath;
-    QString  m_replaceText;
-
-    QStringList  m_findList;
-    QStringList  m_macroNames;
-    QStringList  m_openedFiles;
-    QStringList  m_preFolderList;
-    QStringList  m_rFolderList;
-    QStringList  m_replaceList;
-    QStringList  m_recentFilesList;
-
-    QFont    m_fontColumn;
-    QFont    m_fontNormal;
-    QPoint   m_lastPosition;
-    QSize    m_lastSize;
-
-    Options  m_options;
-
-    PrintSettings m_printSettings;
+    QString         m_activeTheme;
+    bool            m_advancedFCase;
+    bool            m_advancedFSearchFolders;
+    bool            m_advancedFWholeWords;
+    QString         m_advancedFindFileType;
+    QString         m_advancedFindFolder;
+    QString         m_advancedFindText;
+    QString         m_appPath;
+    QString         m_configFileName;
+    bool            m_findCase;
+    bool            m_findDirection;
+    QTextDocument::FindFlags m_findFlags;
+    QStringList     m_findList;
+    QString         m_findText;
+    bool            m_findWholeWords;
+    bool            m_flagNoAutoLoad;        // command line param - do not save
+    bool            m_flagNoSaveConfig;      // command line param - do not save
+    QFont           m_fontColumn;
+    QFont           m_fontNormal;
+    bool            m_isColumnMode;
+    bool            m_isComplete;
+    bool            m_isSpellCheck;
+    bool            m_isWordWrap;
+    QPoint          m_lastPosition;
+    QSize           m_lastSize;
+    QStringList     m_macroNames;
+    QStringList     m_openedFiles;
+    QList<bool>     m_openedModified;
+    Options         m_options;
+    QStringList     m_preFolderList;
+    PrintSettings   m_printSettings;
+    QString         m_priorPath;
+    QStringList     m_rFolderList;
+    QStringList     m_recentFilesList;
+    QStringList     m_replaceList;
+    QString         m_replaceText;
+    bool            m_showBreaks;
+    bool            m_showLineHighlight;
+    bool            m_showLineNumbers;
+    bool            m_showSpaces;
 
     QMap <QString, Themes> m_themes;
-
-    QList<bool> m_openedModified;
-
-    QTextDocument::FindFlags m_findFlags;
 
 };
 

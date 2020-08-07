@@ -84,20 +84,7 @@ Dialog_Colors::Dialog_Colors( QWidget *parent )
     connect( m_ui->export_button,     &QPushButton::clicked, this, &Dialog_Colors::exportClicked );
     connect( m_ui->import_button,     &QPushButton::clicked, this, &Dialog_Colors::importClicked );
 
-    m_ui->theme_comboBox->clear();
-    m_ui->theme_comboBox->addItems( m_localSettings.availableThemes() );
-
-    // Do not connect before assigning data as that will cause syntax update with
-    // ill-formed m_localSettings.
-    //
-    connect( m_ui->theme_comboBox,
-             static_cast<void ( QComboBox::* )( const QString & )>( &QComboBox::currentIndexChanged ),
-             this,
-             &Dialog_Colors::themeChanged );
-
-    m_ui->theme_comboBox->setCurrentIndex(
-        m_ui->theme_comboBox->findText( m_localSettings.activeTheme() ) );
-
+    rebuildComboBox( false );
 }
 
 Dialog_Colors::~Dialog_Colors()
@@ -254,8 +241,7 @@ void Dialog_Colors::copyClicked()
     if ( okFlag )
     {
         m_localSettings.copyTheme( m_ui->theme_comboBox->currentText(), destName );
-        m_ui->theme_comboBox->addItem( destName );
-        m_ui->theme_comboBox->setCurrentIndex( m_ui->theme_comboBox->findText( destName ) );
+        rebuildComboBox( true );
     }
 }
 
@@ -277,17 +263,16 @@ void Dialog_Colors::deleteClicked()
     if ( btn == QMessageBox::Yes )
     {
         m_localSettings.deleteTheme( m_ui->theme_comboBox->currentText() );
-        m_ui->theme_comboBox->removeItem( m_ui->theme_comboBox->currentIndex() );
-        m_ui->theme_comboBox->setCurrentIndex( 0 );
+        rebuildComboBox( true );
     }
 }
 
 void Dialog_Colors::exportClicked()
 {
-    // TODO:: Need to use file choose to obtain destination name
-    //        Also need to add export function to settings
     QFileDialog *qfd = new QFileDialog( this, tr( "Destination File" ),
-                                        QDir::homePath(), tr( "JSON Files (*.json)" ) );
+                                        QDir::homePath(), tr( "Diamond Theme Files (*.diamond_theme)" ) );
+
+    qfd->setDefaultSuffix( "diamond_theme" );
 
     int rslt = qfd->exec();
 
@@ -385,9 +370,173 @@ void Dialog_Colors::exportClicked()
 
 void Dialog_Colors::importClicked()
 {
-    // TODO:: Need to use file choose to obtain input file name
-    //        Also need to add import function to settings
-    int btn = QMessageBox::information( this, "Import", "Not yet implemented", QMessageBox::Ok );
+    QFileDialog *qfd = new QFileDialog( this, tr( "Import File" ),
+                                        QDir::homePath(), tr( "Diamond Theme Files (*.diamond_theme)" ) );
+
+    qfd->setDefaultSuffix( "diamond_theme" );
+
+    int rslt = qfd->exec();
+
+    if ( rslt == QDialog::Accepted )
+    {
+        QStringList names = qfd->selectedFiles();
+
+        if ( !names.isEmpty() )
+        {
+            QString fileName = names[0];
+
+            QByteArray data;
+
+            QFile file( fileName );
+
+            if ( ! file.open( QFile::ReadWrite | QFile::Text ) )
+            {
+                const QString msg = tr( "Unable to open Theme File: " ) +  fileName + " : " + file.errorString();
+                csError( tr( "Read Theme" ), msg );
+                return;
+            }
+
+            file.seek( 0 );
+            data = file.readAll();
+            file.close();
+
+            QJsonDocument doc = QJsonDocument::fromJson( data );
+            QJsonObject object = doc.object();
+            QJsonValue value;
+
+            QJsonArray list;
+            TextAttributes attrib;
+
+            // dummy
+            list.append( 0 );
+            list.append( true );
+            list.append( 0 );
+
+            QString themeName = object.value( "theme-name" ).toString();
+
+            if ( themeName.isEmpty() )
+            {
+                csError( tr( "Theme Import" ), "Missing theme name in file" );
+                return;
+            }
+
+            bool abortFlag = false;
+
+            while ( nameCollision( themeName, abortFlag ) && !abortFlag );
+
+            Themes *theme = new Themes( themeName, false );
+
+            theme->set_colorBack( colorFromValueString( object.value( "theme-color-back" ).toString() ) );
+            theme->set_currentLineBack( colorFromValueString( object.value( "theme-color-currentLineBack" ).toString() ) );
+            theme->set_gutterBack( colorFromValueString( object.value( "theme-color-gutterBack" ).toString() ) );
+            theme->set_gutterText( colorFromValueString( object.value( "theme-color-gutterText" ).toString() ) );
+            theme->set_colorText( colorFromValueString( object.value( "theme-color-text" ).toString() ) );
+            // TextAttribute array written as weight, italic-bool, color string
+            //
+            // syntax class
+            //
+            QJsonArray syn = object.value( "theme-syntax-class" ).toArray();
+            attrib.set_weight( syn[0].toInt() );
+            attrib.set_italic( syn[1].toBool() );
+            attrib.set_color( colorFromValueString( syn[2].toString() ) );
+            theme->set_syntaxClass( attrib );
+
+            // syntax comment
+            //
+            syn = object.value( "theme-syntax-comment" ).toArray();
+            attrib.set_weight( syn[0].toInt() );
+            attrib.set_italic( syn[1].toBool() );
+            attrib.set_color( colorFromValueString( syn[2].toString() ) );
+            theme->set_syntaxComment( attrib );
+
+            syn = object.value( "theme-syntax-constant" ).toArray();
+            attrib.set_weight( syn[0].toInt() );
+            attrib.set_italic( syn[1].toBool() );
+            attrib.set_color( colorFromValueString( syn[2].toString() ) );
+            theme->set_syntaxConstant( attrib );
+
+            syn = object.value( "theme-syntax-func" ).toArray();
+            attrib.set_weight( syn[0].toInt() );
+            attrib.set_italic( syn[1].toBool() );
+            attrib.set_color( colorFromValueString( syn[2].toString() ) );
+            theme->set_syntaxFunc( attrib );
+
+            syn = object.value( "theme-syntax-key" ).toArray();
+            attrib.set_weight( syn[0].toInt() );
+            attrib.set_italic( syn[1].toBool() );
+            attrib.set_color( colorFromValueString( syn[2].toString() ) );
+            theme->set_syntaxKey( attrib );
+
+            syn = object.value( "theme-syntax-mline" ).toArray();
+            attrib.set_weight( syn[0].toInt() );
+            attrib.set_italic( syn[1].toBool() );
+            attrib.set_color( colorFromValueString( syn[2].toString() ) );
+            theme->set_syntaxMLine( attrib );
+
+            syn = object.value( "theme-syntax-quote" ).toArray();
+            attrib.set_weight( syn[0].toInt() );
+            attrib.set_italic( syn[1].toBool() );
+            attrib.set_color( colorFromValueString( syn[2].toString() ) );
+            theme->set_syntaxQuote( attrib );
+
+            syn = object.value( "theme-syntax-type" ).toArray();
+            attrib.set_weight( syn[0].toInt() );
+            attrib.set_italic( syn[1].toBool() );
+            attrib.set_color( colorFromValueString( syn[2].toString() ) );
+            theme->set_syntaxType( attrib );
+
+            m_localSettings.add_theme( theme );
+            theme->deleteLater();
+            rebuildComboBox( true );
+        }
+    }
+}
+
+void Dialog_Colors::rebuildComboBox( bool needToDisconnect )
+{
+    if ( needToDisconnect )
+    {
+        // stop needless screen updates while rebuilding combo
+        disconnect( m_ui->theme_comboBox,
+                    static_cast<void ( QComboBox::* )( const QString & )>( &QComboBox::currentIndexChanged ),
+                    this,
+                    &Dialog_Colors::themeChanged );
+
+    }
+
+    m_ui->theme_comboBox->clear();
+    m_ui->theme_comboBox->addItems( m_localSettings.availableThemes() );
+
+    // Do not connect before assigning data as that will cause syntax update with
+    // ill-formed m_localSettings.
+    //
+    connect( m_ui->theme_comboBox,
+             static_cast<void ( QComboBox::* )( const QString & )>( &QComboBox::currentIndexChanged ),
+             this,
+             &Dialog_Colors::themeChanged );
+
+    m_ui->theme_comboBox->setCurrentIndex(
+        m_ui->theme_comboBox->findText( m_localSettings.activeTheme() ) );
+}
+
+bool Dialog_Colors::nameCollision( QString &themeName, bool &abortFlag )
+{
+
+    bool retVal = false;
+
+    if ( Overlord::getInstance()->themeNameExists( themeName ) )
+    {
+        abortFlag = false;
+
+        //  TODO:: Really need to get an AlphaNumeric hint added
+        themeName = QInputDialog::getText( this,
+                                           "Theme name exists - New Theme name",
+                                           "Name: ",
+                                           QLineEdit::Normal,
+                                           themeName, &abortFlag, Qt::Dialog, Qt::ImhNone );
+    }
+
+    return retVal;
 }
 
 void Dialog_Colors::updateParser( bool newSettings )

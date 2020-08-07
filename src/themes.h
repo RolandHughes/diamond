@@ -57,6 +57,8 @@ public:
     void set_colorBack( QColor color )                { m_colorBack = color;}
     void set_gutterText( QColor color )               { m_gutterText = color;}
     void set_gutterBack( QColor color )               { m_gutterBack = color;}
+    void set_name(QString name)                       { m_name = name;}
+    void set_protected(bool yesNo)                    { m_protected = yesNo;}
     void set_currentLineBack( QColor color )          { m_currentLineBack = color;}
     void set_syntaxKey( TextAttributes &attr )        { m_synKey = attr;}
     void set_syntaxType( TextAttributes &attr )       { m_synType = attr;}
