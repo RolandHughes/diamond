@@ -28,7 +28,7 @@ public:
     static Overlord *getInstance();
     bool set_configFileName( QString name );
     void set_appPath( QString path );
-    void set_newConfigFileName( QString name);
+    void set_newConfigFileName( QString name );
 
     CS_SIGNAL_1( Public, void settingsChanged( Settings *settings ) )
     CS_SIGNAL_2( settingsChanged, settings )
@@ -90,6 +90,9 @@ public:
 
     QSize   lastSize()                      { return m_settings.m_lastSize;}
     QPoint  lastPosition()                  { return m_settings.m_lastPosition;}
+    QString lastActiveFile()                { return m_settings.m_lastActiveFile;}
+    int     lastActiveRow()                 { return m_settings.m_lastActiveRow;}
+    int     lastActiveColumn()              { return m_settings.m_lastActiveColumn;}
 
     QString openedFiles( int sub )          { return m_settings.m_openedFiles[sub];}
     int     openedFilesCount()              { return m_settings.m_openedFiles.count();}
@@ -130,7 +133,7 @@ public:
     QFont   printFontFooter()               { return m_settings.m_printSettings.fontFooter();}
     QFont   printFontText()                 { return m_settings.m_printSettings.fontText();}
     int     findListFind( QString text )    { return m_settings.findListFind( text );}
-    int     openedFilesFind( QString name ) { return m_settings.openedFilesFind(name);}
+    int     openedFilesFind( QString name ) { return m_settings.openedFilesFind( name );}
 
     QList<macroStruct> viewMacro( QString macroName );
     QStringList loadMacroIds();
@@ -189,6 +192,9 @@ public:
     void set_macroNames( const QStringList &macroNames );
     void set_lastSize( QSize size );
     void set_lastPosition( QPoint pos );
+    void set_lastActiveFile( QString fileName );
+    void set_lastActiveRow( int row );
+    void set_lastActiveColumn( int column );
 
 
     void openedFilesClear();

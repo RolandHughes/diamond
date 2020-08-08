@@ -37,9 +37,12 @@
 #include <QLabel>
 #include <QFileDialog>
 #include <QSettings>
+#include <QTimer>
 
 MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     : m_ui( new Ui::MainWindow )
+    , m_fileList( fileList )
+    , m_flagList( flagList )
 {
     m_ui->setupUi( this );
     setDiamondTitle( "untitled.txt" );
@@ -98,7 +101,7 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     // recent folders
     rfolder_CreateMenus();
 
-    // reset  folders
+    // preset  folders
     prefolder_CreateMenus();
 
     // recent files
@@ -128,15 +131,23 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
         Overlord::getInstance()->set_flagNoSaveConfig( true );
     }
 
+
+    // put off file loading, etc. until after the user can see the editor.
+    QTimer::singleShot( 10, this, SLOT( afterVisible() ) );
+
+}
+
+void MainWindow::afterVisible()
+{
     if ( Overlord::getInstance()->autoLoad() && ! Overlord::getInstance()->flagNoAutoLoad() )
     {
         autoLoad();
     }
 
     // user requested files on the command line
-    if ( fileList.count() > 1 )
+    if ( m_fileList.count() > 1 )
     {
-        argLoad( fileList );
+        argLoad( m_fileList );
     }
 
     // no files were open, open a blank tab

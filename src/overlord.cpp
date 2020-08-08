@@ -487,6 +487,24 @@ void Overlord::set_lastPosition( QPoint pos )
     markToNotify();
 }
 
+void Overlord::set_lastActiveFile( QString fileName )
+{
+    m_settings.set_lastActiveFile( fileName );
+    markToNotify();
+}
+
+void Overlord::set_lastActiveRow( int row )
+{
+    m_settings.set_lastActiveRow( row );
+    markToNotify();
+}
+
+void Overlord::set_lastActiveColumn( int column )
+{
+    m_settings.set_lastActiveColumn( column );
+    markToNotify();
+}
+
 void Overlord::openedModifiedReplace( int sub, bool yesNo )
 {
     m_settings.openedModifiedReplace( sub, yesNo );

@@ -53,6 +53,8 @@ Settings::Settings() :
     , m_findCase( false )
     , m_lastPosition( QPoint( 400, 200 ) )
     , m_lastSize( QSize( 800, 600 ) )
+    , m_lastActiveRow( 0 )
+    , m_lastActiveColumn( 0 )
     , m_advancedFindText( "diamond" )
     , m_advancedFindFileType( "." )
 {
@@ -65,7 +67,7 @@ Settings::Settings() :
     generateDefaultThemes();
 
     // TODO:: find out why this list has to be full
-    // silly way to pad the list
+    //
     for ( int k = 0; k < DiamondLimits::PRESET_FOLDERS_MAX; k++ )
     {
         m_preFolderList.append( "" );
@@ -100,6 +102,9 @@ Settings::Settings( const Settings &other ) :
     , m_isWordWrap( other.m_isWordWrap )
     , m_lastPosition( other.m_lastPosition )
     , m_lastSize( other.m_lastSize )
+    , m_lastActiveFile( other.m_lastActiveFile )
+    , m_lastActiveRow( other.m_lastActiveRow )
+    , m_lastActiveColumn( other.m_lastActiveColumn )
     , m_macroNames( other.m_macroNames )
     , m_openedFiles( other.m_openedFiles )
     , m_openedModified( other.m_openedModified )
@@ -148,6 +153,9 @@ Settings &Settings::operator =( const Settings &other )
         m_isWordWrap                = other.m_isWordWrap;
         m_lastPosition              = other.m_lastPosition;
         m_lastSize                  = other.m_lastSize;
+        m_lastActiveFile            = other.m_lastActiveFile;
+        m_lastActiveRow             = other.m_lastActiveRow;
+        m_lastActiveColumn          = other.m_lastActiveColumn;
         m_macroNames                = other.m_macroNames;
         m_openedFiles               = other.m_openedFiles;
         m_openedModified            = other.m_openedModified;
@@ -294,6 +302,21 @@ bool operator ==( const Settings &left, const Settings &right )
     }
 
     if ( left.m_lastSize != right.m_lastSize )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_lastActiveFile != right.m_lastActiveFile )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_lastActiveRow != right.m_lastActiveRow )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_lastActiveColumn != right.m_lastActiveColumn )
     {
         retVal = false;
     }
@@ -504,6 +527,10 @@ bool Settings::load()
         m_lastSize = QSize( width, height );
         Resize( m_lastSize );
 
+        m_lastActiveFile = object.value( "lastActiveFile" ).toString();
+        m_lastActiveRow  = object.value( "lastActiveRow" ).toInt();
+        m_lastActiveColumn = object.value( "lastActiveColumn" ).toInt();
+
         // options
         m_options.set_rewrapColumn( object.value( "rewrapColumn" ).toInt() );
         m_options.set_tabSpacing( object.value( "tabSpacing" ).toInt() );
@@ -591,147 +618,7 @@ bool Settings::load()
         m_options.keys().set_macroPlay( object.value( "key-macroPlay" ).toString() );
         m_options.keys().set_spellCheck( object.value( "key-spellCheck" ).toString() );
         m_options.keys().set_copyBuffer( object.value( "key-copyBuffer" ).toString() );
-        m_options.keys().set_edtDirectionAdvance( object.value( "key-edt-advance" ).toString() );
-        m_options.keys().set_edtAppend( object.value( "key-edt-append" ).toString() );
-        m_options.keys().set_edtDirectionBack( object.value( "key-edt-back" ).toString() );
-        m_options.keys().set_edtChar( object.value( "key-edt-char" ).toString() );
-        m_options.keys().set_edtCut( object.value( "key-edt-cut" ).toString() );
-        m_options.keys().set_edtDeleteChar( object.value( "key-edt-del-char" ).toString() );
-        m_options.keys().set_edtDeleteWord( object.value( "key-edt-del-word" ).toString() );
-        m_options.keys().set_edtDeleteLine( object.value( "key-edt-deleteLine" ).toString() );
-        m_options.keys().set_edtEnter( object.value( "key-edt-enter" ).toString() );
-        m_options.keys().set_edtEOL( object.value( "key-edt-eol" ).toString() );
-        m_options.keys().set_edtFindNext( object.value( "key-edt-findNext" ).toString() );
-        m_options.keys().set_edtGold( object.value( "key-edt-gold" ).toString() );
-        m_options.keys().set_edtHelp( object.value( "key-edt-help" ).toString() );
-        m_options.keys().set_edtLine( object.value( "key-edt-line" ).toString() );
-        m_options.keys().set_edtPage( object.value( "key-edt-page" ).toString() );
-        m_options.keys().set_edtSection( object.value( "key-edt-section" ).toString() );
-        m_options.keys().set_edtSelect( object.value( "key-edt-select" ).toString() );
-        m_options.keys().set_edtWord( object.value( "key-edt-word" ).toString() );
 
-        // TODO:: Need to load multiple themes here.
-        //        Need to handle legacy conversion as well
-        //
-        m_activeTheme = object.value( "active-theme" ).toString();
-        QJsonArray themesArray = object.value( "themes" ).toArray();
-
-        int themeCount = themesArray.count();
-
-        for ( int x=0; x < themeCount; x++ )
-        {
-            QJsonObject theme = themesArray[x].toObject();
-            Themes elm;
-
-            elm.set_colorText( colorFromValueString( theme.value( "theme-color-text" ).toString() ) );
-            elm.set_colorBack( colorFromValueString( theme.value( "theme-color-back" ).toString() ) );
-            elm.set_gutterText( colorFromValueString( theme.value( "theme-color-gutterText" ).toString() ) );
-            elm.set_gutterBack( colorFromValueString( theme.value( "theme-color-gutterBack" ).toString() ) );
-            elm.set_currentLineBack( colorFromValueString( theme.value( "theme-color-currentLineBack" ).toString() ) );
-            elm.set_name( theme.value( "theme-name" ).toString() );
-            elm.set_protected( theme.value( "theme-protected" ).toBool() );
-
-            list = theme.value( "theme-syntax-key" ).toArray();
-
-            TextAttributes attr;
-
-            if ( list.count() > 2 )
-            {
-                attr.set_weight( list.at( 0 ).toDouble() );
-                attr.set_italic( list.at( 1 ).toBool() );
-                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxKey( attr );
-            }
-
-            list = theme.value( "theme-syntax-type" ).toArray();
-
-            if ( list.count() > 2 )
-            {
-                attr.set_weight( list.at( 0 ).toDouble() );
-                attr.set_italic( list.at( 1 ).toBool() );
-                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxType( attr );
-            }
-
-            list = theme.value( "theme-syntax-class" ).toArray();
-
-            if ( list.count() > 2 )
-            {
-                attr.set_weight( list.at( 0 ).toDouble() );
-                attr.set_italic( list.at( 1 ).toBool() );
-                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxClass( attr );
-            }
-
-            list = theme.value( "theme-syntax-func" ).toArray();
-
-            if ( list.count() > 2 )
-            {
-                attr.set_weight( list.at( 0 ).toDouble() );
-                attr.set_italic( list.at( 1 ).toBool() );
-                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxFunc( attr );
-            }
-
-            list = theme.value( "theme-syntax-quote" ).toArray();
-
-            if ( list.count() > 2 )
-            {
-                attr.set_weight( list.at( 0 ).toDouble() );
-                attr.set_italic( list.at( 1 ).toBool() );
-                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxQuote( attr );
-            }
-
-            list = theme.value( "theme-syntax-comment" ).toArray();
-
-            if ( list.count() > 2 )
-            {
-                attr.set_weight( list.at( 0 ).toDouble() );
-                attr.set_italic( list.at( 1 ).toBool() );
-                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxComment( attr );
-            }
-
-            list = theme.value( "theme-syntax-mline" ).toArray();
-
-            if ( list.count() > 2 )
-            {
-                attr.set_weight( list.at( 0 ).toDouble() );
-                attr.set_italic( list.at( 1 ).toBool() );
-                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxMLine( attr );
-            }
-
-            list = theme.value( "theme-syntax-mline" ).toArray();
-
-            if ( list.count() > 2 )
-            {
-                attr.set_weight( list.at( 0 ).toDouble() );
-                attr.set_italic( list.at( 1 ).toBool() );
-                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxMLine( attr );
-            }
-
-            m_themes[elm.name()] = elm;
-        }
-
-
-#if 0
-        // colors
-        m_settings.colorText      = colorFromValueString( object.value( "color-text" ).toString()    );
-        m_settings.colorBack      = colorFromValueString( object.value( "color-back" ).toString()    );
-        m_settings.colorHighText  = colorFromValueString( object.value( "color-highText" ).toString() );
-        m_settings.colorHighBack  = colorFromValueString( object.value( "color-highBack" ).toString() );
-
-        // test added to resolve color conflicts
-        if ( m_settings.colorBack == m_settings.colorText )
-        {
-            csError( "Diamond Configuration", "Background and Text colors are the same.\n\n"
-                     "To change the colors select 'Settings' from the main Menu, then select 'Colors'.\n" );
-        }
-
-#endif
         // adv find
         m_advancedFindText       = object.value( "advFile-text" ).toString();
         m_advancedFindFileType   = object.value( "advFile-filetype" ).toString();
@@ -832,6 +719,136 @@ bool Settings::load()
                 m_openedFiles.append( fname );
                 m_openedModified.append( false );
             }
+        }
+
+        // user could have the old config file json
+        //
+        if ( !object.contains( "active-theme" ) )
+        {
+            importOldConfig( object );
+            return ok;
+        }
+
+        m_options.keys().set_edtDirectionAdvance( object.value( "key-edt-advance" ).toString() );
+        m_options.keys().set_edtAppend( object.value( "key-edt-append" ).toString() );
+        m_options.keys().set_edtDirectionBack( object.value( "key-edt-back" ).toString() );
+        m_options.keys().set_edtChar( object.value( "key-edt-char" ).toString() );
+        m_options.keys().set_edtCut( object.value( "key-edt-cut" ).toString() );
+        m_options.keys().set_edtDeleteChar( object.value( "key-edt-del-char" ).toString() );
+        m_options.keys().set_edtDeleteWord( object.value( "key-edt-del-word" ).toString() );
+        m_options.keys().set_edtDeleteLine( object.value( "key-edt-deleteLine" ).toString() );
+        m_options.keys().set_edtEnter( object.value( "key-edt-enter" ).toString() );
+        m_options.keys().set_edtEOL( object.value( "key-edt-eol" ).toString() );
+        m_options.keys().set_edtFindNext( object.value( "key-edt-findNext" ).toString() );
+        m_options.keys().set_edtGold( object.value( "key-edt-gold" ).toString() );
+        m_options.keys().set_edtHelp( object.value( "key-edt-help" ).toString() );
+        m_options.keys().set_edtLine( object.value( "key-edt-line" ).toString() );
+        m_options.keys().set_edtPage( object.value( "key-edt-page" ).toString() );
+        m_options.keys().set_edtSection( object.value( "key-edt-section" ).toString() );
+        m_options.keys().set_edtSelect( object.value( "key-edt-select" ).toString() );
+        m_options.keys().set_edtWord( object.value( "key-edt-word" ).toString() );
+
+        m_activeTheme = object.value( "active-theme" ).toString();
+        QJsonArray themesArray = object.value( "themes" ).toArray();
+
+        int themeCount = themesArray.count();
+
+        for ( int x=0; x < themeCount; x++ )
+        {
+            QJsonObject theme = themesArray[x].toObject();
+            Themes elm;
+
+            elm.set_colorText( colorFromValueString( theme.value( "theme-color-text" ).toString() ) );
+            elm.set_colorBack( colorFromValueString( theme.value( "theme-color-back" ).toString() ) );
+            elm.set_gutterText( colorFromValueString( theme.value( "theme-color-gutterText" ).toString() ) );
+            elm.set_gutterBack( colorFromValueString( theme.value( "theme-color-gutterBack" ).toString() ) );
+            elm.set_currentLineBack( colorFromValueString( theme.value( "theme-color-currentLineBack" ).toString() ) );
+            elm.set_name( theme.value( "theme-name" ).toString() );
+            elm.set_protected( theme.value( "theme-protected" ).toBool() );
+
+            list = theme.value( "theme-syntax-key" ).toArray();
+
+            TextAttributes attr;
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxKey( attr );
+            }
+
+            list = theme.value( "theme-syntax-type" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxType( attr );
+            }
+
+            list = theme.value( "theme-syntax-class" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxClass( attr );
+            }
+
+            list = theme.value( "theme-syntax-func" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxFunc( attr );
+            }
+
+            list = theme.value( "theme-syntax-quote" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxQuote( attr );
+            }
+
+            list = theme.value( "theme-syntax-comment" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxComment( attr );
+            }
+
+            list = theme.value( "theme-syntax-mline" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxMLine( attr );
+            }
+
+            list = theme.value( "theme-syntax-constant" ).toArray();
+
+            if ( list.count() > 2 )
+            {
+                attr.set_weight( list.at( 0 ).toDouble() );
+                attr.set_italic( list.at( 1 ).toBool() );
+                attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+                elm.set_syntaxConstant( attr );
+            }
+
+            m_themes[elm.name()] = elm;
         }
     }
 
@@ -953,6 +970,9 @@ void Settings::save()
     object.insert( "pos-y",                 m_lastPosition.y()  );
     object.insert( "size-width",            m_lastSize.width()  );
     object.insert( "size-height",           m_lastSize.height() );
+    object.insert( "lastActiveFile",        m_lastActiveFile );
+    object.insert( "lastActiveRow",         m_lastActiveRow );
+    object.insert( "lastActiveColumn",      m_lastActiveColumn );
     object.insert( "about-url",             m_options.aboutUrl() );
 
     // opened files
@@ -1634,4 +1654,108 @@ void Settings::generateDefaultThemes()
     }
 
     m_activeTheme = "COBALT";
+}
+
+// eventually this can go away. It is for transitional users
+//
+void Settings::importOldConfig( QJsonObject object )
+{
+    QJsonValue value;
+    QJsonArray list;
+
+    int cnt;
+
+    Themes elm( "User", false );
+    TextAttributes attr;
+
+    // colors
+    elm.set_colorText( colorFromValueString( object.value( "color-text" ).toString() ) );
+    elm.set_colorBack( colorFromValueString( object.value( "color-back" ).toString() ) );
+    elm.set_gutterText( QColor( "QT::DARKGRAY" ) );
+    elm.set_gutterBack( QColor( "0XD0D0D0" ) );
+    elm.set_currentLineBack( colorFromValueString( object.value( "color-highBack" ).toString() ) );
+
+
+    list = object.value( "syntax-key" ).toArray();
+
+    if ( list.count() > 2 )
+    {
+        attr.set_weight( list.at( 0 ).toDouble() );
+        attr.set_italic( list.at( 1 ).toBool() );
+        attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+        elm.set_syntaxKey( attr );
+    }
+
+    list = object.value( "syntax-type" ).toArray();
+
+    if ( list.count() > 2 )
+    {
+        attr.set_weight( list.at( 0 ).toDouble() );
+        attr.set_italic( list.at( 1 ).toBool() );
+        attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+        elm.set_syntaxType( attr );
+    }
+
+    list = object.value( "syntax-class" ).toArray();
+
+    if ( list.count() > 2 )
+    {
+        attr.set_weight( list.at( 0 ).toDouble() );
+        attr.set_italic( list.at( 1 ).toBool() );
+        attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+        elm.set_syntaxClass( attr );
+    }
+
+    list = object.value( "syntax-func" ).toArray();
+
+    if ( list.count() > 2 )
+    {
+        attr.set_weight( list.at( 0 ).toDouble() );
+        attr.set_italic( list.at( 1 ).toBool() );
+        attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+        elm.set_syntaxFunc( attr );
+    }
+
+    list = object.value( "syntax-quote" ).toArray();
+
+    if ( list.count() > 2 )
+    {
+        attr.set_weight( list.at( 0 ).toDouble() );
+        attr.set_italic( list.at( 1 ).toBool() );
+        attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+        elm.set_syntaxQuote( attr );
+    }
+
+    list = object.value( "syntax-comment" ).toArray();
+
+    if ( list.count() > 2 )
+    {
+        attr.set_weight( list.at( 0 ).toDouble() );
+        attr.set_italic( list.at( 1 ).toBool() );
+        attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+        elm.set_syntaxComment( attr );
+    }
+
+
+    list = object.value( "syntax-mline" ).toArray();
+
+    if ( list.count() > 2 )
+    {
+        attr.set_weight( list.at( 0 ).toDouble() );
+        attr.set_italic( list.at( 1 ).toBool() );
+        attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
+        elm.set_syntaxMLine( attr );
+    }
+
+    // legacy didn't support contstants
+    //
+    attr.set_weight( QFont::Normal );
+    attr.set_italic( false );
+    attr.set_color( QColor( "#FF518C" ) );
+    elm.set_syntaxConstant( attr );
+
+    m_themes[elm.name()] = elm;
+
+    m_activeTheme = elm.name();
+
 }

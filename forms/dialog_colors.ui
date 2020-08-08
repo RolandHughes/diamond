@@ -76,7 +76,7 @@
     <string>Text / Background Colors</string>
    </property>
   </widget>
-  <widget class="QPlainTextEdit" name="sample">
+  <widget class="DiamondTextEdit" name="sample">
    <property name="geometry">
     <rect>
      <x>549</x>
@@ -1319,6 +1319,13 @@ QString CodeColoring ::test(int x, int y)
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DiamondTextEdit</class>
+   <extends>QPlainTextEdit</extends>
+   <header>diamond_edit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>text_TB</tabstop>
   <tabstop>text_Color</tabstop>

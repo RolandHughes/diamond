@@ -1,29 +1,26 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
 *) file selector called by File->Open needs to allow for hidden files.
-*) Why so much lag between "broadcasting settings" and screen update? 
-*) Need to remember which tab was on top. Really needs to remember tab order when starting new.
-*) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
+   File feature request with CopperSpice
 
 *) Fix current line highlight to only change background
 
-*) File->New should not be whacking the current file tab, it should create a new
- tab
- 
-*) Insert DiamondTextEdit on colors dialog so we can see actual color changes
-*for gutter, etc. Load sample.cpp from resource file.
-
-*) find regex for PREPROCESS and VARIABLE-n in notepadqq. Add to Diamond
-
-*) steal theme colors from notepadqq
+*) add regular expression to C/C++ definition for numeric constant
 
 *) create EDT Help dialog
 
-*) have changeSettings() slot in DiamondTextEdit repaint everything if theme changed.
+*) Add support for EDT keypad
 
-*) find out why changing a theme causes multiple calls to create key definitions?
+*) Need EDT command dialog
 
-tab spacing needs to change?
+*) Find a way to make syntax highlighting faster. Too much lag between "broadcasting settings" and screen update with multi-thousand line files.
+
+
+*) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
+*) File->New should not be whacking the current file tab, it should create a new
+ tab
+ 
+
 
 
 

@@ -17,7 +17,6 @@
 
 #include "ui_dialog_colors.h"
 #include "overlord.h"
-#include "syntax.h"
 
 #include <QDialog>
 #include <QStringList>
@@ -33,13 +32,10 @@ public:
 private:
     Ui::Dialog_Colors *m_ui;
 
-    Syntax *m_syntaxParser;
-
     Settings m_localSettings;
     QString m_syntaxFname;
 
     void colorBox( QLineEdit *field, QColor color );
-    void updateParser( bool newSettings );
     void rebuildComboBox( bool needToDisconnect );
     QColor pickColor( QColor oldColor );
 

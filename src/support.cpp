@@ -18,8 +18,6 @@
 #include "mainwindow.h"
 #include "non_gui_functions.h"
 
-//#include <QFileInfo>
-//#include <QFileDialog>
 #include <QFSFileEngine>
 #include <QDragEnterEvent>
 #include <QMimeData>
@@ -89,11 +87,49 @@ void MainWindow::autoLoad()
             // load existing files
             loadFile( fileName, true, true );
         }
+
+        QString lastFile = Overlord::getInstance()->lastActiveFile();
+
+        if ( !lastFile.isEmpty() )
+        {
+            bool found = false;
+
+            for ( int x=0; x < m_tabWidget->count() && !found; x++ )
+            {
+                DiamondTextEdit *ed = dynamic_cast<DiamondTextEdit *>( m_tabWidget->widget( x ) );
+
+                if ( ed && lastFile == ed->m_owner )
+                {
+                    QTextCursor c = ed->textCursor();
+                    c.movePosition( QTextCursor::Start );
+                    c.movePosition( QTextCursor::Down, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveRow() );
+                    c.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveColumn() );
+                    ed->setTextCursor( c );
+                    m_tabWidget->setCurrentIndex( x );
+                    found = true;
+                }
+            }
+        }
     }
 }
 
 void MainWindow::closeEvent( QCloseEvent *event )
 {
+    QWidget *topWidget = m_tabWidget->currentWidget();
+
+    if ( topWidget != nullptr )
+    {
+        DiamondTextEdit *ed = dynamic_cast<DiamondTextEdit *>( topWidget );
+
+        if ( ed != nullptr )
+        {
+            QTextCursor c = ed->textCursor();
+            Overlord::getInstance()->set_lastActiveFile( ed->m_owner );
+            Overlord::getInstance()->set_lastActiveRow( c.blockNumber() );
+            Overlord::getInstance()->set_lastActiveColumn( c.positionInBlock() );
+        }
+    }
+
     bool exit = closeAll_Doc( true );
 
     if ( exit )
@@ -233,7 +269,6 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
         }
     }
 
-    qDebug() << "loading file " << QTime::currentTime().toString();
     setStatusBar( tr( "Loading File..." ), 0 );
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -249,10 +284,10 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
 
     QString fileData = QString::fromUtf8( temp );
     m_textEdit->setPlainText( fileData );
-    // TODO:: might need to drain the swamp here.
-    //QCoreApplication::processEvents();
+    //  Need to drain the swamp here. Really big files have a massive drag
+    //  with all of the highlighting.
+    QCoreApplication::processEvents();
     QApplication::restoreOverrideCursor();
-    qDebug() << "finished loading file " << QTime::currentTime().toString();
 
     if ( m_textEdit->m_owner == "tab" )
     {

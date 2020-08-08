@@ -80,6 +80,10 @@ public:
     CS_SLOT_1( Public, void setSynType( SyntaxTypes data ) )
     CS_SLOT_2( setSynType )
 
+    CS_SLOT_1( Public, void afterVisible() )
+    CS_SLOT_2( afterVisible )
+
+
 
 protected:
     void closeEvent( QCloseEvent *event );
@@ -94,6 +98,9 @@ private:
 
     QString m_configFileName;
     void getConfigFileName();
+
+    QStringList m_fileList;
+    QStringList m_flagList;
 
     // textEdit
     DiamondTextEdit *m_textEdit;
@@ -292,6 +299,7 @@ private:
 
     CS_SLOT_1( Private, void rewrapParagraph() )
     CS_SLOT_2( rewrapParagraph )
+
 
 
 

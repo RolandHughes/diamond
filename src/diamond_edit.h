@@ -36,7 +36,7 @@ class DiamondTextEdit : public QPlainTextEdit
     CS_OBJECT( DiamondTextEdit )
 
 public:
-    DiamondTextEdit( QWidget *parent, QString owner );
+    DiamondTextEdit( QWidget *parent, QString owner = "tab" );
     ~DiamondTextEdit();
 
     QString m_owner;

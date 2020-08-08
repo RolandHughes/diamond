@@ -104,9 +104,13 @@ private:
     QList<macroStruct> json_View_Macro( QString macroName );
     QStringList json_Load_MacroIds();
     bool json_Load_Macro( QString macroName );
+    void importOldConfig( QJsonObject object );
 
     void set_lastSize( QSize size )             { m_lastSize = size;}
     void set_lastPosition( QPoint pos )         { m_lastPosition = pos;}
+    void set_lastActiveFile( QString name )     { m_lastActiveFile = name;}
+    void set_lastActiveRow( int num )           { m_lastActiveRow = num;}
+    void set_lastActiveColumn( int num )        { m_lastActiveColumn = num; }
 
     //
     // signals
@@ -149,6 +153,9 @@ private:
     bool            m_isWordWrap;
     QPoint          m_lastPosition;
     QSize           m_lastSize;
+    QString         m_lastActiveFile;
+    int             m_lastActiveRow;
+    int             m_lastActiveColumn;
     QStringList     m_macroNames;
     QStringList     m_openedFiles;
     QList<bool>     m_openedModified;

@@ -34,18 +34,14 @@
 Dialog_Colors::Dialog_Colors( QWidget *parent )
     : QDialog( parent )
     , m_ui( new Ui::Dialog_Colors )
-    , m_syntaxParser( nullptr )
 {
     m_ui->setupUi( this );
     this->setWindowIcon( QIcon( "://resources/diamond.png" ) );
 
     m_localSettings = Overlord::getInstance()->pullLocalSettingsCopy();
-    qDebug() << "Dialog_Colors: " << m_localSettings.activeTheme();
     m_syntaxFname  = m_localSettings.syntaxPath() + "syn_cpp.json";
 
-    m_syntaxParser = new Syntax( m_ui->sample->document(), m_syntaxFname );
-    updateParser( false );
-
+    m_ui->sample->runSyntax( m_syntaxFname );
 
     connect( m_ui->text_TB,           &QToolButton::clicked, this, &Dialog_Colors::text_TB       );
     connect( m_ui->back_TB,           &QToolButton::clicked, this, &Dialog_Colors::back_TB       );
@@ -90,9 +86,6 @@ Dialog_Colors::Dialog_Colors( QWidget *parent )
 Dialog_Colors::~Dialog_Colors()
 {
     delete m_ui;
-
-    if ( m_syntaxParser != nullptr )
-    { delete m_syntaxParser; }
 }
 
 void Dialog_Colors::colorBox( QLineEdit *field, QColor color )
@@ -107,10 +100,14 @@ void Dialog_Colors::colorBox( QLineEdit *field, QColor color )
 void Dialog_Colors::themeChanged( const QString &themeName )
 {
     if ( themeName.isEmpty() )
-    { return; }
+    {
+        qDebug() << "**** themeName was empty";
+        return;
+    }
 
     m_localSettings.set_activeTheme( themeName );
 
+    m_ui->sample->changeSettings( &m_localSettings );
     // ordinary text
     m_ui->text_Color->setReadOnly( true );
     colorBox( m_ui->text_Color, m_localSettings.currentTheme().colorText() );
@@ -226,7 +223,7 @@ void Dialog_Colors::themeChanged( const QString &themeName )
         m_ui->delete_button->setEnabled( true );
     }
 
-    updateParser( true );
+
 }
 
 void Dialog_Colors::copyClicked()
@@ -433,57 +430,103 @@ void Dialog_Colors::importClicked()
             theme->set_colorText( colorFromValueString( object.value( "theme-color-text" ).toString() ) );
             // TextAttribute array written as weight, italic-bool, color string
             //
+
+            // syntax key
+            //
+            QJsonArray syn = object.value( "theme-syntax-key" ).toArray();
+
+            if ( syn.count() > 2 )
+            {
+                attrib.set_weight( syn[0].toInt() );
+                attrib.set_italic( syn[1].toBool() );
+                attrib.set_color( colorFromValueString( syn[2].toString() ) );
+                theme->set_syntaxKey( attrib );
+            }
+
+            // syntax type
+            //
+            syn = object.value( "theme-syntax-type" ).toArray();
+
+            if ( syn.count() > 2 )
+            {
+                attrib.set_weight( syn[0].toInt() );
+                attrib.set_italic( syn[1].toBool() );
+                attrib.set_color( colorFromValueString( syn[2].toString() ) );
+                theme->set_syntaxType( attrib );
+            }
+
             // syntax class
             //
-            QJsonArray syn = object.value( "theme-syntax-class" ).toArray();
-            attrib.set_weight( syn[0].toInt() );
-            attrib.set_italic( syn[1].toBool() );
-            attrib.set_color( colorFromValueString( syn[2].toString() ) );
-            theme->set_syntaxClass( attrib );
+            syn = object.value( "theme-syntax-class" ).toArray();
+
+            if ( syn.count() > 2 )
+            {
+                attrib.set_weight( syn[0].toInt() );
+                attrib.set_italic( syn[1].toBool() );
+                attrib.set_color( colorFromValueString( syn[2].toString() ) );
+                theme->set_syntaxClass( attrib );
+            }
+
+            // syntax func
+            //
+            syn = object.value( "theme-syntax-func" ).toArray();
+
+            if ( syn.count() > 2 )
+            {
+                attrib.set_weight( syn[0].toInt() );
+                attrib.set_italic( syn[1].toBool() );
+                attrib.set_color( colorFromValueString( syn[2].toString() ) );
+                theme->set_syntaxFunc( attrib );
+            }
+
+            // syntax quote
+            //
+            syn = object.value( "theme-syntax-quote" ).toArray();
+
+            if ( syn.count() > 2 )
+            {
+                attrib.set_weight( syn[0].toInt() );
+                attrib.set_italic( syn[1].toBool() );
+                attrib.set_color( colorFromValueString( syn[2].toString() ) );
+                theme->set_syntaxQuote( attrib );
+            }
 
             // syntax comment
             //
             syn = object.value( "theme-syntax-comment" ).toArray();
-            attrib.set_weight( syn[0].toInt() );
-            attrib.set_italic( syn[1].toBool() );
-            attrib.set_color( colorFromValueString( syn[2].toString() ) );
-            theme->set_syntaxComment( attrib );
+
+            if ( syn.count() > 2 )
+            {
+                attrib.set_weight( syn[0].toInt() );
+                attrib.set_italic( syn[1].toBool() );
+                attrib.set_color( colorFromValueString( syn[2].toString() ) );
+                theme->set_syntaxComment( attrib );
+            }
+
+            // syntax mline
+            //
+            syn = object.value( "theme-syntax-mline" ).toArray();
+
+            if ( syn.count() > 2 )
+            {
+                attrib.set_weight( syn[0].toInt() );
+                attrib.set_italic( syn[1].toBool() );
+                attrib.set_color( colorFromValueString( syn[2].toString() ) );
+                theme->set_syntaxMLine( attrib );
+            }
 
             syn = object.value( "theme-syntax-constant" ).toArray();
-            attrib.set_weight( syn[0].toInt() );
-            attrib.set_italic( syn[1].toBool() );
-            attrib.set_color( colorFromValueString( syn[2].toString() ) );
-            theme->set_syntaxConstant( attrib );
 
-            syn = object.value( "theme-syntax-func" ).toArray();
-            attrib.set_weight( syn[0].toInt() );
-            attrib.set_italic( syn[1].toBool() );
-            attrib.set_color( colorFromValueString( syn[2].toString() ) );
-            theme->set_syntaxFunc( attrib );
+            qDebug() << "syn.count(): " << syn.count();
 
-            syn = object.value( "theme-syntax-key" ).toArray();
-            attrib.set_weight( syn[0].toInt() );
-            attrib.set_italic( syn[1].toBool() );
-            attrib.set_color( colorFromValueString( syn[2].toString() ) );
-            theme->set_syntaxKey( attrib );
-
-            syn = object.value( "theme-syntax-mline" ).toArray();
-            attrib.set_weight( syn[0].toInt() );
-            attrib.set_italic( syn[1].toBool() );
-            attrib.set_color( colorFromValueString( syn[2].toString() ) );
-            theme->set_syntaxMLine( attrib );
-
-            syn = object.value( "theme-syntax-quote" ).toArray();
-            attrib.set_weight( syn[0].toInt() );
-            attrib.set_italic( syn[1].toBool() );
-            attrib.set_color( colorFromValueString( syn[2].toString() ) );
-            theme->set_syntaxQuote( attrib );
-
-            syn = object.value( "theme-syntax-type" ).toArray();
-            attrib.set_weight( syn[0].toInt() );
-            attrib.set_italic( syn[1].toBool() );
-            attrib.set_color( colorFromValueString( syn[2].toString() ) );
-            theme->set_syntaxType( attrib );
+            if ( syn.count() > 2 )
+            {
+                attrib.set_weight( syn[0].toInt() );
+                attrib.set_italic( syn[1].toBool() );
+                qDebug() << "color: " << syn[2].toString();
+                attrib.set_color( colorFromValueString( syn[2].toString() ) );
+                theme->set_syntaxConstant( attrib );
+            }
 
             m_localSettings.add_theme( theme );
             theme->deleteLater();
@@ -506,6 +549,8 @@ void Dialog_Colors::rebuildComboBox( bool needToDisconnect )
 
     m_ui->theme_comboBox->clear();
     m_ui->theme_comboBox->addItems( m_localSettings.availableThemes() );
+    m_ui->theme_comboBox->setCurrentIndex(
+        m_ui->theme_comboBox->findText( m_localSettings.activeTheme() ) );
 
     // Do not connect before assigning data as that will cause syntax update with
     // ill-formed m_localSettings.
@@ -515,8 +560,7 @@ void Dialog_Colors::rebuildComboBox( bool needToDisconnect )
              this,
              &Dialog_Colors::themeChanged );
 
-    m_ui->theme_comboBox->setCurrentIndex(
-        m_ui->theme_comboBox->findText( m_localSettings.activeTheme() ) );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 bool Dialog_Colors::nameCollision( QString &themeName, bool &abortFlag )
@@ -537,24 +581,6 @@ bool Dialog_Colors::nameCollision( QString &themeName, bool &abortFlag )
     }
 
     return retVal;
-}
-
-void Dialog_Colors::updateParser( bool newSettings )
-{
-    // TODO:: this needs to emit signal caught by embedded DiamondTextEdit
-    //
-#if 0
-    if ( newSettings )
-    {
-        m_syntaxParser->processSyntax( m_settings );
-
-    }
-    else
-    {
-        m_syntaxParser->processSyntax();
-    }
-
-#endif
 }
 
 QColor Dialog_Colors::pickColor( QColor oldColor )
@@ -617,7 +643,7 @@ void Dialog_Colors::gutterText_TB()
 
     //
     colorBox( m_ui->gutterText_Color, m_localSettings.currentTheme().gutterText() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::gutterBack_TB()
@@ -627,7 +653,7 @@ void Dialog_Colors::gutterBack_TB()
 
     //
     colorBox( m_ui->gutterBack_Color, m_localSettings.currentTheme().gutterBack() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::current_TB()
@@ -637,7 +663,7 @@ void Dialog_Colors::current_TB()
 
     //
     colorBox( m_ui->current_Color, m_localSettings.currentTheme().currentLineBack() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::key_TB()
@@ -647,7 +673,7 @@ void Dialog_Colors::key_TB()
 
     //
     colorBox( m_ui->key_Color, m_localSettings.currentTheme().syntaxKey().color() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::type_TB()
@@ -657,7 +683,7 @@ void Dialog_Colors::type_TB()
 
     //
     colorBox( m_ui->type_Color, m_localSettings.currentTheme().syntaxType().color() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::class_TB()
@@ -667,7 +693,7 @@ void Dialog_Colors::class_TB()
 
     //
     colorBox( m_ui->class_Color, m_localSettings.currentTheme().syntaxClass().color() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::func_TB()
@@ -677,7 +703,7 @@ void Dialog_Colors::func_TB()
 
     //
     colorBox( m_ui->func_Color, m_localSettings.currentTheme().syntaxFunc().color() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::quote_TB()
@@ -687,7 +713,7 @@ void Dialog_Colors::quote_TB()
 
     //
     colorBox( m_ui->quote_Color, m_localSettings.currentTheme().syntaxQuote().color() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::comment_TB()
@@ -697,7 +723,7 @@ void Dialog_Colors::comment_TB()
 
     //
     colorBox( m_ui->comment_Color, m_localSettings.currentTheme().syntaxComment().color() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::mline_TB()
@@ -707,7 +733,7 @@ void Dialog_Colors::mline_TB()
 
     //
     colorBox( m_ui->mline_Color, m_localSettings.currentTheme().syntaxMLine().color() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::const_TB()
@@ -717,7 +743,7 @@ void Dialog_Colors::const_TB()
 
     //
     colorBox( m_ui->const_Color, m_localSettings.currentTheme().syntaxConstant().color() );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 
@@ -732,7 +758,7 @@ void Dialog_Colors::key_bold()
     }
 
     m_localSettings.currentTheme().syntaxKey().set_weight( f );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::key_italic()
@@ -746,7 +772,7 @@ void Dialog_Colors::key_italic()
 
     m_localSettings.currentTheme().syntaxKey().set_italic( b );
 
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::type_bold()
@@ -759,7 +785,7 @@ void Dialog_Colors::type_bold()
     }
 
     m_localSettings.currentTheme().syntaxType().set_weight( f );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::type_italic()
@@ -772,7 +798,7 @@ void Dialog_Colors::type_italic()
     }
 
     m_localSettings.currentTheme().syntaxType().set_italic( b );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::class_bold()
@@ -785,7 +811,7 @@ void Dialog_Colors::class_bold()
     }
 
     m_localSettings.currentTheme().syntaxClass().set_weight( f );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::class_italic()
@@ -798,7 +824,7 @@ void Dialog_Colors::class_italic()
     }
 
     m_localSettings.currentTheme().syntaxClass().set_italic( b );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::func_bold()
@@ -811,7 +837,7 @@ void Dialog_Colors::func_bold()
     }
 
     m_localSettings.currentTheme().syntaxFunc().set_weight( f );
-    updateParser( true );;
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::func_italic()
@@ -824,7 +850,7 @@ void Dialog_Colors::func_italic()
     }
 
     m_localSettings.currentTheme().syntaxFunc().set_italic( b );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::quote_bold()
@@ -837,7 +863,7 @@ void Dialog_Colors::quote_bold()
     }
 
     m_localSettings.currentTheme().syntaxQuote().set_weight( f );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::quote_italic()
@@ -850,7 +876,7 @@ void Dialog_Colors::quote_italic()
     }
 
     m_localSettings.currentTheme().syntaxQuote().set_italic( b );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::comment_bold()
@@ -863,7 +889,7 @@ void Dialog_Colors::comment_bold()
     }
 
     m_localSettings.currentTheme().syntaxComment().set_weight( f );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::comment_italic()
@@ -876,7 +902,7 @@ void Dialog_Colors::comment_italic()
     }
 
     m_localSettings.currentTheme().syntaxComment().set_italic( b );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::mline_bold()
@@ -889,7 +915,7 @@ void Dialog_Colors::mline_bold()
     }
 
     m_localSettings.currentTheme().syntaxMLine().set_weight( f );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::mline_italic()
@@ -902,7 +928,7 @@ void Dialog_Colors::mline_italic()
     }
 
     m_localSettings.currentTheme().syntaxMLine().set_italic( b );
-    updateParser( true );
+    themeChanged( m_localSettings.activeTheme() );
 }
 
 void Dialog_Colors::save()

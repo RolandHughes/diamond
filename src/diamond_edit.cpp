@@ -44,9 +44,9 @@
 DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     : QPlainTextEdit( parent )
     , m_record( false )
-    , m_owner( owner )
     , m_spellCheck( nullptr )
     , m_settingsPtr( nullptr )
+    , m_owner( owner )
 {
     // drag & drop
     setAcceptDrops( false );
@@ -92,11 +92,6 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
 
 DiamondTextEdit::~DiamondTextEdit()
 {
-    if ( m_syntaxParser )
-    {
-        delete m_syntaxParser;
-    }
-
     if ( m_spellCheck )
     {
         delete m_spellCheck;

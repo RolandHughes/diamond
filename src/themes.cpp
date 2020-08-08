@@ -13,6 +13,7 @@
 ***************************************************************************/
 
 #include "themes.h"
+#include <QDebug>
 
 Themes::Themes() :
     m_protected( false )
