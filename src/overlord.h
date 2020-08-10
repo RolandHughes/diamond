@@ -16,6 +16,7 @@
 #define OVERLORD_H
 
 #include "settings.h"
+#include "syntaxpatterns.h"
 #include <QTimer>
 
 class Overlord : public QObject
@@ -141,6 +142,8 @@ public:
     bool openedFilesContains( QString name );
     bool recentFilesListContains( QString text );
 
+    SyntaxPatterns* getSyntaxPatterns( QString fileName);
+
 
     //
     // setters
@@ -255,6 +258,8 @@ private:
 
     QString m_appPath;
     QString m_configFileName;
+
+    QMap<QString, SyntaxPatterns*> m_syntaxPatterns;
 };
 
 #endif

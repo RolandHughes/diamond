@@ -40,6 +40,8 @@
 #include <QMenu>
 #include <QDate>
 #include <QTime>
+#include <qtconcurrentrun.h>
+#include <QThread>
 
 DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     : QPlainTextEdit( parent )
@@ -328,6 +330,9 @@ void DiamondTextEdit::set_SyntaxParser( Syntax *parser )
 
     if ( parser )
     {
+        //qDebug() << "threading syntax";
+        //QtConcurrent::run(updateSyntaxInThread, parser, m_settingsPtr);
+        //qDebug() << "threading complete";
         m_syntaxParser->processSyntax( m_settingsPtr );
     }
 }
@@ -1647,7 +1652,7 @@ void DiamondTextEdit::moveBar()
 
     // TODO:: save foreground text color already in place. Only change background.
     //
-    selection.format.setForeground( textColor );
+    //selection.format.setForeground( textColor );
     selection.format.setBackground( backColor );
     selection.format.setProperty( QTextFormat::FullWidthSelection, true );
     selection.format.setProperty( QTextFormat::UserProperty, QString( "highlightbar" ) );
@@ -2070,6 +2075,9 @@ void DiamondTextEdit::setUpTabStops()
 
 void DiamondTextEdit::changeSettings( Settings *settings )
 {
+    QTime time   = QTime::currentTime();
+    qDebug() << m_curFile << " Starting to change settings: " << time.toString( "HH:mm:ss.zzz" );
+
     m_settingsPtr = settings;
 
     setUpTabStops();
@@ -2091,6 +2099,9 @@ void DiamondTextEdit::changeSettings( Settings *settings )
 
     moveBar();
     update();
+    time   = QTime::currentTime();
+    qDebug() << m_curFile << " finished changing settings: " << time.toString( "HH:mm:ss.zzz" );
+
 }
 
 void DiamondTextEdit::setScreenColors()

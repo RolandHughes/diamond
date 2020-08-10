@@ -12,11 +12,12 @@
 *
 ***************************************************************************/
 
-#include <QString>
+#include "non_gui_functions.h"
+//#include <QString>
 #include <QFileInfo>
-#include <QFont>
-#include <QColor>
-#include <QStringList>
+//#include <QFont>
+//#include <QColor>
+//#include <QStringList>
 
 QString pathName( QString fileName )
 {
@@ -95,4 +96,10 @@ bool doubleEqualFourDigits( double left, double right)
     long long ll_right = right * 10000;
 
     return (ll_left == ll_right);
+}
+
+// cheat function so highlighting can be threaded off
+void updateSyntaxInThread(Syntax *parser, Settings *settings)
+{
+    parser->processSyntax(settings);
 }

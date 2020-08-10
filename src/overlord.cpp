@@ -14,6 +14,7 @@
 #include "overlord.h"
 #include <qtconcurrentrun.h>
 #include <QThread>
+#include <QTime>
 
 Overlord *Overlord::m_instance = nullptr;
 
@@ -37,6 +38,11 @@ Overlord::~Overlord()
     {
         m_broadcastTimer.stop();
     }
+
+    // TODO:: see if we need to delete SyntaxPatterns in QMAP
+    //        as they were dynamically allocated
+    //
+
 }
 
 void Overlord::close()
@@ -53,7 +59,12 @@ void Overlord::close()
 
     if ( m_changed )
     {
+        QTime time   = QTime::currentTime();
+        qDebug() << "Starting to save settings: " << time.toString("HH:mm:ss.zzz" );
+
         m_settings.save();
+        time   = QTime::currentTime();
+        qDebug() << "Settings saved: " << time.toString( "HH:mm:ss.zzz");
     }
 }
 
@@ -63,7 +74,13 @@ void Overlord::checkForChange()
     {
         m_changed = false;
         // launch without waiting
+        QTime time   = QTime::currentTime();
+        qDebug() << "Starting to save settings: " << time.toString( "HH:mm:ss.zzz" );
+        
         QFuture<void> t1 = QtConcurrent::run( &m_settings, &Settings::save );
+        time   = QTime::currentTime();
+        qDebug() << "Settings saved: " << time.toString( "HH:mm:ss.zzz" );
+        
     }
 }
 
@@ -71,9 +88,13 @@ void Overlord::checkForBroadcast()
 {
     if ( m_needsBroadcast )
     {
-        qDebug() << "broadcasting settings";
         m_needsBroadcast = false;
+        QTime time   = QTime::currentTime();
+        qDebug() << "Broadcasting settingsChanged: " << time.toString( "HH:mm:ss.zzz" );
         settingsChanged( &m_settings );
+        time   = QTime::currentTime();
+        qDebug() << "Broadcast complete: " << time.toString( "HH:mm:ss.zzz" );
+        
     }
 }
 
@@ -537,4 +558,14 @@ void Overlord::replaceListMove( int index, int dest )
 {
     m_settings.replaceListMove( index, dest );
     markToNotify();
+}
+
+SyntaxPatterns *Overlord::getSyntaxPatterns( QString fileName )
+{
+    if ( !m_syntaxPatterns.contains( fileName ) )
+    {
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    return m_syntaxPatterns[fileName];
 }

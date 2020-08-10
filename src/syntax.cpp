@@ -15,6 +15,7 @@
 #include "spellcheck.h"
 #include "syntax.h"
 #include "util.h"
+#include "syntaxpatterns.h"
 
 #include <QFileInfo>
 #include <QJsonArray>
@@ -39,87 +40,14 @@ Syntax::~Syntax()
 {
 }
 
-// only called from Dialog_Colors
-// might go away now that DiamondTextEdit does more
-//
 void Syntax::processSyntax( Settings *settings )
 {
-    // get existing json data
-    QByteArray data = json_ReadFile( m_syntaxFile );
-
-    if ( data.isEmpty() )
-    {
-        return;
-    }
-
-    QJsonDocument doc = QJsonDocument::fromJson( data );
-
-    QJsonObject object = doc.object();
-    QJsonArray list;
-    int cnt;
-
-    //
-    bool ignoreCase = object.value( "ignore-case" ).toBool();
-
-    // * key
-    QStringList key_Patterns;
-
-    list = object.value( "keywords" ).toArray();
-    cnt  = list.count();
-
-    for ( int k = 0; k < cnt; k++ )
-    {
-        key_Patterns.append( list.at( k ).toString() );
-    }
-
-    // class
-    QStringList class_Patterns;
-
-    list = object.value( "classes" ).toArray();
-    cnt  = list.count();
-
-    for ( int k = 0; k < cnt; k++ )
-    {
-        class_Patterns.append( list.at( k ).toString() );
-    }
-
-    // functions
-    QStringList func_Patterns;
-
-    list = object.value( "functions" ).toArray();
-    cnt  = list.count();
-
-    for ( int k = 0; k < cnt; k++ )
-    {
-        func_Patterns.append( list.at( k ).toString() );
-    }
-
-    // types
-    QStringList type_Patterns;
-
-    list = object.value( "types" ).toArray();
-    cnt  = list.count();
-
-    for ( int k = 0; k < cnt; k++ )
-    {
-        type_Patterns.append( list.at( k ).toString() );
-    }
-
-    // constants
-    QStringList constant_Patterns;
-
-        list = object.value( "constants" ).toArray();
-    cnt  = list.count();
-
-    for ( int k = 0; k < cnt; k++ )
-    {
-        constant_Patterns.append( list.at( k ).toString() );
-    }
-
+    SyntaxPatterns *patterns = Overlord::getInstance()->getSyntaxPatterns( m_syntaxFile);
+    
     //
     HighlightingRule rule;
 
-    for ( const QString &pattern : key_Patterns )
+    for ( const QString &pattern : patterns->key_Patterns )
     {
         if ( pattern.trimmed().isEmpty() )
         {
@@ -132,7 +60,7 @@ void Syntax::processSyntax( Settings *settings )
         rule.format.setForeground( settings->currentTheme().syntaxKey().color() );
         rule.pattern = QRegularExpression( pattern );
 
-        if ( ignoreCase )
+        if ( patterns->ignoreCase )
         {
             rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
@@ -140,7 +68,7 @@ void Syntax::processSyntax( Settings *settings )
         highlightingRules.append( rule );
     }
 
-    for ( const QString &pattern : class_Patterns )
+    for ( const QString &pattern : patterns->class_Patterns )
     {
         if ( pattern.trimmed().isEmpty() )
         {
@@ -153,7 +81,7 @@ void Syntax::processSyntax( Settings *settings )
         rule.format.setForeground( settings->currentTheme().syntaxClass().color() );
         rule.pattern = QRegularExpression( pattern );
 
-        if ( ignoreCase )
+        if ( patterns->ignoreCase )
         {
             rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
@@ -161,7 +89,7 @@ void Syntax::processSyntax( Settings *settings )
         highlightingRules.append( rule );
     }
 
-    for ( const QString &pattern : func_Patterns )
+    for ( const QString &pattern : patterns->func_Patterns )
     {
         if ( pattern.trimmed().isEmpty() )
         {
@@ -174,7 +102,7 @@ void Syntax::processSyntax( Settings *settings )
         rule.format.setForeground( settings->currentTheme().syntaxFunc().color() );
         rule.pattern = QRegularExpression( pattern );
 
-        if ( ignoreCase )
+        if ( patterns->ignoreCase )
         {
             rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
@@ -182,7 +110,7 @@ void Syntax::processSyntax( Settings *settings )
         highlightingRules.append( rule );
     }
 
-    for ( const QString &pattern : type_Patterns )
+    for ( const QString &pattern : patterns->type_Patterns )
     {
         if ( pattern.trimmed().isEmpty() )
         {
@@ -195,7 +123,7 @@ void Syntax::processSyntax( Settings *settings )
         rule.format.setForeground( settings->currentTheme().syntaxType().color() );
         rule.pattern = QRegularExpression( pattern );
 
-        if ( ignoreCase )
+        if ( patterns->ignoreCase )
         {
             rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
@@ -210,24 +138,19 @@ void Syntax::processSyntax( Settings *settings )
     rule.pattern = QRegularExpression( "\".*?\"" );
     highlightingRules.append( rule );
 
-    // single line comment
-    QString commentSingle = object.value( "comment-single" ).toString();
 
     rule.format.setFontWeight( settings->currentTheme().syntaxComment().weight() );
     rule.format.setFontItalic( settings->currentTheme().syntaxComment().italic() );
     rule.format.setForeground( settings->currentTheme().syntaxComment().color() );
-    rule.pattern = QRegularExpression( commentSingle );
+    rule.pattern = QRegularExpression( patterns->commentSingle );
     highlightingRules.append( rule );
 
-    // multi line comment
-    QString commentStart = object.value( "comment-multi-start" ).toString();
-    QString commentEnd   = object.value( "comment-multi-end" ).toString();
 
     m_multiLineCommentFormat.setFontWeight( settings->currentTheme().syntaxMLine().weight() );
     m_multiLineCommentFormat.setFontItalic( settings->currentTheme().syntaxMLine().italic() );
     m_multiLineCommentFormat.setForeground( settings->currentTheme().syntaxMLine().color() );
-    m_commentStartExpression = QRegularExpression( commentStart );
-    m_commentEndExpression   = QRegularExpression( commentEnd );
+    m_commentStartExpression = QRegularExpression( patterns->commentStart );
+    m_commentEndExpression   = QRegularExpression( patterns->commentEnd );
 
     // spell check
     m_spellCheckFormat.setUnderlineColor( QColor( Qt::red ) );
@@ -240,40 +163,6 @@ void Syntax::processSyntax( Settings *settings )
     rehighlight();
 }
 
-QByteArray Syntax::json_ReadFile( QString fileName )
-{
-    QByteArray data;
-
-    if ( fileName.isEmpty() )
-    {
-        csError( tr( "Read Json Syntax" ), tr( "Syntax file name was not supplied." ) );
-        return data;
-    }
-
-    if ( ! QFile::exists( fileName ) )
-    {
-        csError( tr( "Read Json Syntax" ), tr( "Syntax file was not found: " ) + fileName + "\n\n"
-                 "To specify the location of the syntax files select 'Settings' from the main Menu. "
-                 "Then select 'General Options' and click on the Options tab.\n" );
-
-        return data;
-    }
-
-    QFile file( fileName );
-
-    if ( ! file.open( QFile::ReadOnly | QFile::Text ) )
-    {
-        const QString msg = tr( "Unable to open Json Syntax file: " ) +  fileName + " : " + file.errorString();
-        csError( tr( "Read Json Syntax" ), msg );
-        return data;
-    }
-
-    file.seek( 0 );
-    data = file.readAll();
-    file.close();
-
-    return data;
-}
 
 void Syntax::set_Spell( bool value )
 {

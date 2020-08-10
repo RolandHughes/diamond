@@ -53,8 +53,6 @@ private:
     QTextCharFormat m_multiLineCommentFormat;
     QTextCharFormat m_spellCheckFormat;
 
-    QByteArray json_ReadFile( QString fileName );
-
     //
     struct HighlightingRule
     {
