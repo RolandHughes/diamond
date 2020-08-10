@@ -47,6 +47,8 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     , m_spellCheck( nullptr )
     , m_settingsPtr( nullptr )
     , m_owner( owner )
+    , m_edtDirection( false )
+    , m_lastKeyWasGold( false )
 {
     // drag & drop
     setAcceptDrops( false );

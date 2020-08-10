@@ -105,6 +105,17 @@ void Syntax::processSyntax( Settings *settings )
         type_Patterns.append( list.at( k ).toString() );
     }
 
+    // constants
+    QStringList constant_Patters;
+
+        list = object.value( "constants" ).toArray();
+    cnt  = list.count();
+
+    for ( int k = 0; k < cnt; k++ )
+    {
+        constant_Patterns.append( list.at( k ).toString() );
+    }
+
     //
     HighlightingRule rule;
 

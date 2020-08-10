@@ -791,7 +791,13 @@ void MainWindow::showNotDone( QString item )
 void MainWindow::setColors()
 {
     Dialog_Colors *dw = new Dialog_Colors( this );
+
+    // make sure the visible tab is first in line to get changes
+    //
+    DiamondTextEdit *ed = dynamic_cast<DiamondTextEdit *>( m_tabWidget->currentWidget() );
+    connect( dw, &Dialog_Colors::changeSettings, ed, &DiamondTextEdit::changeSettings );
     int result = dw->exec();
+
 
     delete dw;
 }

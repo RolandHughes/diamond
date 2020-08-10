@@ -20,7 +20,7 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
 *) File->New should not be whacking the current file tab, it should create a new
  tab
  
-
+*) test out macro save/load/use. I really butchered that.
 
 
 

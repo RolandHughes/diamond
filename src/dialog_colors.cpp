@@ -933,6 +933,12 @@ void Dialog_Colors::mline_italic()
 
 void Dialog_Colors::save()
 {
+    // first signal so anything connected can start updating
+    //
+    changeSettings( &m_localSettings );
+
+    // Now update Overlord
+    //
     Overlord::getInstance()->updateSettingsFromLocalCopy( m_localSettings );
     this->done( QDialog::Accepted );
 }

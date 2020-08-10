@@ -94,8 +94,6 @@ public:
     CS_SIGNAL_1( Public, void setSynType( SyntaxTypes data ) )
     CS_SIGNAL_2( setSynType, data )
 
-    CS_SIGNAL_1( Public, void processSyntax( Settings *settings ) )
-    CS_SIGNAL_2( processSyntax, settings )
 
     // editing API for use by MainWindow
     //
@@ -164,6 +162,8 @@ private:
     void removeColumnModeSpaces();
 
     bool m_colHighlight;
+    bool m_edtDirection;
+    bool m_lastKeyWasGold;
 
     int m_startRow;
     int m_startCol;

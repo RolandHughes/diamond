@@ -143,5 +143,8 @@
       "\\bqintptr\\b",
       "\\bquintptr\\b",
       "\\bqreal\\b"
+   ],
+   "constants": [
+   "\b(?:(?<dec>[1-9][0-9]*) | (?<oct>0[0-7]*) | 0x(?<hex>[0-9A-F]+) | 0b(?<bin>[01]+) )(?<L>L)?\b"
    ]
 }
