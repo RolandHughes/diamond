@@ -106,7 +106,7 @@ void Syntax::processSyntax( Settings *settings )
     }
 
     // constants
-    QStringList constant_Patters;
+    QStringList constant_Patterns;
 
         list = object.value( "constants" ).toArray();
     cnt  = list.count();

@@ -1,5 +1,13 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
+*) Create class containing all of the QStringLists for syntax patterns. Use it as data portion of a QMap keyed by the text we use to identify a specific syntaxt.
+
+*) Overlord now must provide a method that is called passing said key. If the syntax patterns have not been loaded, it loads them and adds an entry to the map before returning a reference to the class instance.
+
+*) See if Overlord could be put in its own thread.
+
+*) find out why connecting a settings signal from dialog_colors to current tab causes crash. I suspect my dynamic_cast<> failed for some reason and the connect() statement didn't complain about a null.
+
 *) file selector called by File->Open needs to allow for hidden files.
    File feature request with CopperSpice
 

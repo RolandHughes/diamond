@@ -795,7 +795,7 @@ void MainWindow::setColors()
     // make sure the visible tab is first in line to get changes
     //
     DiamondTextEdit *ed = dynamic_cast<DiamondTextEdit *>( m_tabWidget->currentWidget() );
-    connect( dw, &Dialog_Colors::changeSettings, ed, &DiamondTextEdit::changeSettings );
+    //connect( dw, &Dialog_Colors::changeSettings, ed, &DiamondTextEdit::changeSettings );
     int result = dw->exec();
 
 
