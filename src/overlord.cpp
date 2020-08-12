@@ -59,12 +59,7 @@ void Overlord::close()
 
     if ( m_changed )
     {
-        QTime time   = QTime::currentTime();
-        qDebug() << "Starting to save settings: " << time.toString("HH:mm:ss.zzz" );
-
         m_settings.save();
-        time   = QTime::currentTime();
-        qDebug() << "Settings saved: " << time.toString( "HH:mm:ss.zzz");
     }
 }
 
@@ -74,13 +69,7 @@ void Overlord::checkForChange()
     {
         m_changed = false;
         // launch without waiting
-        QTime time   = QTime::currentTime();
-        qDebug() << "Starting to save settings: " << time.toString( "HH:mm:ss.zzz" );
-        
         QFuture<void> t1 = QtConcurrent::run( &m_settings, &Settings::save );
-        time   = QTime::currentTime();
-        qDebug() << "Settings saved: " << time.toString( "HH:mm:ss.zzz" );
-        
     }
 }
 
@@ -89,12 +78,7 @@ void Overlord::checkForBroadcast()
     if ( m_needsBroadcast )
     {
         m_needsBroadcast = false;
-        QTime time   = QTime::currentTime();
-        qDebug() << "Broadcasting settingsChanged: " << time.toString( "HH:mm:ss.zzz" );
         settingsChanged( &m_settings );
-        time   = QTime::currentTime();
-        qDebug() << "Broadcast complete: " << time.toString( "HH:mm:ss.zzz" );
-        
     }
 }
 
@@ -103,15 +87,15 @@ bool Overlord::set_configFileName( QString name )
 {
     m_configFileName = name;
     m_settings.m_configFileName = name;
-    qDebug() << "about to call settings load()";
     bool retVal = m_settings.load();
-    qDebug() << "returned from settings load()";
 
     if ( retVal )
     {
         m_isComplete = true;
         m_flushTimer.start( 30000 );   // flush to disk at most every 30 seconds
         m_broadcastTimer.start( 3000 ); // broadcast up to once every 3 seconds
+
+        preloadSyntax();
 
         connect( &m_broadcastTimer, &QTimer::timeout, this, &Overlord::checkForBroadcast );
         connect( &m_flushTimer, &QTimer::timeout, this, &Overlord::checkForChange );
@@ -167,6 +151,122 @@ void Overlord::set_preFolderList( QStringList lst )
 void Overlord::set_showLineHighlight( bool yesNo )
 {
     m_settings.m_showLineHighlight = yesNo;
+    markToNotify();
+}
+
+void Overlord::set_preloadClipper( bool yesNo )
+{
+    m_settings.m_options.set_preloadClipper( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadCmake( bool yesNo )
+{
+    m_settings.m_options.set_preloadCmake( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadCpp( bool yesNo )
+{
+    m_settings.m_options.set_preloadCpp( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadCss( bool yesNo )
+{
+    m_settings.m_options.set_preloadCss( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadDoxy( bool yesNo )
+{
+    m_settings.m_options.set_preloadDoxy( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadErrLog( bool yesNo )
+{
+    m_settings.m_options.set_preloadErrLog( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadJava( bool yesNo )
+{
+    m_settings.m_options.set_preloadJava( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadJs( bool yesNo )
+{
+    m_settings.m_options.set_preloadJs( yesNo );
+    markToNotify();
+}
+
+
+void Overlord::set_preloadHtml( bool yesNo )
+{
+    m_settings.m_options.set_preloadHtml( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadJson( bool yesNo )
+{
+    m_settings.m_options.set_preloadJson( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadMake( bool yesNo )
+{
+    m_settings.m_options.set_preloadMake( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadNone( bool yesNo )
+{
+    m_settings.m_options.set_preloadNone( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadNSI( bool yesNo )
+{
+    m_settings.m_options.set_preloadNSI( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadPhp( bool yesNo )
+{
+    m_settings.m_options.set_preloadPhp( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadPl( bool yesNo )
+{
+    m_settings.m_options.set_preloadPl( yesNo );
+    markToNotify();
+}
+
+
+void Overlord::set_preloadPy( bool yesNo )
+{
+    m_settings.m_options.set_preloadPy( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadSh( bool yesNo )
+{
+    m_settings.m_options.set_preloadSh( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadTxt( bool yesNo )
+{
+    m_settings.m_options.set_preloadTxt( yesNo );
+    markToNotify();
+}
+
+void Overlord::set_preloadXml( bool yesNo )
+{
+    m_settings.m_options.set_preloadXml( yesNo );
     markToNotify();
 }
 
@@ -568,4 +668,125 @@ SyntaxPatterns *Overlord::getSyntaxPatterns( QString fileName )
     }
 
     return m_syntaxPatterns[fileName];
+}
+
+void Overlord::preloadSyntax()
+{
+    QString fileName;
+
+    if ( m_settings.m_options.preloadClipper() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_clipper.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadCmake() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_cmake.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadCpp() )
+    {
+        qDebug() << "preloading CPP syntax";
+        fileName = m_settings.syntaxPath() + "syn_cpp.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+        qDebug() << "finished preloading CPP syntax";
+    }
+
+    if ( m_settings.m_options.preloadCss() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_css.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadDoxy() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_doxy.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadErrLog() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_errlog.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadHtml() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_html.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadJava() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_java.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadJs() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_js.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadJson() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_json.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadMake() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_make.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadNone() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_none.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadNSI() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_nsi.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadPhp() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_php.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadPl() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_pl.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadPy() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_py.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadSh() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_sh.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadTxt() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_txt.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
+
+    if ( m_settings.m_options.preloadXml() )
+    {
+        fileName = m_settings.syntaxPath() + "syn_xml.json";
+        m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
+    }
 }

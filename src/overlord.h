@@ -53,6 +53,26 @@ public:
     bool    useSpaces()                     { return m_settings.m_options.useSpaces();}
     bool    removeSpaces()                  { return m_settings.m_options.removeSpaces();}
     bool    autoLoad()                      { return m_settings.m_options.autoLoad();}
+    bool    preloadClipper()                { return m_settings.m_options.preloadClipper();}
+    bool    preloadCmake()                  { return m_settings.m_options.preloadCmake();}
+    bool    preloadCpp()                    { return m_settings.m_options.preloadCpp();}
+    bool    preloadCss()                    { return m_settings.m_options.preloadCss();}
+    bool    preloadDoxy()                   { return m_settings.m_options.preloadDoxy();}
+    bool    preloadErrLog()                 { return m_settings.m_options.preloadErrLog();}
+    bool    preloadHtml()                   { return m_settings.m_options.preloadHtml();}
+    bool    preloadJava()                   { return m_settings.m_options.preloadJava();}
+    bool    preloadJs()                     { return m_settings.m_options.preloadJs();}
+    bool    preloadJson()                   { return m_settings.m_options.preloadJson();}
+    bool    preloadMake()                   { return m_settings.m_options.preloadMake();}
+    bool    preloadNone()                   { return m_settings.m_options.preloadNone();}
+    bool    preloadNSI()                    { return m_settings.m_options.preloadNSI();}
+    bool    preloadPhp()                    { return m_settings.m_options.preloadPhp();}
+    bool    preloadPl()                     { return m_settings.m_options.preloadPl();}
+    bool    preloadPy()                     { return m_settings.m_options.preloadPy();}
+    bool    preloadSh()                     { return m_settings.m_options.preloadSh();}
+    bool    preloadTxt()                    { return m_settings.m_options.preloadTxt();}
+    bool    preloadXml()                    { return m_settings.m_options.preloadXml();}
+
     QString formatDate()                    { return m_settings.m_options.formatDate();}
     QString formatTime()                    { return m_settings.m_options.formatTime();}
     QString mainDictionary()                { return m_settings.m_options.mainDictionary();}
@@ -142,7 +162,7 @@ public:
     bool openedFilesContains( QString name );
     bool recentFilesListContains( QString text );
 
-    SyntaxPatterns* getSyntaxPatterns( QString fileName);
+    SyntaxPatterns *getSyntaxPatterns( QString fileName );
 
 
     //
@@ -159,6 +179,27 @@ public:
     void set_isWordWrap( bool yesNo );
     void set_showSpaces( bool yesNo );
     void set_showBreaks( bool yesNo );
+
+    void set_preloadClipper( bool yesNo );
+    void set_preloadCmake( bool yesNo );
+    void set_preloadCpp( bool yesNo );
+    void set_preloadCss( bool yesNo );
+    void set_preloadDoxy( bool yesNo );
+    void set_preloadErrLog( bool yesNo );
+    void set_preloadHtml( bool yesNo );
+    void set_preloadJava( bool yesNo );
+    void set_preloadJs( bool yesNo );
+    void set_preloadJson( bool yesNo );
+    void set_preloadMake( bool yesNo );
+    void set_preloadNone( bool yesNo );
+    void set_preloadNSI( bool yesNo );
+    void set_preloadPhp( bool yesNo );
+    void set_preloadPl( bool yesNo );
+    void set_preloadPy( bool yesNo );
+    void set_preloadSh( bool yesNo );
+    void set_preloadTxt( bool yesNo );
+    void set_preloadXml( bool yesNo );
+
 
     void set_priorPath( const QString &priorPath );
     void set_activeTheme( const QString &name );
@@ -239,6 +280,7 @@ public:
 private:
     Overlord();
     void markToNotify();
+    void preloadSyntax();
 
     CS_SLOT_1( Private, void checkForChange() )
     CS_SLOT_2( checkForChange )
@@ -259,7 +301,7 @@ private:
     QString m_appPath;
     QString m_configFileName;
 
-    QMap<QString, SyntaxPatterns*> m_syntaxPatterns;
+    QMap<QString, SyntaxPatterns *> m_syntaxPatterns;
 };
 
 #endif

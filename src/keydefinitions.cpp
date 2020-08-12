@@ -18,7 +18,6 @@
 
 KeyDefinitions::KeyDefinitions()
 {
-    qDebug() << "constructing KeyDefinitions()";
     setDefaultKeyValues();
 }
 

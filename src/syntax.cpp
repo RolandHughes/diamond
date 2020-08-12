@@ -42,8 +42,8 @@ Syntax::~Syntax()
 
 void Syntax::processSyntax( Settings *settings )
 {
-    SyntaxPatterns *patterns = Overlord::getInstance()->getSyntaxPatterns( m_syntaxFile);
-    
+    SyntaxPatterns *patterns = Overlord::getInstance()->getSyntaxPatterns( m_syntaxFile );
+
     //
     HighlightingRule rule;
 
@@ -131,6 +131,28 @@ void Syntax::processSyntax( Settings *settings )
         highlightingRules.append( rule );
     }
 
+    for ( const QString &pattern : patterns->constant_Patterns )
+    {
+        if ( pattern.trimmed().isEmpty() )
+        {
+            continue;
+        }
+
+        qDebug() << "**** loaded constant pattern";
+        // types
+        rule.format.setFontWeight( settings->currentTheme().syntaxConstant().weight() );
+        rule.format.setFontItalic( settings->currentTheme().syntaxConstant().italic() );
+        rule.format.setForeground( settings->currentTheme().syntaxConstant().color() );
+        rule.pattern = QRegularExpression( pattern );
+
+        if ( patterns->ignoreCase )
+        {
+            rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
+        }
+
+        highlightingRules.append( rule );
+    }
+
     // quoted text - everyone
     rule.format.setFontWeight( settings->currentTheme().syntaxQuote().weight() );
     rule.format.setFontItalic( settings->currentTheme().syntaxQuote().italic() );
@@ -139,6 +161,10 @@ void Syntax::processSyntax( Settings *settings )
     highlightingRules.append( rule );
 
 
+    //  TODO:: this needs to be fixed
+    //         Only works for languages that ripped off C comments.
+    //         Won't work for COBOL, FORTRAN, BASIC, etc.
+    //
     rule.format.setFontWeight( settings->currentTheme().syntaxComment().weight() );
     rule.format.setFontItalic( settings->currentTheme().syntaxComment().italic() );
     rule.format.setForeground( settings->currentTheme().syntaxComment().color() );

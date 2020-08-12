@@ -683,6 +683,7 @@ bool Settings::load()
         }
 
         // silly way to pad the list
+        // TODO:: find out why this list _has_ to be padded
         for ( int k = cnt; k < DiamondLimits::PRESET_FOLDERS_MAX; k++ )
         {
             m_preFolderList.append( "" );
@@ -747,7 +748,27 @@ bool Settings::load()
         m_options.keys().set_edtSection( object.value( "key-edt-section" ).toString() );
         m_options.keys().set_edtSelect( object.value( "key-edt-select" ).toString() );
         m_options.keys().set_edtWord( object.value( "key-edt-word" ).toString() );
-
+#if 0
+        m_options.set_preloadClipper( object.value( "preload-clipper" ).toBool() );
+        m_options.set_preloadCmake( object.value( "preload-cmake" ).toBool() );
+        m_options.set_preloadCpp( object.value( "preload-cpp" ).toBool() );
+        m_options.set_preloadCss( object.value( "preload-css" ).toBool() );
+        m_options.set_preloadDoxy( object.value( "preload-doxy" ).toBool() );
+        m_options.set_preloadErrLog( object.value( "preload-errlog" ).toBool() );
+        m_options.set_preloadHtml( object.value( "preload-html" ).toBool() );
+        m_options.set_preloadJava( object.value( "preload-java" ).toBool() );
+        m_options.set_preloadJs( object.value( "preload-js" ).toBool() );
+        m_options.set_preloadJson( object.value( "preload-json" ).toBool() );
+        m_options.set_preloadMake( object.value( "preload-make" ).toBool() );
+        m_options.set_preloadNone( object.value( "preload-none" ).toBool() );
+        m_options.set_preloadNSI( object.value( "preload-nsi" ).toBool() );
+        m_options.set_preloadPhp( object.value( "preload-php" ).toBool() );
+        m_options.set_preloadPl( object.value( "preload-pl" ).toBool() );
+        m_options.set_preloadPy( object.value( "preload-py" ).toBool() );
+        m_options.set_preloadSh( object.value( "preload-sh" ).toBool() );
+        m_options.set_preloadTxt( object.value( "preload-txt" ).toBool() );
+        m_options.set_preloadXml( object.value( "preload-xml" ).toBool() );
+#endif
         m_activeTheme = object.value( "active-theme" ).toString();
         QJsonArray themesArray = object.value( "themes" ).toArray();
 
@@ -981,6 +1002,27 @@ void Settings::save()
 
     object.insert( "active-theme", m_activeTheme );
     createThemeArray( object );
+
+    object.insert( "preload-clipper",   m_options.preloadClipper() );
+    object.insert( "preload-cmake",     m_options.preloadCmake() );
+    object.insert( "preload-cpp",       m_options.preloadCpp() );
+    object.insert( "preload-css",       m_options.preloadCss() );
+    object.insert( "preload-doxy",      m_options.preloadDoxy() );
+    object.insert( "preload-errlog",    m_options.preloadErrLog() );
+    object.insert( "preload-html",      m_options.preloadHtml() );
+    object.insert( "preload-java",      m_options.preloadJava() );
+    object.insert( "preload-js",        m_options.preloadJs() );
+    object.insert( "preload-json",      m_options.preloadJson() );
+    object.insert( "preload-make",      m_options.preloadMake() );
+    object.insert( "preload-none",      m_options.preloadNone() );
+    object.insert( "preload-nsi",       m_options.preloadNSI() );
+    object.insert( "preload-php",       m_options.preloadPhp() );
+    object.insert( "preload-pl",        m_options.preloadPl() );
+    object.insert( "preload-py",        m_options.preloadPy() );
+    object.insert( "preload-sh",        m_options.preloadSh() );
+    object.insert( "preload-txt",       m_options.preloadTxt() );
+    object.insert( "preload-xml",       m_options.preloadXml() );
+
 
     object.insert( "column-mode",   m_isColumnMode );
     object.insert( "dictMain",      m_options.mainDictionary() );
@@ -1480,8 +1522,8 @@ void Settings::generateDefaultThemes()
         "CLASSIC, #000000, #FFFFFF, QT::DARKGRAY, 0XD0D0D0, #FFFF99, #0000FF, Y, N, #0000FF, N, N, #800080, N, N, #0000FF, N, N, #008000, N, N, #008000, N, N, #008000, N, N, #FF518C, N, N",
         "SOLARIZEDLIGHT, #657B83, #FDF6E3, #657B83, #E0DBCD, #E0DBCD, #709D06, N, N, #B58900, N, N, #268BD2, N, N, #657B83, N, N, #2AA198, N, N, #93A1A1, N, Y,#93A1A1, N, Y, #FF518C, N, N",
         "GRAYGREY, #000000, #b9c3c5, #000000, #d1ded1, #d7dede, #98061A,  Y, N, #98061A, N, N, #0055FF, N, N, #2E6C33, N, N, #2c7631, N, N, #0000FF, N, Y, #0000FF, N, Y, #FF518C, N, N",
-        "JUSTDARKENOUGH, #F4F4F4, #424244, #000000, #E0DBCD, #E0DBCD, #00C2C2, N, N, #C195B4, N, N, #55AAFF, N, N, #00EBAD, N, N, #FFFF00, N, N, #F59F00, N, Y, #F59F00, N, Y, #FF518C, N, N",
-        "TANGOLIGHT, #2E3436, #EEEEEC, #2E3436, #E0DBCD, #07E719, #346604, N, N, #CE5C00, N, N, #234670, N, N, #A40000, N, N, #5C3566, N, N, #5F615C, N, Y, #5F615C, N, Y, #FF518C, N, N",
+        "JUSTDARKENOUGH, #F4F4F4, #424244, #000000, #363531, #E0DBCD, #00C2C2, N, N, #C195B4, N, N, #55AAFF, N, N, #00EBAD, N, N, #FFFF00, N, N, #F59F00, N, Y, #F59F00, N, Y, #FF518C, N, N",
+        "TANGOLIGHT, #2E3436, #EEEEEC, #2E3436, #D1E7D3, #07E719, #346604, N, N, #CE5C00, N, N, #234670, N, N, #A40000, N, N, #5C3566, N, N, #5F615C, N, Y, #5F615C, N, Y, #FF518C, N, N",
         "COBALT, #F8F8F8, #09223F, #888888, #111111, #00162A, #FA9E18, N, N, #FFEF79, N, N, #42D915, N,N, #FFDD00, N, N, #42D915, N, N, #008AFF, N, N, #008AFF, N, N, #FF518C, N, N",
     };
 

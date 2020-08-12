@@ -147,7 +147,8 @@ QByteArray SyntaxPatterns::readSyntaxFile()
 
     if ( ! file.open( QFile::ReadOnly | QFile::Text ) )
     {
-        const QString msg = tr( "Unable to open Syntax file: " ) +  pattern_file + " : " + file.errorString();
+        const QString msg = tr( "Unable to open Syntax file: " ) +  pattern_file + " : "
+                            + file.errorString();
         csError( tr( "Read Syntax File" ), msg );
         return data;
     }

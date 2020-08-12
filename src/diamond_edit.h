@@ -74,7 +74,7 @@ public:
     SyntaxTypes get_SyntaxEnum();
     void set_SyntaxEnum( SyntaxTypes data );
     void forceSyntax( SyntaxTypes data );
-    void runSyntax( QString synFName );
+
 
     CS_SLOT_1( Public, void cut() )
     CS_SLOT_2( cut )
@@ -94,6 +94,11 @@ public:
     CS_SIGNAL_1( Public, void setSynType( SyntaxTypes data ) )
     CS_SIGNAL_2( setSynType, data )
 
+    CS_SIGNAL_1( Public, void queueRunSyntax( QString synFName ) )
+    CS_SIGNAL_2( queueRunSyntax, synFName )
+
+    CS_SLOT_1( Public, void runSyntax( QString synFName ) )
+    CS_SLOT_2( runSyntax )
 
     // editing API for use by MainWindow
     //
@@ -169,6 +174,7 @@ private:
     int m_startCol;
     int m_endRow;
     int m_endCol;
+    int m_lastTabSpacing;
 
     // copy buffer
     QList<QString> m_copyBuffer;

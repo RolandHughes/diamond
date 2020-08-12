@@ -1,43 +1,16 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
+*) add preload checkboxes to options - try preloading syntax
 *) debug regular expression to C/C++ definition for numeric constant
 
 *) file selector called by File->Open needs to allow for hidden files.
    File feature request with CopperSpice
 
+*) File->new should NOT whack the first tab
+
 *) Add support for EDT keypad
 *) create EDT Help dialog
 *) Need EDT command dialog
-
-*) Debug syntax slowness - try preloading syntax
-*) Find a way to make syntax highlighting faster. Too much lag between "broadcasting settings" and screen update with multi-thousand line files.
-
-
-*) find out why connecting a settings signal from dialog_colors to current tab causes crash. I suspect my dynamic_cast<> failed for some reason and the connect() statement didn't complain about a null.
-
-
-
-
-
-
-
-
-
-*) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
-*) File->New should not be whacking the current file tab, it should create a new
- tab
- 
-*) test out macro save/load/use. I really butchered that.
-
-
-
-
-
-
-
-*) Read up on Doxyprint to see if it mimics Doxygen comments.
-    If it is like Doxygen,
-
 *) add support for EDT direction lock
 
 *) add support for EDT commands
@@ -53,9 +26,28 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
     See what else is worth saving from Emacs EDT.
     Probably GOLD-C for copy?
 
-*) research regular expression for string of numbers.
-    add to each of the syn_xxxx.json files
-    add support for new JSON class in Syntax::processSyntax()
+*) COBOL, FORTRAN, BASIC, and most other large installed base languages DO NOT support
+ // or /* */ for comments. That part of Syntax Highlighting must be moved to the
+ patters. For COBOL a comment is * in column 7 when using 72-column CARD format
+ or as the first character in a line when using "free" format. Pick up a copy of
+ "The Minimum You Need to Know to Be an OpenVMS Application Developer" to learn
+ more about other languages.
+
+
+
+
+
+
+
+*) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
+*) File->New should not be whacking the current file tab, it should create a new
+ tab
+ 
+*) test out macro save/load/use. I really butchered that.
+
+
+*) Read up on Doxyprint to see if it mimics Doxygen comments.
+    If it is like Doxygen,
 
 *) read documentation for QSyntaxHighlighter in CopperSpice
    see if there is any support for "matching" {(<

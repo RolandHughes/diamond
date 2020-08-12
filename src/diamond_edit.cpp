@@ -51,6 +51,7 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     , m_owner( owner )
     , m_edtDirection( false )
     , m_lastKeyWasGold( false )
+    , m_lastTabSpacing( 0)
 {
     // drag & drop
     setAcceptDrops( false );
@@ -81,6 +82,11 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     m_lastTheme      = m_settingsPtr->currentTheme();
     m_lastNormalFont = m_settingsPtr->fontNormal();
     m_lastColumnFont = m_settingsPtr->fontColumn();
+
+    // this is so syntax highlighting can go on the event queue and run later.
+    // Big files really hang during load.
+    //
+    connect( this, &DiamondTextEdit::queueRunSyntax, this, &DiamondTextEdit::runSyntax, Qt::QueuedConnection );
 
     // line highlight bar
     connect( this, &DiamondTextEdit::blockCountChanged, this, &DiamondTextEdit::update_LineNumWidth );
@@ -330,10 +336,14 @@ void DiamondTextEdit::set_SyntaxParser( Syntax *parser )
 
     if ( parser )
     {
-        //qDebug() << "threading syntax";
-        //QtConcurrent::run(updateSyntaxInThread, parser, m_settingsPtr);
-        //qDebug() << "threading complete";
+        // TODO:: find a way to make this faster.
+        //        big files really kill inital load of big files
+        //
+        QTime time   = QTime::currentTime();
+        qDebug() << m_curFile << " calling processSyntax: " << time.toString( "HH:mm:ss.zzz" );
         m_syntaxParser->processSyntax( m_settingsPtr );
+        time   = QTime::currentTime();
+        qDebug() << m_curFile << " return from  processSyntax: " << time.toString( "HH:mm:ss.zzz" );
     }
 }
 
@@ -1047,7 +1057,7 @@ void DiamondTextEdit::forceSyntax( SyntaxTypes data )
         // check the box
         setSynType( m_syntaxEnum );
 
-        runSyntax( synFName );
+        queueRunSyntax( synFName );
     }
 }
 
@@ -1650,7 +1660,8 @@ void DiamondTextEdit::moveBar()
         backColor = m_settingsPtr->currentTheme().currentLineBack();
     }
 
-    // TODO:: save foreground text color already in place. Only change background.
+    // We really should leave syntax highlight in place, just changing background
+    // color.
     //
     //selection.format.setForeground( textColor );
     selection.format.setBackground( backColor );
@@ -1855,10 +1866,7 @@ void DiamondTextEdit::setSyntax()
 {
     if ( m_syntaxParser )
     {
-        delete m_syntaxParser;
-
-        m_syntaxParser = 0;
-        set_SyntaxParser( 0 );
+        set_SyntaxParser( nullptr);
     }
 
     QString fname  = "";
@@ -2054,39 +2062,46 @@ void DiamondTextEdit::setSyntax()
         // check the menu item
         setSynType( m_syntaxEnum );
 
-        runSyntax( synFName );
+        queueRunSyntax( synFName );
     }
 }
 
 void DiamondTextEdit::setUpTabStops()
 {
-    // TODO:: need to allow option of user supplied tab stop
-    //        list so COBOL card format could be supported.
-    int tabStop;
-
-    m_tabStops.clear();
-
-    for ( int k = 1; k < 25; ++k )
+    if ( m_lastTabSpacing != m_settingsPtr->tabSpacing() )
     {
-        tabStop = ( m_settingsPtr->tabSpacing() * k ) + 1;
-        m_tabStops.append( tabStop );
+        // TODO:: need to allow option of user supplied tab stop
+        //        list so COBOL card format could be supported.
+        int tabStop;
+
+        m_tabStops.clear();
+
+        m_lastTabSpacing = m_settingsPtr->tabSpacing();
+        for ( int k = 1; k < 25; ++k )
+        {
+            tabStop = ( m_lastTabSpacing * k ) + 1;
+            m_tabStops.append( tabStop );
+        }
     }
 }
 
 void DiamondTextEdit::changeSettings( Settings *settings )
 {
-    QTime time   = QTime::currentTime();
-    qDebug() << m_curFile << " Starting to change settings: " << time.toString( "HH:mm:ss.zzz" );
-
     m_settingsPtr = settings;
 
     setUpTabStops();
 
     if ( m_lastTheme != m_settingsPtr->currentTheme() )
     {
+
         setScreenColors();
         m_lastTheme = m_settingsPtr->currentTheme();
-        runSyntax( m_synFName );
+        QTime time   = QTime::currentTime();
+        qDebug() << m_curFile << " calling queueRunSyntax: " << time.toString( "HH:mm:ss.zzz" );
+        queueRunSyntax( m_synFName );
+        time   = QTime::currentTime();
+        qDebug() << m_curFile << " returned queueRunSyntax: " << time.toString( "HH:mm:ss.zzz" );
+        moveBar();
     }
 
     if ( ( m_lastNormalFont != m_settingsPtr->fontNormal() )
@@ -2097,10 +2112,7 @@ void DiamondTextEdit::changeSettings( Settings *settings )
         m_lastColumnFont = m_settingsPtr->fontColumn();
     }
 
-    moveBar();
-    update();
-    time   = QTime::currentTime();
-    qDebug() << m_curFile << " finished changing settings: " << time.toString( "HH:mm:ss.zzz" );
+    //update();
 
 }
 

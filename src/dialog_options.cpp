@@ -42,6 +42,8 @@ Dialog_Options::Dialog_Options( QWidget *parent )
     connect( m_ui->reset_PB,    &QPushButton::clicked, this, &Dialog_Options::reset_StandardKey );
     connect( m_ui->save_PB,     &QPushButton::clicked, this, &Dialog_Options::save );
     connect( m_ui->cancel_PB,   &QPushButton::clicked, this, &Dialog_Options::cancel );
+
+    m_ui->tabWidget->setCurrentIndex(0);
 }
 
 Dialog_Options::~Dialog_Options()
@@ -148,7 +150,7 @@ void Dialog_Options::initData()
     m_ui->key_EDT_Gold->setText( m_options.keys().edtGold() );
     m_ui->key_EDT_Help->setText( m_options.keys().edtHelp() );
     m_ui->key_EDT_FindNext->setText( m_options.keys().edtFindNext() );
-    m_ui->key_EDT_DeleteLine->setText( m_options.keys().edtHelp() );
+    m_ui->key_EDT_DeleteLine->setText( m_options.keys().edtDeleteLine() );
     m_ui->key_EDT_DeleteWord->setText( m_options.keys().edtDeleteWord() );
     m_ui->key_EDT_Page->setText( m_options.keys().edtPage() );
     m_ui->key_EDT_Section->setText( m_options.keys().edtSection() );
