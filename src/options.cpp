@@ -23,8 +23,6 @@ Options::Options() :
     , m_removeSpaces( false )
     , m_autoLoad( true )
     , m_autoDetect( false )
-    , m_formatDate( QString( "MM/dd/yyyy" ) )
-    , m_formatTime( QString( "h:mm ap" ) )
     , m_preloadClipper( false )
     , m_preloadCmake( false )
     , m_preloadCpp( true )
@@ -44,7 +42,8 @@ Options::Options() :
     , m_preloadSh( false )
     , m_preloadTxt( true )
     , m_preloadXml( false )
-
+    , m_formatDate( QString( "MM/dd/yyyy" ) )
+    , m_formatTime( QString( "h:mm ap" ) )
 {
     // TODO:: These 2 should be class members.
     //

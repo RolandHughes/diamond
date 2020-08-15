@@ -22,13 +22,13 @@
 #include <QTableView>
 
 Dialog_Macro::Dialog_Macro( MainWindow *parent, MacroEnum enumValue, QStringList macroIds,
-                            QStringList macroNames)
+                            QStringList macroNames )
     : QDialog( parent )
     , m_ui( new Ui::Dialog_Macro )
     , m_parent( parent )
-    , m_enum( enumValue )
     , m_macroIds_D( macroIds )
     , m_macroNames_D( macroNames )
+    , m_enum( enumValue )
 {
     m_ui->setupUi( this );
     this->setWindowIcon( QIcon( "://resources/diamond.png" ) );
@@ -127,6 +127,8 @@ void Dialog_Macro::setUpView()
 
 void Dialog_Macro::tableDataChanged( const QModelIndex &topLeft, const QModelIndex &bottomRight )
 {
+    Q_UNUSED( topLeft )
+    Q_UNUSED( bottomRight )
     m_updateNames = true;
 }
 

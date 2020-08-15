@@ -209,6 +209,11 @@ void MainWindow::tabNew()
     connect( m_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled );
 
     connect( m_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType );
+
+    // TODO:: connect EDT signals here
+    //
+    connect( m_textEdit, &DiamondTextEdit::edtTop, this, &MainWindow::goTop );
+    connect( m_textEdit, &DiamondTextEdit::edtBottom, this, &MainWindow::goBottom );
 }
 
 void MainWindow::mw_tabClose()
@@ -287,6 +292,7 @@ void MainWindow::tabChanged( int index )
 
 void MainWindow::focusChanged( QWidget *prior, QWidget *current )
 {
+    Q_UNUSED(prior)
     if ( ! current )
     {
         return;
@@ -792,12 +798,7 @@ void MainWindow::setColors()
 {
     Dialog_Colors *dw = new Dialog_Colors( this );
 
-    // make sure the visible tab is first in line to get changes
-    //
-    DiamondTextEdit *ed = dynamic_cast<DiamondTextEdit *>( m_tabWidget->currentWidget() );
-    //connect( dw, &Dialog_Colors::changeSettings, ed, &DiamondTextEdit::changeSettings );
-    int result = dw->exec();
-
+    dw->exec();
 
     delete dw;
 }
@@ -805,7 +806,7 @@ void MainWindow::setColors()
 void MainWindow::setFont()
 {
     Dialog_Fonts *dw = new Dialog_Fonts( Overlord::getInstance()->fontNormal(), Overlord::getInstance()->fontColumn() );
-    int result = dw->exec();
+    dw->exec();
 
     delete dw;
 }
@@ -843,7 +844,7 @@ void MainWindow::setPresetFolders()
 void MainWindow::setPrintOptions()
 {
     Dialog_PrintOptions *dw = new Dialog_PrintOptions( this );
-    int result = dw->exec();
+    dw->exec();
 
     delete dw;
 }

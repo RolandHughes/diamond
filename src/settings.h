@@ -34,7 +34,7 @@ class Settings : public QObject
 
 public:
     Settings();
-    Settings( const Settings &other );
+    //Settings( const Settings &other );
 
     Settings &operator =( const Settings &other );
 

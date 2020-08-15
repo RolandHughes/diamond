@@ -249,7 +249,7 @@ void Dialog_Colors::deleteClicked()
 
     if ( m_localSettings.currentTheme().isProtected() )
     {
-        int rsp = QMessageBox::warning( this, "Delete", "Cannot delete pre-installed theme",
+        QMessageBox::warning( this, "Delete", "Cannot delete pre-installed theme",
                                         QMessageBox::Ok );
         return;
     }
@@ -529,7 +529,8 @@ void Dialog_Colors::importClicked()
             }
 
             m_localSettings.add_theme( theme );
-            theme->deleteLater();
+            //theme->deleteLater();
+            delete theme;
             rebuildComboBox( true );
         }
     }

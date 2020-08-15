@@ -44,6 +44,8 @@ void Syntax::processSyntax( Settings *settings )
 {
     SyntaxPatterns *patterns = Overlord::getInstance()->getSyntaxPatterns( m_syntaxFile );
 
+    highlightingRules.clear();
+
     //
     HighlightingRule rule;
 
@@ -138,7 +140,6 @@ void Syntax::processSyntax( Settings *settings )
             continue;
         }
 
-        qDebug() << "**** loaded constant pattern";
         // types
         rule.format.setFontWeight( settings->currentTheme().syntaxConstant().weight() );
         rule.format.setFontItalic( settings->currentTheme().syntaxConstant().italic() );

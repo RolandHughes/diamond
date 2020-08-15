@@ -100,6 +100,100 @@ public:
     CS_SLOT_1( Public, void runSyntax( QString synFName ) )
     CS_SLOT_2( runSyntax )
 
+    CS_SIGNAL_1( Public, void showEdtHelp() )
+    CS_SIGNAL_2( showEdtHelp )
+
+    CS_SIGNAL_1( Public, void edtDeleteLine() )
+    CS_SIGNAL_2( edtDeleteLine )
+
+    CS_SIGNAL_1( Public, void edtPage() )
+    CS_SIGNAL_2( edtPage )
+
+    CS_SIGNAL_1( Public, void edtSection() )
+    CS_SIGNAL_2( edtSection )
+
+    CS_SIGNAL_1( Public, void edtAppend() )
+    CS_SIGNAL_2( edtAppend )
+
+    CS_SIGNAL_1( Public, void edtDeleteWord() )
+    CS_SIGNAL_2( edtDeleteWord )
+
+    CS_SIGNAL_1( Public, void edtCut() )
+    CS_SIGNAL_2( edtCut )
+
+    CS_SIGNAL_1( Public, void edtDeleteChar() )
+    CS_SIGNAL_2( edtDeleteChar )
+
+    CS_SIGNAL_1( Public, void edtWord() )
+    CS_SIGNAL_2( edtWord )
+
+    CS_SIGNAL_1( Public, void edtEOL() )
+    CS_SIGNAL_2( edtEOL )
+
+    CS_SIGNAL_1( Public, void edtChar() )
+    CS_SIGNAL_2( edtChar )
+
+    CS_SIGNAL_1( Public, void edtLine() )
+    CS_SIGNAL_2( edtLine )
+
+    CS_SIGNAL_1( Public, void edtSelect() )
+    CS_SIGNAL_2( edtSelect )
+
+    CS_SIGNAL_1( Public, void edtEnter() )
+    CS_SIGNAL_2( edtEnter )
+
+    CS_SIGNAL_1( Public, void edtFindNext() )
+    CS_SIGNAL_2( edtFindNext )
+
+    CS_SIGNAL_1( Public, void edtUndeleteLine() )
+    CS_SIGNAL_2( edtUndeleteLine )
+
+    CS_SIGNAL_1( Public, void edtCommand() )
+    CS_SIGNAL_2( edtCommand )
+
+    CS_SIGNAL_1( Public, void edtFillRegion() )
+    CS_SIGNAL_2( edtFillRegion )
+
+    CS_SIGNAL_1( Public, void edtReplace() )
+    CS_SIGNAL_2( edtReplace )
+
+    CS_SIGNAL_1( Public, void edtBottom() )
+    CS_SIGNAL_2( edtBottom )
+
+    CS_SIGNAL_1( Public, void edtTop() )
+    CS_SIGNAL_2( edtTop )
+
+    CS_SIGNAL_1( Public, void edtPaste() )
+    CS_SIGNAL_2( edtPaste )
+
+    CS_SIGNAL_1( Public, void edtUndeleteChar() )
+    CS_SIGNAL_2( edtUndeleteChar )
+
+    CS_SIGNAL_1( Public, void edtChangeCase() )
+    CS_SIGNAL_2( edtChangeCase )
+
+    CS_SIGNAL_1( Public, void edtDeleteToEOL() )
+    CS_SIGNAL_2( edtDeleteToEOL )
+
+    CS_SIGNAL_1( Public, void edtSpecialInsert() )
+    CS_SIGNAL_2( edtSpecialInsert )
+
+    CS_SIGNAL_1( Public, void edtOpenLine() )
+    CS_SIGNAL_2( edtOpenLine )
+
+    CS_SIGNAL_1( Public, void edtClearSelection() )
+    CS_SIGNAL_2( edtClearSelection )
+
+    CS_SIGNAL_1( Public, void edtSubs() )
+    CS_SIGNAL_2( edtSubs )
+
+    CS_SIGNAL_1( Public, void edtGotoLine() )
+    CS_SIGNAL_2( edtGotoLine )
+
+
+    CS_SIGNAL_1( Public, void edtFind() )
+    CS_SIGNAL_2( edtFind )
+
     // editing API for use by MainWindow
     //
     void indentIncr( QString route );
@@ -149,6 +243,7 @@ protected:
 private:
     void setScreenColors();
     void changeFont();
+    bool handleEdtKey( int key, int modifiers );
 
     Settings *m_settingsPtr;
     Themes m_lastTheme;
@@ -168,7 +263,7 @@ private:
 
     bool m_colHighlight;
     bool m_edtDirection;
-    bool m_lastKeyWasGold;
+    bool m_currentKeyGold;
 
     int m_startRow;
     int m_startCol;

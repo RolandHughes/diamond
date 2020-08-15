@@ -35,28 +35,28 @@
 #include <QDebug>
 
 Settings::Settings() :
-    m_showLineHighlight( true )
-    , m_showLineNumbers( true )
+    m_advancedFCase( false )
+    , m_advancedFSearchFolders( false )
+    , m_advancedFWholeWords( false )
+    , m_advancedFindFileType( "." )
+    , m_advancedFindText( "diamond" )
+    , m_findCase( false )
+    , m_findDirection( false )
+    , m_findWholeWords( false )
+    , m_flagNoAutoLoad( false )
+    , m_flagNoSaveConfig( false )
     , m_isColumnMode( false )
     , m_isComplete( false )
     , m_isSpellCheck( false )
     , m_isWordWrap( false )
-    , m_showSpaces( false )
-    , m_showBreaks( false )
-    , m_flagNoAutoLoad( false )
-    , m_flagNoSaveConfig( false )
-    , m_advancedFCase( false )
-    , m_advancedFWholeWords( false )
-    , m_advancedFSearchFolders( false )
-    , m_findDirection( false )
-    , m_findWholeWords( false )
-    , m_findCase( false )
     , m_lastPosition( QPoint( 400, 200 ) )
     , m_lastSize( QSize( 800, 600 ) )
     , m_lastActiveRow( 0 )
     , m_lastActiveColumn( 0 )
-    , m_advancedFindText( "diamond" )
-    , m_advancedFindFileType( "." )
+    , m_showBreaks( false )
+    , m_showLineHighlight( true )
+    , m_showLineNumbers( true )
+    , m_showSpaces( false )
 {
     m_fontNormal            = QFont( "Monospace", 10 );
     m_fontColumn            = QFont( "Monospace", 10 );
@@ -75,7 +75,7 @@ Settings::Settings() :
 
     m_isComplete = true;
 }
-
+#if 0
 Settings::Settings( const Settings &other ) :
     m_activeTheme( other.m_activeTheme )
     , m_advancedFCase( other.m_advancedFCase )
@@ -123,6 +123,7 @@ Settings::Settings( const Settings &other ) :
     , m_themes( other.m_themes )
 {
 }
+#endif
 
 Settings &Settings::operator =( const Settings &other )
 {
@@ -730,25 +731,9 @@ bool Settings::load()
             return ok;
         }
 
-        m_options.keys().set_edtDirectionAdvance( object.value( "key-edt-advance" ).toString() );
-        m_options.keys().set_edtAppend( object.value( "key-edt-append" ).toString() );
-        m_options.keys().set_edtDirectionBack( object.value( "key-edt-back" ).toString() );
-        m_options.keys().set_edtChar( object.value( "key-edt-char" ).toString() );
-        m_options.keys().set_edtCut( object.value( "key-edt-cut" ).toString() );
-        m_options.keys().set_edtDeleteChar( object.value( "key-edt-del-char" ).toString() );
-        m_options.keys().set_edtDeleteWord( object.value( "key-edt-del-word" ).toString() );
-        m_options.keys().set_edtDeleteLine( object.value( "key-edt-deleteLine" ).toString() );
-        m_options.keys().set_edtEnter( object.value( "key-edt-enter" ).toString() );
-        m_options.keys().set_edtEOL( object.value( "key-edt-eol" ).toString() );
-        m_options.keys().set_edtFindNext( object.value( "key-edt-findNext" ).toString() );
-        m_options.keys().set_edtGold( object.value( "key-edt-gold" ).toString() );
-        m_options.keys().set_edtHelp( object.value( "key-edt-help" ).toString() );
-        m_options.keys().set_edtLine( object.value( "key-edt-line" ).toString() );
-        m_options.keys().set_edtPage( object.value( "key-edt-page" ).toString() );
-        m_options.keys().set_edtSection( object.value( "key-edt-section" ).toString() );
-        m_options.keys().set_edtSelect( object.value( "key-edt-select" ).toString() );
-        m_options.keys().set_edtWord( object.value( "key-edt-word" ).toString() );
-#if 0
+        m_options.keys().set_edtGotoLine( object.value("key-edt-gotoLine").toString());
+        m_options.keys().set_edtEnabled( object.value( "edt-enabled" ).toBool() );
+
         m_options.set_preloadClipper( object.value( "preload-clipper" ).toBool() );
         m_options.set_preloadCmake( object.value( "preload-cmake" ).toBool() );
         m_options.set_preloadCpp( object.value( "preload-cpp" ).toBool() );
@@ -768,7 +753,7 @@ bool Settings::load()
         m_options.set_preloadSh( object.value( "preload-sh" ).toBool() );
         m_options.set_preloadTxt( object.value( "preload-txt" ).toBool() );
         m_options.set_preloadXml( object.value( "preload-xml" ).toBool() );
-#endif
+
         m_activeTheme = object.value( "active-theme" ).toString();
         QJsonArray themesArray = object.value( "themes" ).toArray();
 
@@ -1087,24 +1072,7 @@ void Settings::save()
     object.insert( "key-upper",             m_options.keys().upper() );
 
     //EDT keys
-    object.insert( "key-edt-del-word",      m_options.keys().edtDeleteWord() );
-    object.insert( "key-edt-gold",          m_options.keys().edtGold() );
-    object.insert( "key-edt-help",          m_options.keys().edtHelp() );
-    object.insert( "key-edt-findNext",      m_options.keys().edtFindNext() );
-    object.insert( "key-edt-deleteLine",    m_options.keys().edtDeleteLine() );
-    object.insert( "key-edt-page",          m_options.keys().edtPage() );
-    object.insert( "key-edt-section",       m_options.keys().edtSection() );
-    object.insert( "key-edt-append",        m_options.keys().edtAppend() );
-    object.insert( "key-edt-del-char",      m_options.keys().edtDeleteChar() );
-    object.insert( "key-edt-advance",       m_options.keys().edtDirectionAdvance() );
-    object.insert( "key-edt-back",          m_options.keys().edtDirectionBack() );
-    object.insert( "key-edt-cut",           m_options.keys().edtCut() );
-    object.insert( "key-edt-word",          m_options.keys().edtWord() );
-    object.insert( "key-edt-eol",           m_options.keys().edtEOL() );
-    object.insert( "key-edt-char",          m_options.keys().edtChar() );
-    object.insert( "key-edt-line",          m_options.keys().edtLine() );
-    object.insert( "key-edt-select",        m_options.keys().edtSelect() );
-    object.insert( "key-edt-enter",         m_options.keys().edtEnter() );
+    object.insert( "key-edt-gotoLine",      m_options.keys().edtGotoLine());
     object.insert( "edt-enabled",           m_options.keys().edtEnabled() );
 
 
@@ -1283,7 +1251,6 @@ void Settings::trimBackups( QString path )
     // Looks weird but we are deleting the lowest backup numbers
     // which will be at the beginning of the list.
     bool okFlag = true;
-    bool deletedFile = false;
 
     while ( ( backupFiles.size() >= DiamondLimits::BACKUP_FILES_MAX ) && okFlag )
     {
@@ -1294,10 +1261,6 @@ void Settings::trimBackups( QString path )
         {
             QString msg = QString( "Failed to remove " )+  fName;
             csError( tr( "Purging Backups" ), msg );
-        }
-        else
-        {
-            deletedFile = true;
         }
     }
 
@@ -1382,12 +1345,12 @@ bool Settings::json_Load_Macro( QString macroName )
 
     // macro data
     list = object.value( macroName ).toArray();
-    int cnt = list.count();
 
     //  TODO:: have to decouple this from the GUI.
     //         probably move the logic into mainwindow and
     //         move m_macroList to Settings, providing accessor methods.
 #if 0
+    int cnt = list.count();
     m_textEdit->macroStart();
     m_macroList.clear();
 
@@ -1692,7 +1655,7 @@ void Settings::generateDefaultThemes()
 
         m_themes[theme->name()] = *theme;
 
-        theme->deleteLater();
+        delete theme;
     }
 
     m_activeTheme = "COBALT";
@@ -1704,8 +1667,6 @@ void Settings::importOldConfig( QJsonObject object )
 {
     QJsonValue value;
     QJsonArray list;
-
-    int cnt;
 
     Themes elm( "User", false );
     TextAttributes attr;

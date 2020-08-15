@@ -59,26 +59,9 @@ KeyDefinitions::KeyDefinitions( const KeyDefinitions &def ) :
     , m_spellCheck( def.m_spellCheck )
     , m_undo( def.m_undo )
     , m_upper( def.m_upper )
-    , m_edtDeleteWord( def.m_edtDeleteWord )
-    , m_edtGold( def.m_edtGold )
-    , m_edtHelp( def.m_edtHelp )
-    , m_edtFindNext( def.m_edtFindNext )
-    , m_edtDeleteLine( def.m_edtDeleteLine )
-    , m_edtPage( def.m_edtPage )
-    , m_edtSection( def.m_edtSection )
-    , m_edtAppend( def.m_edtAppend )
-    , m_edtDeleteChar( def.m_edtDeleteChar )
-    , m_edtAdvance( def.m_edtAdvance )
-    , m_edtBackup( def.m_edtBackup )
-    , m_edtCut( def.m_edtCut )
-    , m_edtWord( def.m_edtWord )
-    , m_edtEOL( def.m_edtEOL )
-    , m_edtChar( def.m_edtChar )
-    , m_edtLine( def.m_edtLine )
-    , m_edtSelect( def.m_edtSelect )
-    , m_edtEnter( def.m_edtEnter )
-    , m_edtGotoLine( def.m_edtGotoLine )
     , m_edtEnabled( def.m_edtEnabled )
+    , m_edtGold( def.m_edtGold)
+    , m_edtGotoLine( def.m_edtGotoLine )
 {
 }
 
@@ -123,24 +106,6 @@ KeyDefinitions &KeyDefinitions::operator =( const KeyDefinitions &def )
         m_spellCheck        = def.m_spellCheck;
         m_undo              = def.m_undo;
         m_upper             = def.m_upper;
-        m_edtDeleteWord     = def.m_edtDeleteWord;
-        m_edtGold           = def.m_edtGold;
-        m_edtHelp           = def.m_edtHelp;
-        m_edtFindNext       = def.m_edtFindNext;
-        m_edtDeleteLine     = def.m_edtDeleteLine;
-        m_edtPage           = def.m_edtPage;
-        m_edtSection        = def.m_edtSection;
-        m_edtAppend         = def.m_edtAppend;
-        m_edtDeleteChar     = def.m_edtDeleteChar;
-        m_edtAdvance        = def.m_edtAdvance;
-        m_edtBackup         = def.m_edtBackup;
-        m_edtCut            = def.m_edtCut;
-        m_edtWord           = def.m_edtWord;
-        m_edtEOL            = def.m_edtEOL;
-        m_edtChar           = def.m_edtChar;
-        m_edtLine           = def.m_edtLine;
-        m_edtSelect         = def.m_edtSelect;
-        m_edtEnter          = def.m_edtEnter;
         m_edtGotoLine       = def.m_edtGotoLine;
         m_edtEnabled        = def.m_edtEnabled;
     }
@@ -342,95 +307,6 @@ bool operator ==( const KeyDefinitions &left, const KeyDefinitions &right )
         retVal = false;
     }
 
-    if ( left.m_edtDeleteWord != right.m_edtDeleteWord )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtGold != right.m_edtGold )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtHelp != right.m_edtHelp )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtFindNext != right.m_edtFindNext )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtDeleteLine != right.m_edtDeleteLine )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtPage != right.m_edtPage )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtSection != right.m_edtSection )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtAppend != right.m_edtAppend )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtDeleteChar != right.m_edtDeleteChar )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtAdvance != right.m_edtAdvance )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtBackup != right.m_edtBackup )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtCut != right.m_edtCut )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtWord != right.m_edtWord )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtEOL != right.m_edtEOL )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtChar != right.m_edtChar )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtLine != right.m_edtLine )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtSelect != right.m_edtSelect )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtEnter != right.m_edtEnter )
-    {
-        retVal = false;
-    }
 
     if ( left.m_edtGotoLine != right.m_edtGotoLine )
     {
@@ -459,29 +335,6 @@ void KeyDefinitions::setDefaultKeyValues()
     qDebug() << "setDefaultKeyValues() called";
     // EDT keys
     //
-#ifdef Q_OS_MAC
-    m_edtDeleteWord = QKeySequence( Qt::MetaModifier, Qt::KeypadModifier, Qt::Key_Minus ).toString( QKeySequence::NativeText );
-#else
-    m_edtDeleteWord = QKeySequence( Qt::AltModifier, Qt::KeypadModifier, Qt::Key_Minus ).toString( QKeySequence::NativeText );
-#endif
-    m_edtEnabled    = false;
-    m_edtGold       = QKeySequence( Qt::Key_NumLock ).toString( QKeySequence::NativeText );
-    m_edtHelp       = QKeySequence( Qt::KeypadModifier, Qt::Key_Slash ).toString( QKeySequence::NativeText );
-    m_edtFindNext   = QKeySequence( Qt::KeypadModifier, Qt::Key_Asterisk ).toString( QKeySequence::NativeText );
-    m_edtDeleteLine = QKeySequence( Qt::KeypadModifier, Qt::Key_Minus ).toString( QKeySequence::NativeText );
-    m_edtPage       = QKeySequence( Qt::KeypadModifier, Qt::Key_7 ).toString( QKeySequence::NativeText );
-    m_edtSection    = QKeySequence( Qt::KeypadModifier, Qt::Key_8 ).toString( QKeySequence::NativeText );
-    m_edtAppend     = QKeySequence( Qt::KeypadModifier, Qt::Key_9 ).toString( QKeySequence::NativeText );
-    m_edtDeleteChar = QKeySequence( Qt::KeypadModifier, Qt::Key_Plus ).toString( QKeySequence::NativeText );
-    m_edtAdvance    = QKeySequence( Qt::KeypadModifier, Qt::Key_4 ).toString( QKeySequence::NativeText );
-    m_edtBackup     = QKeySequence( Qt::KeypadModifier, Qt::Key_5 ).toString( QKeySequence::NativeText );
-    m_edtCut        = QKeySequence( Qt::KeypadModifier, Qt::Key_6 ).toString( QKeySequence::NativeText );
-    m_edtWord       = QKeySequence( Qt::KeypadModifier, Qt::Key_1 ).toString( QKeySequence::NativeText );
-    m_edtEOL        = QKeySequence( Qt::KeypadModifier, Qt::Key_2 ).toString( QKeySequence::NativeText );
-    m_edtChar       = QKeySequence( Qt::KeypadModifier, Qt::Key_3 ).toString( QKeySequence::NativeText );
-    m_edtLine       = QKeySequence( Qt::KeypadModifier, Qt::Key_0 ).toString( QKeySequence::NativeText );
-    m_edtEnter      = QKeySequence( Qt::KeypadModifier, Qt::Key_Enter ).toString( QKeySequence::NativeText );
-    m_edtSelect     = QKeySequence( Qt::KeypadModifier, Qt::Key_Period ).toString( QKeySequence::NativeText );
     m_edtGotoLine   = QKeySequence( Qt::Key_Equal ).toString( QKeySequence::NativeText );
 
     QString modifier;

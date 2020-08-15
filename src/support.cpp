@@ -98,13 +98,12 @@ void MainWindow::autoLoad()
             {
                 DiamondTextEdit *ed = dynamic_cast<DiamondTextEdit *>( m_tabWidget->widget( x ) );
 
-                if ( ed && lastFile == ed->m_owner )
+                if ( ed && lastFile == m_tabWidget->tabText( x ) )
                 {
-                    QTextCursor c = ed->textCursor();
-                    c.movePosition( QTextCursor::Start );
-                    c.movePosition( QTextCursor::Down, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveRow() );
-                    c.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveColumn() );
-                    ed->setTextCursor( c );
+                    QTextCursor cursor( ed->document()->findBlockByNumber( Overlord::getInstance()->lastActiveRow() ) );
+                    cursor.movePosition( QTextCursor::StartOfLine );
+                    cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveColumn() - 1 );
+                    ed->setTextCursor( cursor );
                     m_tabWidget->setCurrentIndex( x );
                     found = true;
                 }
@@ -124,7 +123,8 @@ void MainWindow::closeEvent( QCloseEvent *event )
         if ( ed != nullptr )
         {
             QTextCursor c = ed->textCursor();
-            Overlord::getInstance()->set_lastActiveFile( ed->m_owner );
+            qDebug() << "saving active file info";
+            Overlord::getInstance()->set_lastActiveFile( m_tabWidget->tabText( m_tabWidget->currentIndex() ) );
             Overlord::getInstance()->set_lastActiveRow( c.blockNumber() );
             Overlord::getInstance()->set_lastActiveColumn( c.positionInBlock() );
         }
@@ -327,8 +327,6 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
 
 bool MainWindow::querySave()
 {
-    qDebug() << "querySave() called";
-
     if ( m_textEdit->document()->isModified() )
     {
 

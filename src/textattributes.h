@@ -17,9 +17,9 @@
 
 #include <QColor>
 
-class TextAttributes : public QObject
+class TextAttributes 
 {
-    CS_OBJECT( TextAttributes )
+    CS_GADGET( TextAttributes )
 public:
     TextAttributes();
     TextAttributes( const QColor color, int weight, bool yesNo );

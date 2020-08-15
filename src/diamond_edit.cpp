@@ -45,13 +45,21 @@
 
 DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     : QPlainTextEdit( parent )
-    , m_record( false )
-    , m_spellCheck( nullptr )
-    , m_settingsPtr( nullptr )
     , m_owner( owner )
+    , m_settingsPtr( nullptr )
+    , m_undoCount( 0 )
+    , m_colHighlight( false )
     , m_edtDirection( false )
-    , m_lastKeyWasGold( false )
-    , m_lastTabSpacing( 0)
+    , m_currentKeyGold( false )
+    , m_startRow( 0 )
+    , m_startCol( 0 )
+    , m_endRow( 0 )
+    , m_endCol( 0 )
+    , m_lastTabSpacing( 0 )
+    , m_record( false )
+    , m_isSpellCheck( false )
+    , m_spellCheck( nullptr )
+    , m_syntaxParser( nullptr )
 {
     // drag & drop
     setAcceptDrops( false );
@@ -156,6 +164,7 @@ int DiamondTextEdit::lineNum_Width()
 
 void DiamondTextEdit::update_LineNumWidth( int newBlockCount )
 {
+    Q_UNUSED( newBlockCount )
     setViewportMargins( lineNum_Width(), 0, 0, 0 );
 }
 
@@ -339,11 +348,7 @@ void DiamondTextEdit::set_SyntaxParser( Syntax *parser )
         // TODO:: find a way to make this faster.
         //        big files really kill inital load of big files
         //
-        QTime time   = QTime::currentTime();
-        qDebug() << m_curFile << " calling processSyntax: " << time.toString( "HH:mm:ss.zzz" );
         m_syntaxParser->processSyntax( m_settingsPtr );
-        time   = QTime::currentTime();
-        qDebug() << m_curFile << " return from  processSyntax: " << time.toString( "HH:mm:ss.zzz" );
     }
 }
 
@@ -664,6 +669,14 @@ bool DiamondTextEdit::event( QEvent *event )
         {
             /// required to disable default selectAll(), cut(), copy(), paste()
             return false;
+        }
+
+        if ( Overlord::getInstance()->edtMode() )
+        {
+            if ( handleEdtKey( key, modifiers ) )
+            {
+                return true;
+            }
         }
 
         if ( m_settingsPtr->isColumnMode() )
@@ -1032,15 +1045,11 @@ void DiamondTextEdit::forceSyntax( SyntaxTypes data )
             synFName = m_settingsPtr->syntaxPath() + "syn_none.json";
             break;
 
-            /*
-                  case SYN_UNUSED1:
-                     synFName = m_settingsPtr->syntaxPath() + "syn_unused1.json";
-                     break;
+        case SYN_UNUSED1:
+            break;
 
-                  case SYN_UNUSED2:
-                     synFName = m_settingsPtr->syntaxPath() + "syn_unused2.json";
-                     break;
-            */
+        case SYN_UNUSED2:
+            break;
 
     }
 
@@ -1866,7 +1875,7 @@ void DiamondTextEdit::setSyntax()
 {
     if ( m_syntaxParser )
     {
-        set_SyntaxParser( nullptr);
+        set_SyntaxParser( nullptr );
     }
 
     QString fname  = "";
@@ -2077,6 +2086,7 @@ void DiamondTextEdit::setUpTabStops()
         m_tabStops.clear();
 
         m_lastTabSpacing = m_settingsPtr->tabSpacing();
+
         for ( int k = 1; k < 25; ++k )
         {
             tabStop = ( m_lastTabSpacing * k ) + 1;
@@ -2096,11 +2106,7 @@ void DiamondTextEdit::changeSettings( Settings *settings )
 
         setScreenColors();
         m_lastTheme = m_settingsPtr->currentTheme();
-        QTime time   = QTime::currentTime();
-        qDebug() << m_curFile << " calling queueRunSyntax: " << time.toString( "HH:mm:ss.zzz" );
         queueRunSyntax( m_synFName );
-        time   = QTime::currentTime();
-        qDebug() << m_curFile << " returned queueRunSyntax: " << time.toString( "HH:mm:ss.zzz" );
         moveBar();
     }
 
@@ -2111,9 +2117,6 @@ void DiamondTextEdit::changeSettings( Settings *settings )
         m_lastNormalFont = m_settingsPtr->fontNormal();
         m_lastColumnFont = m_settingsPtr->fontColumn();
     }
-
-    //update();
-
 }
 
 void DiamondTextEdit::setScreenColors()
@@ -2134,4 +2137,105 @@ void DiamondTextEdit::changeFont()
     {
         setFont( m_settingsPtr->fontNormal() );
     }
+}
+
+// there will be many return statements in this method.
+//
+bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
+{
+    qDebug() << "key: " << key << "  modifiers: " << modifiers;
+
+    bool lastKeyWasGold = m_currentKeyGold;
+
+    qDebug() << "lastKeyWasGold: " << lastKeyWasGold;
+
+    if ( key == Qt::Key_NumLock )
+    {
+        if ( m_currentKeyGold )
+        {
+            // allow user to clear an accidental GOLD key press by
+            // pressing it again.
+            m_currentKeyGold = false;
+        }
+        else
+        {
+            qDebug() << "***Current key GOLD";
+            m_currentKeyGold = true;
+            return true;
+        }
+    }
+
+#if 0
+
+    if ( !lastKeyWasGold )
+    {
+        qDebug() << "Returning because last key was not gold";
+        return false;
+    }
+
+#endif
+
+//    KeyDefinitions &keys = Overlord::getInstance()->keys();
+
+    QString keyStr = QKeySequence( modifiers, key ).toString( QKeySequence::NativeText );
+
+    qDebug() << "keyStr: " << keyStr;
+
+
+    if ( lastKeyWasGold )
+    {
+        // GOLD Help has no meaning in EDT
+        // in LSE it brought up language sensitive help for what you had highlighted
+        // or had your cursor on.
+        switch ( key )
+        {
+            case Qt::Key_4:
+            case Qt::Key_Left:  // if NumLock is not "on"
+                qDebug() << "emitting edtBottom()";
+                edtBottom();
+                return true;
+                break;
+
+            case Qt::Key_5:
+            case Qt::Key_Clear: // if NumLock is not "on"
+                qDebug() << "emitting edtTop()";
+                edtTop();
+                return true;
+                break;
+
+            default:
+                break;
+        }
+
+
+
+        // TODO:: add keys for Astyle, Copy, and a few other things
+
+    }
+    else
+    {
+
+        switch ( key )
+        {
+            case Qt::Key_4:
+            case Qt::Key_Left:  // if NumLock is not "on"
+                qDebug() << "setting edit direction advance";
+                m_edtDirection = false;
+                return true;
+                break;
+
+            case Qt::Key_5:
+            case Qt::Key_Clear: // if NumLock is not "on"
+                qDebug() << "setting edit direction backup";
+                m_edtDirection = true;
+                return true;
+                break;
+
+            default:
+                break;
+        }
+
+    }
+
+    return false;
 }

@@ -19,12 +19,12 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-SyntaxPatterns::SyntaxPatterns(QString fileName) :
-    pattern_file(fileName)
+SyntaxPatterns::SyntaxPatterns( QString fileName ) :
+    pattern_file( fileName )
 {
     QByteArray data = readSyntaxFile();
 
-    if (data.isEmpty())
+    if ( data.isEmpty() )
     {
         return;
     }
@@ -89,24 +89,24 @@ SyntaxPatterns::SyntaxPatterns(QString fileName) :
     // multi line comment
     commentStart = object.value( "comment-multi-start" ).toString();
     commentEnd   = object.value( "comment-multi-end" ).toString();
-    
+
 }
 
-SyntaxPatterns::SyntaxPatterns( const SyntaxPatterns& patterns) :
-    pattern_file(patterns.pattern_file)
-    , key_Patterns(patterns.key_Patterns)
-    , class_Patterns(patterns.class_Patterns)
-    , func_Patterns(patterns.func_Patterns)
-    , type_Patterns(patterns.type_Patterns)
-    , constant_Patterns(patterns.constant_Patterns)
-    , ignoreCase(patterns.ignoreCase)
-    , commentSingle(patterns.commentSingle)
-    , commentStart(patterns.commentStart)
-    , commentEnd(patterns.commentEnd)
+SyntaxPatterns::SyntaxPatterns( const SyntaxPatterns &patterns ) :
+    key_Patterns( patterns.key_Patterns )
+    , class_Patterns( patterns.class_Patterns )
+    , func_Patterns( patterns.func_Patterns )
+    , type_Patterns( patterns.type_Patterns )
+    , constant_Patterns( patterns.constant_Patterns )
+    , commentSingle( patterns.commentSingle )
+    , commentStart( patterns.commentStart )
+    , commentEnd( patterns.commentEnd )
+    , pattern_file( patterns.pattern_file )
+    , ignoreCase( patterns.ignoreCase )
 {
 }
 
-SyntaxPatterns& SyntaxPatterns::operator = (const SyntaxPatterns& other)
+SyntaxPatterns &SyntaxPatterns::operator = ( const SyntaxPatterns &other )
 {
     pattern_file        = other.pattern_file;
     key_Patterns        = other.key_Patterns;

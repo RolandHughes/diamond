@@ -33,6 +33,9 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "(Linux|OpenBSD|FreeBSD|NetBSD|DragonFly)")
 
    set(CMAKE_INSTALL_RPATH "\$ORIGIN")
 
+   # lots of warnings and all warnings as errors
+   add_compile_options(-Wall -Wextra -pedantic -Werror)
+
 elseif(MSVC)
    # use defaults
 

@@ -18,9 +18,9 @@
 #include <QColor>
 #include "textattributes.h"
 
-class Themes : public QObject
+class Themes 
 {
-    CS_OBJECT( Themes )
+    CS_GADGET( Themes )
 public:
     Themes();
     Themes( const QString name, bool isProtected = false );

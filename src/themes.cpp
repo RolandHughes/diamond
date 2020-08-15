@@ -28,8 +28,8 @@ Themes::Themes( const QString name, bool isProtected ) :
 
 
 Themes::Themes( const Themes &theme ) :
-    m_name( theme.m_name )
-    , m_protected( theme.m_protected )
+    m_protected( theme.m_protected )
+    , m_name( theme.m_name )
     , m_colorText( theme.m_colorText )
     , m_colorBack( theme.m_colorBack )
     , m_gutterText( theme.m_gutterText )

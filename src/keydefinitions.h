@@ -24,7 +24,7 @@ public:
     KeyDefinitions( const KeyDefinitions &def );
 
     KeyDefinitions &operator =( const KeyDefinitions &def );
-    
+
     friend bool operator ==( const KeyDefinitions &left, const KeyDefinitions &right );
     friend bool operator !=( const KeyDefinitions &left, const KeyDefinitions &right );
 
@@ -72,24 +72,6 @@ public:
     QString undo()                  { return m_undo;}
     QString upper()                 { return m_upper;}
 
-    QString edtDeleteWord()         { return m_edtDeleteWord;}
-    QString edtGold()               { return m_edtGold;}
-    QString edtHelp()               { return m_edtHelp;}
-    QString edtFindNext()           { return m_edtFindNext;}
-    QString edtDeleteLine()         { return m_edtDeleteLine;}
-    QString edtPage()               { return m_edtPage;}
-    QString edtSection()            { return m_edtSection;}
-    QString edtAppend()             { return m_edtAppend;}
-    QString edtDeleteChar()         { return m_edtDeleteChar;}
-    QString edtDirectionAdvance()   { return m_edtAdvance;}
-    QString edtDirectionBack()      { return m_edtBackup;}
-    QString edtCut()                { return m_edtCut;}
-    QString edtWord()               { return m_edtWord;}
-    QString edtEOL()                { return m_edtEOL;}
-    QString edtChar()               { return m_edtChar;}
-    QString edtLine()               { return m_edtLine;}
-    QString edtSelect()             { return m_edtSelect;}
-    QString edtEnter()              { return m_edtEnter;}
     QString edtGotoLine()           { return m_edtGotoLine;}
 
     bool    edtEnabled()            { return m_edtEnabled;}
@@ -137,24 +119,6 @@ public:
     void set_undo( QString keyValue )              { m_undo = keyValue;}
     void set_upper( QString keyValue )             { m_upper = keyValue;}
 
-    void set_edtDeleteWord( QString txt )          { m_edtDeleteWord = txt;}
-    void set_edtGold( QString txt )                { m_edtGold = txt;}
-    void set_edtHelp( QString txt )                { m_edtHelp = txt;}
-    void set_edtFindNext( QString txt )            { m_edtFindNext = txt;}
-    void set_edtDeleteLine( QString txt )          { m_edtDeleteLine = txt;}
-    void set_edtPage( QString txt )                { m_edtPage = txt;}
-    void set_edtSection( QString txt )             { m_edtSection = txt;}
-    void set_edtAppend( QString txt )              { m_edtAppend = txt;}
-    void set_edtDeleteChar( QString txt )          { m_edtDeleteChar = txt;}
-    void set_edtDirectionAdvance( QString txt )    { m_edtAdvance = txt;}
-    void set_edtDirectionBack( QString txt )       { m_edtBackup = txt;}
-    void set_edtCut( QString txt )                 { m_edtCut = txt;}
-    void set_edtWord( QString txt )                { m_edtWord = txt;}
-    void set_edtEOL( QString txt )                 { m_edtEOL = txt;}
-    void set_edtChar( QString txt )                { m_edtChar = txt;}
-    void set_edtLine( QString txt )                { m_edtLine = txt;}
-    void set_edtSelect( QString txt )              { m_edtSelect = txt;}
-    void set_edtEnter( QString txt )               { m_edtEnter = txt;}
     void set_edtEnabled( bool yesNo )              { m_edtEnabled = yesNo;}
     void set_edtGotoLine( QString txt )            { m_edtGotoLine = txt;}
 
@@ -209,26 +173,7 @@ private:
      *       travels in the direction currently in effect.
      */
     bool    m_edtEnabled;       // only look for EDT keypad support when enabled.
-    QString m_edtDeleteWord;    // this one is a different key sequence becuse the PC numeric
-    // keypad is missing one key. GOLD del_word = undelete word
-
-    QString m_edtGold;
-    QString m_edtHelp;          // has no GOLD option
-    QString m_edtFindNext;      // GOLD find = find
-    QString m_edtDeleteLine;    // GOLD deleteLine = undeleteLine
-    QString m_edtPage;          // GOLD page = command
-    QString m_edtSection;       // GOLD sect = fill
-    QString m_edtAppend;        // GOLD append = replace
-    QString m_edtDeleteChar;    // GOLD del_char = undelete char
-    QString m_edtAdvance;       // GOLD advance = goto bottom
-    QString m_edtBackup;        // GOLD backup = goto top
-    QString m_edtCut;           // GOLD cut = paste the last cut
-    QString m_edtWord;          // GOLD word = change case
-    QString m_edtEOL;           // GOLD eol = delete to end of line leaving newline char(s)
-    QString m_edtChar;          // GOLD char = special insert
-    QString m_edtLine;          // GOLD line = open line
-    QString m_edtSelect;        // GOLD select = reset
-    QString m_edtEnter;         // GOLD enter = substitute
+    Qt::Key m_edtGold;
     QString m_edtGotoLine;      // GOLD =
 
 };

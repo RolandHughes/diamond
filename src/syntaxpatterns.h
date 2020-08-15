@@ -17,9 +17,9 @@
 #include <QStringList>
 #include <QByteArray>
 
-class SyntaxPatterns : public QObject
+class SyntaxPatterns 
 {
-    CS_OBJECT( SyntaxPatterns )
+    CS_GADGET( SyntaxPatterns )
             
 public:
     SyntaxPatterns(QString fileName);

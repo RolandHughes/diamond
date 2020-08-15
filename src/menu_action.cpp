@@ -702,7 +702,7 @@ void MainWindow::show_Spaces()
     QTextDocument *td   = m_textEdit->document();
     QTextOption textOpt = td->defaultTextOption();
 
-    bool oldValue = Overlord::getInstance()->showSpaces();
+    //bool oldValue = Overlord::getInstance()->showSpaces();
 
     if ( m_ui->actionShow_Spaces->isChecked() )
     {
@@ -746,8 +746,6 @@ void MainWindow::show_Breaks()
 {
     QTextDocument *td = m_textEdit->document();
     QTextOption textOpt = td->defaultTextOption();
-
-    bool oldValue = Overlord::getInstance()->showBreaks();
 
     if ( m_ui->actionShow_Breaks->isChecked() )
     {
@@ -905,15 +903,13 @@ void MainWindow::setSynType( SyntaxTypes data )
             m_ui->actionSyn_None->setChecked( true );
             break;
 
-            /*
-                  case SYN_UNUSED1:
-                     m_ui->actionSyn_UnUsed1->setChecked(true);
-                     break;
+        case SYN_UNUSED1:
+            //m_ui->actionSyn_UnUsed1->setChecked(true);
+            break;
 
-                  case SYN_UNUSED2:
-                     m_ui->actionSyn_UnUsed2->setChecked(true);
-                     break;
-            */
+        case SYN_UNUSED2:
+            //m_ui->actionSyn_UnUsed2->setChecked(true);
+            break;
     }
 }
 

@@ -43,7 +43,7 @@ Dialog_Options::Dialog_Options( QWidget *parent )
     connect( m_ui->save_PB,     &QPushButton::clicked, this, &Dialog_Options::save );
     connect( m_ui->cancel_PB,   &QPushButton::clicked, this, &Dialog_Options::cancel );
 
-    m_ui->tabWidget->setCurrentIndex(0);
+    m_ui->tabWidget->setCurrentIndex( 0 );
 }
 
 Dialog_Options::~Dialog_Options()
@@ -93,7 +93,7 @@ void Dialog_Options::initData()
 
     m_ui->autoLoad_CKB->setChecked( m_options.autoLoad() );
 
-    m_ui->enable_EDT_CB->setChecked( m_options.keys().edtEnabled() );
+    m_ui->enable_EDT_CKB->setChecked( m_options.keys().edtEnabled() );
 
     m_ui->dictMain->setText( m_options.mainDictionary() );
     m_ui->dictMain->setCursorPosition( 0 );
@@ -147,25 +147,27 @@ void Dialog_Options::initData()
     m_ui->key_copyBuffer->setText( m_options.keys().copyBuffer() );
 
     // ** tab four
-    m_ui->key_EDT_Gold->setText( m_options.keys().edtGold() );
-    m_ui->key_EDT_Help->setText( m_options.keys().edtHelp() );
-    m_ui->key_EDT_FindNext->setText( m_options.keys().edtFindNext() );
-    m_ui->key_EDT_DeleteLine->setText( m_options.keys().edtDeleteLine() );
-    m_ui->key_EDT_DeleteWord->setText( m_options.keys().edtDeleteWord() );
-    m_ui->key_EDT_Page->setText( m_options.keys().edtPage() );
-    m_ui->key_EDT_Section->setText( m_options.keys().edtSection() );
-    m_ui->key_EDT_Append->setText( m_options.keys().edtAppend() );
-    m_ui->key_EDT_DeleteChar->setText( m_options.keys().edtDeleteChar() );
-    m_ui->key_EDT_Advance->setText( m_options.keys().edtDirectionAdvance() );
-    m_ui->key_EDT_Backup->setText( m_options.keys().edtDirectionBack() );
-    m_ui->key_EDT_Cut->setText( m_options.keys().edtCut() );
-    m_ui->key_EDT_Word->setText( m_options.keys().edtWord() );
-    m_ui->key_EDT_EOL->setText( m_options.keys().edtEOL() );
-    m_ui->key_EDT_Char->setText( m_options.keys().edtChar() );
-    m_ui->key_EDT_Line->setText( m_options.keys().edtLine() );
-    m_ui->key_EDT_Select->setText( m_options.keys().edtSelect() );
-    m_ui->key_EDT_Enter->setText( m_options.keys().edtEnter() );
     m_ui->key_EDT_GotoLine->setText( m_options.keys().edtGotoLine() );
+
+    m_ui->clipper_CKB->setChecked( m_options.preloadClipper() );
+    m_ui->cmake_CKB->setChecked( m_options.preloadCmake() );
+    m_ui->cpp_CKB->setChecked( m_options.preloadCpp() );
+    m_ui->css_CKB->setChecked( m_options.preloadCss() );
+    m_ui->doxy_CKB->setChecked( m_options.preloadDoxy() );
+    m_ui->errlog_CKB->setChecked( m_options.preloadErrLog() );
+    m_ui->html_CKB->setChecked( m_options.preloadHtml() );
+    m_ui->java_CKB->setChecked( m_options.preloadJava() );
+    m_ui->js_CKB->setChecked( m_options.preloadJs() );
+    m_ui->json_CKB->setChecked( m_options.preloadJson() );
+    m_ui->make_CKB->setChecked( m_options.preloadMake() );
+    m_ui->none_CKB->setChecked( m_options.preloadNone() );
+    m_ui->nsi_CKB->setChecked( m_options.preloadNSI() );
+    m_ui->php_CKB->setChecked( m_options.preloadPhp() );
+    m_ui->pl_CKB->setChecked( m_options.preloadPl() );
+    m_ui->py_CKB->setChecked( m_options.preloadPy() );
+    m_ui->sh_CKB->setChecked( m_options.preloadSh() );
+    m_ui->txt_CKB->setChecked( m_options.preloadTxt() );
+    m_ui->xml_CKB->setChecked( m_options.preloadXml() );
 }
 
 void Dialog_Options::save()
@@ -225,26 +227,28 @@ void Dialog_Options::save()
     m_options.keys().set_copyBuffer( m_ui->key_copyBuffer->text() );
 
     //** tab 4
-    m_options.keys().set_edtDeleteWord( m_ui->key_EDT_DeleteWord->text() );
-    m_options.keys().set_edtGold( m_ui->key_EDT_Gold->text() );
-    m_options.keys().set_edtHelp( m_ui->key_EDT_Help->text() );
-    m_options.keys().set_edtFindNext( m_ui->key_EDT_FindNext->text() );
-    m_options.keys().set_edtDeleteLine( m_ui->key_EDT_DeleteLine->text() );
-    m_options.keys().set_edtPage( m_ui->key_EDT_Page->text() );
-    m_options.keys().set_edtSection( m_ui->key_EDT_Section->text() );
-    m_options.keys().set_edtAppend( m_ui->key_EDT_Append->text() );
-    m_options.keys().set_edtDeleteChar( m_ui->key_EDT_DeleteChar->text() );
-    m_options.keys().set_edtDirectionAdvance( m_ui->key_EDT_Advance->text() );
-    m_options.keys().set_edtDirectionBack( m_ui->key_EDT_Backup->text() );
-    m_options.keys().set_edtCut( m_ui->key_EDT_Cut->text() );
-    m_options.keys().set_edtWord( m_ui->key_EDT_Word->text() );
-    m_options.keys().set_edtEOL( m_ui->key_EDT_EOL->text() );
-    m_options.keys().set_edtChar( m_ui->key_EDT_Char->text() );
-    m_options.keys().set_edtLine( m_ui->key_EDT_Line->text() );
-    m_options.keys().set_edtSelect( m_ui->key_EDT_Select->text() );
-    m_options.keys().set_edtEnter( m_ui->key_EDT_Enter->text() );
     m_options.keys().set_edtGotoLine( m_ui->key_EDT_GotoLine->text() );
-    m_options.keys().set_edtEnabled( m_ui->enable_EDT_CB->isChecked() );
+    m_options.keys().set_edtEnabled( m_ui->enable_EDT_CKB->isChecked() );
+
+    m_options.set_preloadClipper( m_ui->clipper_CKB->isChecked() );
+    m_options.set_preloadCmake( m_ui->cmake_CKB->isChecked() );
+    m_options.set_preloadCpp( m_ui->cpp_CKB->isChecked() );
+    m_options.set_preloadCss( m_ui->css_CKB->isChecked() );
+    m_options.set_preloadDoxy( m_ui->doxy_CKB->isChecked());
+    m_options.set_preloadErrLog( m_ui->errlog_CKB->isChecked());
+    m_options.set_preloadHtml( m_ui->html_CKB->isChecked());
+    m_options.set_preloadJava( m_ui->java_CKB->isChecked());
+    m_options.set_preloadJs( m_ui->js_CKB->isChecked());
+    m_options.set_preloadJson( m_ui->json_CKB->isChecked());
+    m_options.set_preloadMake( m_ui->make_CKB->isChecked());
+    m_options.set_preloadNone( m_ui->none_CKB->isChecked());
+    m_options.set_preloadNSI( m_ui->nsi_CKB->isChecked());
+    m_options.set_preloadPhp( m_ui->php_CKB->isChecked());
+    m_options.set_preloadPl( m_ui->pl_CKB->isChecked());
+    m_options.set_preloadPy( m_ui->py_CKB->isChecked());
+    m_options.set_preloadSh( m_ui->sh_CKB->isChecked());
+    m_options.set_preloadTxt( m_ui->txt_CKB->isChecked());
+    m_options.set_preloadXml( m_ui->xml_CKB->isChecked());
 
     Overlord::getInstance()->updateOptionsFromLocalCopy( m_options );
 

@@ -72,6 +72,7 @@ public:
     bool    preloadSh()                     { return m_settings.m_options.preloadSh();}
     bool    preloadTxt()                    { return m_settings.m_options.preloadTxt();}
     bool    preloadXml()                    { return m_settings.m_options.preloadXml();}
+    bool    edtMode()                       { return m_settings.m_options.keys().edtEnabled();}
 
     QString formatDate()                    { return m_settings.m_options.formatDate();}
     QString formatTime()                    { return m_settings.m_options.formatTime();}
