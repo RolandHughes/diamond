@@ -215,7 +215,8 @@ private:
     void setStatusBar( QString msg, int timeOut );
     void setStatus_ColMode();
     void setStatus_FName( QString name );
-    void showNotDone( QString item );
+    CS_SLOT_1( Public, void showNotDone( QString item ))
+    CS_SLOT_2( showNotDone)
 
 
     QString get_SyntaxPath( QString syntaxPath );

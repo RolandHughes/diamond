@@ -19,7 +19,7 @@
 #include <QPalette>
 #include <QPushButton>
 
-void MainWindow::split_Horizontal()
+void MainWindow::split_Vertical()
 {
     // only allow one for now
     if ( m_isSplit )
@@ -125,7 +125,7 @@ void MainWindow::split_Horizontal()
 
 }
 
-void MainWindow::split_Vertical()
+void MainWindow::split_Horizontal()
 {
     // only allow one for now
     if ( m_isSplit )

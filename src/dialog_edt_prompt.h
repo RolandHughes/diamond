@@ -18,6 +18,7 @@
 
 #include <QDialog>
 #include <QLabel>
+#include <QVBoxLayout>
 
 class Dialog_Edt_Prompt : public QDialog
 {
@@ -25,8 +26,6 @@ class Dialog_Edt_Prompt : public QDialog
 
 public:
     Dialog_Edt_Prompt( QString labelText, bool allowDirection, QWidget *parent = nullptr );
-
-    ~Dialog_Edt_Prompt();
 
     int terminator()            { return m_lineEdit->terminator();}
     bool ctrlMSubstitution()    { return m_lineEdit->ctrlMSubstitution();}

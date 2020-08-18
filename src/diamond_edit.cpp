@@ -97,9 +97,7 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     //
     connect( this, &DiamondTextEdit::queueRunSyntax, this, &DiamondTextEdit::runSyntax, Qt::QueuedConnection );
 
-    // line highlight bar
     connect( this, &DiamondTextEdit::blockCountChanged, this, &DiamondTextEdit::update_LineNumWidth );
-//    connect( this, &DiamondTextEdit::updateRequest,     this, &DiamondTextEdit::update_LineNumArea );
     connect( this, &DiamondTextEdit::updateRequest,     this, &DiamondTextEdit::update_display );
 
     connect( Overlord::getInstance(), &Overlord::settingsChanged,
@@ -178,22 +176,6 @@ void DiamondTextEdit::update_LineNumWidth( int newBlockCount )
     m_lineNumArea->setVisible( Overlord::getInstance()->showLineNumbers() );
 }
 
-void DiamondTextEdit::update_LineNumArea( const QRect &rect, int dy )
-{
-    if ( dy )
-    {
-        m_lineNumArea->scroll( 0, dy );
-    }
-    else
-    {
-        m_lineNumArea->update( 0, rect.y(), m_lineNumArea->width(), rect.height() );
-    }
-
-    if ( rect.contains( viewport()->rect() ) )
-    {
-        update_LineNumWidth( 0 );
-    }
-}
 
 void DiamondTextEdit::update_display()
 {

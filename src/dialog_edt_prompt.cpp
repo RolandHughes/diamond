@@ -13,32 +13,36 @@
 ***************************************************************************/
 
 #include "dialog_edt_prompt.h"
+#include "overlord.h"
 
-Dialog_Edt_Prompt::Dialog_Edt_Prompt(QString labelText, bool allowDirection, QWidget *parent) :
-    QDialog(parent)
-    , m_lineEdit(nullptr)
-    , m_label(nullptr)
+Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QWidget *parent ) :
+    QDialog( parent )
+    , m_lineEdit( nullptr )
+    , m_label( nullptr )
 {
 
     Qt::WindowFlags flags = this->windowFlags();
-    setWindowFlags(flags | Qt::Tool);
+    setWindowFlags( flags | Qt::FramelessWindowHint );
 
-    m_lineEdit = new Edt_LineEdit(this);
-    m_lineEdit->set_allowDirection( allowDirection);
-    m_label    = new QLabel(labelText, this);
+    setSizeGripEnabled( false );
+
+    QPalette temp = palette();
+    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().colorText() );
+    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme().colorBack() );
+    setPalette( temp );
+
+    m_label = new QLabel( labelText, this );
+    m_lineEdit = new Edt_LineEdit( this );
+    m_lineEdit->set_allowDirection( allowDirection );
+
+    temp = m_label->palette();
+    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().syntaxConstant().color() );
+
+    connect( m_lineEdit, &Edt_LineEdit::inputComplete, this, &QDialog::accept );
+
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->addWidget( m_label );
+    layout->addWidget( m_lineEdit );
+    setLayout( layout );
 }
 
-Dialog_Edt_Prompt::~Dialog_Edt_Prompt()
-{
-    if (m_lineEdit)
-    {
-        delete m_lineEdit;
-        m_lineEdit = nullptr;
-    }
-
-    if (m_label)
-    {
-        delete m_label;
-        m_label = nullptr;
-    }
-}
