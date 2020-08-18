@@ -1,6 +1,10 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
-*) add preload checkboxes to options - try preloading syntax
+*) Add support for EDT keypad
+*) create EDT Help dialog
+*) Need EDT command dialog
+*) add support for EDT direction lock
+
 *) debug regular expression to C/C++ definition for numeric constant
 
 *) file selector called by File->Open needs to allow for hidden files.
@@ -8,10 +12,6 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
 *) File->new should NOT whack the first tab
 
-*) Add support for EDT keypad
-*) create EDT Help dialog
-*) Need EDT command dialog
-*) add support for EDT direction lock
 
 *) add support for EDT commands
     S|some-text|new-text|sel   wh  rest

@@ -75,55 +75,6 @@ Settings::Settings() :
 
     m_isComplete = true;
 }
-#if 0
-Settings::Settings( const Settings &other ) :
-    m_activeTheme( other.m_activeTheme )
-    , m_advancedFCase( other.m_advancedFCase )
-    , m_advancedFSearchFolders( other.m_advancedFSearchFolders )
-    , m_advancedFWholeWords( other.m_advancedFWholeWords )
-    , m_advancedFindFileType( other.m_advancedFindFileType )
-    , m_advancedFindFolder( other.m_advancedFindFolder )
-    , m_advancedFindText( other.m_advancedFindText )
-    , m_appPath( other.m_appPath )
-    , m_configFileName( other.m_configFileName )
-    , m_findCase( other.m_findCase )
-    , m_findDirection( other.m_findDirection )
-    , m_findFlags( other.m_findFlags )
-    , m_findList( other.m_findList )
-    , m_findText( other.m_findText )
-    , m_findWholeWords( other.m_findWholeWords )
-    , m_flagNoAutoLoad( other.m_flagNoAutoLoad )
-    , m_flagNoSaveConfig( other.m_flagNoSaveConfig )
-    , m_fontColumn( other.m_fontColumn )
-    , m_fontNormal( other.m_fontNormal )
-    , m_isColumnMode( other.m_isColumnMode )
-    , m_isComplete( other.m_isComplete )
-    , m_isSpellCheck( other.m_isSpellCheck )
-    , m_isWordWrap( other.m_isWordWrap )
-    , m_lastPosition( other.m_lastPosition )
-    , m_lastSize( other.m_lastSize )
-    , m_lastActiveFile( other.m_lastActiveFile )
-    , m_lastActiveRow( other.m_lastActiveRow )
-    , m_lastActiveColumn( other.m_lastActiveColumn )
-    , m_macroNames( other.m_macroNames )
-    , m_openedFiles( other.m_openedFiles )
-    , m_openedModified( other.m_openedModified )
-    , m_options( other.m_options )
-    , m_preFolderList( other.m_preFolderList )
-    , m_printSettings( other.m_printSettings )
-    , m_priorPath( other.m_priorPath )
-    , m_rFolderList( other.m_rFolderList )
-    , m_recentFilesList( other.m_recentFilesList )
-    , m_replaceList( other.m_replaceList )
-    , m_replaceText( other.m_replaceText )
-    , m_showBreaks( other.m_showBreaks )
-    , m_showLineHighlight( other.m_showLineHighlight )
-    , m_showLineNumbers( other.m_showLineNumbers )
-    , m_showSpaces( other.m_showSpaces )
-    , m_themes( other.m_themes )
-{
-}
-#endif
 
 Settings &Settings::operator =( const Settings &other )
 {

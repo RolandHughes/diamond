@@ -227,8 +227,9 @@ public:
     CS_SLOT_1( Private, void spell_addUserDict() )
     CS_SLOT_2( spell_addUserDict )
 
-    CS_SLOT_1( Private, void spell_replaceWord() )
-    CS_SLOT_2( spell_replaceWord )
+
+    CS_SLOT_1( Public, void update_display() )
+    CS_SLOT_2( update_display )
 
 
 
@@ -241,6 +242,9 @@ protected:
     void mousePressEvent( QMouseEvent *event );
 
 private:
+    CS_SLOT_1( Private, void spell_replaceWord() )
+    CS_SLOT_2( spell_replaceWord )
+
     void setScreenColors();
     void changeFont();
     bool handleEdtKey( int key, int modifiers );

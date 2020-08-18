@@ -83,7 +83,8 @@ public:
     CS_SLOT_1( Public, void afterVisible() )
     CS_SLOT_2( afterVisible )
 
-
+    CS_SLOT_1( Public, void showEdtHelp() )
+    CS_SLOT_2( showEdtHelp )
 
 protected:
     void closeEvent( QCloseEvent *event );

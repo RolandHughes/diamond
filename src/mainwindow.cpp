@@ -30,6 +30,7 @@
 #include "mainwindow.h"
 #include "dialog_config.h"
 #include "overlord.h"
+#include "dialog_edt_help.h"
 
 
 #include <QBoxLayout>
@@ -212,6 +213,7 @@ void MainWindow::tabNew()
 
     // TODO:: connect EDT signals here
     //
+    connect( m_textEdit, &DiamondTextEdit::showEdtHelp, this, &MainWindow::showEdtHelp );
     connect( m_textEdit, &DiamondTextEdit::edtTop, this, &MainWindow::goTop );
     connect( m_textEdit, &DiamondTextEdit::edtBottom, this, &MainWindow::goBottom );
 }
@@ -292,7 +294,8 @@ void MainWindow::tabChanged( int index )
 
 void MainWindow::focusChanged( QWidget *prior, QWidget *current )
 {
-    Q_UNUSED(prior)
+    Q_UNUSED( prior )
+
     if ( ! current )
     {
         return;
@@ -1101,3 +1104,10 @@ void MainWindow::move_ConfigFile()
     }
 }
 
+void MainWindow::showEdtHelp()
+{
+    Dialog_Edt_Help *dw = new Dialog_Edt_Help( this );
+    dw->exec();
+
+    delete dw;
+}

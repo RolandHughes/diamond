@@ -32,6 +32,7 @@
 #include "non_gui_functions.h"
 #include "dialog_symbols.h"
 #include "util.h"
+#include "dialog_edt_prompt.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -98,7 +99,8 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
 
     // line highlight bar
     connect( this, &DiamondTextEdit::blockCountChanged, this, &DiamondTextEdit::update_LineNumWidth );
-    connect( this, &DiamondTextEdit::updateRequest,     this, &DiamondTextEdit::update_LineNumArea );
+//    connect( this, &DiamondTextEdit::updateRequest,     this, &DiamondTextEdit::update_LineNumArea );
+    connect( this, &DiamondTextEdit::updateRequest,     this, &DiamondTextEdit::update_display );
 
     connect( Overlord::getInstance(), &Overlord::settingsChanged,
              this, &DiamondTextEdit::changeSettings );
@@ -150,15 +152,21 @@ void DiamondTextEdit::lineNum_PaintEvent( QPaintEvent *event )
 
 int DiamondTextEdit::lineNum_Width()
 {
-    int digits = 4;
-    int max = blockCount();
+    int space = 0;
 
-    for ( int k=1000; k < max; k *= 10 )
+    if ( Overlord::getInstance()->showLineNumbers() )
     {
-        ++digits;
+        int digits = 4;
+        int max = blockCount();
+
+        for ( int k=1000; k < max; k *= 10 )
+        {
+            ++digits;
+        }
+
+        space = 8 + fontMetrics().width( QLatin1Char( '9' ) ) * digits;
     }
 
-    int space = 8 + fontMetrics().width( QLatin1Char( '9' ) ) * digits;
     return space;
 }
 
@@ -166,6 +174,8 @@ void DiamondTextEdit::update_LineNumWidth( int newBlockCount )
 {
     Q_UNUSED( newBlockCount )
     setViewportMargins( lineNum_Width(), 0, 0, 0 );
+
+    m_lineNumArea->setVisible( Overlord::getInstance()->showLineNumbers() );
 }
 
 void DiamondTextEdit::update_LineNumArea( const QRect &rect, int dy )
@@ -183,6 +193,12 @@ void DiamondTextEdit::update_LineNumArea( const QRect &rect, int dy )
     {
         update_LineNumWidth( 0 );
     }
+}
+
+void DiamondTextEdit::update_display()
+{
+    update_LineNumWidth( 0 );
+    update();  // TODO:: research how to call update_LineNumArea
 }
 
 void DiamondTextEdit::resizeEvent( QResizeEvent *e )
@@ -2147,33 +2163,14 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 
     bool lastKeyWasGold = m_currentKeyGold;
 
-    qDebug() << "lastKeyWasGold: " << lastKeyWasGold;
+    m_currentKeyGold = false;
 
     if ( key == Qt::Key_NumLock )
     {
-        if ( m_currentKeyGold )
-        {
-            // allow user to clear an accidental GOLD key press by
-            // pressing it again.
-            m_currentKeyGold = false;
-        }
-        else
-        {
-            qDebug() << "***Current key GOLD";
-            m_currentKeyGold = true;
-            return true;
-        }
+        qDebug() << "***Current key GOLD";
+        m_currentKeyGold = true;
+        return true;
     }
-
-#if 0
-
-    if ( !lastKeyWasGold )
-    {
-        qDebug() << "Returning because last key was not gold";
-        return false;
-    }
-
-#endif
 
 //    KeyDefinitions &keys = Overlord::getInstance()->keys();
 
@@ -2181,6 +2178,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 
     qDebug() << "keyStr: " << keyStr;
 
+    bool isKeypad = ( modifiers & Qt::KeypadModifier );
 
     if ( lastKeyWasGold )
     {
@@ -2190,17 +2188,39 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
         switch ( key )
         {
             case Qt::Key_4:
-            case Qt::Key_Left:  // if NumLock is not "on"
-                qDebug() << "emitting edtBottom()";
-                edtBottom();
-                return true;
+            case Qt::Key_Left:
+                if ( isKeypad )
+                {
+                    qDebug() << "emitting edtBottom()";
+                    edtBottom();
+                    return true;
+                }
+
                 break;
 
             case Qt::Key_5:
             case Qt::Key_Clear: // if NumLock is not "on"
-                qDebug() << "emitting edtTop()";
-                edtTop();
-                return true;
+                if ( isKeypad )
+                {
+                    qDebug() << "emitting edtTop()";
+                    edtTop();
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_Asterisk:
+                if ( isKeypad )
+                {
+                    Dialog_Edt_Prompt *dw = new Dialog_Edt_Prompt( "Find: ", true, this );
+                    dw->exec();
+                    qDebug() << "terminator: " << dw->terminator();
+                    qDebug() << "ctrlMSubstitution: " << dw->ctrlMSubstitution();
+                    qDebug() << "allowDirection: " << dw->allowDirection();
+                    delete dw;
+                    return true;
+                }
+
                 break;
 
             default:
@@ -2218,18 +2238,45 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
         switch ( key )
         {
             case Qt::Key_4:
-            case Qt::Key_Left:  // if NumLock is not "on"
-                qDebug() << "setting edit direction advance";
-                m_edtDirection = false;
-                return true;
+            case Qt::Key_Left:
+                if ( isKeypad )
+                {
+                    qDebug() << "setting edit direction advance";
+                    m_edtDirection = false;
+                    return true;
+                }
+
                 break;
 
             case Qt::Key_5:
-            case Qt::Key_Clear: // if NumLock is not "on"
-                qDebug() << "setting edit direction backup";
-                m_edtDirection = true;
-                return true;
+            case Qt::Key_Clear:
+                if ( isKeypad )
+                {
+                    qDebug() << "setting edit direction backup";
+                    m_edtDirection = true;
+                    return true;
+                }
+
                 break;
+
+            case Qt::Key_Slash:
+                if ( isKeypad )
+                {
+                    showEdtHelp();
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_Asterisk:
+                if ( isKeypad )
+                {
+                    qDebug() << "FindNext";
+                    return true;
+                }
+
+                break;
+
 
             default:
                 break;
