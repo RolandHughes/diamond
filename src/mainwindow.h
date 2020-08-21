@@ -86,12 +86,12 @@ public:
     CS_SLOT_1( Public, void showEdtHelp() )
     CS_SLOT_2( showEdtHelp )
 
-    CS_SLOT_1( Public, void split_Horizontal())
-    CS_SLOT_2( split_Horizontal)
+    CS_SLOT_1( Public, void split_Horizontal() )
+    CS_SLOT_2( split_Horizontal )
 
-    CS_SLOT_1( Public, void split_Vertical())
-    CS_SLOT_2( split_Vertical)
-    
+    CS_SLOT_1( Public, void split_Vertical() )
+    CS_SLOT_2( split_Vertical )
+
 protected:
     void closeEvent( QCloseEvent *event );
     void dragEnterEvent( QDragEnterEvent *event );
@@ -219,8 +219,8 @@ private:
     void setStatusBar( QString msg, int timeOut );
     void setStatus_ColMode();
     void setStatus_FName( QString name );
-    CS_SLOT_1( Public, void showNotDone( QString item ))
-    CS_SLOT_2( showNotDone)
+    CS_SLOT_1( Public, void showNotDone( QString item ) )
+    CS_SLOT_2( showNotDone )
 
 
     QString get_SyntaxPath( QString syntaxPath );
@@ -244,9 +244,9 @@ private:
 
     // support
     bool querySave();
-    CS_SLOT_1( Public, bool saveFile( QString fileName, Overlord::SaveFiles saveType ))
-    CS_SLOT_2( saveFile)
-    
+    CS_SLOT_1( Public, bool saveFile( QString fileName, Overlord::SaveFiles saveType ) )
+    CS_SLOT_2( saveFile )
+
     bool saveAs( Overlord::SaveFiles saveType );
 
     void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false );

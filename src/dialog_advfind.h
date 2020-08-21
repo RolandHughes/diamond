@@ -22,32 +22,32 @@
 #include <QStringList>
 
 class Dialog_AdvFind : public QDialog
-{     
-   CS_OBJECT(Dialog_AdvFind)
+{
+    CS_OBJECT( Dialog_AdvFind )
 
-   public:
-      Dialog_AdvFind(QWidget *parent, QString text, QString fileType, QString findFolder, bool searchFolders);
-      ~Dialog_AdvFind();
+public:
+    Dialog_AdvFind( QWidget *parent, QString text, QString fileType, QString findFolder, bool searchFolders );
+    ~Dialog_AdvFind();
 
-      QString get_findText();      
-      QString get_findType();
-      QString get_findFolder();
+    QString get_findText();
+    QString get_findType();
+    QString get_findFolder();
 
-      bool get_Case();
-      bool get_WholeWords();
-      bool get_SearchSubFolders();
-      void showBusyMsg();
-      void showNotBusyMsg();
+    bool get_Case();
+    bool get_WholeWords();
+    bool get_SearchSubFolders();
+    void showBusyMsg();
+    void showNotBusyMsg();
 
-   private:
-      Ui::Dialog_AdvFind *m_ui;
-      QLabel *m_busyMsg;
+private:
+    Ui::Dialog_AdvFind *m_ui;
+    QLabel *m_busyMsg;
 
-      static QStringList dirCombo;
+    static QStringList dirCombo;
 
-      void pick_Folder();
-      void find();
-      void cancel();
+    void pick_Folder();
+    void find();
+    void cancel();
 };
 
 #endif

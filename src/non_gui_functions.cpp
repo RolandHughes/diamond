@@ -90,16 +90,16 @@ QString getRGBString( QColor color )
     return values;
 }
 
-bool doubleEqualFourDigits( double left, double right)
+bool doubleEqualFourDigits( double left, double right )
 {
     long long ll_left = left * 10000;
     long long ll_right = right * 10000;
 
-    return (ll_left == ll_right);
+    return ( ll_left == ll_right );
 }
 
 // cheat function so highlighting can be threaded off
-void updateSyntaxInThread(Syntax *parser, Settings *settings)
+void updateSyntaxInThread( Syntax *parser, Settings *settings )
 {
-    parser->processSyntax(settings);
+    parser->processSyntax( settings );
 }

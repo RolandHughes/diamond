@@ -37,7 +37,7 @@ public:
 
     CS_SLOT_1( Public, void processSyntax( Settings *settings ) )
     CS_SLOT_2( processSyntax )
-    
+
 protected:
     void highlightBlock( const QString &text );
 

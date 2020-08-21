@@ -87,7 +87,7 @@ public:
     QString edtSaveFile()           { return m_edtSaveFile;}
     QString edtAstyle()             { return m_edtAstyle;}
     QString edtWord()               { return m_edtWord;}
-    
+
 
 
 
@@ -134,17 +134,17 @@ public:
 
     void set_edtEnabled( bool yesNo )              { m_edtEnabled = yesNo;}
     void set_edtGotoLine( QString txt )            { m_edtGotoLine = txt;}
-    void set_numLockGold( bool yesNo)              { m_numLockGold = yesNo;}
-    void set_scrollLockGold( bool yesNo)           { m_scrollLockGold = yesNo;}
-    void set_edtCopy(QString keyValue)             { m_edtCopy = keyValue;}
-    void set_edtInsertFile(QString keyValue)       { m_edtInsertFile = keyValue;}
-    void set_edtUpperCase( QString keyValue)       { m_edtUpperCase = keyValue;}
-    void set_edtLowerCase( QString keyValue)       { m_edtLowerCase = keyValue;}
-    void set_edtSplitHorizontal( QString keyValue) { m_edtSplitHorizontal = keyValue;}
-    void set_edtSplitVertical( QString keyValue)   { m_edtSplitVertical = keyValue;}
-    void set_edtSaveFile( QString keyValue)        { m_edtSaveFile = keyValue;}
-    void set_edtAstyle( QString keyValue)          { m_edtAstyle = keyValue;}
-    void set_edtWord( QString keyValue)            { m_edtWord = keyValue;}
+    void set_numLockGold( bool yesNo )              { m_numLockGold = yesNo;}
+    void set_scrollLockGold( bool yesNo )           { m_scrollLockGold = yesNo;}
+    void set_edtCopy( QString keyValue )             { m_edtCopy = keyValue;}
+    void set_edtInsertFile( QString keyValue )       { m_edtInsertFile = keyValue;}
+    void set_edtUpperCase( QString keyValue )       { m_edtUpperCase = keyValue;}
+    void set_edtLowerCase( QString keyValue )       { m_edtLowerCase = keyValue;}
+    void set_edtSplitHorizontal( QString keyValue ) { m_edtSplitHorizontal = keyValue;}
+    void set_edtSplitVertical( QString keyValue )   { m_edtSplitVertical = keyValue;}
+    void set_edtSaveFile( QString keyValue )        { m_edtSaveFile = keyValue;}
+    void set_edtAstyle( QString keyValue )          { m_edtAstyle = keyValue;}
+    void set_edtWord( QString keyValue )            { m_edtWord = keyValue;}
 
 private:
     QString adjustKey( QString sequence );

@@ -16,9 +16,9 @@
 
 struct macroStruct
 {
-   int key;
-   int modifier;
-   QString text;
+    int key;
+    int modifier;
+    QString text;
 };
 
 #endif

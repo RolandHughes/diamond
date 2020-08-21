@@ -250,7 +250,7 @@ void Dialog_Colors::deleteClicked()
     if ( m_localSettings.currentTheme().isProtected() )
     {
         QMessageBox::warning( this, "Delete", "Cannot delete pre-installed theme",
-                                        QMessageBox::Ok );
+                              QMessageBox::Ok );
         return;
     }
 

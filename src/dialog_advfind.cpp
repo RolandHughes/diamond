@@ -21,144 +21,152 @@
 
 QStringList Dialog_AdvFind::dirCombo;
 
-Dialog_AdvFind::Dialog_AdvFind(QWidget *parent, QString findText, QString fileType, QString findFolder, bool searchFolders)
-   : QDialog(parent), m_ui(new Ui::Dialog_AdvFind)
+Dialog_AdvFind::Dialog_AdvFind( QWidget *parent, QString findText, QString fileType, QString findFolder, bool searchFolders )
+    : QDialog( parent ), m_ui( new Ui::Dialog_AdvFind )
 {
-   m_busyMsg = nullptr;
+    m_busyMsg = nullptr;
 
-   m_ui->setupUi(this);
-   setWindowIcon(QIcon("://resources/diamond.png"));
+    m_ui->setupUi( this );
+    setWindowIcon( QIcon( "://resources/diamond.png" ) );
 
-   m_ui->find->setText(findText);
-   m_ui->findType->setText(fileType);
+    m_ui->find->setText( findText );
+    m_ui->findType->setText( fileType );
 
-   // pre load
-   m_ui->findFolder->insertItems(0, dirCombo);
-   m_ui->findFolder->setEditText(findFolder);
+    // pre load
+    m_ui->findFolder->insertItems( 0, dirCombo );
+    m_ui->findFolder->setEditText( findFolder );
 
-   if (searchFolders) {
-      m_ui->searchSubFolders_CKB->setChecked(true);
-   }
+    if ( searchFolders )
+    {
+        m_ui->searchSubFolders_CKB->setChecked( true );
+    }
 
-   connect(m_ui->folder_TB, &QToolButton::clicked, this, &Dialog_AdvFind::pick_Folder);
-   connect(m_ui->find_PB,   &QPushButton::clicked, this, &Dialog_AdvFind::find);
-   connect(m_ui->cancel_PB, &QPushButton::clicked, this, &Dialog_AdvFind::cancel);
+    connect( m_ui->folder_TB, &QToolButton::clicked, this, &Dialog_AdvFind::pick_Folder );
+    connect( m_ui->find_PB,   &QPushButton::clicked, this, &Dialog_AdvFind::find );
+    connect( m_ui->cancel_PB, &QPushButton::clicked, this, &Dialog_AdvFind::cancel );
 }
 
 Dialog_AdvFind::~Dialog_AdvFind()
 {
-   delete m_ui;
+    delete m_ui;
 }
 
 void Dialog_AdvFind::pick_Folder()
 {
-   QString oldFolder = m_ui->findFolder->currentText();
+    QString oldFolder = m_ui->findFolder->currentText();
 
-   if (oldFolder.isEmpty())    {
-      oldFolder = QDir::currentPath();
-   }
+    if ( oldFolder.isEmpty() )
+    {
+        oldFolder = QDir::currentPath();
+    }
 
-   QString newFolder = get_DirPath(this, "Select Directory or Folder to Search", oldFolder);
+    QString newFolder = get_DirPath( this, "Select Directory or Folder to Search", oldFolder );
 
-   if (! newFolder.isEmpty()) {
+    if ( ! newFolder.isEmpty() )
+    {
 
 #if defined (Q_OS_WIN)
-      // change forward to backslash
-      newFolder.replace('/', '\\');
+        // change forward to backslash
+        newFolder.replace( '/', '\\' );
 #endif
 
-      m_ui->findFolder->setEditText(newFolder);
-   }
+        m_ui->findFolder->setEditText( newFolder );
+    }
 }
 
 void Dialog_AdvFind::showBusyMsg()
 {
-   m_ui->find_PB->setVisible(false);
-   m_ui->horizontalSpacer_32->changeSize(0,0);
-   m_ui->cancel_PB->setVisible(false);
+    m_ui->find_PB->setVisible( false );
+    m_ui->horizontalSpacer_32->changeSize( 0,0 );
+    m_ui->cancel_PB->setVisible( false );
 
-   if (m_busyMsg == nullptr)   {
-      m_busyMsg = new QLabel();
-      m_busyMsg->setText("Preparing list of files, this process may take a minute...");
+    if ( m_busyMsg == nullptr )
+    {
+        m_busyMsg = new QLabel();
+        m_busyMsg->setText( "Preparing list of files, this process may take a minute..." );
 
-      QFont font = m_busyMsg->font();
-      font.setPointSize(10);
-      m_busyMsg->setFont(font);
+        QFont font = m_busyMsg->font();
+        font.setPointSize( 10 );
+        m_busyMsg->setFont( font );
 
-      QPalette palette = m_busyMsg->palette();
-      palette.setColor(QPalette::WindowText, QColor{0,0,255} );
-      m_busyMsg->setPalette(palette);
+        QPalette palette = m_busyMsg->palette();
+        palette.setColor( QPalette::WindowText, QColor{0,0,255} );
+        m_busyMsg->setPalette( palette );
 
-      m_ui->layout_buttons->insertWidget(2, m_busyMsg);
+        m_ui->layout_buttons->insertWidget( 2, m_busyMsg );
 
-   } else {
-      m_busyMsg->setVisible(true);
+    }
+    else
+    {
+        m_busyMsg->setVisible( true );
 
-   }
+    }
 
-   show();
-   QApplication::processEvents();
+    show();
+    QApplication::processEvents();
 }
 
 void Dialog_AdvFind::showNotBusyMsg()
 {
-   if (m_busyMsg == nullptr)   {
-      // prior search failed, nothing to undo
-      return;
-   }
+    if ( m_busyMsg == nullptr )
+    {
+        // prior search failed, nothing to undo
+        return;
+    }
 
-   m_busyMsg->setVisible(false);
+    m_busyMsg->setVisible( false );
 
-   m_ui->find_PB->setVisible(true);
-   m_ui->horizontalSpacer_32->changeSize(8,25);
-   m_ui->cancel_PB->setVisible(true);
+    m_ui->find_PB->setVisible( true );
+    m_ui->horizontalSpacer_32->changeSize( 8,25 );
+    m_ui->cancel_PB->setVisible( true );
 
-   QApplication::processEvents();
+    QApplication::processEvents();
 }
 
 void Dialog_AdvFind::cancel()
 {
-   this->done(0);
+    this->done( 0 );
 }
 
 void Dialog_AdvFind::find()
 {
-   QString tmp = m_ui->findFolder->currentText();
+    QString tmp = m_ui->findFolder->currentText();
 
-   if (! dirCombo.contains(tmp)) {
-      dirCombo.append(tmp);
-   }
+    if ( ! dirCombo.contains( tmp ) )
+    {
+        dirCombo.append( tmp );
+    }
 
-   this->done(1);
+    this->done( 1 );
 }
 
 QString Dialog_AdvFind::get_findText()
 {
-   return m_ui->find->text();
+    return m_ui->find->text();
 }
 
 QString Dialog_AdvFind::get_findType()
 {
-   return m_ui->findType->text();
+    return m_ui->findType->text();
 }
 
 QString Dialog_AdvFind::get_findFolder()
 {
-   return m_ui->findFolder->currentText();
+    return m_ui->findFolder->currentText();
 }
 
 bool Dialog_AdvFind::get_Case()
 {
-   return m_ui->case_CKB->isChecked();
+    return m_ui->case_CKB->isChecked();
 }
 
 bool Dialog_AdvFind::get_WholeWords()
 {
-   return m_ui->wholeWords_CKB->isChecked();
+    return m_ui->wholeWords_CKB->isChecked();
 }
 
 bool Dialog_AdvFind::get_SearchSubFolders()
 {
-   return m_ui->searchSubFolders_CKB->isChecked();
+    return m_ui->searchSubFolders_CKB->isChecked();
 }
 

@@ -19,14 +19,14 @@
 
 class KeyLineEdit : public QLineEdit
 {
-   CS_OBJECT(KeyLineEdit)
+    CS_OBJECT( KeyLineEdit )
 
-   public:
-      explicit KeyLineEdit(QWidget *parent = 0);
-      
-   protected:
-      void keyPressEvent(QKeyEvent *event);
-      
+public:
+    explicit KeyLineEdit( QWidget *parent = 0 );
+
+protected:
+    void keyPressEvent( QKeyEvent *event );
+
 };
 
 #endif

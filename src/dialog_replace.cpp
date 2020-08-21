@@ -86,7 +86,7 @@ void Dialog_Replace::combo_ContextMenu_F( const QPoint &pt )
 
 void Dialog_Replace::combo_ContextMenu_R( const QPoint &pt )
 {
-    Q_UNUSED(pt)
+    Q_UNUSED( pt )
     QMenu *menu = m_ui->replace_Combo->lineEdit()->createStandardContextMenu();
 
     menu->addSeparator();

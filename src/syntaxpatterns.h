@@ -17,15 +17,15 @@
 #include <QStringList>
 #include <QByteArray>
 
-class SyntaxPatterns 
+class SyntaxPatterns
 {
     CS_GADGET( SyntaxPatterns )
-            
-public:
-    SyntaxPatterns(QString fileName);
-    SyntaxPatterns( const SyntaxPatterns& patterns);
 
-    SyntaxPatterns &operator = ( const SyntaxPatterns& other);
+public:
+    SyntaxPatterns( QString fileName );
+    SyntaxPatterns( const SyntaxPatterns &patterns );
+
+    SyntaxPatterns &operator = ( const SyntaxPatterns &other );
 
     QStringList key_Patterns;
     QStringList class_Patterns;

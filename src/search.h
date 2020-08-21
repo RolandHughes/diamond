@@ -21,19 +21,19 @@ class MainWindow;
 
 class ReplaceReply: public QDialog
 {
-   CS_OBJECT(ReplaceReply)
+    CS_OBJECT( ReplaceReply )
 
-   public:
-      ReplaceReply(MainWindow *parent);
-      ~ReplaceReply();
+public:
+    ReplaceReply( MainWindow *parent );
+    ~ReplaceReply();
 
-      int getKey();
+    int getKey();
 
-   protected:
-      void keyPressEvent(QKeyEvent *event);
+protected:
+    void keyPressEvent( QKeyEvent *event );
 
-   private:
-      int m_replaceReply;
+private:
+    int m_replaceReply;
 };
 
 #endif

@@ -148,9 +148,6 @@ public:
     CS_SIGNAL_1( Public, void edtPaste() )
     CS_SIGNAL_2( edtPaste )
 
-    CS_SIGNAL_1( Public, void edtChangeCase() )
-    CS_SIGNAL_2( edtChangeCase )
-
     CS_SIGNAL_1( Public, void edtSpecialInsert() )
     CS_SIGNAL_2( edtSpecialInsert )
 

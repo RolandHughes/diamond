@@ -300,7 +300,7 @@ void Dialog_XP_GetDir::showDirectories( QTreeWidgetItem *current, QTreeWidgetIte
 
 void Dialog_XP_GetDir::showMe( const QString &path )
 {
-    Q_UNUSED(path)
+    Q_UNUSED( path )
     //  m_index_R = m_model_R->index(m_path);
     //  m_ui->folders_TV->setCurrentIndex(m_index_R);
 

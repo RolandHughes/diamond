@@ -21,22 +21,22 @@ class Hunspell;
 
 class SpellCheck
 {
-   public:
-      SpellCheck(const QString &dictMain, const QString &dictUser);
-      ~SpellCheck();
+public:
+    SpellCheck( const QString &dictMain, const QString &dictUser );
+    ~SpellCheck();
 
-      bool spell(QStringView word);
-      QStringList suggest(const QString &word);
-      void ignoreWord(const QString &word);
-      void addToUserDict(const QString &word);
+    bool spell( QStringView word );
+    QStringList suggest( const QString &word );
+    void ignoreWord( const QString &word );
+    void addToUserDict( const QString &word );
 
-   private:
-      QString m_userFname;
-      QTextCodec *m_codec;
+private:
+    QString m_userFname;
+    QTextCodec *m_codec;
 
-      Hunspell *m_hunspell;
+    Hunspell *m_hunspell;
 
-      void put_word(const QString &word);
+    void put_word( const QString &word );
 };
 
 #endif

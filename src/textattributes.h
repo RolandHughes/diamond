@@ -17,7 +17,7 @@
 
 #include <QColor>
 
-class TextAttributes 
+class TextAttributes
 {
     CS_GADGET( TextAttributes )
 public:
@@ -29,7 +29,7 @@ public:
 
     friend bool operator ==( const TextAttributes &left, const TextAttributes &right );
     friend bool operator !=( const TextAttributes &left, const TextAttributes &right );
-    
+
     //
     // getters
     //

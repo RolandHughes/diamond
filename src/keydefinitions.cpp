@@ -60,17 +60,17 @@ KeyDefinitions::KeyDefinitions( const KeyDefinitions &def ) :
     , m_undo( def.m_undo )
     , m_upper( def.m_upper )
     , m_edtEnabled( def.m_edtEnabled )
-    , m_numLockGold( def.m_numLockGold)
-    , m_scrollLockGold( def.m_scrollLockGold)
+    , m_numLockGold( def.m_numLockGold )
+    , m_scrollLockGold( def.m_scrollLockGold )
     , m_edtGotoLine( def.m_edtGotoLine )
-    , m_edtInsertFile(def.m_edtInsertFile)
-    , m_edtUpperCase( def.m_edtUpperCase)
-    , m_edtLowerCase( def.m_edtLowerCase)
-    , m_edtSplitHorizontal( def.m_edtSplitHorizontal)
-    , m_edtSplitVertical( def.m_edtSplitVertical)
-    , m_edtSaveFile( def.m_edtSaveFile)
-    , m_edtAstyle( def.m_edtAstyle)
-    , m_edtWord( def.m_edtWord)
+    , m_edtInsertFile( def.m_edtInsertFile )
+    , m_edtUpperCase( def.m_edtUpperCase )
+    , m_edtLowerCase( def.m_edtLowerCase )
+    , m_edtSplitHorizontal( def.m_edtSplitHorizontal )
+    , m_edtSplitVertical( def.m_edtSplitVertical )
+    , m_edtSaveFile( def.m_edtSaveFile )
+    , m_edtAstyle( def.m_edtAstyle )
+    , m_edtWord( def.m_edtWord )
 {
 }
 
@@ -327,66 +327,66 @@ bool operator ==( const KeyDefinitions &left, const KeyDefinitions &right )
         retVal = false;
     }
 
-    if (left.m_numLockGold != right.m_numLockGold)
+    if ( left.m_numLockGold != right.m_numLockGold )
     {
         retVal = false;
     }
 
-    if (left.m_scrollLockGold != right.m_scrollLockGold)
+    if ( left.m_scrollLockGold != right.m_scrollLockGold )
     {
         retVal = false;
     }
-    
+
     if ( left.m_edtGotoLine != right.m_edtGotoLine )
     {
         retVal = false;
     }
 
-    if (left.m_edtCopy != right.m_edtCopy)
+    if ( left.m_edtCopy != right.m_edtCopy )
     {
         retVal = false;
     }
 
-    if (left.m_edtInsertFile != right.m_edtInsertFile)
+    if ( left.m_edtInsertFile != right.m_edtInsertFile )
     {
         retVal = false;
     }
 
-    if (left.m_edtUpperCase != right.m_edtUpperCase)
+    if ( left.m_edtUpperCase != right.m_edtUpperCase )
     {
         retVal = false;
     }
 
-    if (left.m_edtLowerCase != right.m_edtLowerCase)
+    if ( left.m_edtLowerCase != right.m_edtLowerCase )
     {
         retVal = false;
     }
 
-    if (left.m_edtSplitHorizontal != right.m_edtSplitHorizontal)
+    if ( left.m_edtSplitHorizontal != right.m_edtSplitHorizontal )
     {
         retVal = false;
     }
 
-    if (left.m_edtSplitVertical != right.m_edtSplitVertical)
+    if ( left.m_edtSplitVertical != right.m_edtSplitVertical )
     {
         retVal = false;
     }
 
-    if (left.m_edtSaveFile != right.m_edtSaveFile)
+    if ( left.m_edtSaveFile != right.m_edtSaveFile )
     {
         retVal = false;
     }
 
-    if (left.m_edtAstyle != right.m_edtAstyle)
+    if ( left.m_edtAstyle != right.m_edtAstyle )
     {
         retVal = false;
     }
 
-    if (left.m_edtWord != right.m_edtWord)
+    if ( left.m_edtWord != right.m_edtWord )
     {
         retVal = false;
     }
-    
+
     return retVal;
 
 }
@@ -432,7 +432,7 @@ void KeyDefinitions::setDefaultKeyValues()
     m_edtSplitVertical      = QKeySequence( Qt::Key_V ).toString( QKeySequence::NativeText );
     m_edtSaveFile           = QKeySequence( Qt::Key_S ).toString( QKeySequence::NativeText );
     m_edtAstyle             = QKeySequence( Qt::Key_A ).toString( QKeySequence::NativeText );
-    m_edtWord               = QKeySequence( mModifier, Qt::KeypadModifier, Qt::Key_Plus).toString( QKeySequence::NativeText);
+    m_edtWord               = QKeySequence( mModifier, Qt::KeypadModifier, Qt::Key_Plus ).toString( QKeySequence::NativeText );
 
 
     // Standard keys
@@ -520,15 +520,15 @@ void KeyDefinitions::platformAdjustKeyValues()
     m_undo                  = adjustKey( m_undo );
     m_upper                 = adjustKey( m_upper );
 
-    m_edtGotoLine           = adjustKey( m_edtGotoLine);
-    m_edtCopy               = adjustKey( m_edtCopy);
-    m_edtInsertFile         = adjustKey( m_edtInsertFile);
-    m_edtUpperCase          = adjustKey( m_edtUpperCase);
-    m_edtLowerCase          = adjustKey( m_edtLowerCase);
-    m_edtSplitHorizontal    = adjustKey( m_edtSplitHorizontal);
-    m_edtSplitVertical      = adjustKey( m_edtSplitVertical);
-    m_edtSaveFile           = adjustKey( m_edtSaveFile);
-    m_edtWord               = adjustKey( m_edtWord);
+    m_edtGotoLine           = adjustKey( m_edtGotoLine );
+    m_edtCopy               = adjustKey( m_edtCopy );
+    m_edtInsertFile         = adjustKey( m_edtInsertFile );
+    m_edtUpperCase          = adjustKey( m_edtUpperCase );
+    m_edtLowerCase          = adjustKey( m_edtLowerCase );
+    m_edtSplitHorizontal    = adjustKey( m_edtSplitHorizontal );
+    m_edtSplitVertical      = adjustKey( m_edtSplitVertical );
+    m_edtSaveFile           = adjustKey( m_edtSaveFile );
+    m_edtWord               = adjustKey( m_edtWord );
 }
 
 QString KeyDefinitions::adjustKey( QString sequence )
@@ -558,7 +558,7 @@ Qt::Key KeyDefinitions::goldKey()
 {
     Qt::Key retVal = Qt::Key_NumLock;
 
-    if (m_scrollLockGold)
+    if ( m_scrollLockGold )
     {
         retVal = Qt::Key_ScrollLock;
     }

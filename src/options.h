@@ -85,25 +85,25 @@ public:
     void set_userDictionary( QString dictionary )   { m_userDictionary = dictionary;}
     void set_syntaxPath( QString path )             { m_syntaxPath = path;}
     void set_abouturl( QString url )                { m_aboutUrl = url;}
-    void set_preloadClipper( bool yesNo)            { m_preloadClipper = yesNo;}
-    void set_preloadCmake( bool yesNo)              { m_preloadCmake = yesNo;}
-    void set_preloadCpp( bool yesNo)                { m_preloadCpp = yesNo;}
-    void set_preloadCss( bool yesNo)                { m_preloadCss = yesNo;}
-    void set_preloadDoxy( bool yesNo)               { m_preloadDoxy = yesNo;}
-    void set_preloadErrLog( bool yesNo)             { m_preloadErrLog = yesNo;}
-    void set_preloadHtml( bool yesNo)               { m_preloadHtml = yesNo;}
-    void set_preloadJava(bool yesNo)                { m_preloadJava = yesNo;}
-    void set_preloadJs( bool yesNo)                 { m_preloadJs = yesNo;}
-    void set_preloadJson( bool yesNo)               { m_preloadJson = yesNo;}
-    void set_preloadMake( bool yesNo)               { m_preloadMake = yesNo;}
-    void set_preloadNone( bool yesNo)               { m_preloadNone = yesNo;}
-    void set_preloadNSI( bool yesNo)                { m_preloadNSI = yesNo;}
-    void set_preloadPhp( bool yesNo)                { m_preloadPhp = yesNo;}
-    void set_preloadPl( bool yesNo)                 { m_preloadPl = yesNo;}
-    void set_preloadPy( bool yesNo)                 { m_preloadPy = yesNo;}
-    void set_preloadSh( bool yesNo)                 { m_preloadSh = yesNo;}
-    void set_preloadTxt( bool yesNo)                { m_preloadTxt = yesNo;}
-    void set_preloadXml( bool yesNo)                { m_preloadXml = yesNo;}
+    void set_preloadClipper( bool yesNo )            { m_preloadClipper = yesNo;}
+    void set_preloadCmake( bool yesNo )              { m_preloadCmake = yesNo;}
+    void set_preloadCpp( bool yesNo )                { m_preloadCpp = yesNo;}
+    void set_preloadCss( bool yesNo )                { m_preloadCss = yesNo;}
+    void set_preloadDoxy( bool yesNo )               { m_preloadDoxy = yesNo;}
+    void set_preloadErrLog( bool yesNo )             { m_preloadErrLog = yesNo;}
+    void set_preloadHtml( bool yesNo )               { m_preloadHtml = yesNo;}
+    void set_preloadJava( bool yesNo )                { m_preloadJava = yesNo;}
+    void set_preloadJs( bool yesNo )                 { m_preloadJs = yesNo;}
+    void set_preloadJson( bool yesNo )               { m_preloadJson = yesNo;}
+    void set_preloadMake( bool yesNo )               { m_preloadMake = yesNo;}
+    void set_preloadNone( bool yesNo )               { m_preloadNone = yesNo;}
+    void set_preloadNSI( bool yesNo )                { m_preloadNSI = yesNo;}
+    void set_preloadPhp( bool yesNo )                { m_preloadPhp = yesNo;}
+    void set_preloadPl( bool yesNo )                 { m_preloadPl = yesNo;}
+    void set_preloadPy( bool yesNo )                 { m_preloadPy = yesNo;}
+    void set_preloadSh( bool yesNo )                 { m_preloadSh = yesNo;}
+    void set_preloadTxt( bool yesNo )                { m_preloadTxt = yesNo;}
+    void set_preloadXml( bool yesNo )                { m_preloadXml = yesNo;}
 
 
 private:

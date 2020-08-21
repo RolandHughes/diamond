@@ -25,36 +25,36 @@
 
 class Dialog_Macro : public QDialog
 {
-   CS_OBJECT(Dialog_Macro)
+    CS_OBJECT( Dialog_Macro )
 
-   public:
-      enum MacroEnum { MACRO_LOAD, MACRO_SAVE, MACRO_EDITNAMES };
+public:
+    enum MacroEnum { MACRO_LOAD, MACRO_SAVE, MACRO_EDITNAMES };
 
-      Dialog_Macro(MainWindow *parent, MacroEnum enumValue, QStringList macroIds,
-                   QStringList macroNames);
-      ~Dialog_Macro();
-      QString get_Macro();
+    Dialog_Macro( MainWindow *parent, MacroEnum enumValue, QStringList macroIds,
+                  QStringList macroNames );
+    ~Dialog_Macro();
+    QString get_Macro();
 
-   private:
-      Ui::Dialog_Macro *m_ui;
-      MainWindow *m_parent;
-      QStandardItemModel *m_model;
+private:
+    Ui::Dialog_Macro *m_ui;
+    MainWindow *m_parent;
+    QStandardItemModel *m_model;
 
-      QStringList m_macroIds_D;
-      QStringList m_macroNames_D;
-      int m_maxCount;
-      bool m_updateNames = false;
+    QStringList m_macroIds_D;
+    QStringList m_macroNames_D;
+    int m_maxCount;
+    bool m_updateNames = false;
 
-      void setupTitle();
-      void setUpView();
+    void setupTitle();
+    void setUpView();
 
-      MacroEnum m_enum;
-      QStringList m_macroList;
+    MacroEnum m_enum;
+    QStringList m_macroList;
 
-      void select();   
-      void view();    
-      void cancel();    
-      void tableDataChanged(const QModelIndex & topLeft,const QModelIndex & bottomRight);      
+    void select();
+    void view();
+    void cancel();
+    void tableDataChanged( const QModelIndex &topLeft,const QModelIndex &bottomRight );
 };
 
 #endif

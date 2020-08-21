@@ -15,16 +15,16 @@
 #include "dialog_edt_help.h"
 #include <QFile>
 
-Dialog_Edt_Help::Dialog_Edt_Help( QWidget *parent)
-    : QDialog(parent)
-    , m_ui( new Ui::Dialog_Edt_Help)
+Dialog_Edt_Help::Dialog_Edt_Help( QWidget *parent )
+    : QDialog( parent )
+    , m_ui( new Ui::Dialog_Edt_Help )
 {
-    m_ui->setupUi( this);
-    QFile txt("://resources/EDT-Help.html");
-    txt.open(QFile::ReadOnly );
-    QTextStream stream(&txt);
-    QString str(stream.readAll());
-    m_ui->textBrowser->setHtml(str);
+    m_ui->setupUi( this );
+    QFile txt( "://resources/EDT-Help.html" );
+    txt.open( QFile::ReadOnly );
+    QTextStream stream( &txt );
+    QString str( stream.readAll() );
+    m_ui->textBrowser->setHtml( str );
     txt.close();
     showMaximized();
 }
@@ -33,4 +33,4 @@ Dialog_Edt_Help::~Dialog_Edt_Help()
 {
     delete m_ui;
 }
-    
+
