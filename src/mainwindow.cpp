@@ -216,6 +216,15 @@ void MainWindow::tabNew()
     connect( m_textEdit, &DiamondTextEdit::showEdtHelp, this, &MainWindow::showEdtHelp );
     connect( m_textEdit, &DiamondTextEdit::edtTop, this, &MainWindow::goTop );
     connect( m_textEdit, &DiamondTextEdit::edtBottom, this, &MainWindow::goBottom );
+    connect( m_textEdit, &DiamondTextEdit::not_done, this, &MainWindow::showNotDone );
+    connect( m_textEdit, &DiamondTextEdit::edtCut, this, &MainWindow::mw_cut );
+    connect( m_textEdit, &DiamondTextEdit::edtUpcase, this, &MainWindow::caseUpper );
+    connect( m_textEdit, &DiamondTextEdit::edtLowerCase, this, &MainWindow::caseLower );
+    connect( m_textEdit, &DiamondTextEdit::edtSplitH, this, &MainWindow::split_Horizontal );
+    connect( m_textEdit, &DiamondTextEdit::edtSplitV, this, &MainWindow::split_Vertical );
+    connect( m_textEdit, &DiamondTextEdit::edtSaveFile, this, &MainWindow::saveFile );
+    connect( m_textEdit, &DiamondTextEdit::edtPaste, this, &MainWindow::mw_paste );
+    connect( m_textEdit, &DiamondTextEdit::edtCopy, this, &MainWindow::mw_copy );
 }
 
 void MainWindow::mw_tabClose()
@@ -444,7 +453,7 @@ void MainWindow::createConnections()
     connect( m_ui->actionReload,            &QAction::triggered, this, &MainWindow::reload );
 
     connect( m_ui->actionSave,              &QAction::triggered, this, [this]( bool ) { save(); } );
-    connect( m_ui->actionSave_As,           &QAction::triggered, this, [this]( bool ) { saveAs( SAVE_ONE ); } );
+    connect( m_ui->actionSave_As,           &QAction::triggered, this, [this]( bool ) { saveAs( Overlord::SAVE_ONE ); } );
     connect( m_ui->actionSave_All,          &QAction::triggered, this, &MainWindow::saveAll );
 
     connect( m_ui->actionPrint,             &QAction::triggered, this, &MainWindow::print );

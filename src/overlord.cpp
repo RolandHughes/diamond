@@ -22,6 +22,7 @@ Overlord::Overlord() :
     m_isComplete( false )
     , m_changed( false )
     , m_needsBroadcast( false )
+    , m_edtDirection( false )
 {
     connect( &m_settings, &Settings::Move, this, &Overlord::Move );
     connect( &m_settings, &Settings::Resize, this, &Overlord::Resize );
@@ -789,4 +790,31 @@ void Overlord::preloadSyntax()
         fileName = m_settings.syntaxPath() + "syn_xml.json";
         m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
     }
+}
+
+void Overlord::set_edtDirection( bool forwardBackward )
+{
+    m_edtDirection = forwardBackward;
+    markToNotify();
+}
+
+void Overlord::set_edtLastDeletedWord( QString word )
+{
+    m_settings.m_edtLastDeletedWord = word;
+    markToNotify();
+    checkForBroadcast();        // needs to go out immediately in case cut and paste between buffers
+}
+
+void Overlord::set_edtLastDeletedLine( QString line )
+{
+    m_settings.m_edtLastDeletedLine = line;
+    markToNotify();
+    checkForBroadcast();        // needs to go out immediately in case cut and past between buffers
+}
+
+void Overlord::set_edtLastDeletedChar( QString c )
+{
+    m_settings.m_edtLastDeletedChar = c;
+    markToNotify();
+    checkForBroadcast();        // needs to go out immediately in case cut and paste between buffers
 }

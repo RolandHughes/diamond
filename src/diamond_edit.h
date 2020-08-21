@@ -100,53 +100,35 @@ public:
     CS_SLOT_1( Public, void runSyntax( QString synFName ) )
     CS_SLOT_2( runSyntax )
 
+    CS_SIGNAL_1( Public, void edtUpcase() )
+    CS_SIGNAL_2( edtUpcase )
+
+    CS_SIGNAL_1( Public, void edtLowerCase() )
+    CS_SIGNAL_2( edtLowerCase )
+
+    CS_SIGNAL_1( Public, void edtSplitH() )
+    CS_SIGNAL_2( edtSplitH )
+
+    CS_SIGNAL_1( Public, void edtSplitV() )
+    CS_SIGNAL_2( edtSplitV )
+
+    CS_SIGNAL_1( Public, void edtSaveFile( QString fileName, Overlord::SaveFiles fileType ) )
+    CS_SIGNAL_2( edtSaveFile, fileName, fileType )
+
+    CS_SIGNAL_1( Public, void edtAstyle() )
+    CS_SIGNAL_2( edtAstyle )
+
     CS_SIGNAL_1( Public, void showEdtHelp() )
     CS_SIGNAL_2( showEdtHelp )
-
-    CS_SIGNAL_1( Public, void edtDeleteLine() )
-    CS_SIGNAL_2( edtDeleteLine )
-
-    CS_SIGNAL_1( Public, void edtPage() )
-    CS_SIGNAL_2( edtPage )
-
-    CS_SIGNAL_1( Public, void edtSection() )
-    CS_SIGNAL_2( edtSection )
 
     CS_SIGNAL_1( Public, void edtAppend() )
     CS_SIGNAL_2( edtAppend )
 
-    CS_SIGNAL_1( Public, void edtDeleteWord() )
-    CS_SIGNAL_2( edtDeleteWord )
+    CS_SIGNAL_1( Public, void edtCopy() )
+    CS_SIGNAL_2( edtCut )
 
     CS_SIGNAL_1( Public, void edtCut() )
     CS_SIGNAL_2( edtCut )
-
-    CS_SIGNAL_1( Public, void edtDeleteChar() )
-    CS_SIGNAL_2( edtDeleteChar )
-
-    CS_SIGNAL_1( Public, void edtWord() )
-    CS_SIGNAL_2( edtWord )
-
-    CS_SIGNAL_1( Public, void edtEOL() )
-    CS_SIGNAL_2( edtEOL )
-
-    CS_SIGNAL_1( Public, void edtChar() )
-    CS_SIGNAL_2( edtChar )
-
-    CS_SIGNAL_1( Public, void edtLine() )
-    CS_SIGNAL_2( edtLine )
-
-    CS_SIGNAL_1( Public, void edtSelect() )
-    CS_SIGNAL_2( edtSelect )
-
-    CS_SIGNAL_1( Public, void edtEnter() )
-    CS_SIGNAL_2( edtEnter )
-
-    CS_SIGNAL_1( Public, void edtFindNext() )
-    CS_SIGNAL_2( edtFindNext )
-
-    CS_SIGNAL_1( Public, void edtUndeleteLine() )
-    CS_SIGNAL_2( edtUndeleteLine )
 
     CS_SIGNAL_1( Public, void edtCommand() )
     CS_SIGNAL_2( edtCommand )
@@ -166,14 +148,8 @@ public:
     CS_SIGNAL_1( Public, void edtPaste() )
     CS_SIGNAL_2( edtPaste )
 
-    CS_SIGNAL_1( Public, void edtUndeleteChar() )
-    CS_SIGNAL_2( edtUndeleteChar )
-
     CS_SIGNAL_1( Public, void edtChangeCase() )
     CS_SIGNAL_2( edtChangeCase )
-
-    CS_SIGNAL_1( Public, void edtDeleteToEOL() )
-    CS_SIGNAL_2( edtDeleteToEOL )
 
     CS_SIGNAL_1( Public, void edtSpecialInsert() )
     CS_SIGNAL_2( edtSpecialInsert )
@@ -187,12 +163,8 @@ public:
     CS_SIGNAL_1( Public, void edtSubs() )
     CS_SIGNAL_2( edtSubs )
 
-    CS_SIGNAL_1( Public, void edtGotoLine() )
-    CS_SIGNAL_2( edtGotoLine )
-
-
-    CS_SIGNAL_1( Public, void edtFind() )
-    CS_SIGNAL_2( edtFind )
+    CS_SIGNAL_1( Public, void not_done( QString txt ) )
+    CS_SIGNAL_2( not_done, txt )
 
     // editing API for use by MainWindow
     //
@@ -266,7 +238,6 @@ private:
     void removeColumnModeSpaces();
 
     bool m_colHighlight;
-    bool m_edtDirection;
     bool m_currentKeyGold;
 
     int m_startRow;
@@ -274,6 +245,9 @@ private:
     int m_endRow;
     int m_endCol;
     int m_lastTabSpacing;
+    //  TODO:: connect this to selectionChanged() signal for each tab.
+    bool m_edtSelectActive;  // do not save this - always default to no when starting
+
 
     // copy buffer
     QList<QString> m_copyBuffer;

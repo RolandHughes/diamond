@@ -30,7 +30,6 @@ bool Edt_LineEdit::event( QEvent *ev )
 
     if ( ev->type() == QEvent::KeyPress )
     {
-        qDebug() << "KeyPress";
         QKeyEvent *keyPressEvent = dynamic_cast<QKeyEvent *>( ev );
 
         int key = keyPressEvent->key();
@@ -43,7 +42,6 @@ bool Edt_LineEdit::event( QEvent *ev )
             case Qt::Key_Left:
                 if ( isKeypad  && m_allowDirection )
                 {
-                    qDebug() << "caught 4 key";
                     m_terminator = ADVANCE;
                     inputComplete();
                     retVal = true;
@@ -55,7 +53,6 @@ bool Edt_LineEdit::event( QEvent *ev )
             case Qt::Key_Clear:
                 if ( isKeypad && m_allowDirection )
                 {
-                    qDebug() << "caught 5 key";
                     m_terminator = BACKUP;
                     inputComplete();
                     retVal = true;
@@ -66,7 +63,6 @@ bool Edt_LineEdit::event( QEvent *ev )
             case Qt::Key_Enter:
                 if ( isKeypad )
                 {
-                    qDebug() << "caught Enter";
                     m_terminator = ENTER;
                     inputComplete();
                     retVal = true;
@@ -75,7 +71,6 @@ bool Edt_LineEdit::event( QEvent *ev )
                 break;
 
             case Qt::Key_Return:
-                qDebug() << "caught Return";
                 m_ctrlMSubstitution = true;
                 QCoreApplication::sendEvent( this, new QKeyEvent( QEvent::KeyPress, Qt::Key_AsciiCircum, Qt::ShiftModifier, "^" ) );
                 QCoreApplication::sendEvent( this, new QKeyEvent( QEvent::KeyPress, Qt::Key_M, Qt::ShiftModifier, "M" ) );

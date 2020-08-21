@@ -1,9 +1,20 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
+*) Test EOL in actual EDT. See if doesn't advance line when hit repeatedly  EOL
+*navigates up/down at end/begining of line depending on EDT direction.
+*) Test OPEN LINE in actual EDT to see what it really does. - OPEN LINE inserts
+*a line break at cursor position keeping cursor there but moving text down to
+*next line against left margin.
+*) Test out FILL in real EDT to see what it really does - I think help text says
+*"not implemented"
 *) Add support for EDT keypad
-*) create EDT Help dialog
+*) get EDT changes hooked into Undo - need to emit undoAvailable() to activate
+*on main menu. Need to research how that really works.
+*) need to emit copy available? Using mw_cut() so probably not.
+*) Remove unused signals from diamond_edit.h
 *) Need EDT command dialog
-*) add support for EDT direction lock
+*) Fix macro save - make it actually happen - test create-use-save-reload of macros
+*) test out macro save/load/use. I really butchered that.
 
 *) debug regular expression to C/C++ definition for numeric constant
 
@@ -34,16 +45,11 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
  more about other languages.
 
 
-
-
-
-
-
 *) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
 *) File->New should not be whacking the current file tab, it should create a new
  tab
- 
-*) test out macro save/load/use. I really butchered that.
+
+
 
 
 *) Read up on Doxyprint to see if it mimics Doxygen comments.

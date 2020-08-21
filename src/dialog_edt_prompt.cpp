@@ -22,13 +22,15 @@ Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QW
 {
 
     Qt::WindowFlags flags = this->windowFlags();
-    setWindowFlags( flags | Qt::FramelessWindowHint );
+    // Qt::CustomizeWindowHint
+    // Qt::FramelessWindowHint
+    setWindowFlags( flags | Qt::CustomizeWindowHint );
 
     setSizeGripEnabled( false );
 
     QPalette temp = palette();
-    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().colorText() );
-    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme().colorBack() );
+    temp.setColor( this->foregroundRole(), Overlord::getInstance()->currentTheme().colorText() );
+    temp.setColor( this->backgroundRole(), Overlord::getInstance()->currentTheme().colorBack() );
     setPalette( temp );
 
     m_label = new QLabel( labelText, this );

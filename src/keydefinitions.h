@@ -75,6 +75,19 @@ public:
     QString edtGotoLine()           { return m_edtGotoLine;}
 
     bool    edtEnabled()            { return m_edtEnabled;}
+    Qt::Key goldKey();
+    bool    numLockGold()           { return m_numLockGold;}
+    bool    scrollLockGold()        { return m_scrollLockGold;}
+    QString edtCopy()               { return m_edtCopy;}
+    QString edtInsertFile()         { return m_edtInsertFile;}
+    QString edtUpperCase()          { return m_edtUpperCase;}
+    QString edtLowerCase()          { return m_edtLowerCase;}
+    QString edtSplitHorizontal()    { return m_edtSplitHorizontal;}
+    QString edtSplitVertical()      { return m_edtSplitVertical;}
+    QString edtSaveFile()           { return m_edtSaveFile;}
+    QString edtAstyle()             { return m_edtAstyle;}
+    QString edtWord()               { return m_edtWord;}
+    
 
 
 
@@ -121,6 +134,17 @@ public:
 
     void set_edtEnabled( bool yesNo )              { m_edtEnabled = yesNo;}
     void set_edtGotoLine( QString txt )            { m_edtGotoLine = txt;}
+    void set_numLockGold( bool yesNo)              { m_numLockGold = yesNo;}
+    void set_scrollLockGold( bool yesNo)           { m_scrollLockGold = yesNo;}
+    void set_edtCopy(QString keyValue)             { m_edtCopy = keyValue;}
+    void set_edtInsertFile(QString keyValue)       { m_edtInsertFile = keyValue;}
+    void set_edtUpperCase( QString keyValue)       { m_edtUpperCase = keyValue;}
+    void set_edtLowerCase( QString keyValue)       { m_edtLowerCase = keyValue;}
+    void set_edtSplitHorizontal( QString keyValue) { m_edtSplitHorizontal = keyValue;}
+    void set_edtSplitVertical( QString keyValue)   { m_edtSplitVertical = keyValue;}
+    void set_edtSaveFile( QString keyValue)        { m_edtSaveFile = keyValue;}
+    void set_edtAstyle( QString keyValue)          { m_edtAstyle = keyValue;}
+    void set_edtWord( QString keyValue)            { m_edtWord = keyValue;}
 
 private:
     QString adjustKey( QString sequence );
@@ -173,9 +197,18 @@ private:
      *       travels in the direction currently in effect.
      */
     bool    m_edtEnabled;       // only look for EDT keypad support when enabled.
-    Qt::Key m_edtGold;
-    QString m_edtGotoLine;      // GOLD =
-
+    bool    m_numLockGold;      // use NumLock as GOLD key - default
+    bool    m_scrollLockGold;   // use ScrollLock as GOLD key - typical from Emacs
+    QString m_edtGotoLine;          // GOLD =
+    QString m_edtCopy;              // GOLD C
+    QString m_edtInsertFile;        // GOLD I
+    QString m_edtUpperCase;         // GOLD U
+    QString m_edtLowerCase;         // GOLD L
+    QString m_edtSplitHorizontal;   // GOLD H
+    QString m_edtSplitVertical;     // GOLD V
+    QString m_edtSaveFile;          // GOLD S
+    QString m_edtAstyle;            // GOLD A
+    QString m_edtWord;              // Ctrl-keyPad+
 };
 
 #endif

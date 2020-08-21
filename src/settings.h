@@ -173,6 +173,10 @@ private:
 
     QMap <QString, Themes> m_themes;
 
+    QString         m_edtLastDeletedWord;
+    QString         m_edtLastDeletedLine;
+    QString         m_edtLastDeletedChar;
+
 };
 
 #endif

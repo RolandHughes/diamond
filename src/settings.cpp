@@ -124,6 +124,9 @@ Settings &Settings::operator =( const Settings &other )
         m_showLineNumbers           = other.m_showLineNumbers;
         m_showSpaces                = other.m_showSpaces;
         m_themes                    = other.m_themes;
+        m_edtLastDeletedWord        = other.m_edtLastDeletedWord;
+        m_edtLastDeletedLine        = other.m_edtLastDeletedLine;
+        m_edtLastDeletedChar        = other.m_edtLastDeletedChar;
     }
 
     return *this;
@@ -353,6 +356,20 @@ bool operator ==( const Settings &left, const Settings &right )
         retVal = false;
     }
 
+    if ( left.m_edtLastDeletedWord != right.m_edtLastDeletedWord )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtLastDeletedLine != right.m_edtLastDeletedLine )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_edtLastDeletedChar != right.m_edtLastDeletedChar )
+    {
+        retVal = false;
+    }
 
     return retVal;
 }
@@ -682,7 +699,7 @@ bool Settings::load()
             return ok;
         }
 
-        m_options.keys().set_edtGotoLine( object.value("key-edt-gotoLine").toString());
+        m_options.keys().set_edtGotoLine( object.value( "key-edt-gotoLine" ).toString() );
         m_options.keys().set_edtEnabled( object.value( "edt-enabled" ).toBool() );
 
         m_options.set_preloadClipper( object.value( "preload-clipper" ).toBool() );
@@ -807,6 +824,10 @@ bool Settings::load()
 
             m_themes[elm.name()] = elm;
         }
+
+        m_edtLastDeletedWord = object.value( "edt-lastDeletedWord" ).toString();
+        m_edtLastDeletedLine = object.value( "edt-lastDeletedLine" ).toString();
+        m_edtLastDeletedChar = object.value( "edt-lastDeletedChar" ).toString();
     }
 
     return ok;
@@ -1023,7 +1044,7 @@ void Settings::save()
     object.insert( "key-upper",             m_options.keys().upper() );
 
     //EDT keys
-    object.insert( "key-edt-gotoLine",      m_options.keys().edtGotoLine());
+    object.insert( "key-edt-gotoLine",      m_options.keys().edtGotoLine() );
     object.insert( "edt-enabled",           m_options.keys().edtEnabled() );
 
 
@@ -1137,6 +1158,10 @@ void Settings::save()
     object.insert( "useSpaces", m_options.useSpaces() );
     object.insert( "word-wrap", m_isWordWrap );
 
+
+    object.insert( "edt-lastDeletedWord", m_edtLastDeletedWord );
+    object.insert( "edt-lastDeletedLine", m_edtLastDeletedLine );
+    object.insert( "edt-lastDeletedChar", m_edtLastDeletedChar );
 
     QJsonDocument doc( object );
     QByteArray data = doc.toJson();

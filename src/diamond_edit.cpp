@@ -50,13 +50,13 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     , m_settingsPtr( nullptr )
     , m_undoCount( 0 )
     , m_colHighlight( false )
-    , m_edtDirection( false )
     , m_currentKeyGold( false )
     , m_startRow( 0 )
     , m_startCol( 0 )
     , m_endRow( 0 )
     , m_endCol( 0 )
     , m_lastTabSpacing( 0 )
+    , m_edtSelectActive( false )
     , m_record( false )
     , m_isSpellCheck( false )
     , m_spellCheck( nullptr )
@@ -2141,15 +2141,12 @@ void DiamondTextEdit::changeFont()
 //
 bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 {
-    qDebug() << "key: " << key << "  modifiers: " << modifiers;
-
     bool lastKeyWasGold = m_currentKeyGold;
 
     m_currentKeyGold = false;
 
-    if ( key == Qt::Key_NumLock )
+    if ( key == Overlord::getInstance()->keys().goldKey() )
     {
-        qDebug() << "***Current key GOLD";
         m_currentKeyGold = true;
         return true;
     }
@@ -2158,9 +2155,14 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 
     QString keyStr = QKeySequence( modifiers, key ).toString( QKeySequence::NativeText );
 
-    qDebug() << "keyStr: " << keyStr;
-
     bool isKeypad = ( modifiers & Qt::KeypadModifier );
+
+    QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
+
+    if ( textCursor().hasSelection() || m_edtSelectActive )
+    {
+        mode = QTextCursor::KeepAnchor;
+    }
 
     if ( lastKeyWasGold )
     {
@@ -2169,37 +2171,239 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
         // or had your cursor on.
         switch ( key )
         {
-            case Qt::Key_4:
+            case Qt::Key_0:     // OPEN LINE
+            case Qt::Key_Insert:
+                if ( isKeypad )
+                {
+                    not_done( "OPEN LINE" );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_Period:
+            case Qt::Key_Delete:
+                if ( isKeypad )
+                {
+                    QTextCursor cursor = textCursor();
+                    cursor.clearSelection();
+                    setTextCursor( cursor );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_Enter:     // SUBS
+                if ( isKeypad )
+                {
+                    not_done( "SUBS" );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_1:     // change case
+            case Qt::Key_End:
+                if ( isKeypad )
+                {
+                    not_done( "CHNGCASE" );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_2:     // Delete to EOL
+            case Qt::Key_Down:
+                if ( isKeypad )
+                {
+                    // TODO:: save to EDT deleted line buffer in Overlord
+                    QTextCursor cursor = textCursor();
+                    cursor.movePosition( QTextCursor::EndOfLine, QTextCursor::KeepAnchor, 1 );
+                    cursor.removeSelectedText();
+                    setTextCursor( cursor );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_3:         // SPECINS
+            case Qt::Key_PageDown:
+                if ( isKeypad )
+                {
+                    // TODO:: prompt for numeric character value and insert
+                    //
+                    not_done( "SPECINS" );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_4:     // BOTTOM
             case Qt::Key_Left:
                 if ( isKeypad )
                 {
-                    qDebug() << "emitting edtBottom()";
                     edtBottom();
                     return true;
                 }
 
                 break;
 
-            case Qt::Key_5:
-            case Qt::Key_Clear: // if NumLock is not "on"
+            case Qt::Key_5:     // TOP
+            case Qt::Key_Clear:
                 if ( isKeypad )
                 {
-                    qDebug() << "emitting edtTop()";
                     edtTop();
                     return true;
                 }
 
                 break;
 
+            case Qt::Key_6:     // paste
+            case Qt::Key_Right:
+                if ( isKeypad )
+                {
+                    edtPaste();
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_7:     // command
+            case Qt::Key_Home:
+                if ( isKeypad )
+                {
+                    not_done( "COMMAND" );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_8:         // FILL
+            case Qt::Key_Up:
+                if ( isKeypad )
+                {
+                    not_done( "FILL" );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_9:     // REPLACE
+            case Qt::Key_PageUp:
+                if ( isKeypad )
+                {
+                    not_done( "REPLACE" );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_Slash:
+                // has no meaning in EDT world
+                break;
+
             case Qt::Key_Asterisk:
                 if ( isKeypad )
                 {
                     Dialog_Edt_Prompt *dw = new Dialog_Edt_Prompt( "Find: ", true, this );
+                    QString selectedText = textCursor().selectedText();
+
+                    if ( ! selectedText.isEmpty() )
+                    {
+                        dw->setText( selectedText );
+                    }
+
                     dw->exec();
-                    qDebug() << "terminator: " << dw->terminator();
-                    qDebug() << "ctrlMSubstitution: " << dw->ctrlMSubstitution();
-                    qDebug() << "allowDirection: " << dw->allowDirection();
+
+                    QString txt = dw->text();
+
+                    if ( !txt.isEmpty() )
+                    {
+                        Overlord::getInstance()->set_findText( txt );
+                        int index = Overlord::getInstance()->findListFind( txt );
+
+                        if ( index == -1 )
+                        {
+                            Overlord::getInstance()->findList().prepend( txt );
+                        }
+                        else
+                        {
+                            Overlord::getInstance()->findList().move( index,0 );
+                        }
+
+                        Overlord::getInstance()->set_findFlags( 0 );
+
+                        switch ( dw->terminator() )
+                        {
+                            case Edt_LineEdit::ADVANCE:
+                                Overlord::getInstance()->set_edtDirection( false );
+                                break;
+
+                            case Edt_LineEdit::BACKUP:
+                                Overlord::getInstance()->set_edtDirection( true );
+                                Overlord::getInstance()->set_findFlagsBackward();
+                                break;
+
+                            case Edt_LineEdit::ENTER:
+                                if ( Overlord::getInstance()->edtDirection() )
+                                {
+                                    Overlord::getInstance()->set_findFlagsBackward();
+                                }
+
+                                break;
+
+                            case Edt_LineEdit::NONE:
+                            default:
+                                break;
+                        }
+
+                        bool found = find( txt, Overlord::getInstance()->findFlags() );
+
+                        if ( !found )
+                        {
+                            csError( "Find", "Not found: " + Overlord::getInstance()->findText() );
+                        }
+                    }
+
                     delete dw;
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_Plus:
+                if ( isKeypad && !( keyStr == Overlord::getInstance()->keys().edtWord() ) )
+                {
+                    if ( !Overlord::getInstance()->edtLastDeletedChar().isEmpty() )
+                    {
+                        QTextCursor cursor = textCursor();
+                        cursor.insertText( Overlord::getInstance()->edtLastDeletedChar() );
+                        setTextCursor( cursor );
+                    }
+                    else
+                    {
+                        csError( "EDT", "No char to UNDELETE " );
+                    }
+
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_Minus:
+                if ( isKeypad )
+                {
+                    if ( !Overlord::getInstance()->edtLastDeletedLine().isEmpty() )
+                    {
+                        QTextCursor cursor = textCursor();
+                        cursor.insertText( Overlord::getInstance()->edtLastDeletedLine() );
+                        setTextCursor( cursor );
+                    }
+                    else
+                    {
+                        csError( "EDT", "No line to UNDELETE " );
+                    }
+
                     return true;
                 }
 
@@ -2211,7 +2415,90 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 
 
 
-        // TODO:: add keys for Astyle, Copy, and a few other things
+        if ( keyStr == Overlord::getInstance()->keys().edtGotoLine() )
+        {
+            Dialog_Edt_Prompt *dw = new Dialog_Edt_Prompt( "Line: ", false, this );
+            dw->exec();
+            QString txt = dw->text();
+
+            if ( !txt.isEmpty() )
+            {
+                int line = txt.toInteger<int>();
+
+                if ( line > 0 )
+                {
+                    QTextCursor cursor( document()->findBlockByNumber( line - 1 ) );
+                    setTextCursor( cursor );
+                }
+            }
+
+            return true;
+        }
+
+        if ( keyStr == Overlord::getInstance()->keys().edtCopy() )
+        {
+            edtCopy();
+            return true;
+        }
+
+
+        if ( keyStr == Overlord::getInstance()->keys().edtUpperCase() )
+        {
+            edtUpcase();
+            return true;
+        }
+
+        if ( keyStr == Overlord::getInstance()->keys().edtLowerCase() )
+        {
+            edtLowerCase();
+            return true;
+        }
+
+        if ( keyStr == Overlord::getInstance()->keys().edtSplitHorizontal() )
+        {
+            edtSplitH();
+            return true;
+        }
+
+        if ( keyStr == Overlord::getInstance()->keys().edtSplitVertical() )
+        {
+            edtSplitV();
+            return true;
+        }
+
+        if ( keyStr == Overlord::getInstance()->keys().edtSaveFile() )
+        {
+            // TODO:: if now file name need to emit a saveFileAs signal to prompt for name
+            //
+            edtSaveFile( currentFile(), Overlord::SAVE_ONE );
+            return true;
+        }
+
+        if ( keyStr == Overlord::getInstance()->keys().edtAstyle() )
+        {
+            not_done( "ASTYLE" );
+            //edtAstyle();  // TODO:: this might be local function instead of signal
+            return true;
+        }
+
+        qDebug() << "keyStr: " << keyStr;
+        qDebug() << "edtWord: " << Overlord::getInstance()->keys().edtWord();
+
+        if ( keyStr == Overlord::getInstance()->keys().edtWord() )
+        {
+            if ( !Overlord::getInstance()->edtLastDeletedWord().isEmpty() )
+            {
+                QTextCursor cursor = textCursor();
+                cursor.insertText( Overlord::getInstance()->edtLastDeletedWord() );
+                setTextCursor( cursor );
+            }
+            else
+            {
+                csError( "EDT", "No Word to UNDELETE " );
+            }
+
+            return true;
+        }
 
     }
     else
@@ -2219,23 +2506,237 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 
         switch ( key )
         {
-            case Qt::Key_4:
-            case Qt::Key_Left:
+            case Qt::Key_0:
+            case Qt::Key_Insert:        // move line
+                qDebug() << "Key_0";
+
                 if ( isKeypad )
                 {
-                    qDebug() << "setting edit direction advance";
-                    m_edtDirection = false;
+                    QTextCursor cursor = textCursor();
+
+                    if ( Overlord::getInstance()->edtDirection() )
+                    {
+                        cursor.movePosition( QTextCursor::Up, mode, 1 );
+                    }
+                    else
+                    {
+                        cursor.movePosition( QTextCursor::Down, mode, 1 );
+                    }
+
+                    setTextCursor( cursor );
+
                     return true;
                 }
 
                 break;
 
-            case Qt::Key_5:
+            case Qt::Key_Period:    // select
+                if ( isKeypad )
+                {
+                    m_edtSelectActive = true;
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_1:     // move word
+            case Qt::Key_End:
+                if ( isKeypad )
+                {
+                    QTextCursor cursor = textCursor();
+
+                    if ( Overlord::getInstance()->edtDirection() )
+                    {
+                        cursor.movePosition( QTextCursor::PreviousWord, mode, 1 );
+                    }
+                    else
+                    {
+                        cursor.movePosition( QTextCursor::NextWord, mode, 1 );
+                    }
+
+                    setTextCursor( cursor );
+
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_2:     // EOL
+            case Qt::Key_Down:
+                if ( isKeypad )
+                {
+                    QTextCursor cursor = textCursor();
+                    QTextCursor work = textCursor();
+
+                    if ( Overlord::getInstance()->edtDirection() )
+                    {
+                        work.movePosition( QTextCursor::StartOfLine, mode, 1 );
+
+                        if ( work.position() == cursor.position() )
+                        {
+                            cursor.movePosition( QTextCursor::Up, mode, 1 );
+                        }
+
+                        cursor.movePosition( QTextCursor::StartOfLine, mode, 1 );
+                    }
+                    else
+                    {
+                        work.movePosition( QTextCursor::EndOfLine, mode, 1 );
+
+                        if ( work.position() == cursor.position() )
+                        {
+                            cursor.movePosition( QTextCursor::Down, mode, 1 );
+                        }
+
+                        cursor.movePosition( QTextCursor::EndOfLine, mode, 1 );
+                    }
+
+                    setTextCursor( cursor );
+
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_3:     // CHAR
+            case Qt::Key_PageDown:
+                if ( isKeypad )
+                {
+                    QTextCursor cursor = textCursor();
+
+                    if ( Overlord::getInstance()->edtDirection() )
+                    {
+                        cursor.movePosition( QTextCursor::PreviousCharacter, mode, 1  );
+                    }
+                    else
+                    {
+                        cursor.movePosition( QTextCursor::NextCharacter, mode, 1 );
+                    }
+
+                    setTextCursor( cursor );
+
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_4:     // ADVANCE
+            case Qt::Key_Left:
+                if ( isKeypad )
+                {
+                    Overlord::getInstance()->set_edtDirection( false );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_5:     // BACKUP
             case Qt::Key_Clear:
                 if ( isKeypad )
                 {
-                    qDebug() << "setting edit direction backup";
-                    m_edtDirection = true;
+                    Overlord::getInstance()->set_edtDirection( true );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_6:         // CUT
+            case Qt::Key_Right:
+                if ( isKeypad )
+                {
+                    if ( textCursor().hasSelection() )
+                    {
+                        edtCut();
+                        m_edtSelectActive = false;
+                    }
+
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_7:     // PAGE
+            case Qt::Key_Home:
+                if ( isKeypad )
+                {
+                    // TODO:: direction sensitive search for FormFeed char
+                    //
+                    not_done( "PAGE" );
+                    return true;
+                }
+
+                break;
+
+
+
+            case Qt::Key_8:         // SECT
+            case Qt::Key_Up:
+                if ( isKeypad )
+                {
+                    // pageUpDown() is a private class member in QTextEdit. Only way to reach it
+                    // is to insert KeyEvents for the following:
+                    //
+                    // pageUpDown( QTextCursor::Down, mode );
+                    // pageUpDown( QTextCursor::Up, mode );
+                    // QKeySequence::SelectPreviousPage
+                    // QKeySequence::SelectNextPage
+                    //
+                    // QKeySequence::MoveToPreviousPage
+                    // QKeySequence::MoveToNextPage
+                    //
+                    // Either that or we stick with the 16 line tradition
+                    //textCursor().movePosition( QTextCursor::Up, QTextCursor::KeepAnchor, 16 );
+                    //textCursor().movePosition( QTextCursor::Down, QTextCursor::KeepAnchor, 16 );
+
+                    QTextCursor cursor = textCursor();
+
+                    if ( Overlord::getInstance()->edtDirection() )
+                    {
+                        cursor.movePosition( QTextCursor::Up, mode, 16 );
+                    }
+                    else
+                    {
+                        cursor.movePosition( QTextCursor::Down, mode, 16 );
+                    }
+
+                    setTextCursor( cursor );
+
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_9:     // APPEND
+            case Qt::Key_PageUp:
+                if ( isKeypad )
+                {
+                    // EDT had its own paste buffer - no desktop level clipboard
+                    // This would append the current selection to the end of the PASTE buffer.
+                    //
+                    not_done( "APPEND" );
+                    return true;
+                }
+
+                break;
+
+            case Qt::Key_Plus:      // DEL C
+                if ( isKeypad && !( keyStr == Overlord::getInstance()->keys().edtWord() ) )
+                {
+                    QTextCursor cursor = textCursor();
+
+
+                    if ( Overlord::getInstance()->edtDirection() )
+                    {
+                        cursor.movePosition( QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, 1 );
+                    }
+                    else
+                    {
+                        cursor.movePosition( QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1 );
+                    }
+
+                    Overlord::getInstance()->set_edtLastDeletedChar( cursor.selectedText() );
+                    cursor.removeSelectedText();
+                    setTextCursor( cursor );
                     return true;
                 }
 
@@ -2253,16 +2754,73 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
             case Qt::Key_Asterisk:
                 if ( isKeypad )
                 {
-                    qDebug() << "FindNext";
+                    Overlord::getInstance()->set_findFlags( 0 );
+
+                    if ( Overlord::getInstance()->edtDirection() )
+                    {
+                        Overlord::getInstance()->set_findFlagsBackward();
+                    }
+
+                    bool found = find( Overlord::getInstance()->findText(), Overlord::getInstance()->findFlags() );
+
+                    if ( !found )
+                    {
+                        csError( "Find", "Not found: " + Overlord::getInstance()->findText() );
+                    }
+
                     return true;
                 }
 
                 break;
 
+            case Qt::Key_Minus:
+                if ( isKeypad )
+                {
+                    QTextCursor cursor = textCursor();
+
+                    if ( Overlord::getInstance()->edtDirection() )
+                    {
+                        cursor.movePosition( QTextCursor::Up, QTextCursor::KeepAnchor, 1 );
+                        cursor.movePosition( QTextCursor::EndOfLine, QTextCursor::KeepAnchor, 1 );
+                    }
+                    else
+                    {
+                        cursor.movePosition( QTextCursor::Down, QTextCursor::KeepAnchor, 1 );
+                        cursor.movePosition( QTextCursor::StartOfLine, QTextCursor::KeepAnchor, 1 );
+                    }
+
+                    cursor.removeSelectedText();
+                    setTextCursor( cursor );
+                    return true;
+                }
 
             default:
                 break;
         }
+
+        qDebug() << "keyStr: " << keyStr;
+        qDebug() << "edtWord: " << Overlord::getInstance()->keys().edtWord();
+
+        if ( keyStr == Overlord::getInstance()->keys().edtWord() )
+        {
+            QTextCursor cursor = textCursor();
+
+            if ( Overlord::getInstance()->edtDirection() )
+            {
+                cursor.movePosition( QTextCursor::PreviousWord, QTextCursor::KeepAnchor, 1 );
+            }
+            else
+            {
+                cursor.movePosition( QTextCursor::NextWord, QTextCursor::KeepAnchor, 1 );
+            }
+
+            Overlord::getInstance()->set_edtLastDeletedWord( cursor.selectedText() );
+            cursor.removeSelectedText();
+            setTextCursor( cursor );
+
+            return true;
+        }
+
 
     }
 

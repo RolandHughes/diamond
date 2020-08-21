@@ -86,6 +86,12 @@ public:
     CS_SLOT_1( Public, void showEdtHelp() )
     CS_SLOT_2( showEdtHelp )
 
+    CS_SLOT_1( Public, void split_Horizontal())
+    CS_SLOT_2( split_Horizontal)
+
+    CS_SLOT_1( Public, void split_Vertical())
+    CS_SLOT_2( split_Vertical)
+    
 protected:
     void closeEvent( QCloseEvent *event );
     void dragEnterEvent( QDragEnterEvent *event );
@@ -197,8 +203,6 @@ private:
     QLabel *m_statusMode;
     QLabel *m_statusName;
 
-    enum SaveFiles { SAVE_ONE, SAVE_ALL };
-
     void openDoc( QString path );
     bool closeAll_Doc( bool isExit );
     void save_ConfigFile();
@@ -240,8 +244,10 @@ private:
 
     // support
     bool querySave();
-    bool saveFile( QString fileName, SaveFiles saveType );
-    bool saveAs( SaveFiles saveType );
+    CS_SLOT_1( Public, bool saveFile( QString fileName, Overlord::SaveFiles saveType ))
+    CS_SLOT_2( saveFile)
+    
+    bool saveAs( Overlord::SaveFiles saveType );
 
     void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false );
     void setDiamondTitle( const QString title );
@@ -406,8 +412,6 @@ private:
 
     // split
     void set_splitCombo();
-    void split_Horizontal();
-    void split_Vertical();
     void split_NameChanged( int data );
     void split_CloseButton();
 };

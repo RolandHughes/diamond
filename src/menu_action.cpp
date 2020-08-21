@@ -346,17 +346,17 @@ bool MainWindow::save()
 {
     if ( m_curFile.isEmpty() )
     {
-        return saveAs( SAVE_ONE );
+        return saveAs( Overlord::SAVE_ONE );
 
     }
     else
     {
-        return saveFile( m_curFile, SAVE_ONE );
+        return saveFile( m_curFile, Overlord::SAVE_ONE );
 
     }
 }
 
-bool MainWindow::saveAs( SaveFiles saveType )
+bool MainWindow::saveAs( Overlord::SaveFiles saveType )
 {
     bool retval = false;
 
@@ -447,12 +447,12 @@ void MainWindow::saveAll()
                 if ( fileName == "untitled.txt" )
                 {
                     m_tabWidget->setCurrentIndex( k );
-                    saveAs( SAVE_ALL );
+                    saveAs( Overlord::SAVE_ALL );
 
                 }
                 else
                 {
-                    saveFile( fileName, SAVE_ALL );
+                    saveFile( fileName, Overlord::SAVE_ALL );
 
                 }
             }

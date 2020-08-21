@@ -15,6 +15,7 @@
 #include "dialog_options.h"
 #include "util.h"
 #include "overlord.h"
+#include "dialog_edt_help.h"
 
 #include <QFileDialog>
 #include <QKeySequence>
@@ -42,6 +43,7 @@ Dialog_Options::Dialog_Options( QWidget *parent )
     connect( m_ui->reset_PB,    &QPushButton::clicked, this, &Dialog_Options::reset_StandardKey );
     connect( m_ui->save_PB,     &QPushButton::clicked, this, &Dialog_Options::save );
     connect( m_ui->cancel_PB,   &QPushButton::clicked, this, &Dialog_Options::cancel );
+    connect( m_ui->edtHelp_PB,  &QPushButton::clicked, this, &Dialog_Options::show_help);
 
     m_ui->tabWidget->setCurrentIndex( 0 );
 }
@@ -104,6 +106,26 @@ void Dialog_Options::initData()
     m_ui->syntax->setText( m_options.syntaxPath() );
     m_ui->syntax->setCursorPosition( 0 );
 
+    m_ui->clipper_CKB->setChecked( m_options.preloadClipper() );
+    m_ui->cmake_CKB->setChecked( m_options.preloadCmake() );
+    m_ui->cpp_CKB->setChecked( m_options.preloadCpp() );
+    m_ui->css_CKB->setChecked( m_options.preloadCss() );
+    m_ui->doxy_CKB->setChecked( m_options.preloadDoxy() );
+    m_ui->errlog_CKB->setChecked( m_options.preloadErrLog() );
+    m_ui->html_CKB->setChecked( m_options.preloadHtml() );
+    m_ui->java_CKB->setChecked( m_options.preloadJava() );
+    m_ui->js_CKB->setChecked( m_options.preloadJs() );
+    m_ui->json_CKB->setChecked( m_options.preloadJson() );
+    m_ui->make_CKB->setChecked( m_options.preloadMake() );
+    m_ui->none_CKB->setChecked( m_options.preloadNone() );
+    m_ui->nsi_CKB->setChecked( m_options.preloadNSI() );
+    m_ui->php_CKB->setChecked( m_options.preloadPhp() );
+    m_ui->pl_CKB->setChecked( m_options.preloadPl() );
+    m_ui->py_CKB->setChecked( m_options.preloadPy() );
+    m_ui->sh_CKB->setChecked( m_options.preloadSh() );
+    m_ui->txt_CKB->setChecked( m_options.preloadTxt() );
+    m_ui->xml_CKB->setChecked( m_options.preloadXml() );
+    
 
     // ** tab two
     m_ui->key_open->setText( m_options.keys().open() );
@@ -148,26 +170,18 @@ void Dialog_Options::initData()
 
     // ** tab four
     m_ui->key_EDT_GotoLine->setText( m_options.keys().edtGotoLine() );
+    m_ui->numLock_RB->setChecked( m_options.keys().numLockGold());
+    m_ui->scrollLock_RB->setChecked( m_options.keys().scrollLockGold());
+    m_ui->key_EDT_Word->setText( m_options.keys().edtWord());
+    m_ui->key_EDT_Copy->setText(m_options.keys().edtCopy());
+    m_ui->key_EDT_InsertFile->setText(m_options.keys().edtInsertFile());
+    m_ui->key_EDT_UpperCase->setText(m_options.keys().edtUpperCase());
+    m_ui->key_EDT_LowerCase->setText(m_options.keys().edtLowerCase());
+    m_ui->key_EDT_SplitHorizontal->setText(m_options.keys().edtSplitHorizontal());
+    m_ui->key_EDT_SplitVertical->setText(m_options.keys().edtSplitVertical());
+    m_ui->key_EDT_SaveFile->setText(m_options.keys().edtSaveFile());
+    m_ui->key_EDT_Astyle->setText(m_options.keys().edtAstyle());
 
-    m_ui->clipper_CKB->setChecked( m_options.preloadClipper() );
-    m_ui->cmake_CKB->setChecked( m_options.preloadCmake() );
-    m_ui->cpp_CKB->setChecked( m_options.preloadCpp() );
-    m_ui->css_CKB->setChecked( m_options.preloadCss() );
-    m_ui->doxy_CKB->setChecked( m_options.preloadDoxy() );
-    m_ui->errlog_CKB->setChecked( m_options.preloadErrLog() );
-    m_ui->html_CKB->setChecked( m_options.preloadHtml() );
-    m_ui->java_CKB->setChecked( m_options.preloadJava() );
-    m_ui->js_CKB->setChecked( m_options.preloadJs() );
-    m_ui->json_CKB->setChecked( m_options.preloadJson() );
-    m_ui->make_CKB->setChecked( m_options.preloadMake() );
-    m_ui->none_CKB->setChecked( m_options.preloadNone() );
-    m_ui->nsi_CKB->setChecked( m_options.preloadNSI() );
-    m_ui->php_CKB->setChecked( m_options.preloadPhp() );
-    m_ui->pl_CKB->setChecked( m_options.preloadPl() );
-    m_ui->py_CKB->setChecked( m_options.preloadPy() );
-    m_ui->sh_CKB->setChecked( m_options.preloadSh() );
-    m_ui->txt_CKB->setChecked( m_options.preloadTxt() );
-    m_ui->xml_CKB->setChecked( m_options.preloadXml() );
 }
 
 void Dialog_Options::save()
@@ -186,6 +200,26 @@ void Dialog_Options::save()
     m_options.set_removeSpaces( m_ui->removeSpace_CKB->isChecked() );
     m_options.set_autoLoad( m_ui->autoLoad_CKB->isChecked() );
 
+    m_options.set_preloadClipper( m_ui->clipper_CKB->isChecked() );
+    m_options.set_preloadCmake( m_ui->cmake_CKB->isChecked() );
+    m_options.set_preloadCpp( m_ui->cpp_CKB->isChecked() );
+    m_options.set_preloadCss( m_ui->css_CKB->isChecked() );
+    m_options.set_preloadDoxy( m_ui->doxy_CKB->isChecked());
+    m_options.set_preloadErrLog( m_ui->errlog_CKB->isChecked());
+    m_options.set_preloadHtml( m_ui->html_CKB->isChecked());
+    m_options.set_preloadJava( m_ui->java_CKB->isChecked());
+    m_options.set_preloadJs( m_ui->js_CKB->isChecked());
+    m_options.set_preloadJson( m_ui->json_CKB->isChecked());
+    m_options.set_preloadMake( m_ui->make_CKB->isChecked());
+    m_options.set_preloadNone( m_ui->none_CKB->isChecked());
+    m_options.set_preloadNSI( m_ui->nsi_CKB->isChecked());
+    m_options.set_preloadPhp( m_ui->php_CKB->isChecked());
+    m_options.set_preloadPl( m_ui->pl_CKB->isChecked());
+    m_options.set_preloadPy( m_ui->py_CKB->isChecked());
+    m_options.set_preloadSh( m_ui->sh_CKB->isChecked());
+    m_options.set_preloadTxt( m_ui->txt_CKB->isChecked());
+    m_options.set_preloadXml( m_ui->xml_CKB->isChecked());
+    
     // ** tab 2
     m_options.keys().set_open( m_ui->key_open->text() );
     m_options.keys().set_close( m_ui->key_close->text() );
@@ -205,6 +239,7 @@ void Dialog_Options::save()
     m_options.keys().set_goTop( m_ui->key_goTop->text() );
     m_options.keys().set_goBottom( m_ui->key_goBottom->text() );
     m_options.keys().set_newTab( m_ui->key_newTab->text() );
+    
     // ** tab 3
     m_options.keys().set_printPreview( m_ui->key_printPreview->text() );
     m_options.keys().set_reload( m_ui->key_reload->text() );
@@ -229,26 +264,16 @@ void Dialog_Options::save()
     //** tab 4
     m_options.keys().set_edtGotoLine( m_ui->key_EDT_GotoLine->text() );
     m_options.keys().set_edtEnabled( m_ui->enable_EDT_CKB->isChecked() );
-
-    m_options.set_preloadClipper( m_ui->clipper_CKB->isChecked() );
-    m_options.set_preloadCmake( m_ui->cmake_CKB->isChecked() );
-    m_options.set_preloadCpp( m_ui->cpp_CKB->isChecked() );
-    m_options.set_preloadCss( m_ui->css_CKB->isChecked() );
-    m_options.set_preloadDoxy( m_ui->doxy_CKB->isChecked());
-    m_options.set_preloadErrLog( m_ui->errlog_CKB->isChecked());
-    m_options.set_preloadHtml( m_ui->html_CKB->isChecked());
-    m_options.set_preloadJava( m_ui->java_CKB->isChecked());
-    m_options.set_preloadJs( m_ui->js_CKB->isChecked());
-    m_options.set_preloadJson( m_ui->json_CKB->isChecked());
-    m_options.set_preloadMake( m_ui->make_CKB->isChecked());
-    m_options.set_preloadNone( m_ui->none_CKB->isChecked());
-    m_options.set_preloadNSI( m_ui->nsi_CKB->isChecked());
-    m_options.set_preloadPhp( m_ui->php_CKB->isChecked());
-    m_options.set_preloadPl( m_ui->pl_CKB->isChecked());
-    m_options.set_preloadPy( m_ui->py_CKB->isChecked());
-    m_options.set_preloadSh( m_ui->sh_CKB->isChecked());
-    m_options.set_preloadTxt( m_ui->txt_CKB->isChecked());
-    m_options.set_preloadXml( m_ui->xml_CKB->isChecked());
+    m_options.keys().set_numLockGold( m_ui->numLock_RB->isChecked());
+    m_options.keys().set_scrollLockGold( m_ui->scrollLock_RB->isChecked());
+    m_options.keys().set_edtCopy( m_ui->key_EDT_Copy->text());
+    m_options.keys().set_edtInsertFile( m_ui->key_EDT_InsertFile->text());
+    m_options.keys().set_edtUpperCase( m_ui->key_EDT_UpperCase->text());
+    m_options.keys().set_edtLowerCase( m_ui->key_EDT_LowerCase->text());
+    m_options.keys().set_edtSplitHorizontal( m_ui->key_EDT_SplitHorizontal->text());
+    m_options.keys().set_edtSplitVertical( m_ui->key_EDT_SplitVertical->text());
+    m_options.keys().set_edtSaveFile( m_ui->key_EDT_SaveFile->text());
+    m_options.keys().set_edtAstyle( m_ui->key_EDT_Astyle->text());
 
     Overlord::getInstance()->updateOptionsFromLocalCopy( m_options );
 
@@ -313,3 +338,10 @@ void Dialog_Options::reset_StandardKey()
     initData();
 }
 
+void Dialog_Options::show_help()
+{
+    Dialog_Edt_Help *dw = new Dialog_Edt_Help(this);
+    dw->exec();
+
+    delete dw;
+}

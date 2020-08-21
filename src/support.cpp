@@ -350,7 +350,7 @@ bool MainWindow::querySave()
 
             if ( fileName == "untitled.txt" )
             {
-                return saveAs( SAVE_ONE );
+                return saveAs( Overlord::SAVE_ONE );
             }
             else
             {
@@ -368,7 +368,7 @@ bool MainWindow::querySave()
     return true;
 }
 
-bool MainWindow::saveFile( QString fileName, SaveFiles saveType )
+bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
 {
 #if defined (Q_OS_WIN)
     // change forward to backslash
@@ -416,7 +416,7 @@ bool MainWindow::saveFile( QString fileName, SaveFiles saveType )
         update_splitCombo( fileName, false );
     }
 
-    if ( saveType == SAVE_ONE )
+    if ( saveType == Overlord::SAVE_ONE )
     {
         setWindowModified( false );
         setDiamondTitle( fileName );

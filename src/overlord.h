@@ -25,6 +25,7 @@ class Overlord : public QObject
 
 public:
     ~Overlord();
+    enum SaveFiles { SAVE_ONE, SAVE_ALL };
 
     static Overlord *getInstance();
     bool set_configFileName( QString name );
@@ -156,12 +157,16 @@ public:
     QFont   printFontText()                 { return m_settings.m_printSettings.fontText();}
     int     findListFind( QString text )    { return m_settings.findListFind( text );}
     int     openedFilesFind( QString name ) { return m_settings.openedFilesFind( name );}
+    QString edtLastDeletedChar()            { return m_settings.m_edtLastDeletedChar;}
+    QString edtLastDeletedWord()            { return m_settings.m_edtLastDeletedWord;}
+    QString edtLastDeletedLine()            { return m_settings.m_edtLastDeletedLine;}
 
     QList<macroStruct> viewMacro( QString macroName );
     QStringList loadMacroIds();
     bool loadMacro( QString macroName );
     bool openedFilesContains( QString name );
     bool recentFilesListContains( QString text );
+    bool edtDirection() { return m_edtDirection;}
 
     SyntaxPatterns *getSyntaxPatterns( QString fileName );
 
@@ -240,6 +245,9 @@ public:
     void set_lastActiveFile( QString fileName );
     void set_lastActiveRow( int row );
     void set_lastActiveColumn( int column );
+    void set_edtLastDeletedWord( QString word );
+    void set_edtLastDeletedLine( QString line );
+    void set_edtLastDeletedChar( QString c );  // because JSON doesn't do QChar
 
 
     void openedFilesClear();
@@ -253,6 +261,7 @@ public:
     void findListMove( int index, int dest );
     void replaceListPrepend( QString text );
     void replaceListMove( int index, int dest );
+    void set_edtDirection( bool forwardBackwards );
 
 
     // dangerous methods needed by dialogs that are designed to change
@@ -303,6 +312,7 @@ private:
     QString m_configFileName;
 
     QMap<QString, SyntaxPatterns *> m_syntaxPatterns;
+    bool m_edtDirection;  // do not save this - always default to forward when starting
 };
 
 #endif

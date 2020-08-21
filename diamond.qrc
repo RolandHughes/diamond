@@ -27,5 +27,7 @@
         <file>resources/EDT-Keypad.png</file>
         <file>resources/EDT-Help.html</file>
         <file>resources/EDT-Help_html_2d74e7d3ecceb510.png</file>
+        <file>resources/vt-keyboard.png</file>
+        <file>resources/LK401-keypad.jpeg</file>
     </qresource>
 </RCC>
