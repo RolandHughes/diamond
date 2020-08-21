@@ -125,7 +125,7 @@ public:
     CS_SIGNAL_2( edtAppend )
 
     CS_SIGNAL_1( Public, void edtCopy() )
-    CS_SIGNAL_2( edtCut )
+    CS_SIGNAL_2( edtCopy )
 
     CS_SIGNAL_1( Public, void edtCut() )
     CS_SIGNAL_2( edtCut )
