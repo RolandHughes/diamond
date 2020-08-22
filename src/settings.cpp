@@ -700,6 +700,15 @@ bool Settings::load()
         }
 
         m_options.keys().set_edtGotoLine( object.value( "key-edt-gotoLine" ).toString() );
+        m_options.keys().set_edtCopy( object.value("key-edt-copy").toString());
+        m_options.keys().set_edtInsertFile( object.value("key-edt-insertFile").toString());
+        m_options.keys().set_edtUpperCase( object.value("key-edt-upperCase").toString());
+        m_options.keys().set_edtLowerCase( object.value("key-edt-lowerCase").toString());
+        m_options.keys().set_edtSplitHorizontal( object.value("key-edt-splitHorizontal").toString());
+        m_options.keys().set_edtSplitVertical( object.value("key-edt-splitVertical").toString());
+        m_options.keys().set_edtSaveFile( object.value("key-edt-saveFile").toString());
+        m_options.keys().set_edtAstyle( object.value("key-edt-astyle").toString());
+        m_options.keys().set_edtWord( object.value( "key-edt-word").toString());
         m_options.keys().set_edtEnabled( object.value( "edt-enabled" ).toBool() );
 
         m_options.set_preloadClipper( object.value( "preload-clipper" ).toBool() );
@@ -1044,8 +1053,17 @@ void Settings::save()
     object.insert( "key-upper",             m_options.keys().upper() );
 
     //EDT keys
-    object.insert( "key-edt-gotoLine",      m_options.keys().edtGotoLine() );
     object.insert( "edt-enabled",           m_options.keys().edtEnabled() );
+    object.insert( "key-edt-gotoLine",      m_options.keys().edtGotoLine() );
+    object.insert( "key-edt-copy",          m_options.keys().edtCopy());
+    object.insert( "key-edt-insertFile",    m_options.keys().edtInsertFile());
+    object.insert( "key-edt-upperCase",     m_options.keys().edtUpperCase());
+    object.insert( "key-edt-lowerCase",     m_options.keys().edtLowerCase());
+    object.insert( "key-edt-splitHorizontal",   m_options.keys().edtSplitHorizontal());
+    object.insert( "key-edt-splitVertical",     m_options.keys().edtSplitVertical());
+    object.insert( "key-edt-saveFile",      m_options.keys().edtSaveFile());
+    object.insert( "key-edt-astyle",        m_options.keys().edtAstyle());
+    object.insert( "key-edt-word",          m_options.keys().edtWord());
 
 
     object.insert( "pathPrior", m_priorPath );

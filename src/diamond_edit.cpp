@@ -2151,10 +2151,9 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
         return true;
     }
 
-//    KeyDefinitions &keys = Overlord::getInstance()->keys();
+    QString keyStr = QKeySequence( key, modifiers ).toString( QKeySequence::NativeText );
 
-    QString keyStr = QKeySequence( modifiers, key ).toString( QKeySequence::NativeText );
-
+    qDebug() << "keyStr: " << keyStr << " key: " << key << " modifiers: " << modifiers;
     bool isKeypad = ( modifiers & Qt::KeypadModifier );
 
     QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
@@ -2216,9 +2215,9 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
             case Qt::Key_Down:
                 if ( isKeypad )
                 {
-                    // TODO:: save to EDT deleted line buffer in Overlord
                     QTextCursor cursor = textCursor();
                     cursor.movePosition( QTextCursor::EndOfLine, QTextCursor::KeepAnchor, 1 );
+                    Overlord::getInstance()->set_edtLastDeletedLine( cursor.selectedText());
                     cursor.removeSelectedText();
                     setTextCursor( cursor );
                     return true;
@@ -2437,6 +2436,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 
         if ( keyStr == Overlord::getInstance()->keys().edtCopy() )
         {
+            qDebug() << "edtCopy";
             edtCopy();
             return true;
         }
@@ -2481,11 +2481,11 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
             return true;
         }
 
-        qDebug() << "keyStr: " << keyStr;
         qDebug() << "edtWord: " << Overlord::getInstance()->keys().edtWord();
 
         if ( keyStr == Overlord::getInstance()->keys().edtWord() )
         {
+            qDebug() << "found edtWord";
             if ( !Overlord::getInstance()->edtLastDeletedWord().isEmpty() )
             {
                 QTextCursor cursor = textCursor();
@@ -2720,8 +2720,10 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                 break;
 
             case Qt::Key_Plus:      // DEL C
-                if ( isKeypad && !( keyStr == Overlord::getInstance()->keys().edtWord() ) )
+                if ( !( keyStr == Overlord::getInstance()->keys().edtWord() ) && isKeypad)
                 {
+                    qDebug() << "removing char. keyStr: " << keyStr << "  edtWord: "
+                             << Overlord::getInstance()->keys().edtWord();
                     QTextCursor cursor = textCursor();
 
 
@@ -2798,7 +2800,6 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                 break;
         }
 
-        qDebug() << "keyStr: " << keyStr;
         qDebug() << "edtWord: " << Overlord::getInstance()->keys().edtWord();
 
         if ( keyStr == Overlord::getInstance()->keys().edtWord() )
@@ -2814,6 +2815,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                 cursor.movePosition( QTextCursor::NextWord, QTextCursor::KeepAnchor, 1 );
             }
 
+            qDebug() << "deleting word";
             Overlord::getInstance()->set_edtLastDeletedWord( cursor.selectedText() );
             cursor.removeSelectedText();
             setTextCursor( cursor );

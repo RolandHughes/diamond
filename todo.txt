@@ -1,5 +1,7 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
+*) look at ExtraSelection logic around line 706 in diamond_edit.cpp. May have to
+*do some of that with edt.
 *) Test EOL in actual EDT. See if doesn't advance line when hit repeatedly  EOL
 *navigates up/down at end/begining of line depending on EDT direction.
 *) Test OPEN LINE in actual EDT to see what it really does. - OPEN LINE inserts
