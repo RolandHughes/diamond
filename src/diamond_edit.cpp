@@ -2217,7 +2217,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                 {
                     QTextCursor cursor = textCursor();
                     cursor.movePosition( QTextCursor::EndOfLine, QTextCursor::KeepAnchor, 1 );
-                    Overlord::getInstance()->set_edtLastDeletedLine( cursor.selectedText());
+                    Overlord::getInstance()->set_edtLastDeletedLine( cursor.selectedText() );
                     cursor.removeSelectedText();
                     setTextCursor( cursor );
                     return true;
@@ -2486,6 +2486,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
         if ( keyStr == Overlord::getInstance()->keys().edtWord() )
         {
             qDebug() << "found edtWord";
+
             if ( !Overlord::getInstance()->edtLastDeletedWord().isEmpty() )
             {
                 QTextCursor cursor = textCursor();
@@ -2720,7 +2721,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                 break;
 
             case Qt::Key_Plus:      // DEL C
-                if ( !( keyStr == Overlord::getInstance()->keys().edtWord() ) && isKeypad)
+                if ( !( keyStr == Overlord::getInstance()->keys().edtWord() ) && isKeypad )
                 {
                     qDebug() << "removing char. keyStr: " << keyStr << "  edtWord: "
                              << Overlord::getInstance()->keys().edtWord();
@@ -2795,6 +2796,19 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                     setTextCursor( cursor );
                     return true;
                 }
+
+                break;
+
+            case Qt::Key_F12:
+                if ( Overlord::getInstance()->keys().f12AsBackspace() )
+                {
+                    QTextCursor cursor = textCursor();
+                    cursor.movePosition( QTextCursor::StartOfLine, mode, 1 );
+                    setTextCursor( cursor );
+                    return true;
+                }
+
+                break;
 
             default:
                 break;

@@ -2474,7 +2474,7 @@
         <rect>
          <x>20</x>
          <y>540</y>
-         <width>67</width>
+         <width>90</width>
          <height>17</height>
         </rect>
        </property>
@@ -2488,7 +2488,7 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>90</x>
+         <x>120</x>
          <y>540</y>
          <width>120</width>
          <height>21</height>
@@ -2511,6 +2511,19 @@
        </property>
        <property name="readOnly">
         <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="f12AsBackspace_CKB">
+       <property name="geometry">
+        <rect>
+         <x>250</x>
+         <y>440</y>
+         <width>161</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>F12 sends Backspace</string>
        </property>
       </widget>
      </widget>

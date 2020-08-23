@@ -62,6 +62,7 @@ KeyDefinitions::KeyDefinitions( const KeyDefinitions &def ) :
     , m_edtEnabled( def.m_edtEnabled )
     , m_numLockGold( def.m_numLockGold )
     , m_scrollLockGold( def.m_scrollLockGold )
+    , m_f12AsBackspace( def.m_f12AsBackspace)
     , m_edtGotoLine( def.m_edtGotoLine )
     , m_edtInsertFile( def.m_edtInsertFile )
     , m_edtUpperCase( def.m_edtUpperCase )
@@ -118,6 +119,7 @@ KeyDefinitions &KeyDefinitions::operator =( const KeyDefinitions &def )
         m_edtEnabled            = def.m_edtEnabled;
         m_numLockGold           = def.m_numLockGold;
         m_scrollLockGold        = def.m_scrollLockGold;
+        m_f12AsBackspace        = def.m_f12AsBackspace;
         m_edtGotoLine           = def.m_edtGotoLine;
         m_edtCopy               = def.m_edtCopy;
         m_edtInsertFile         = def.m_edtInsertFile;
@@ -387,6 +389,11 @@ bool operator ==( const KeyDefinitions &left, const KeyDefinitions &right )
         retVal = false;
     }
 
+    if (left.m_f12AsBackspace != right.m_f12AsBackspace)
+    {
+        retVal = false;
+    }
+
     return retVal;
 
 }
@@ -406,7 +413,6 @@ bool operator !=( const KeyDefinitions &left, const KeyDefinitions &right )
 
 void KeyDefinitions::setDefaultKeyValues()
 {
-    qDebug() << "setDefaultKeyValues() called";
     QString modifier;
     Qt::Modifier mModifier;
 
@@ -423,6 +429,7 @@ void KeyDefinitions::setDefaultKeyValues()
     m_edtEnabled            = false;
     m_numLockGold           = true;
     m_scrollLockGold        = false;
+    m_f12AsBackspace        = false;
     m_edtGotoLine           = QKeySequence( Qt::Key_Equal ).toString( QKeySequence::NativeText );
     m_edtCopy               = QKeySequence( Qt::Key_C ).toString( QKeySequence::NativeText );
     m_edtInsertFile         = QKeySequence( Qt::Key_I ).toString( QKeySequence::NativeText );

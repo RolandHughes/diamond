@@ -235,8 +235,13 @@ void Dialog_Colors::copyClicked()
     destName = QInputDialog::getText( this, "New Theme name", "Name: ", QLineEdit::Normal,
                                       destName, &okFlag, Qt::Dialog, Qt::ImhNone );
 
-    if ( okFlag )
+    // TODO:: Need duplicate check here
+    if ( okFlag && ( destName > " " ) )
     {
+        bool abortFlag = false;
+
+        while ( nameCollision( destName, abortFlag ) && !abortFlag );
+
         m_localSettings.copyTheme( m_ui->theme_comboBox->currentText(), destName );
         rebuildComboBox( true );
     }
@@ -569,7 +574,7 @@ bool Dialog_Colors::nameCollision( QString &themeName, bool &abortFlag )
 
     bool retVal = false;
 
-    if ( Overlord::getInstance()->themeNameExists( themeName ) )
+    if ( m_localSettings.themeNameExists( themeName ) )
     {
         abortFlag = false;
 

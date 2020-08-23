@@ -181,6 +181,7 @@ void Dialog_Options::initData()
     m_ui->key_EDT_SplitVertical->setText( m_options.keys().edtSplitVertical() );
     m_ui->key_EDT_SaveFile->setText( m_options.keys().edtSaveFile() );
     m_ui->key_EDT_Astyle->setText( m_options.keys().edtAstyle() );
+    m_ui->f12AsBackspace_CKB->setChecked( m_options.keys().f12AsBackspace());
 
 }
 
@@ -274,6 +275,7 @@ void Dialog_Options::save()
     m_options.keys().set_edtSplitVertical( m_ui->key_EDT_SplitVertical->text() );
     m_options.keys().set_edtSaveFile( m_ui->key_EDT_SaveFile->text() );
     m_options.keys().set_edtAstyle( m_ui->key_EDT_Astyle->text() );
+    m_options.keys().set_f12AsBackspace( m_ui->f12AsBackspace_CKB->isChecked());
 
     Overlord::getInstance()->updateOptionsFromLocalCopy( m_options );
 

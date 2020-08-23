@@ -87,6 +87,7 @@ public:
     QString edtSaveFile()           { return m_edtSaveFile;}
     QString edtAstyle()             { return m_edtAstyle;}
     QString edtWord()               { return m_edtWord;}
+    bool    f12AsBackspace()        { return m_f12AsBackspace;}
 
 
 
@@ -145,6 +146,7 @@ public:
     void set_edtSaveFile( QString keyValue )        { m_edtSaveFile = keyValue;}
     void set_edtAstyle( QString keyValue )          { m_edtAstyle = keyValue;}
     void set_edtWord( QString keyValue )            { m_edtWord = keyValue;}
+    void set_f12AsBackspace( bool yesNo )            { m_f12AsBackspace = yesNo;}
 
 private:
     QString adjustKey( QString sequence );
@@ -199,6 +201,7 @@ private:
     bool    m_edtEnabled;       // only look for EDT keypad support when enabled.
     bool    m_numLockGold;      // use NumLock as GOLD key - default
     bool    m_scrollLockGold;   // use ScrollLock as GOLD key - typical from Emacs
+    bool    m_f12AsBackspace;   // use F12 as VT Backspace (home) key
     QString m_edtGotoLine;          // GOLD =
     QString m_edtCopy;              // GOLD C
     QString m_edtInsertFile;        // GOLD I
