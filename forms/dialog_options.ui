@@ -2391,7 +2391,7 @@
         <rect>
          <x>20</x>
          <y>420</y>
-         <width>201</width>
+         <width>141</width>
          <height>101</height>
         </rect>
        </property>
@@ -2469,55 +2469,11 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QLabel" name="label_55">
+      <widget class="QCheckBox" name="f12AsBackspace_CKB">
        <property name="geometry">
         <rect>
          <x>20</x>
          <y>540</y>
-         <width>90</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Delete Word: </string>
-       </property>
-      </widget>
-      <widget class="KeyLineEdit" name="key_EDT_Word">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="geometry">
-        <rect>
-         <x>120</x>
-         <y>540</y>
-         <width>120</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>120</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Jump to a specific line number</string>
-       </property>
-       <property name="whatsThis">
-        <string>Jump to a specific line number</string>
-       </property>
-       <property name="accessibleDescription">
-        <string>Jump to specific line number</string>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="f12AsBackspace_CKB">
-       <property name="geometry">
-        <rect>
-         <x>250</x>
-         <y>440</y>
          <width>161</width>
          <height>23</height>
         </rect>
@@ -2525,6 +2481,45 @@
        <property name="text">
         <string>F12 sends Backspace</string>
        </property>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>420</y>
+         <width>221</width>
+         <height>101</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Delete Word Keypad + combination</string>
+       </property>
+       <widget class="QRadioButton" name="edtWordCtrlMeta_RB">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>171</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Ctrl (PC)  Meta (Apple)</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="edtWordAltOption_RB">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>171</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Alt (PC) Option (Apple)</string>
+        </property>
+       </widget>
       </widget>
      </widget>
     </widget>

@@ -115,6 +115,9 @@ public:
     CS_SIGNAL_1( Public, void edtSaveFile( QString fileName, Overlord::SaveFiles fileType ) )
     CS_SIGNAL_2( edtSaveFile, fileName, fileType )
 
+    CS_SIGNAL_1( Public, void edtSaveFileAs( Overlord::SaveFiles fileType ) )
+    CS_SIGNAL_2( edtSaveFileAs, fileType )
+
     CS_SIGNAL_1( Public, void edtAstyle() )
     CS_SIGNAL_2( edtAstyle )
 
@@ -162,6 +165,9 @@ public:
 
     CS_SIGNAL_1( Public, void not_done( QString txt ) )
     CS_SIGNAL_2( not_done, txt )
+
+    CS_SIGNAL_1( Public, void timedMessage( QString msg, int milliSeconds))
+    CS_SIGNAL_2( timedMessage, msg, milliSeconds)
 
     // editing API for use by MainWindow
     //
@@ -217,6 +223,15 @@ private:
     void setScreenColors();
     void changeFont();
     bool handleEdtKey( int key, int modifiers );
+    void edtSectionUp( QTextCursor::MoveMode mode );
+    void edtSectionDown( QTextCursor::MoveMode mode );
+    void edtKeyRight( QTextCursor::MoveMode mode );
+    void edtKeyLeft( QTextCursor::MoveMode mode );
+    void edtLineUp( QTextCursor::MoveMode mode );
+    void edtLineDown( QTextCursor::MoveMode mode );
+    void edtEndOfLine( QTextCursor::MoveMode mode );
+    void edtHome( QTextCursor::MoveMode mode );
+    
 
     Settings *m_settingsPtr;
     Themes m_lastTheme;
@@ -236,14 +251,13 @@ private:
 
     bool m_colHighlight;
     bool m_currentKeyGold;
+    bool m_edtSelectActive;
 
     int m_startRow;
     int m_startCol;
     int m_endRow;
     int m_endCol;
     int m_lastTabSpacing;
-    //  TODO:: connect this to selectionChanged() signal for each tab.
-    bool m_edtSelectActive;  // do not save this - always default to no when starting
 
 
     // copy buffer

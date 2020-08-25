@@ -643,6 +643,7 @@ bool Settings::load()
         }
 
         // preset folders
+        m_preFolderList.clear();
         list = object.value( "preset-folders" ).toArray();
         cnt = list.count();
 
@@ -700,16 +701,18 @@ bool Settings::load()
         }
 
         m_options.keys().set_edtGotoLine( object.value( "key-edt-gotoLine" ).toString() );
-        m_options.keys().set_edtCopy( object.value("key-edt-copy").toString());
-        m_options.keys().set_edtInsertFile( object.value("key-edt-insertFile").toString());
-        m_options.keys().set_edtUpperCase( object.value("key-edt-upperCase").toString());
-        m_options.keys().set_edtLowerCase( object.value("key-edt-lowerCase").toString());
-        m_options.keys().set_edtSplitHorizontal( object.value("key-edt-splitHorizontal").toString());
-        m_options.keys().set_edtSplitVertical( object.value("key-edt-splitVertical").toString());
-        m_options.keys().set_edtSaveFile( object.value("key-edt-saveFile").toString());
-        m_options.keys().set_edtAstyle( object.value("key-edt-astyle").toString());
-        m_options.keys().set_edtWord( object.value( "key-edt-word").toString());
+        m_options.keys().set_edtCopy( object.value( "key-edt-copy" ).toString() );
+        m_options.keys().set_edtInsertFile( object.value( "key-edt-insertFile" ).toString() );
+        m_options.keys().set_edtUpperCase( object.value( "key-edt-upperCase" ).toString() );
+        m_options.keys().set_edtLowerCase( object.value( "key-edt-lowerCase" ).toString() );
+        m_options.keys().set_edtSplitHorizontal( object.value( "key-edt-splitHorizontal" ).toString() );
+        m_options.keys().set_edtSplitVertical( object.value( "key-edt-splitVertical" ).toString() );
+        m_options.keys().set_edtSaveFile( object.value( "key-edt-saveFile" ).toString() );
+        m_options.keys().set_edtAstyle( object.value( "key-edt-astyle" ).toString() );
+        m_options.keys().set_edtWordCtrlMeta( object.value( "edt-word-Ctrl-Meta" ).toBool() );
+        m_options.keys().set_edtWordAltOption( object.value( "edt-word-Alt-Option" ).toBool() );
         m_options.keys().set_edtEnabled( object.value( "edt-enabled" ).toBool() );
+        m_options.keys().set_f12AsBackspace( object.value( "edt-f12-as-backspace" ).toBool() );
 
         m_options.set_preloadClipper( object.value( "preload-clipper" ).toBool() );
         m_options.set_preloadCmake( object.value( "preload-cmake" ).toBool() );
@@ -1055,21 +1058,28 @@ void Settings::save()
     //EDT keys
     object.insert( "edt-enabled",           m_options.keys().edtEnabled() );
     object.insert( "key-edt-gotoLine",      m_options.keys().edtGotoLine() );
-    object.insert( "key-edt-copy",          m_options.keys().edtCopy());
-    object.insert( "key-edt-insertFile",    m_options.keys().edtInsertFile());
-    object.insert( "key-edt-upperCase",     m_options.keys().edtUpperCase());
-    object.insert( "key-edt-lowerCase",     m_options.keys().edtLowerCase());
-    object.insert( "key-edt-splitHorizontal",   m_options.keys().edtSplitHorizontal());
-    object.insert( "key-edt-splitVertical",     m_options.keys().edtSplitVertical());
-    object.insert( "key-edt-saveFile",      m_options.keys().edtSaveFile());
-    object.insert( "key-edt-astyle",        m_options.keys().edtAstyle());
-    object.insert( "key-edt-word",          m_options.keys().edtWord());
+    object.insert( "key-edt-copy",          m_options.keys().edtCopy() );
+    object.insert( "key-edt-insertFile",    m_options.keys().edtInsertFile() );
+    object.insert( "key-edt-upperCase",     m_options.keys().edtUpperCase() );
+    object.insert( "key-edt-lowerCase",     m_options.keys().edtLowerCase() );
+    object.insert( "key-edt-splitHorizontal",   m_options.keys().edtSplitHorizontal() );
+    object.insert( "key-edt-splitVertical",     m_options.keys().edtSplitVertical() );
+    object.insert( "key-edt-saveFile",      m_options.keys().edtSaveFile() );
+    object.insert( "key-edt-astyle",        m_options.keys().edtAstyle() );
+    object.insert( "edt-word-Ctrl-Meta",    m_options.keys().edtWordCtrlMeta() );
+    object.insert( "edt-word-Alt-Option",   m_options.keys().edtWordAltOption() );
+    object.insert( "edt-f12-as-backspace",  m_options.keys().f12AsBackspace() );
 
 
     object.insert( "pathPrior", m_priorPath );
     object.insert( "pathSyntax", syntaxPath() );
 
     // TODO:: figure this macro stuff out later.
+    //        see if we can move MacroKeyList out of m_textEdit.
+    //        If it can't be made part of settings it should at least
+    //        be moved into Overlord.
+    //        It is just a class member variable so we can move it.
+    //
 #if 0
     QList<QKeyEvent *> eventList;
     eventList = m_textEdit->get_MacroKeyList();

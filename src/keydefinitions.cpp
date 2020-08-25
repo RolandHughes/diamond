@@ -71,7 +71,8 @@ KeyDefinitions::KeyDefinitions( const KeyDefinitions &def ) :
     , m_edtSplitVertical( def.m_edtSplitVertical )
     , m_edtSaveFile( def.m_edtSaveFile )
     , m_edtAstyle( def.m_edtAstyle )
-    , m_edtWord( def.m_edtWord )
+    , m_edtWordCtrlMeta( def.m_edtWordCtrlMeta)
+    , m_edtWordAltOption( def.m_edtWordAltOption)
 {
 }
 
@@ -129,7 +130,8 @@ KeyDefinitions &KeyDefinitions::operator =( const KeyDefinitions &def )
         m_edtSplitVertical      = def.m_edtSplitVertical;
         m_edtSaveFile           = def.m_edtSaveFile;
         m_edtAstyle             = def.m_edtAstyle;
-        m_edtWord               = def.m_edtWord;
+        m_edtWordCtrlMeta       = def.m_edtWordCtrlMeta;
+        m_edtWordAltOption      = def.m_edtWordAltOption;
     }
 
     return *this;
@@ -384,12 +386,17 @@ bool operator ==( const KeyDefinitions &left, const KeyDefinitions &right )
         retVal = false;
     }
 
-    if ( left.m_edtWord != right.m_edtWord )
+    if (left.m_f12AsBackspace != right.m_f12AsBackspace)
     {
         retVal = false;
     }
 
-    if (left.m_f12AsBackspace != right.m_f12AsBackspace)
+    if (left.m_edtWordCtrlMeta != right.m_edtWordCtrlMeta)
+    {
+        retVal = false;
+    }
+
+    if (left.m_edtWordAltOption != right.m_edtWordAltOption)
     {
         retVal = false;
     }
@@ -414,14 +421,15 @@ bool operator !=( const KeyDefinitions &left, const KeyDefinitions &right )
 void KeyDefinitions::setDefaultKeyValues()
 {
     QString modifier;
-    Qt::Modifier mModifier;
 
 #ifdef Q_OS_MAC
-    modifier = "Meta+";
-    mModifier = Qt::META;
+    modifier            = "Meta+";
+    m_edtWordCtrlMeta   = true;
+    m_edtWordAltOption  = false;
 #else
-    modifier = "Ctrl+";
-    mModifier = Qt::CTRL;
+    modifier            = "Ctrl+";
+    m_edtWordCtrlMeta   = false;
+    m_edtWordAltOption  = true;
 #endif
 
     // EDT keys
@@ -439,7 +447,6 @@ void KeyDefinitions::setDefaultKeyValues()
     m_edtSplitVertical      = QKeySequence( Qt::Key_V ).toString( QKeySequence::NativeText );
     m_edtSaveFile           = QKeySequence( Qt::Key_S ).toString( QKeySequence::NativeText );
     m_edtAstyle             = QKeySequence( Qt::Key_A ).toString( QKeySequence::NativeText );
-    m_edtWord               = QKeySequence( mModifier, Qt::KeypadModifier, Qt::Key_Plus ).toString( QKeySequence::NativeText );
 
 
     // Standard keys
@@ -535,7 +542,6 @@ void KeyDefinitions::platformAdjustKeyValues()
     m_edtSplitHorizontal    = adjustKey( m_edtSplitHorizontal );
     m_edtSplitVertical      = adjustKey( m_edtSplitVertical );
     m_edtSaveFile           = adjustKey( m_edtSaveFile );
-    m_edtWord               = adjustKey( m_edtWord );
 }
 
 QString KeyDefinitions::adjustKey( QString sequence )

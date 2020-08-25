@@ -152,6 +152,7 @@
     <addaction name="actionShow_Breaks"/>
     <addaction name="separator"/>
     <addaction name="actionDisplay_HTML"/>
+    <addaction name="actionClipboard"/>
    </widget>
    <widget class="QMenu" name="menuDocument">
     <property name="title">
@@ -814,6 +815,11 @@
   <action name="actionDelete_ThroughEOL">
    <property name="text">
     <string>Delete through End of Line</string>
+   </property>
+  </action>
+  <action name="actionClipboard">
+   <property name="text">
+    <string>Clipboard</string>
    </property>
   </action>
  </widget>

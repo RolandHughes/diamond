@@ -73,7 +73,6 @@ public:
     bool    preloadSh()                     { return m_settings.m_options.preloadSh();}
     bool    preloadTxt()                    { return m_settings.m_options.preloadTxt();}
     bool    preloadXml()                    { return m_settings.m_options.preloadXml();}
-    bool    edtMode()                       { return m_settings.m_options.keys().edtEnabled();}
 
     QString formatDate()                    { return m_settings.m_options.formatDate();}
     QString formatTime()                    { return m_settings.m_options.formatTime();}
@@ -160,6 +159,9 @@ public:
     QString edtLastDeletedChar()            { return m_settings.m_edtLastDeletedChar;}
     QString edtLastDeletedWord()            { return m_settings.m_edtLastDeletedWord;}
     QString edtLastDeletedLine()            { return m_settings.m_edtLastDeletedLine;}
+    bool    edtMode()                       { return keys().edtEnabled();}
+    bool    edtWordCtrlMeta()               { return keys().edtWordCtrlMeta();}
+    bool    edtWordAltOption()              { return keys().edtWordAltOption();}
 
     QList<macroStruct> viewMacro( QString macroName );
     QStringList loadMacroIds();

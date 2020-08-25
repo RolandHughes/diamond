@@ -92,6 +92,9 @@ public:
     CS_SLOT_1( Public, void split_Vertical() )
     CS_SLOT_2( split_Vertical )
 
+    CS_SLOT_1( Public, void showClipboard() )
+    CS_SLOT_2( showClipboard )
+
 protected:
     void closeEvent( QCloseEvent *event );
     void dragEnterEvent( QDragEnterEvent *event );
@@ -216,7 +219,9 @@ private:
 
     QString adjustKey( QString sequence );
 
-    void setStatusBar( QString msg, int timeOut );
+    CS_SLOT_1( Public, void setStatusBar( QString msg, int timeOut ) )
+    CS_SLOT_2( setStatusBar )
+
     void setStatus_ColMode();
     void setStatus_FName( QString name );
     CS_SLOT_1( Public, void showNotDone( QString item ) )
@@ -247,7 +252,8 @@ private:
     CS_SLOT_1( Public, bool saveFile( QString fileName, Overlord::SaveFiles saveType ) )
     CS_SLOT_2( saveFile )
 
-    bool saveAs( Overlord::SaveFiles saveType );
+    CS_SLOT_1( Public, bool saveAs( Overlord::SaveFiles saveType ) )
+    CS_SLOT_2( saveAs )
 
     void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false );
     void setDiamondTitle( const QString title );

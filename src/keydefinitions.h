@@ -86,7 +86,8 @@ public:
     QString edtSplitVertical()      { return m_edtSplitVertical;}
     QString edtSaveFile()           { return m_edtSaveFile;}
     QString edtAstyle()             { return m_edtAstyle;}
-    QString edtWord()               { return m_edtWord;}
+    bool    edtWordCtrlMeta()       { return m_edtWordCtrlMeta;}
+    bool    edtWordAltOption()      { return m_edtWordAltOption;}
     bool    f12AsBackspace()        { return m_f12AsBackspace;}
 
 
@@ -133,20 +134,21 @@ public:
     void set_undo( QString keyValue )              { m_undo = keyValue;}
     void set_upper( QString keyValue )             { m_upper = keyValue;}
 
-    void set_edtEnabled( bool yesNo )              { m_edtEnabled = yesNo;}
-    void set_edtGotoLine( QString txt )            { m_edtGotoLine = txt;}
+    void set_edtEnabled( bool yesNo )               { m_edtEnabled = yesNo;}
+    void set_edtGotoLine( QString txt )             { m_edtGotoLine = txt;}
     void set_numLockGold( bool yesNo )              { m_numLockGold = yesNo;}
     void set_scrollLockGold( bool yesNo )           { m_scrollLockGold = yesNo;}
-    void set_edtCopy( QString keyValue )             { m_edtCopy = keyValue;}
-    void set_edtInsertFile( QString keyValue )       { m_edtInsertFile = keyValue;}
+    void set_edtCopy( QString keyValue )            { m_edtCopy = keyValue;}
+    void set_edtInsertFile( QString keyValue )      { m_edtInsertFile = keyValue;}
     void set_edtUpperCase( QString keyValue )       { m_edtUpperCase = keyValue;}
     void set_edtLowerCase( QString keyValue )       { m_edtLowerCase = keyValue;}
     void set_edtSplitHorizontal( QString keyValue ) { m_edtSplitHorizontal = keyValue;}
     void set_edtSplitVertical( QString keyValue )   { m_edtSplitVertical = keyValue;}
     void set_edtSaveFile( QString keyValue )        { m_edtSaveFile = keyValue;}
     void set_edtAstyle( QString keyValue )          { m_edtAstyle = keyValue;}
-    void set_edtWord( QString keyValue )            { m_edtWord = keyValue;}
-    void set_f12AsBackspace( bool yesNo )            { m_f12AsBackspace = yesNo;}
+    void set_edtWordCtrlMeta( bool yesNo )          { m_edtWordCtrlMeta = yesNo;}
+    void set_edtWordAltOption( bool yesNo )         { m_edtWordAltOption = yesNo;}
+    void set_f12AsBackspace( bool yesNo )           { m_f12AsBackspace = yesNo;}
 
 private:
     QString adjustKey( QString sequence );
@@ -211,7 +213,8 @@ private:
     QString m_edtSplitVertical;     // GOLD V
     QString m_edtSaveFile;          // GOLD S
     QString m_edtAstyle;            // GOLD A
-    QString m_edtWord;              // Ctrl-keyPad+
+    bool    m_edtWordCtrlMeta;      // Ctrl (PC) Meta (Apple) Keypad+
+    bool    m_edtWordAltOption;     // Alt (PC) Option (Apple) Keypad+
 };
 
 #endif

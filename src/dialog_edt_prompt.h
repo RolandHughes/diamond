@@ -20,6 +20,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+
 class Dialog_Edt_Prompt : public QDialog
 {
     CS_OBJECT( Dialog_Edt_Prompt )
@@ -35,6 +36,12 @@ public:
     void setLabelPalette( QPalette &p )  { m_label->setPalette( p );}
     void setEditPalette( QPalette &p )   { m_lineEdit->setPalette( p );}
     void setText( QString txt )          { m_lineEdit->setText( txt );}
+
+    CS_SLOT_1( Public, void reposition() )
+    CS_SLOT_2( reposition )
+
+protected:
+    void showEvent( QShowEvent *e );
 
 private:
     Edt_LineEdit *m_lineEdit;

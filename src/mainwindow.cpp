@@ -39,6 +39,7 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QTimer>
+#include <QClipboard>
 
 MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     : m_ui( new Ui::MainWindow )
@@ -223,8 +224,11 @@ void MainWindow::tabNew()
     connect( m_textEdit, &DiamondTextEdit::edtSplitH, this, &MainWindow::split_Horizontal );
     connect( m_textEdit, &DiamondTextEdit::edtSplitV, this, &MainWindow::split_Vertical );
     connect( m_textEdit, &DiamondTextEdit::edtSaveFile, this, &MainWindow::saveFile );
+    connect( m_textEdit, &DiamondTextEdit::edtSaveFileAs, this, &MainWindow::saveAs );
     connect( m_textEdit, &DiamondTextEdit::edtPaste, this, &MainWindow::mw_paste );
     connect( m_textEdit, &DiamondTextEdit::edtCopy, this, &MainWindow::mw_copy );
+    connect( m_textEdit, &DiamondTextEdit::edtSubs, this, &MainWindow::replace );
+    connect( m_textEdit, &DiamondTextEdit::timedMessage, this, &MainWindow::setStatusBar);
 }
 
 void MainWindow::mw_tabClose()
@@ -505,6 +509,7 @@ void MainWindow::createConnections()
     connect( m_ui->actionShow_Spaces,       &QAction::triggered, this, &MainWindow::show_Spaces );
     connect( m_ui->actionShow_Breaks,       &QAction::triggered, this, &MainWindow::show_Breaks );
     connect( m_ui->actionDisplay_HTML,      &QAction::triggered, this, &MainWindow::displayHTML );
+    connect( m_ui->actionClipboard,         &QAction::triggered, this, &MainWindow::showClipboard );
 
     // document
     connect( m_ui->actionSyn_C,             &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_C );       } );
@@ -1116,6 +1121,27 @@ void MainWindow::move_ConfigFile()
 void MainWindow::showEdtHelp()
 {
     Dialog_Edt_Help *dw = new Dialog_Edt_Help( this );
+    dw->exec();
+
+    delete dw;
+}
+
+void MainWindow::showClipboard()
+{
+    QDialog *dw = new QDialog(this);
+    dw->setMinimumSize( 400, 400);
+    dw->setWindowTitle( "Clipboard contents");
+    dw->setFont(Overlord::getInstance()->fontNormal());
+    
+    QHBoxLayout *layout = new QHBoxLayout;
+    
+    QTextEdit *ed = new QTextEdit();
+    ed->setReadOnly(true);
+    ed->setText(QApplication::clipboard()->text());
+
+    layout->addWidget(ed);
+    dw->setLayout(layout);
+
     dw->exec();
 
     delete dw;

@@ -23,7 +23,6 @@
 #include <QSize>
 #include <QTextDocument>
 #include "themes.h"
-//#include "keydefinitions.h"
 #include "options.h"
 #include "printsettings.h"
 #include "macrostruct.h"

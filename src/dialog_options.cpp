@@ -172,7 +172,8 @@ void Dialog_Options::initData()
     m_ui->key_EDT_GotoLine->setText( m_options.keys().edtGotoLine() );
     m_ui->numLock_RB->setChecked( m_options.keys().numLockGold() );
     m_ui->scrollLock_RB->setChecked( m_options.keys().scrollLockGold() );
-    m_ui->key_EDT_Word->setText( m_options.keys().edtWord() );
+    m_ui->edtWordCtrlMeta_RB->setChecked( m_options.keys().edtWordCtrlMeta());
+    m_ui->edtWordAltOption_RB->setChecked( m_options.keys().edtWordAltOption());
     m_ui->key_EDT_Copy->setText( m_options.keys().edtCopy() );
     m_ui->key_EDT_InsertFile->setText( m_options.keys().edtInsertFile() );
     m_ui->key_EDT_UpperCase->setText( m_options.keys().edtUpperCase() );

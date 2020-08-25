@@ -14,6 +14,7 @@
 
 #include "dialog_edt_prompt.h"
 #include "overlord.h"
+#include <QStyle>
 
 Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QWidget *parent ) :
     QDialog( parent )
@@ -24,9 +25,10 @@ Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QW
     Qt::WindowFlags flags = this->windowFlags();
     // Qt::CustomizeWindowHint
     // Qt::FramelessWindowHint
-    setWindowFlags( flags | Qt::CustomizeWindowHint );
+    setWindowFlags( flags | Qt::FramelessWindowHint );
 
-    setSizeGripEnabled( false );
+    //setSizeGripEnabled( false );
+    //setModal(false);
 
     QPalette temp = palette();
     temp.setColor( this->foregroundRole(), Overlord::getInstance()->currentTheme().colorText() );
@@ -46,5 +48,49 @@ Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QW
     layout->addWidget( m_label );
     layout->addWidget( m_lineEdit );
     setLayout( layout );
+
+    if ( parentWidget() )
+    {
+        setMinimumWidth( parentWidget()->width() );
+    }
 }
 
+void Dialog_Edt_Prompt::reposition()
+{
+    if ( parentWidget() )
+    {
+        qDebug() << "reposition()";
+        QSize parentSize = parentWidget()->size();
+        int w = size().width();
+        int h = size().height();
+        setGeometry( 0, ( parentSize.height() - h ), w, h );
+        qDebug() << "dialog bottomLeft: " << rect().bottomLeft();
+    }
+}
+
+void Dialog_Edt_Prompt::showEvent( QShowEvent *e )
+{
+    if ( parent() )
+    {
+        qDebug() << "showEvent()";
+
+#if 0
+        qDebug() << "bottomLeft before: " << rect().bottomLeft();
+        QRect parentRect( parentWidget()->mapToGlobal( QPoint( 0, 0 ) ), parentWidget()->size() );
+        qDebug() << "parent rec bottomLeft: " << parentRect.bottomLeft();
+        rect().moveBottomLeft( parentRect.bottomLeft() );
+        qDebug() << "bottomLeft after: " << rect().bottomLeft();
+#endif
+
+        QSize parentSize = parentWidget()->size();
+        int w = size().width();
+        int h = size().height();
+        setGeometry( 0, ( parentSize.height() - h ), w, h );
+        qDebug() << "dialog bottomLeft: " << rect().bottomLeft();
+
+    }
+    else
+    {
+        QDialog::showEvent( e );
+    }
+}
