@@ -76,7 +76,6 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
 
     // syntax - assinged from loadfile(), runSyntax()
     m_synFName     = "";
-    m_syntaxParser = 0;
 
     // I really kind of hate this. I have to keep a local pointer
     // because I want to re-use this editor inside of the colors dialog.

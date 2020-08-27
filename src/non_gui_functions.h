@@ -28,4 +28,3 @@ QFont fontFromString( QString value );
 QColor colorFromValueString( QString values );
 QString getRGBString( QColor color );
 bool doubleEqualFourDigits( double left, double right );
-void updateSyntaxInThread( Syntax *parser, Settings *settings );

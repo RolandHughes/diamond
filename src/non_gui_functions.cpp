@@ -98,8 +98,3 @@ bool doubleEqualFourDigits( double left, double right )
     return ( ll_left == ll_right );
 }
 
-// cheat function so highlighting can be threaded off
-void updateSyntaxInThread( Syntax *parser, Settings *settings )
-{
-    parser->processSyntax( settings );
-}

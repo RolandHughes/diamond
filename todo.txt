@@ -1,10 +1,18 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
+*) <Ctrl>-C needs to clear EDT select and return false.
+
+*) Advanced Find, doublclicking entry needs to set focus on DiamondTextEdit, not remain on the line
+
+*) test turning spellcheck on in big text document. Might have to do reload text trick.
+
 *) Remove unused signals from diamond_edit.h
 
 *) update EDT Help text to talk about what actually got implemented and how Apple/MAC users will be screwed when it comes to using select and arrow keys because their arrow keys are considered part of the keypad.
 
 *) Need EDT command dialog
+
+***) rewrapParagraph() is on the context menu
 
 *) Clicking on file tab needs to immediately shift focus to text edit once displayed.
 

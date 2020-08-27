@@ -216,7 +216,7 @@ void MainWindow::tabNew()
 
     connect( m_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType );
 
-    // TODO:: connect EDT signals here
+    // connect EDT signals here
     //
     connect( m_textEdit, &DiamondTextEdit::showEdtHelp, this, &MainWindow::showEdtHelp );
     connect( m_textEdit, &DiamondTextEdit::edtTop, this, &MainWindow::goTop );
