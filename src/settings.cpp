@@ -1426,17 +1426,6 @@ bool Settings::openedFilesContains( QString name )
     return m_openedFiles.contains( name, Qt::CaseInsensitive );
 }
 
-#if 0
-void Settings::createAndLoadNew( QString name )
-{
-    // TODO:: this is wrong now
-    Settings settings;
-
-    settings.save();
-    json_ReadFile();
-}
-#endif
-
 int Settings::openedFilesFind( QString name )
 {
     return m_openedFiles.indexOf( name );
@@ -1491,7 +1480,7 @@ void Settings::generateDefaultThemes()
         "GRAYGREY, #000000, #b9c3c5, #000000, #d1ded1, #d7dede, #98061A,  Y, N, #98061A, N, N, #0055FF, N, N, #2E6C33, N, N, #2c7631, N, N, #0000FF, N, Y, #0000FF, N, Y, #FF518C, N, N",
         "JUSTDARKENOUGH, #F4F4F4, #424244, #000000, #363531, #E0DBCD, #00C2C2, N, N, #C195B4, N, N, #55AAFF, N, N, #00EBAD, N, N, #FFFF00, N, N, #F59F00, N, Y, #F59F00, N, Y, #FF518C, N, N",
         "TANGOLIGHT, #2E3436, #EEEEEC, #2E3436, #D1E7D3, #07E719, #346604, N, N, #CE5C00, N, N, #234670, N, N, #A40000, N, N, #5C3566, N, N, #5F615C, N, Y, #5F615C, N, Y, #FF518C, N, N",
-        "COBALT, #F8F8F8, #09223F, #888888, #111111, #00162A, #FA9E18, N, N, #FFEF79, N, N, #42D915, N,N, #FFDD00, N, N, #42D915, N, N, #008AFF, N, N, #008AFF, N, N, #FF518C, N, N",
+        "COBALT, #F8F8F8, #09223F, #888888, #111111, #00162A, #FA9E18, N, N, #FFEF79, N, N, #42D915, N,N, #FFDD00, N, N, #42D915, N, N, #008AFF, N, N, #008AFF, N, N, #FF518C, N, N"
     };
 
     TextAttributes attr;

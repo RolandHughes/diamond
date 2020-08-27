@@ -233,10 +233,9 @@ void Dialog_Colors::copyClicked()
 
     //  TODO:: Really need to get an AlphaNumeric hint added
     destName = QInputDialog::getText( this, "New Theme name", "Name: ", QLineEdit::Normal,
-                                      destName, &okFlag, Qt::Dialog, Qt::ImhNone );
+                                      destName, &okFlag);
 
-    // TODO:: Need duplicate check here
-    if ( okFlag && ( destName > " " ) )
+    if ( okFlag && !destName.isEmpty() )
     {
         bool abortFlag = false;
 
@@ -953,4 +952,3 @@ void Dialog_Colors::cancel()
 {
     this->done( QDialog::Rejected );
 }
-

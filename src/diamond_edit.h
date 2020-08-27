@@ -100,6 +100,9 @@ public:
     CS_SLOT_1( Public, void runSyntax( QString synFName ) )
     CS_SLOT_2( runSyntax )
 
+    CS_SLOT_1( Public, void clearEdtSelection())
+    CS_SLOT_2( clearEdtSelection)
+
     CS_SIGNAL_1( Public, void edtUpcase() )
     CS_SIGNAL_2( edtUpcase )
 
@@ -118,23 +121,17 @@ public:
     CS_SIGNAL_1( Public, void edtSaveFileAs( Overlord::SaveFiles fileType ) )
     CS_SIGNAL_2( edtSaveFileAs, fileType )
 
-    CS_SIGNAL_1( Public, void edtAstyle() )
+    CS_SIGNAL_1( Public, void edtAstyle() )   // TODO:: 
     CS_SIGNAL_2( edtAstyle )
 
     CS_SIGNAL_1( Public, void showEdtHelp() )
     CS_SIGNAL_2( showEdtHelp )
-
-    CS_SIGNAL_1( Public, void edtAppend() )
-    CS_SIGNAL_2( edtAppend )
 
     CS_SIGNAL_1( Public, void edtCopy() )
     CS_SIGNAL_2( edtCopy )
 
     CS_SIGNAL_1( Public, void edtCut() )
     CS_SIGNAL_2( edtCut )
-
-    CS_SIGNAL_1( Public, void edtCommand() )
-    CS_SIGNAL_2( edtCommand )
 
     CS_SIGNAL_1( Public, void edtFillRegion() )
     CS_SIGNAL_2( edtFillRegion )
@@ -199,10 +196,6 @@ public:
 
 
     // spell check
-    CS_SLOT_1( Private, void spell_addUserDict() )
-    CS_SLOT_2( spell_addUserDict )
-
-
     CS_SLOT_1( Public, void update_display() )
     CS_SLOT_2( update_display )
 
@@ -219,6 +212,9 @@ protected:
 private:
     CS_SLOT_1( Private, void spell_replaceWord() )
     CS_SLOT_2( spell_replaceWord )
+
+    CS_SLOT_1( Private, void spell_addUserDict() )
+    CS_SLOT_2( spell_addUserDict )
 
     void setScreenColors();
     void changeFont();

@@ -59,12 +59,10 @@ void Dialog_Edt_Prompt::reposition()
 {
     if ( parentWidget() )
     {
-        qDebug() << "reposition()";
         QSize parentSize = parentWidget()->size();
         int w = size().width();
         int h = size().height();
         setGeometry( 0, ( parentSize.height() - h ), w, h );
-        qDebug() << "dialog bottomLeft: " << rect().bottomLeft();
     }
 }
 
@@ -72,8 +70,6 @@ void Dialog_Edt_Prompt::showEvent( QShowEvent *e )
 {
     if ( parent() )
     {
-        qDebug() << "showEvent()";
-
 #if 0
         qDebug() << "bottomLeft before: " << rect().bottomLeft();
         QRect parentRect( parentWidget()->mapToGlobal( QPoint( 0, 0 ) ), parentWidget()->size() );
@@ -86,8 +82,6 @@ void Dialog_Edt_Prompt::showEvent( QShowEvent *e )
         int w = size().width();
         int h = size().height();
         setGeometry( 0, ( parentSize.height() - h ), w, h );
-        qDebug() << "dialog bottomLeft: " << rect().bottomLeft();
-
     }
     else
     {

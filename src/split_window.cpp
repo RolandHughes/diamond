@@ -24,7 +24,7 @@ void MainWindow::split_Vertical()
     // only allow one for now
     if ( m_isSplit )
     {
-        split_CloseButton();
+        deleteOldSplit();
     }
 
     m_split_textEdit = new DiamondTextEdit( this, "split" );
@@ -108,7 +108,7 @@ void MainWindow::split_Vertical()
     connect( m_splitName_CB,   static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
              this, &MainWindow::split_NameChanged );
 
-    connect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::split_CloseButton );
+    connect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::splitCloseClicked );
 
     connect( m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo );
     connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar );
@@ -130,7 +130,7 @@ void MainWindow::split_Horizontal()
     // only allow one for now
     if ( m_isSplit )
     {
-        split_CloseButton();
+        deleteOldSplit();
     }
 
     m_split_textEdit = new DiamondTextEdit( this, "split" );
@@ -212,7 +212,7 @@ void MainWindow::split_Horizontal()
     connect( m_splitName_CB,   static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
              this, &MainWindow::split_NameChanged );
 
-    connect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::split_CloseButton );
+    connect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::splitCloseClicked );
 
     connect( m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo );
     connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar );
@@ -335,7 +335,7 @@ void MainWindow::split_NameChanged( int data )
         {
             csError( tr( "Split Window Selection" ), tr( "Unable to locate selected document" ) );
 
-            split_CloseButton();
+            deleteOldSplit();
             return;
         }
 
@@ -390,23 +390,23 @@ void MainWindow::split_NameChanged( int data )
         {
             // close the split
             csError( tr( "Split Window Selection" ), tr( "Selected document invalid" ) );
-            split_CloseButton();
+            deleteOldSplit();
         }
     }
 }
 
-void MainWindow::split_CloseButton()
+void MainWindow::deleteOldSplit()
 {
-    // set focus to the current tab widget
-    QWidget *temp = m_tabWidget->currentWidget();
-    temp->setFocus();
-
+   // set focus to the current tab widget
+   QWidget *temp = m_tabWidget->currentWidget();
+   temp->setFocus();
     m_isSplit = false;
+
 
     disconnect( m_splitName_CB,   static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
                 this, &MainWindow::split_NameChanged );
 
-    disconnect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::split_CloseButton );
+    disconnect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::splitCloseClicked );
 
     disconnect( m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo );
     disconnect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar );
@@ -418,7 +418,37 @@ void MainWindow::split_CloseButton()
     disconnect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled );
 
     m_splitName_CB->clear();
-    m_split_textEdit = 0;
+    m_split_textEdit = nullptr;
 
     m_splitWidget->deleteLater();
+
+}
+
+void MainWindow::splitCloseClicked()
+{
+    qDebug() << "splitCloseClicked() called";
+    deleteOldSplit();
+    // There is a jiggling and juggling of focus with this close button
+    // It gets focus back after we leave here.
+    // 
+    qDebug() << "starting timer";
+    m_refocusTimer->start();
+    
+}
+
+void MainWindow::refocusTab()
+{
+    m_refocusTimer->stop();
+    // set focus to the current tab widget
+    // need to do this in a slot so it can be called by a timer
+    // when closing non-modal dialogs we cannot do this within the close
+    // of the dialog because it will be ignored.
+    if (m_textEdit)
+    {
+         m_textEdit->setFocus();
+    }
+    else
+    {
+        qWarning() << tr("m_textEdit was null in refocusTab()");
+    }
 }

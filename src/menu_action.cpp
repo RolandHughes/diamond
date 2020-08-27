@@ -202,7 +202,8 @@ bool MainWindow::close_Doc()
             if ( m_splitFileName == m_curFile )
             {
                 // close the split tab
-                split_CloseButton();
+                qDebug() << "Closing matching split";
+                splitCloseClicked();
             }
 
             rm_splitCombo( m_curFile );
@@ -297,7 +298,8 @@ bool MainWindow::closeAll_Doc( bool isExit )
         if ( m_isSplit )
         {
             // close the split tab
-            split_CloseButton();
+            qDebug() << "closing split tab";
+            splitCloseClicked();
         }
 
         // update open tab list
@@ -741,7 +743,6 @@ void MainWindow::show_Spaces()
     }
 }
 
-// TODO:: move this into DiamondTextEdit
 void MainWindow::show_Breaks()
 {
     QTextDocument *td = m_textEdit->document();

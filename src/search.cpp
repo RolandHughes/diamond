@@ -509,7 +509,12 @@ void MainWindow::advFind_ShowFiles( QList<advFindStruct> foundList )
 
 void MainWindow::advFind_Close()
 {
+    m_findWidget->close();
     m_findWidget->deleteLater();
+    // keyboard needs to go back to text edit
+    // We are in a slot for a button on the widget 
+    // we are getting rid of.  
+    m_refocusTimer->start();   
 }
 
 void MainWindow::advFind_View( const QModelIndex &index )

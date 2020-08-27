@@ -100,6 +100,10 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     createToggles();
     createConnections();
 
+    m_refocusTimer = new QTimer(this);
+    m_refocusTimer->setInterval(500);
+
+    connect( m_refocusTimer, &QTimer::timeout, this, &MainWindow::refocusTab);
     // recent folders
     rfolder_CreateMenus();
 
@@ -283,17 +287,6 @@ void MainWindow::tabChanged( int index )
         m_curFile = this->get_curFileName( index );
         this->setCurrentTitle( m_curFile, true );
 
-#if 0
-        // ** retrieve slected syntax type
-        m_syntaxParser = m_textEdit->get_SyntaxParser();
-
-        // retrieve the menu enum
-        m_syntaxEnum = m_textEdit->get_SyntaxEnum();
-
-        // check the menu item
-        setSynType( m_syntaxEnum );
-#endif
-
         // **
         setStatus_LineCol();
         m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
@@ -319,7 +312,6 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
 
     if ( t_textEdit )
     {
-
         if ( m_textEdit->m_owner == t_textEdit->m_owner )
         {
             // do nothing
@@ -341,23 +333,6 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
 
                 setStatus_FName( m_curFile );
 
-                // ** retrieve slected syntax type
-//          m_syntaxParser = m_textEdit->get_SyntaxParser();
-
-                // retrieve the menu enum
-//          m_syntaxEnum = m_textEdit->get_SyntaxEnum();
-
-                // check the menu item
-//          setSynType(m_syntaxEnum);
-
-                // **
-                setStatus_LineCol();
-                m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
-                m_textEdit->set_ShowLineNum( Overlord::getInstance()->showLineNumbers() );
-
-                moveBar();
-                show_Spaces();
-                show_Breaks();
 
             }
             else if ( m_textEdit->m_owner == "split" )
@@ -367,16 +342,7 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
                 m_curFile = m_splitFileName;
                 setStatus_FName( m_curFile );
 
-                // ** retrieve slected syntax type
-//          m_syntaxParser = m_textEdit->get_SyntaxParser();
-
-                // retrieve the menu enum
-//          m_syntaxEnum = m_textEdit->get_SyntaxEnum();
-
-                // check the menu item
-//          setSynType(m_syntaxEnum);
-
-                // **
+            }
                 setStatus_LineCol();
                 m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
                 m_textEdit->set_ShowLineNum( Overlord::getInstance()->showLineNumbers() );
@@ -384,7 +350,7 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
                 moveBar();
                 show_Spaces();
                 show_Breaks();
-            }
+
         }
     }
 }

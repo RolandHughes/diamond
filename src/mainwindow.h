@@ -42,6 +42,7 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QResizeEvent>
+#include <QTimer>
 
 class Dialog_AdvFind;
 
@@ -95,6 +96,9 @@ public:
     CS_SLOT_1( Public, void showClipboard() )
     CS_SLOT_2( showClipboard )
 
+    CS_SLOT_1( Public, void refocusTab())
+    CS_SLOT_2( refocusTab)
+
 protected:
     void closeEvent( QCloseEvent *event );
     void dragEnterEvent( QDragEnterEvent *event );
@@ -117,6 +121,7 @@ private:
     QTabWidget *m_tabWidget;
     QString m_curFile;
 
+    QTimer *m_refocusTimer;
 
     // split
     DiamondTextEdit *m_split_textEdit;
@@ -376,8 +381,12 @@ private:
     void tabChanged( int index );
 
     // adv find
-    void advFind_View( const QModelIndex &index );
-    void advFind_Close();
+    CS_SLOT_1( Private, void advFind_View( const QModelIndex &index ))
+    CS_SLOT_2( advFind_View)
+
+    CS_SLOT_1( Private, void advFind_Close())
+    CS_SLOT_2( advFind_Close)
+
 
     // copy buffer
     void showCopyBuffer();
@@ -419,7 +428,11 @@ private:
     // split
     void set_splitCombo();
     void split_NameChanged( int data );
-    void split_CloseButton();
+
+    CS_SLOT_1(Private, void splitCloseClicked())
+    CS_SLOT_2( splitCloseClicked)
+
+    void deleteOldSplit();
 };
 
 #endif
