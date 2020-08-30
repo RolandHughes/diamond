@@ -62,7 +62,7 @@ KeyDefinitions::KeyDefinitions( const KeyDefinitions &def ) :
     , m_edtEnabled( def.m_edtEnabled )
     , m_numLockGold( def.m_numLockGold )
     , m_scrollLockGold( def.m_scrollLockGold )
-    , m_f12AsBackspace( def.m_f12AsBackspace)
+    , m_f12AsBackspace( def.m_f12AsBackspace )
     , m_edtGotoLine( def.m_edtGotoLine )
     , m_edtInsertFile( def.m_edtInsertFile )
     , m_edtUpperCase( def.m_edtUpperCase )
@@ -71,8 +71,8 @@ KeyDefinitions::KeyDefinitions( const KeyDefinitions &def ) :
     , m_edtSplitVertical( def.m_edtSplitVertical )
     , m_edtSaveFile( def.m_edtSaveFile )
     , m_edtAstyle( def.m_edtAstyle )
-    , m_edtWordCtrlMeta( def.m_edtWordCtrlMeta)
-    , m_edtWordAltOption( def.m_edtWordAltOption)
+    , m_edtWordCtrlMeta( def.m_edtWordCtrlMeta )
+    , m_edtWordAltOption( def.m_edtWordAltOption )
 {
 }
 
@@ -386,17 +386,17 @@ bool operator ==( const KeyDefinitions &left, const KeyDefinitions &right )
         retVal = false;
     }
 
-    if (left.m_f12AsBackspace != right.m_f12AsBackspace)
+    if ( left.m_f12AsBackspace != right.m_f12AsBackspace )
     {
         retVal = false;
     }
 
-    if (left.m_edtWordCtrlMeta != right.m_edtWordCtrlMeta)
+    if ( left.m_edtWordCtrlMeta != right.m_edtWordCtrlMeta )
     {
         retVal = false;
     }
 
-    if (left.m_edtWordAltOption != right.m_edtWordAltOption)
+    if ( left.m_edtWordAltOption != right.m_edtWordAltOption )
     {
         retVal = false;
     }
@@ -489,6 +489,8 @@ void KeyDefinitions::setDefaultKeyValues()
     m_spellCheck        = "F7";
     m_copyBuffer        = "F11";
     m_deleteThroughEOL  = "";
+
+    platformAdjustKeyValues();
 }
 
 // if someone copies a json file between Windows, MAC, Linux, etc

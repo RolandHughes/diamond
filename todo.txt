@@ -1,43 +1,33 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
-*) <Ctrl>-C needs to clear EDT select and return false.
 
-*) Advanced Find, doublclicking entry needs to set focus on DiamondTextEdit, not remain on the line
-
-*) test turning spellcheck on in big text document. Might have to do reload text trick.
-
-*) Remove unused signals from diamond_edit.h
-
-*) update EDT Help text to talk about what actually got implemented and how Apple/MAC users will be screwed when it comes to using select and arrow keys because their arrow keys are considered part of the keypad.
-
-*) Need EDT command dialog
-
-***) rewrapParagraph() is on the context menu
-
-*) Clicking on file tab needs to immediately shift focus to text edit once displayed.
-
-*) FILL not implemented
-
-*) Need to be able to show FF character. It gets inserted, but does not show.
+*) <Ctrl>-C in EDT mode needs to perform edtCopy
 
 *) DELETE key needs to turn off EDT select. Actually anything that falls through needs to turn off EDT select.
 
-*) Test OPEN LINE in actual EDT to see what it really does. - OPEN LINE inserts
-*a line break at cursor position keeping cursor there but moving text down to
-*next line against left margin.
+*) Advanced Find, doublclicking entry needs to set focus on DiamondTextEdit, not remain on the line
 
+*) Need EDT command dialog
+
+*) test turning spellcheck on in big text document.
+
+*) update EDT Help text to talk about what actually got implemented and how Apple/MAC users will be screwed when it comes to using select and arrow keys because their arrow keys are considered part of the keypad.
+
+*) FILL not implemented  *** rewrapParagraph() is on the context menu
+
+*) Need to be able to show FF character. It gets inserted, but does not show.  This will require gutting QPlainTextEdit I think. Need to see how it shows spaces and tabs.
 
 *) Fix macro save - make it actually happen - test create-use-save-reload of macros
 *) test out macro save/load/use. I really butchered that.
 
+*) Find all of the TODO:: comments and clean them up. Now that we have startup stages for main window many of the tightly coupled things can be done in stage2 or stage3
 *) debug regular expression to C/C++ definition for numeric constant
 
-*) file selector called by File->Open needs to allow for hidden files.
-   File feature request with CopperSpice
 
 *) File->new should NOT whack the first tab
 *) File->New should not be whacking the current file tab, it should create a new
  tab
+*) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
 
 
 *) add support for EDT commands
@@ -50,8 +40,6 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
     See what other EDT and LSE commands are worth adding.
     LINE 9999
 
-*) Read up on CPPCheck and see if it can do things like syntax specific auto-indent
-
 *) COBOL, FORTRAN, BASIC, and most other large installed base languages DO NOT support
  // or /* */ for comments. That part of Syntax Highlighting must be moved to the
  patters. For COBOL a comment is * in column 7 when using 72-column CARD format
@@ -60,7 +48,6 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
  more about other languages.
 
 
-*) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
 
 *) read documentation for QSyntaxHighlighter in CopperSpice
    see if there is any support for "matching" {(<

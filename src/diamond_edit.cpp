@@ -181,7 +181,7 @@ void DiamondTextEdit::update_LineNumWidth( int newBlockCount )
 void DiamondTextEdit::update_display()
 {
     update_LineNumWidth( 0 );
-    update();  // TODO:: research how to call update_LineNumArea
+    update();  
 }
 
 void DiamondTextEdit::resizeEvent( QResizeEvent *e )
@@ -1079,6 +1079,7 @@ void DiamondTextEdit::runSyntax( QString synFName )
 
     if ( m_syntaxParser )
     {
+        set_SyntaxParser(nullptr);
         delete m_syntaxParser;
         m_syntaxParser = nullptr;
     }
@@ -1883,11 +1884,13 @@ void DiamondTextEdit::setCurrentFile( QString fileName )
 }
 
 // **document
-void DiamondTextEdit::setSyntax()
+void DiamondTextEdit::setSyntax(bool skipQueueRun)
 {
     if ( m_syntaxParser )
     {
         set_SyntaxParser( nullptr );
+        delete m_syntaxParser;
+        m_syntaxParser = nullptr;
     }
 
     QString fname  = "";
@@ -2070,7 +2073,7 @@ void DiamondTextEdit::setSyntax()
             m_syntaxEnum = SYN_PYTHON;
 
         }
-        else if ( suffix == "xml" )
+        else if ( suffix == "xml" ) 
         {
             m_syntaxEnum = SYN_XML;
 
@@ -2083,7 +2086,10 @@ void DiamondTextEdit::setSyntax()
         // check the menu item
         setSynType( m_syntaxEnum );
 
-        queueRunSyntax( synFName );
+        if (!skipQueueRun)
+        {
+            queueRunSyntax( synFName );
+        }
     }
 }
 
@@ -2118,6 +2124,7 @@ void DiamondTextEdit::changeSettings( Settings *settings )
 
         setScreenColors();
         m_lastTheme = m_settingsPtr->currentTheme();
+        qDebug() << "changeSettings() calling queueRunSyntax()";
         queueRunSyntax( m_synFName );
         moveBar();
     }
@@ -2160,12 +2167,12 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
     QString keyStr = QKeySequence( key, modifiers ).toString( QKeySequence::NativeText );
 
     bool isKeypad = ( modifiers & Qt::KeypadModifier );
-    bool isShift  = ( modifiers & Qt::ShiftModifier);
-    bool isCtrl   = ( modifiers & Qt::ControlModifier);
+    bool isShift  = ( modifiers & Qt::ShiftModifier );
+    bool isCtrl   = ( modifiers & Qt::ControlModifier );
 
     QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
 
-    // if we also check for a selection in textcursor we 
+    // if we also check for a selection in textcursor we
     // then run headlong into the problem of an arrow key
     // not clearing the find selection.
     // textCursor().hasSelection()
@@ -2183,126 +2190,144 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
         switch ( key )
         {
             case Qt::Key_Left:
-                if (isShift)
+                if ( isShift )
                 {
                     m_edtSelectActive = true;
-                    edtKeyLeft( QTextCursor::KeepAnchor);
+                    edtKeyLeft( QTextCursor::KeepAnchor );
                     return true;
                 }
-                else if (modifiers == 0)
+                else if ( modifiers == 0 )
                 {
                     edtKeyLeft( mode );
                     return true;
                 }
+
                 break;
 
 
             case Qt::Key_Right:
-                if (isShift)
+                if ( isShift )
                 {
                     m_edtSelectActive = true;
-                    edtKeyRight( QTextCursor::KeepAnchor);
+                    edtKeyRight( QTextCursor::KeepAnchor );
                     return true;
                 }
-                else if (modifiers == 0)
+                else if ( modifiers == 0 )
                 {
                     edtKeyRight( mode );
                     return true;
                 }
+
                 break;
 
             case Qt::Key_Up:
-                if (isShift)
+                if ( isShift )
                 {
                     m_edtSelectActive = true;
-                    edtLineUp( QTextCursor::KeepAnchor);
+                    edtLineUp( QTextCursor::KeepAnchor );
                     return true;
                 }
-                else if (modifiers == 0)
+                else if ( modifiers == 0 )
                 {
                     edtLineUp( mode );
                     return true;
                 }
+
                 break;
 
             case Qt::Key_Down:
-                if (isShift)
+                if ( isShift )
                 {
                     m_edtSelectActive = true;
-                    edtLineDown( QTextCursor::KeepAnchor);
+                    edtLineDown( QTextCursor::KeepAnchor );
                     return true;
                 }
-                else if (modifiers == 0)
+                else if ( modifiers == 0 )
                 {
                     edtLineDown( mode );
                     return true;
                 }
+
                 break;
 
             case Qt::Key_PageUp:
-                if (isShift)
+                if ( isShift )
                 {
                     m_edtSelectActive = true;
-                    edtSectionUp( QTextCursor::KeepAnchor);
+                    edtSectionUp( QTextCursor::KeepAnchor );
                     return true;
                 }
-                else if (modifiers == 0)
+                else if ( modifiers == 0 )
                 {
                     edtSectionUp( mode );
                     return true;
                 }
+
                 break;
 
             case Qt::Key_PageDown:
-                if (isShift)
+                if ( isShift )
                 {
                     m_edtSelectActive = true;
-                    edtSectionDown( QTextCursor::KeepAnchor);
+                    edtSectionDown( QTextCursor::KeepAnchor );
                     return true;
                 }
-                else if (modifiers == 0)
+                else if ( modifiers == 0 )
                 {
                     edtSectionDown( mode );
                     return true;
                 }
+
                 break;
 
             case Qt::Key_End:
-                if (isShift)
+                if ( isShift )
                 {
                     m_edtSelectActive = true;
-                    edtEndOfLine( QTextCursor::KeepAnchor);
+                    edtEndOfLine( QTextCursor::KeepAnchor );
                     return true;
                 }
-                else if (modifiers == 0)
+                else if ( modifiers == 0 )
                 {
                     edtEndOfLine( mode );
                     return true;
                 }
-                else if (isCtrl)
+                else if ( isCtrl )
                 {
                     edtBottom();
                     return true;
                 }
+
                 break;
 
             case Qt::Key_Home:
-                if (isShift)
+                if ( isShift )
                 {
                     m_edtSelectActive = true;
-                    edtHome( QTextCursor::KeepAnchor);
+                    edtHome( QTextCursor::KeepAnchor );
                     return true;
                 }
-                else if (modifiers == 0)
+                else if ( modifiers == 0 )
                 {
                     edtHome( mode );
                     return true;
                 }
-                else if (isCtrl)
+                else if ( isCtrl )
                 {
                     edtTop();
                     return true;
                 }
+
+                break;
+
+            case Qt::Key_C:
+                if ( isCtrl )
+                {
+                    qDebug() << "trapped Ctrl-C";
+                    m_edtSelectActive = false;
+                    return false;
+                }
+
                 break;
 
             case Qt::Key_Control:
@@ -3260,5 +3285,5 @@ void DiamondTextEdit::clearEdtSelection()
     m_edtSelectActive = false;
     QTextCursor cursor = textCursor();
     cursor.clearSelection();
-    setTextCursor(cursor);
+    setTextCursor( cursor );
 }

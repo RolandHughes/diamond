@@ -35,8 +35,7 @@ public:
     CS_SIGNAL_1( Public, void settingsChanged( Settings *settings ) )
     CS_SIGNAL_2( settingsChanged, settings )
 
-    CS_SLOT_1( Public, void close() )
-    CS_SLOT_2( close )
+    void close();
 
     CS_SIGNAL_1( Public, void Move( QPoint pos ) )
     CS_SIGNAL_2( Move, pos )
@@ -294,11 +293,9 @@ private:
     void markToNotify();
     void preloadSyntax();
 
-    CS_SLOT_1( Private, void checkForChange() )
-    CS_SLOT_2( checkForChange )
+    void checkForChange();
 
-    CS_SLOT_1( Private, void checkForBroadcast() )
-    CS_SLOT_2( checkForChange )
+    void checkForBroadcast();
 
     static Overlord *m_instance;
 

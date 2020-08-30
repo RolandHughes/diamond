@@ -35,8 +35,7 @@ public:
     ~Syntax();
     void set_Spell( bool value );
 
-    CS_SLOT_1( Public, void processSyntax( Settings *settings ) )
-    CS_SLOT_2( processSyntax )
+    void processSyntax( Settings *settings );
 
 protected:
     void highlightBlock( const QString &text );

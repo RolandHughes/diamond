@@ -172,8 +172,8 @@ void Dialog_Options::initData()
     m_ui->key_EDT_GotoLine->setText( m_options.keys().edtGotoLine() );
     m_ui->numLock_RB->setChecked( m_options.keys().numLockGold() );
     m_ui->scrollLock_RB->setChecked( m_options.keys().scrollLockGold() );
-    m_ui->edtWordCtrlMeta_RB->setChecked( m_options.keys().edtWordCtrlMeta());
-    m_ui->edtWordAltOption_RB->setChecked( m_options.keys().edtWordAltOption());
+    m_ui->edtWordCtrlMeta_RB->setChecked( m_options.keys().edtWordCtrlMeta() );
+    m_ui->edtWordAltOption_RB->setChecked( m_options.keys().edtWordAltOption() );
     m_ui->key_EDT_Copy->setText( m_options.keys().edtCopy() );
     m_ui->key_EDT_InsertFile->setText( m_options.keys().edtInsertFile() );
     m_ui->key_EDT_UpperCase->setText( m_options.keys().edtUpperCase() );
@@ -182,7 +182,7 @@ void Dialog_Options::initData()
     m_ui->key_EDT_SplitVertical->setText( m_options.keys().edtSplitVertical() );
     m_ui->key_EDT_SaveFile->setText( m_options.keys().edtSaveFile() );
     m_ui->key_EDT_Astyle->setText( m_options.keys().edtAstyle() );
-    m_ui->f12AsBackspace_CKB->setChecked( m_options.keys().f12AsBackspace());
+    m_ui->f12AsBackspace_CKB->setChecked( m_options.keys().f12AsBackspace() );
 
 }
 
@@ -276,7 +276,7 @@ void Dialog_Options::save()
     m_options.keys().set_edtSplitVertical( m_ui->key_EDT_SplitVertical->text() );
     m_options.keys().set_edtSaveFile( m_ui->key_EDT_SaveFile->text() );
     m_options.keys().set_edtAstyle( m_ui->key_EDT_Astyle->text() );
-    m_options.keys().set_f12AsBackspace( m_ui->f12AsBackspace_CKB->isChecked());
+    m_options.keys().set_f12AsBackspace( m_ui->f12AsBackspace_CKB->isChecked() );
 
     Overlord::getInstance()->updateOptionsFromLocalCopy( m_options );
 

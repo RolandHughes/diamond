@@ -75,20 +75,12 @@ private:
     void save();
     void cancel();
 
-    CS_SLOT_1( Private, void themeChanged( const QString &themeName ) )
-    CS_SLOT_2( themeChanged )
+    void themeChanged( const QString &themeName );
 
-    CS_SLOT_1( Private, void copyClicked() )
-    CS_SLOT_2( copyClicked )
-
-    CS_SLOT_1( Private, void deleteClicked() )
-    CS_SLOT_2( deleteClicked )
-
-    CS_SLOT_1( Private, void exportClicked() )
-    CS_SLOT_2( exportClicked )
-
-    CS_SLOT_1( Private, void importClicked() )
-    CS_SLOT_2( importClicked )
+    void copyClicked();
+    void deleteClicked();
+    void exportClicked();
+    void importClicked();
 };
 
 #endif

@@ -35,8 +35,8 @@ public:
     bool ctrlMSubstitution()    { return m_ctrlMSubstitution;}
     bool allowDirection()       { return m_allowDirection;}
 
-    CS_SIGNAL_1( Public, void inputComplete() );
-    CS_SIGNAL_2( inputComplete );
+    CS_SIGNAL_1( Public, void inputComplete() )
+    CS_SIGNAL_2( inputComplete )
 
 protected:
     bool event( QEvent *event );

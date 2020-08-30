@@ -689,10 +689,8 @@ void Overlord::preloadSyntax()
 
     if ( m_settings.m_options.preloadCpp() )
     {
-        qDebug() << "preloading CPP syntax";
         fileName = m_settings.syntaxPath() + "syn_cpp.json";
         m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
-        qDebug() << "finished preloading CPP syntax";
     }
 
     if ( m_settings.m_options.preloadCss() )

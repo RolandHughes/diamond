@@ -103,7 +103,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab1">
       <attribute name="title">
@@ -146,9 +146,9 @@
       <widget class="QLineEdit" name="syntax">
        <property name="geometry">
         <rect>
-         <x>363</x>
+         <x>272</x>
          <y>292</y>
-         <width>300</width>
+         <width>391</width>
          <height>24</height>
         </rect>
        </property>
@@ -242,7 +242,7 @@
         <rect>
          <x>30</x>
          <y>262</y>
-         <width>123</width>
+         <width>181</width>
          <height>20</height>
         </rect>
        </property>
@@ -294,9 +294,9 @@
       <widget class="QLineEdit" name="dictUser">
        <property name="geometry">
         <rect>
-         <x>363</x>
+         <x>272</x>
          <y>262</y>
-         <width>300</width>
+         <width>391</width>
          <height>24</height>
         </rect>
        </property>
@@ -440,9 +440,9 @@
       <widget class="QLineEdit" name="dictMain">
        <property name="geometry">
         <rect>
-         <x>363</x>
+         <x>272</x>
          <y>232</y>
-         <width>300</width>
+         <width>391</width>
          <height>24</height>
         </rect>
        </property>
@@ -640,7 +640,7 @@
         <rect>
          <x>30</x>
          <y>232</y>
-         <width>125</width>
+         <width>181</width>
          <height>20</height>
         </rect>
        </property>
@@ -664,7 +664,7 @@
         <rect>
          <x>30</x>
          <y>292</y>
-         <width>73</width>
+         <width>181</width>
          <height>16</height>
         </rect>
        </property>

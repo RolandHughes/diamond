@@ -397,9 +397,9 @@ void MainWindow::split_NameChanged( int data )
 
 void MainWindow::deleteOldSplit()
 {
-   // set focus to the current tab widget
-   QWidget *temp = m_tabWidget->currentWidget();
-   temp->setFocus();
+    // set focus to the current tab widget
+    QWidget *temp = m_tabWidget->currentWidget();
+    temp->setFocus();
     m_isSplit = false;
 
 
@@ -430,25 +430,26 @@ void MainWindow::splitCloseClicked()
     deleteOldSplit();
     // There is a jiggling and juggling of focus with this close button
     // It gets focus back after we leave here.
-    // 
+    //
     qDebug() << "starting timer";
     m_refocusTimer->start();
-    
+
 }
 
 void MainWindow::refocusTab()
 {
     m_refocusTimer->stop();
+
     // set focus to the current tab widget
     // need to do this in a slot so it can be called by a timer
     // when closing non-modal dialogs we cannot do this within the close
     // of the dialog because it will be ignored.
-    if (m_textEdit)
+    if ( m_textEdit )
     {
-         m_textEdit->setFocus();
+        m_textEdit->setFocus();
     }
     else
     {
-        qWarning() << tr("m_textEdit was null in refocusTab()");
+        qWarning() << tr( "m_textEdit was null in refocusTab()" );
     }
 }

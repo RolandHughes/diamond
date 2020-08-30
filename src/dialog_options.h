@@ -29,8 +29,7 @@ public:
     Dialog_Options( QWidget *parent );
     ~Dialog_Options();
 
-    CS_SLOT_1( Public, void show_help() )
-    CS_SLOT_2( show_help )
+    void show_help();
 
 private:
     Ui::Dialog_Options *m_ui;

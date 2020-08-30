@@ -36,17 +36,13 @@
 // ubuntu 16.04 uses 1.3.3
 // all other supported platforms use 1.5 or newer
 
-SpellCheck::SpellCheck( const QString &dictMain, const QString &dictUser )
+SpellCheck::SpellCheck( const QString &dictMain, const QString &dictUser ) :
+    m_userFname( dictUser)
 {
-    m_userFname = dictUser;
+    QString dicFname  = dictMain;
+    QString affFName  = dicFname.replace( ".dic", ".aff", Qt::CaseInsensitive);
 
-    QString base = dictMain;
-    base = base.mid( 0, base.indexOf( "." ) );
-
-    QString dicFname  = base + ".dic";
-    QString affFName  = base + ".aff";
-
-    m_hunspell = new Hunspell( affFName .constData(), dicFname.constData() );
+    m_hunspell = new Hunspell( affFName.constData(), dicFname.constData() );
 
     // encode as SET option in the affix file
     m_codec = QTextCodec::codecForName( "UTF-8" );
@@ -183,4 +179,23 @@ void SpellCheck::addToUserDict( const QString &word )
         csError( "Spell Check", "Unable to find User Dictionary " + m_userFname );
 
     }
+}
+
+SpellCheck &SpellCheck::operator =( const SpellCheck &def)
+{
+    if (this != &def)
+    {
+        m_userFname     = def.m_userFname;
+        m_codec         = def.m_codec;
+        m_hunspell      = def.m_hunspell;
+    }
+
+    return *this;
+}
+
+SpellCheck::SpellCheck( const SpellCheck &def) :
+    m_userFname( def.m_userFname)
+    , m_codec( def.m_codec)
+    , m_hunspell( def.m_hunspell)
+{
 }

@@ -72,32 +72,22 @@ public:
     // support
     bool loadFile( QString fileName, bool newTab, bool isAuto, bool isReload = false );
 
-    CS_SLOT_1( Public, void Move( QPoint pos ) )
-    CS_SLOT_2( Move )
+    void Move( QPoint pos );
+    void Resize( QSize size );
+    void setSynType( SyntaxTypes data );
 
-    CS_SLOT_1( Public, void Resize( QSize size ) )
-    CS_SLOT_2( Resize )
+    CS_SLOT_1( Public, void startupStep2() )
+    CS_SLOT_2( startupStep2 )
 
-    CS_SLOT_1( Public, void setSynType( SyntaxTypes data ) )
-    CS_SLOT_2( setSynType )
+    CS_SLOT_1( Public, void startupStep3() )
+    CS_SLOT_2( startupStep3 )
 
-    CS_SLOT_1( Public, void afterVisible() )
-    CS_SLOT_2( afterVisible )
+    void showEdtHelp();
+    void split_Horizontal();
+    void split_Vertical();
+    void showClipboard();
 
-    CS_SLOT_1( Public, void showEdtHelp() )
-    CS_SLOT_2( showEdtHelp )
-
-    CS_SLOT_1( Public, void split_Horizontal() )
-    CS_SLOT_2( split_Horizontal )
-
-    CS_SLOT_1( Public, void split_Vertical() )
-    CS_SLOT_2( split_Vertical )
-
-    CS_SLOT_1( Public, void showClipboard() )
-    CS_SLOT_2( showClipboard )
-
-    CS_SLOT_1( Public, void refocusTab())
-    CS_SLOT_2( refocusTab)
+    void refocusTab();
 
 protected:
     void closeEvent( QCloseEvent *event );
@@ -224,13 +214,11 @@ private:
 
     QString adjustKey( QString sequence );
 
-    CS_SLOT_1( Public, void setStatusBar( QString msg, int timeOut ) )
-    CS_SLOT_2( setStatusBar )
+    void setStatusBar( QString msg, int timeOut );
 
     void setStatus_ColMode();
     void setStatus_FName( QString name );
-    CS_SLOT_1( Public, void showNotDone( QString item ) )
-    CS_SLOT_2( showNotDone )
+    void showNotDone( QString item );
 
 
     QString get_SyntaxPath( QString syntaxPath );
@@ -254,13 +242,10 @@ private:
 
     // support
     bool querySave();
-    CS_SLOT_1( Public, bool saveFile( QString fileName, Overlord::SaveFiles saveType ) )
-    CS_SLOT_2( saveFile )
+    bool saveFile( QString fileName, Overlord::SaveFiles saveType );
+    bool saveAs( Overlord::SaveFiles saveType );
 
-    CS_SLOT_1( Public, bool saveAs( Overlord::SaveFiles saveType ) )
-    CS_SLOT_2( saveAs )
-
-    void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false );
+    void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false, bool isAutoLoad = false );
     void setDiamondTitle( const QString title );
     void forceSyntax( SyntaxTypes data );
     QString get_curFileName( int whichTab );
@@ -307,8 +292,7 @@ private:
     CS_SLOT_1( Private, void deleteEOL() )
     CS_SLOT_2( deleteEOL )
 
-    CS_SLOT_1( Private, void deleteThroughEOL() )
-    CS_SLOT_2( deleteThroughEOL )
+    void deleteThroughEOL();
 
     CS_SLOT_1( Private, void insertDate() )
     CS_SLOT_2( insertDate )
@@ -318,9 +302,6 @@ private:
 
     CS_SLOT_1( Private, void rewrapParagraph() )
     CS_SLOT_2( rewrapParagraph )
-
-
-
 
     void insertSymbol();
     void columnMode();
@@ -381,11 +362,11 @@ private:
     void tabChanged( int index );
 
     // adv find
-    CS_SLOT_1( Private, void advFind_View( const QModelIndex &index ))
-    CS_SLOT_2( advFind_View)
+    CS_SLOT_1( Private, void advFind_View( const QModelIndex &index ) )
+    CS_SLOT_2( advFind_View )
 
-    CS_SLOT_1( Private, void advFind_Close())
-    CS_SLOT_2( advFind_Close)
+    CS_SLOT_1( Private, void advFind_Close() )
+    CS_SLOT_2( advFind_Close )
 
 
     // copy buffer
@@ -429,8 +410,7 @@ private:
     void set_splitCombo();
     void split_NameChanged( int data );
 
-    CS_SLOT_1(Private, void splitCloseClicked())
-    CS_SLOT_2( splitCloseClicked)
+    void splitCloseClicked();
 
     void deleteOldSplit();
 };

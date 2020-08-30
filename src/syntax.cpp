@@ -185,9 +185,6 @@ void Syntax::processSyntax( Settings *settings )
     // pending CS 1.6.1
     // m_spellCheckFormat.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
     m_spellCheckFormat.setUnderlineStyle( QTextCharFormat::WaveUnderline );
-
-    // redo the current document
-    rehighlight();
 }
 
 
@@ -198,7 +195,13 @@ void Syntax::set_Spell( bool value )
 
 void Syntax::highlightBlock( const QString &text )
 {
+    if ( text.length() < 1 )
+    {
+        return;
+    }
+
     QRegularExpressionMatch match;
+
 
     for ( auto &rule : highlightingRules )
     {

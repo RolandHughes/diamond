@@ -55,17 +55,6 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     setIconSize( QSize( 32,32 ) );
     setWindowIcon( QIcon( "://resources/diamond.png" ) );
 
-    // Because the user "could" be prompted to choose a file or location
-    // this critical part of Settings has to be done here.
-    //
-    getConfigFileName();
-
-    if ( ! Overlord::getInstance()->set_configFileName( m_configFileName ) )
-    {
-        // do not start program
-        csError( tr( "Configuration File Missing" ), tr( "Unable to locate or open the Diamond Configuration file." ) );
-        throw std::runtime_error( "abort_no_message" );
-    }
 
     // drag & drop
     setAcceptDrops( true );
@@ -100,10 +89,32 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     createToggles();
     createConnections();
 
-    m_refocusTimer = new QTimer(this);
-    m_refocusTimer->setInterval(500);
+    m_refocusTimer = new QTimer( this );
+    m_refocusTimer->setInterval( 500 );
 
-    connect( m_refocusTimer, &QTimer::timeout, this, &MainWindow::refocusTab);
+    connect( m_refocusTimer, &QTimer::timeout, this, &MainWindow::refocusTab );
+
+
+    // put off file loading, etc. until after the user can see the editor.
+    QTimer::singleShot( 150, this, SLOT( startupStep2() ) );
+
+}
+
+void MainWindow::startupStep2()
+{
+    // Because the user "could" be prompted to choose a file or location
+    // this critical part of Settings has to be done here.
+    //
+    getConfigFileName();
+
+    if ( ! Overlord::getInstance()->set_configFileName( m_configFileName ) )
+    {
+        // do not start program
+        csError( tr( "Configuration File Missing" ), tr( "Unable to locate or open the Diamond Configuration file." ) );
+        throw std::runtime_error( "abort_no_message" );
+    }
+
+
     // recent folders
     rfolder_CreateMenus();
 
@@ -127,23 +138,29 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     connect( m_ui->menuWindow, &QMenu::customContextMenuRequested, this, &MainWindow::showContext_Tabs );
 
     // set flags after reading config and before autoload
-    if ( flagList.contains( "--no_autoload", Qt::CaseInsensitive ) )
+    if ( m_flagList.contains( "--no_autoload", Qt::CaseInsensitive ) )
     {
         Overlord::getInstance()->set_flagNoAutoLoad( true );
     }
 
-    if ( flagList.contains( "--no_saveconfig", Qt::CaseInsensitive ) )
+    if ( m_flagList.contains( "--no_saveconfig", Qt::CaseInsensitive ) )
     {
         Overlord::getInstance()->set_flagNoSaveConfig( true );
     }
 
+    qDebug() << "lastPosition: " << Overlord::getInstance()->lastPosition() << "  lastSize: " << Overlord::getInstance()->lastSize();
+    this->move( Overlord::getInstance()->lastPosition());
+    this->resize( Overlord::getInstance()->lastSize());
 
-    // put off file loading, etc. until after the user can see the editor.
-    QTimer::singleShot( 10, this, SLOT( afterVisible() ) );
+    connect( Overlord::getInstance(), &Overlord::Move, this, &MainWindow::Move );
+    connect( Overlord::getInstance(), &Overlord::Resize, this, &MainWindow::Resize );
+
+    // Let the queue drain before we autoload any files
+    QTimer::singleShot( 150, this, SLOT( startupStep3() ) );
 
 }
 
-void MainWindow::afterVisible()
+void MainWindow::startupStep3()
 {
     if ( Overlord::getInstance()->autoLoad() && ! Overlord::getInstance()->flagNoAutoLoad() )
     {
@@ -180,9 +197,6 @@ void MainWindow::afterVisible()
     setStatus_ColMode();
     setStatusBar( tr( "Ready" ), 0 );
     setUnifiedTitleAndToolBarOnMac( true );
-
-    connect( Overlord::getInstance(), &Overlord::Move, this, &MainWindow::Move );
-    connect( Overlord::getInstance(), &Overlord::Resize, this, &MainWindow::Resize );
 
 }
 
@@ -232,7 +246,7 @@ void MainWindow::tabNew()
     connect( m_textEdit, &DiamondTextEdit::edtPaste, this, &MainWindow::mw_paste );
     connect( m_textEdit, &DiamondTextEdit::edtCopy, this, &MainWindow::mw_copy );
     connect( m_textEdit, &DiamondTextEdit::edtSubs, this, &MainWindow::replace );
-    connect( m_textEdit, &DiamondTextEdit::timedMessage, this, &MainWindow::setStatusBar);
+    connect( m_textEdit, &DiamondTextEdit::timedMessage, this, &MainWindow::setStatusBar );
 }
 
 void MainWindow::mw_tabClose()
@@ -343,13 +357,14 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
                 setStatus_FName( m_curFile );
 
             }
-                setStatus_LineCol();
-                m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
-                m_textEdit->set_ShowLineNum( Overlord::getInstance()->showLineNumbers() );
 
-                moveBar();
-                show_Spaces();
-                show_Breaks();
+            setStatus_LineCol();
+            m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
+            m_textEdit->set_ShowLineNum( Overlord::getInstance()->showLineNumbers() );
+
+            moveBar();
+            show_Spaces();
+            show_Breaks();
 
         }
     }
@@ -1094,21 +1109,22 @@ void MainWindow::showEdtHelp()
 
 void MainWindow::showClipboard()
 {
-    QDialog *dw = new QDialog(this);
-    dw->setMinimumSize( 400, 400);
-    dw->setWindowTitle( "Clipboard contents");
-    dw->setFont(Overlord::getInstance()->fontNormal());
-    
-    QHBoxLayout *layout = new QHBoxLayout;
-    
-    QTextEdit *ed = new QTextEdit();
-    ed->setReadOnly(true);
-    ed->setText(QApplication::clipboard()->text());
+    QDialog *dw = new QDialog( this );
+    dw->setMinimumSize( 400, 400 );
+    dw->setWindowTitle( "Clipboard contents" );
+    dw->setFont( Overlord::getInstance()->fontNormal() );
 
-    layout->addWidget(ed);
-    dw->setLayout(layout);
+    QHBoxLayout *layout = new QHBoxLayout;
+
+    QTextEdit *ed = new QTextEdit();
+    ed->setReadOnly( true );
+    ed->setText( QApplication::clipboard()->text() );
+
+    layout->addWidget( ed );
+    dw->setLayout( layout );
 
     dw->exec();
 
     delete dw;
 }
+

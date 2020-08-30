@@ -11,3 +11,5 @@ diamond*.zip
 /hunspell_lib/
 /source_extra/*.tar.bz2
 /source_extra/*.zip
+
+diamond-cppcheck-build-dir/

@@ -85,23 +85,19 @@ public:
     CS_SLOT_1( Public, void paste() )
     CS_SLOT_2( paste )
 
-    CS_SLOT_1( Public, void changeSettings( Settings *settings ) )
-    CS_SLOT_2( changeSettings )
+    void changeSettings( Settings *settings );
 
     CS_SLOT_1( Public, void rewrapParagraph() )
     CS_SLOT_2( rewrapParagraph )
+
+    void runSyntax( QString synFName );
+    void clearEdtSelection();
 
     CS_SIGNAL_1( Public, void setSynType( SyntaxTypes data ) )
     CS_SIGNAL_2( setSynType, data )
 
     CS_SIGNAL_1( Public, void queueRunSyntax( QString synFName ) )
     CS_SIGNAL_2( queueRunSyntax, synFName )
-
-    CS_SLOT_1( Public, void runSyntax( QString synFName ) )
-    CS_SLOT_2( runSyntax )
-
-    CS_SLOT_1( Public, void clearEdtSelection())
-    CS_SLOT_2( clearEdtSelection)
 
     CS_SIGNAL_1( Public, void edtUpcase() )
     CS_SIGNAL_2( edtUpcase )
@@ -121,7 +117,7 @@ public:
     CS_SIGNAL_1( Public, void edtSaveFileAs( Overlord::SaveFiles fileType ) )
     CS_SIGNAL_2( edtSaveFileAs, fileType )
 
-    CS_SIGNAL_1( Public, void edtAstyle() )   // TODO:: 
+    CS_SIGNAL_1( Public, void edtAstyle() )   // TODO::
     CS_SIGNAL_2( edtAstyle )
 
     CS_SIGNAL_1( Public, void showEdtHelp() )
@@ -133,12 +129,6 @@ public:
     CS_SIGNAL_1( Public, void edtCut() )
     CS_SIGNAL_2( edtCut )
 
-    CS_SIGNAL_1( Public, void edtFillRegion() )
-    CS_SIGNAL_2( edtFillRegion )
-
-    CS_SIGNAL_1( Public, void edtReplace() )
-    CS_SIGNAL_2( edtReplace )
-
     CS_SIGNAL_1( Public, void edtBottom() )
     CS_SIGNAL_2( edtBottom )
 
@@ -148,23 +138,14 @@ public:
     CS_SIGNAL_1( Public, void edtPaste() )
     CS_SIGNAL_2( edtPaste )
 
-    CS_SIGNAL_1( Public, void edtSpecialInsert() )
-    CS_SIGNAL_2( edtSpecialInsert )
-
-    CS_SIGNAL_1( Public, void edtOpenLine() )
-    CS_SIGNAL_2( edtOpenLine )
-
-    CS_SIGNAL_1( Public, void edtClearSelection() )
-    CS_SIGNAL_2( edtClearSelection )
-
     CS_SIGNAL_1( Public, void edtSubs() )
     CS_SIGNAL_2( edtSubs )
 
     CS_SIGNAL_1( Public, void not_done( QString txt ) )
     CS_SIGNAL_2( not_done, txt )
 
-    CS_SIGNAL_1( Public, void timedMessage( QString msg, int milliSeconds))
-    CS_SIGNAL_2( timedMessage, msg, milliSeconds)
+    CS_SIGNAL_1( Public, void timedMessage( QString msg, int milliSeconds ) )
+    CS_SIGNAL_2( timedMessage, msg, milliSeconds )
 
     // editing API for use by MainWindow
     //
@@ -192,14 +173,11 @@ public:
     void fixSpaces_Tab();
     void deleteEOL_Spaces();
     void rewrapParaphragh();
-    void setSyntax();
+    void setSyntax(bool skipQueueRun=false);
 
 
     // spell check
-    CS_SLOT_1( Public, void update_display() )
-    CS_SLOT_2( update_display )
-
-
+    void update_display();
 
 protected:
     void contextMenuEvent( QContextMenuEvent *event );
@@ -227,7 +205,7 @@ private:
     void edtLineDown( QTextCursor::MoveMode mode );
     void edtEndOfLine( QTextCursor::MoveMode mode );
     void edtHome( QTextCursor::MoveMode mode );
-    
+
 
     Settings *m_settingsPtr;
     Themes m_lastTheme;
@@ -276,9 +254,7 @@ private:
     QString m_synFName;
     SyntaxTypes m_syntaxEnum;
 
-    CS_SLOT_1( Private, void update_LineNumWidth( int newBlockCount ) )
-    CS_SLOT_2( update_LineNumWidth )
-
+    void update_LineNumWidth( int newBlockCount );
 };
 
 

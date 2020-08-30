@@ -203,7 +203,7 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
 #endif
 
     // part 1
-    if ( addNewTab )
+    if ( addNewTab && ( m_tabWidget->count() > 0 ) )
     {
         // test if fileName is open in another tab
         QFSFileEngine engine( fileName );
@@ -272,9 +272,6 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
     setStatusBar( tr( "Loading File..." ), 0 );
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
-    file.seek( 0 );
-    QByteArray temp = file.readAll();
-
     if ( addNewTab )
     {
         tabNew();
@@ -282,17 +279,38 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
         Overlord::getInstance()->set_priorPath( pathName( fileName ) );
     }
 
+
+    /*;;;;;
+     *  We have a chicken and egg problem here.
+     *  Autoload happens before MainWindow is fully created.
+     *  The ideal solution would be to create the syntax highlighter 
+     *  _before_ setting data. When you do that syntax highlighting happens auto-magically.
+     *  We aren't far enough up during autoload to allow this. You spastically crash
+     *  once the last line has been processed by highlightBlock() because the highlighter 
+     *  wants to update a tab not yet fully created for a not yet fully created MainWindow.
+     *
+     *  Need to find a way of decoupling menu creations from having all of the files already
+     *  loaded. Once that is done the core of MainWindow could be created followed by the
+     *  autoloading followed by the menu creation.
+     *;;;;;
+     */
+
+    file.seek( 0 );
+    QByteArray temp = file.readAll();
+
     QString fileData = QString::fromUtf8( temp );
+
     m_textEdit->setPlainText( fileData );
     //  Need to drain the swamp here. Really big files have a massive drag
     //  with all of the highlighting.
     QCoreApplication::processEvents();
-    QApplication::restoreOverrideCursor();
 
     if ( m_textEdit->m_owner == "tab" )
     {
         setCurrentTitle( fileName, false, isReload );
     }
+
+    QApplication::restoreOverrideCursor();
 
     if ( m_isSplit )
     {
@@ -429,7 +447,7 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
 
 
 // title & status bar
-void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool isReload )
+void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool isReload, bool isAutoLoad )
 {
     QString showName;
 
@@ -477,7 +495,7 @@ void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool 
 
         if ( ! tabChange && ! isReload )
         {
-            m_textEdit->setSyntax();
+            m_textEdit->setSyntax( isAutoLoad );
         }
     }
 

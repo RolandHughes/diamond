@@ -233,7 +233,7 @@ void Dialog_Colors::copyClicked()
 
     //  TODO:: Really need to get an AlphaNumeric hint added
     destName = QInputDialog::getText( this, "New Theme name", "Name: ", QLineEdit::Normal,
-                                      destName, &okFlag);
+                                      destName, &okFlag );
 
     if ( okFlag && !destName.isEmpty() )
     {

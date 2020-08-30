@@ -72,8 +72,6 @@ Options::Options() :
         temp.close();
     }
 
-    QFile::copy( resourcePath + "/dictionary/en_US.aff", libraryPath + "dictionary/en_US.aff" );
-    QFile::copy( resourcePath + "/dictionary/en_US.dic", libraryPath + "dictionary/en_US.dic" );
 
 #elif defined(Q_OS_MAC)
 
@@ -98,10 +96,12 @@ Options::Options() :
             temp.open( QIODevice::WriteOnly );
             temp.close();
         }
+    }
 
-        QFile::copy( resourcePath + "/dictionary/en_US.aff", libraryPath + "dictionary/en_US.aff" );
-        QFile::copy( resourcePath + "/dictionary/en_US.dic", libraryPath + "dictionary/en_US.dic" );
 #endif
+
+    QFile::copy( resourcePath + "/dictionary/en_US.aff", libraryPath + "dictionary/en_US.aff" );
+    QFile::copy( resourcePath + "/dictionary/en_US.dic", libraryPath + "dictionary/en_US.dic" );
 
     if ( ! m_autoDetect )
     {
@@ -117,7 +117,6 @@ Options::Options() :
         }
 
 #endif
-        m_mainDictionary = QCoreApplication::applicationDirPath() + "/dictionary/en_US.dic";
 
         // TODO:: Same^%*&%^* problem here. Too tightly coupled.
         //
@@ -219,7 +218,7 @@ Options &Options::operator =( const Options &opt )
     return *this;
 }
 
-bool operator ==( const Options& left, const Options& right )
+bool operator ==( const Options &left, const Options &right )
 {
     bool retVal = false;
 
@@ -381,7 +380,7 @@ bool operator ==( const Options& left, const Options& right )
     return retVal;
 }
 
-bool operator !=( const Options& left, const Options& right )
+bool operator !=( const Options &left, const Options &right )
 {
     bool retVal = true;
 
