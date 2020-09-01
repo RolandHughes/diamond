@@ -43,6 +43,7 @@
 #include <QTime>
 #include <qtconcurrentrun.h>
 #include <QThread>
+#include <QStringParser>
 
 static const int MESSAGE_TIME = 3000;
 
@@ -63,6 +64,7 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     , m_isSpellCheck( false )
     , m_spellCheck( nullptr )
     , m_syntaxParser( nullptr )
+    , m_astyleProcess( nullptr )
 {
     // drag & drop
     setAcceptDrops( false );
@@ -114,6 +116,18 @@ DiamondTextEdit::~DiamondTextEdit()
     if ( m_spellCheck )
     {
         delete m_spellCheck;
+        m_spellCheck = nullptr;
+    }
+
+    if ( m_astyleProcess )
+    {
+        if ( !m_astyleProcess->atEnd() )
+        {
+            m_astyleProcess->kill();
+        }
+
+        m_astyleProcess->deleteLater();
+        m_astyleProcess = nullptr;
     }
 }
 
@@ -181,7 +195,7 @@ void DiamondTextEdit::update_LineNumWidth( int newBlockCount )
 void DiamondTextEdit::update_display()
 {
     update_LineNumWidth( 0 );
-    update();  
+    update();
 }
 
 void DiamondTextEdit::resizeEvent( QResizeEvent *e )
@@ -1079,7 +1093,7 @@ void DiamondTextEdit::runSyntax( QString synFName )
 
     if ( m_syntaxParser )
     {
-        set_SyntaxParser(nullptr);
+        set_SyntaxParser( nullptr );
         delete m_syntaxParser;
         m_syntaxParser = nullptr;
     }
@@ -1884,7 +1898,7 @@ void DiamondTextEdit::setCurrentFile( QString fileName )
 }
 
 // **document
-void DiamondTextEdit::setSyntax(bool skipQueueRun)
+void DiamondTextEdit::setSyntax( bool skipQueueRun )
 {
     if ( m_syntaxParser )
     {
@@ -2073,7 +2087,7 @@ void DiamondTextEdit::setSyntax(bool skipQueueRun)
             m_syntaxEnum = SYN_PYTHON;
 
         }
-        else if ( suffix == "xml" ) 
+        else if ( suffix == "xml" )
         {
             m_syntaxEnum = SYN_XML;
 
@@ -2086,7 +2100,7 @@ void DiamondTextEdit::setSyntax(bool skipQueueRun)
         // check the menu item
         setSynType( m_syntaxEnum );
 
-        if (!skipQueueRun)
+        if ( !skipQueueRun )
         {
             queueRunSyntax( synFName );
         }
@@ -2124,7 +2138,6 @@ void DiamondTextEdit::changeSettings( Settings *settings )
 
         setScreenColors();
         m_lastTheme = m_settingsPtr->currentTheme();
-        qDebug() << "changeSettings() calling queueRunSyntax()";
         queueRunSyntax( m_synFName );
         moveBar();
     }
@@ -2323,9 +2336,12 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
             case Qt::Key_C:
                 if ( isCtrl )
                 {
-                    qDebug() << "trapped Ctrl-C";
+                    edtCopy();
+                    QTextCursor cursor = textCursor();
+                    cursor.clearSelection();
+                    setTextCursor( cursor );
                     m_edtSelectActive = false;
-                    return false;
+                    return true;
                 }
 
                 break;
@@ -2842,8 +2858,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
         if ( keyStr == Overlord::getInstance()->keys().edtAstyle() )
         {
             m_edtSelectActive = false;
-            not_done( "ASTYLE" );
-            //edtAstyle();  // TODO:: this might be local function instead of signal
+            astyleBuffer();
             return true;
         }
 
@@ -3286,4 +3301,108 @@ void DiamondTextEdit::clearEdtSelection()
     QTextCursor cursor = textCursor();
     cursor.clearSelection();
     setTextCursor( cursor );
+}
+
+void DiamondTextEdit::astyleBuffer()
+{
+    if ( m_astyleProcess )
+    {
+        csError( tr( "Astyle" ), tr( "Buffer currently has Astyle process running" ) );
+        return;
+    }
+
+// XXXXXX
+    QString fname = strippedName( m_curFile ).toLower();
+
+    if ( fname.length() <= 1 )
+    {
+        csError( tr( "Astle" ), tr( "Need a valid file name" ) );
+        return;
+    }
+
+    QDir tDir( Overlord::getInstance()->tempDir() );
+    m_aStyleFile = tDir.absoluteFilePath( fname );
+    QFile tFile( m_aStyleFile );
+
+    if ( tFile.exists() )
+    {
+        tFile.remove();
+    }
+
+    qDebug() << "tFile: " << tFile.fileName();
+
+    tFile.open( QIODevice::WriteOnly | QIODevice::Text );
+    qint64 bytesRead = tFile.write( this->toPlainText().toUtf8() );
+    qDebug() << "bytesRead: " << bytesRead;
+    tFile.flush();
+    tFile.close();
+
+    m_astyleProcess = new QProcess( this );
+
+    QString command = QString( "astyle \"%1\"" );
+    command = QStringParser::formatArg( command, tFile.fileName() );
+
+    connect( m_astyleProcess, static_cast<void( QProcess::* )( int, QProcess::ExitStatus )>( &QProcess::finished ),
+             this, &DiamondTextEdit::astyleComplete );
+
+    connect( m_astyleProcess, static_cast<void( QProcess::* )( QProcess::ProcessError )>( &QProcess::errorOccurred ),
+             this, &DiamondTextEdit::astyleError );
+
+    m_astyleProcess->start( command );
+
+
+    bool retVal = m_astyleProcess->waitForStarted();
+
+    if ( !retVal )
+    {
+        QString errStr = QString( m_astyleProcess->readAllStandardError() );
+        csError( tr( "Astyle" ), errStr );
+        csError( tr( "AStyle" ), tr( "AStyle must be installed and in execution path to use this feature" ) );
+        m_astyleProcess->deleteLater();
+        m_astyleProcess = nullptr;
+    }
+}
+
+void DiamondTextEdit::astyleComplete( int exitCode, QProcess::ExitStatus status )
+{
+    qDebug() << "astyleComplete: exitCode: " << exitCode << "  ExitStatus: " << status;
+
+    if ( status != QProcess::NormalExit )
+    {
+        QString errStr = QString( m_astyleProcess->readAllStandardError() );
+        csError( tr( "Astyle" ), errStr );
+        m_astyleProcess->deleteLater();
+        m_astyleProcess = nullptr;
+        return;
+    }
+
+    // TODO:: may have to save cursor position
+    //
+            QTextCursor lastCursorPos = textCursor();
+            //Overlord::getInstance()->set_lastActiveRow( c.blockNumber() );
+            //Overlord::getInstance()->set_lastActiveColumn( c.positionInBlock() );
+
+    QFile tFile( m_aStyleFile );
+    tFile.open( QIODevice::ReadOnly | QIODevice::Text );
+
+    QString txt( tFile.readAll() );
+    setPlainText( txt );
+    m_astyleProcess->deleteLater();
+    m_astyleProcess = nullptr;
+    m_aStyleFile = "";
+
+                    QTextCursor cursor( document()->findBlockByNumber( lastCursorPos.blockNumber() ) );
+                    cursor.movePosition( QTextCursor::StartOfLine );
+                    cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, lastCursorPos.positionInBlock() - 1 );
+                    setTextCursor( cursor );
+
+}
+
+void DiamondTextEdit::astyleError( QProcess::ProcessError error )
+{
+    qDebug() << "Astyle error: " << error;
+    QString msg( m_astyleProcess->readAllStandardError() );
+    csError( tr( "Astyle" ), msg );
+    m_astyleProcess->deleteLater();
+    m_astyleProcess = nullptr;
 }

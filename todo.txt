@@ -3,9 +3,17 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
 *) <Ctrl>-C in EDT mode needs to perform edtCopy
 
+*) change EDT keys to just be single character values - gets rid of other entry issues
+
 *) DELETE key needs to turn off EDT select. Actually anything that falls through needs to turn off EDT select.
 
 *) Advanced Find, doublclicking entry needs to set focus on DiamondTextEdit, not remain on the line
+
+*) Look into this
+        CopperSpice has caught an exception thrown from an event handler.
+        Reimplement QApplication::notify() and catch all exceptions.
+
+
 
 *) Need EDT command dialog
 

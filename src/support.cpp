@@ -123,7 +123,6 @@ void MainWindow::closeEvent( QCloseEvent *event )
         if ( ed != nullptr )
         {
             QTextCursor c = ed->textCursor();
-            qDebug() << "saving active file info";
             Overlord::getInstance()->set_lastActiveFile( m_tabWidget->tabText( m_tabWidget->currentIndex() ) );
             Overlord::getInstance()->set_lastActiveRow( c.blockNumber() );
             Overlord::getInstance()->set_lastActiveColumn( c.positionInBlock() );
@@ -139,6 +138,7 @@ void MainWindow::closeEvent( QCloseEvent *event )
         Overlord::getInstance()->set_lastPosition( pos() );
         Overlord::getInstance()->set_lastSize( size() );
         Overlord::getInstance()->close();
+        //delete Overlord::getInstance();
         event->accept();
 
     }

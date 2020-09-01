@@ -18,6 +18,7 @@
 #include "settings.h"
 #include "syntaxpatterns.h"
 #include <QTimer>
+#include <QTemporaryDir>
 
 class Overlord : public QObject
 {
@@ -94,7 +95,7 @@ public:
 
     QString priorPath()                     { return m_settings.m_priorPath;}
     QString activeTheme()                   { return m_settings.m_activeTheme;}
-
+    QString tempDir()                       { return m_tmpDir.path();}
     QFont   fontNormal()                    { return m_settings.m_fontNormal;}
     QFont   fontColumn()                    { return m_settings.m_fontColumn;}
 
@@ -170,6 +171,7 @@ public:
     bool edtDirection() { return m_edtDirection;}
 
     SyntaxPatterns *getSyntaxPatterns( QString fileName );
+
 
 
     //
@@ -309,6 +311,7 @@ private:
 
     QString m_appPath;
     QString m_configFileName;
+    QTemporaryDir m_tmpDir;
 
     QMap<QString, SyntaxPatterns *> m_syntaxPatterns;
     bool m_edtDirection;  // do not save this - always default to forward when starting

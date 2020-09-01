@@ -23,6 +23,7 @@
 #include <QSize>
 #include <QTextCursor>
 #include <QWidget>
+#include <QProcess>
 
 #include "spellcheck.h"
 #include "overlord.h"
@@ -117,9 +118,6 @@ public:
     CS_SIGNAL_1( Public, void edtSaveFileAs( Overlord::SaveFiles fileType ) )
     CS_SIGNAL_2( edtSaveFileAs, fileType )
 
-    CS_SIGNAL_1( Public, void edtAstyle() )   // TODO::
-    CS_SIGNAL_2( edtAstyle )
-
     CS_SIGNAL_1( Public, void showEdtHelp() )
     CS_SIGNAL_2( showEdtHelp )
 
@@ -147,8 +145,11 @@ public:
     CS_SIGNAL_1( Public, void timedMessage( QString msg, int milliSeconds ) )
     CS_SIGNAL_2( timedMessage, msg, milliSeconds )
 
+    
+
     // editing API for use by MainWindow
     //
+    void astyleBuffer();
     void indentIncr( QString route );
     void indentDecr( QString route );
     void deleteLine();
@@ -160,7 +161,7 @@ public:
     void selectLine();
     void selectWord();
     void caseUpper();
-    void caseLower();   // TODO:: add changeCase to change UglyCamelCase to uGLYcAMELcASE
+    void caseLower();   
     void caseCap();
     void goLine();
     void goColumn();
@@ -194,6 +195,8 @@ private:
     CS_SLOT_1( Private, void spell_addUserDict() )
     CS_SLOT_2( spell_addUserDict )
 
+    void astyleComplete(int exitCode, QProcess::ExitStatus status);
+    void astyleError(QProcess::ProcessError error);
     void setScreenColors();
     void changeFont();
     bool handleEdtKey( int key, int modifiers );
@@ -255,6 +258,9 @@ private:
     SyntaxTypes m_syntaxEnum;
 
     void update_LineNumWidth( int newBlockCount );
+
+    QProcess *m_astyleProcess;
+    QString  m_aStyleFile;
 };
 
 
