@@ -98,3 +98,18 @@ bool doubleEqualFourDigits( double left, double right )
     return ( ll_left == ll_right );
 }
 
+bool validAstyleSuffix( QString suffix )
+{
+    bool retVal = false;
+
+    const QList<QString> cppList = {"h", "hh", "hpp", "c", "cc", "c++", "cpp", "l", "m", "mm" };
+
+    if ( cppList.contains( suffix.toLower() ) )
+    {
+        retVal = true;
+
+    }
+
+    return retVal;
+
+}

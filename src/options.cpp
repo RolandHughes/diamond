@@ -16,13 +16,18 @@
 #include "non_gui_functions.h"
 #include <QDir>
 
+const QString Options::DEFAULT_BACKUP_DIR = QString("Diamond_Backups");
+
 Options::Options() :
     m_rewrapColumn( 120 )
     , m_tabSpacing( 4 )
+    , m_maxVersions( 12)
     , m_useSpaces( true )
     , m_removeSpaces( false )
     , m_autoLoad( true )
     , m_autoDetect( false )
+    , m_makeBackups( false)
+    , m_astyleOnSave( false)
     , m_preloadClipper( false )
     , m_preloadCmake( false )
     , m_preloadCpp( true )
@@ -72,6 +77,13 @@ Options::Options() :
         temp.close();
     }
 
+    QDir home(QDir::homePath());
+
+    m_backupDirectory = home.absoluteFilePath( DEFAULT_BACKUP_DIR);
+    if (!home.exists( DEFAULT_BACKUP_DIR))
+    {
+        home.mkdir( DEFAULT_BACKUP_DIR);
+    }
 
 #elif defined(Q_OS_MAC)
 
@@ -140,40 +152,44 @@ Options::Options() :
     }
 }
 
-Options::Options( const Options &opt )
+Options::Options( const Options &opt ) :
+    m_rewrapColumn( opt.m_rewrapColumn)
+    , m_tabSpacing( opt.m_tabSpacing)
+    , m_maxVersions( opt.m_maxVersions)
+    , m_useSpaces( opt.m_useSpaces)
+    , m_removeSpaces( opt.m_removeSpaces)
+    , m_autoLoad( opt.m_autoLoad)
+    , m_autoDetect( opt.m_autoLoad )
+    , m_makeBackups( opt.m_makeBackups)
+    , m_astyleOnSave( opt.m_astyleOnSave)
+    , m_preloadClipper( opt.m_preloadClipper)
+    , m_preloadCmake( opt.m_preloadCmake)
+    , m_preloadCpp( opt.m_preloadCpp)
+    , m_preloadCss( opt.m_preloadCss)
+    , m_preloadDoxy( opt.m_preloadDoxy)
+    , m_preloadErrLog( opt.m_preloadErrLog)
+    , m_preloadHtml( opt.m_preloadHtml)
+    , m_preloadJava( opt.m_preloadJava)
+    , m_preloadJs( opt.m_preloadJs)
+    , m_preloadJson( opt.m_preloadJson)
+    , m_preloadMake( opt.m_preloadMake)
+    , m_preloadNone( opt.m_preloadNone)
+    , m_preloadNSI( opt.m_preloadNSI)
+    , m_preloadPhp( opt.m_preloadPhp)
+    , m_preloadPl( opt.m_preloadPl)
+    , m_preloadPy( opt.m_preloadPy)
+    , m_preloadSh( opt.m_preloadSh)
+    , m_preloadTxt( opt.m_preloadTxt)
+    , m_preloadXml( opt.m_preloadXml)
+    , m_formatDate( opt.m_formatDate)
+    , m_formatTime( opt.m_formatTime)
+    , m_mainDictionary( opt.m_mainDictionary)
+    , m_userDictionary( opt.m_userDictionary)
+    , m_syntaxPath( opt.m_syntaxPath)
+    , m_aboutUrl(opt.m_aboutUrl)
+    , m_backupDirectory( opt.m_backupDirectory)
+    , m_keys(opt.m_keys)
 {
-    m_rewrapColumn      = opt.m_rewrapColumn;
-    m_tabSpacing        = opt.m_tabSpacing;
-    m_removeSpaces      = opt.m_removeSpaces;
-    m_useSpaces         = opt.m_useSpaces;
-    m_autoLoad          = opt.m_autoLoad;
-    m_autoDetect        = opt.m_autoDetect;
-    m_preloadClipper    = opt.m_preloadClipper;
-    m_preloadCmake      = opt.m_preloadCmake;
-    m_preloadCpp        = opt.m_preloadCpp;
-    m_preloadCss        = opt.m_preloadCss;
-    m_preloadDoxy       = opt.m_preloadDoxy;
-    m_preloadErrLog     = opt.m_preloadErrLog;
-    m_preloadHtml       = opt.m_preloadHtml;
-    m_preloadJava       = opt.m_preloadJava;
-    m_preloadJs         = opt.m_preloadJs;
-    m_preloadJson       = opt.m_preloadJson;
-    m_preloadMake       = opt.m_preloadMake;
-    m_preloadNone       = opt.m_preloadNone;
-    m_preloadNSI        = opt.m_preloadNSI;
-    m_preloadPhp        = opt.m_preloadPhp;
-    m_preloadPl         = opt.m_preloadPl;
-    m_preloadPy         = opt.m_preloadPy;
-    m_preloadSh         = opt.m_preloadSh;
-    m_preloadTxt        = opt.m_preloadTxt;
-    m_preloadXml        = opt.m_preloadXml;
-    m_formatDate        = opt.m_formatDate;
-    m_formatTime        = opt.m_formatTime;
-    m_mainDictionary    = opt.m_mainDictionary;
-    m_userDictionary    = opt.m_userDictionary;
-    m_syntaxPath        = opt.m_syntaxPath;
-    m_aboutUrl          = opt.m_aboutUrl;
-    m_keys              = opt.m_keys;
 
 }
 
@@ -183,10 +199,13 @@ Options &Options::operator =( const Options &opt )
     {
         m_rewrapColumn      = opt.m_rewrapColumn;
         m_tabSpacing        = opt.m_tabSpacing;
+        m_maxVersions       = opt.m_maxVersions;
         m_removeSpaces      = opt.m_removeSpaces;
         m_useSpaces         = opt.m_useSpaces;
         m_autoLoad          = opt.m_autoLoad;
         m_autoDetect        = opt.m_autoDetect;
+        m_makeBackups       = opt.m_makeBackups;
+        m_astyleOnSave      = opt.m_astyleOnSave;
         m_preloadClipper    = opt.m_preloadClipper;
         m_preloadCmake      = opt.m_preloadCmake;
         m_preloadCpp        = opt.m_preloadCpp;
@@ -232,6 +251,11 @@ bool operator ==( const Options &left, const Options &right )
         retVal = false;
     }
 
+    if ( left.m_maxVersions != right.m_maxVersions)
+    {
+        retVal = false;
+    }
+
     if ( left.m_useSpaces != right.m_useSpaces )
     {
         retVal = false;
@@ -248,6 +272,16 @@ bool operator ==( const Options &left, const Options &right )
     }
 
     if ( left.m_autoDetect != right.m_autoDetect )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_makeBackups != right.m_makeBackups)
+    {
+        retVal = false;
+    }
+
+    if ( left.m_astyleOnSave != right.m_astyleOnSave)
     {
         retVal = false;
     }
@@ -353,6 +387,11 @@ bool operator ==( const Options &left, const Options &right )
     }
 
     if ( left.m_formatTime != right.m_formatTime )
+    {
+        retVal = false;
+    }
+
+    if ( left.m_backupDirectory != right.m_backupDirectory)
     {
         retVal = false;
     }

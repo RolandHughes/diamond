@@ -1,18 +1,30 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
 
-*) <Ctrl>-C in EDT mode needs to perform edtCopy
+*) Clicking tab should transfer focus to textEdit
 
-*) change EDT keys to just be single character values - gets rid of other entry issues
+*) Clicking X in tab is closing changed file without prompting. Needs to check for change and prompt for save.
 
-*) DELETE key needs to turn off EDT select. Actually anything that falls through needs to turn off EDT select.
+*) Implement GOLD-I (insert file)
+
+*) GET BACKUPS IMPLEMENTED!!!!!
 
 *) Advanced Find, doublclicking entry needs to set focus on DiamondTextEdit, not remain on the line
 
-*) Look into this
-        CopperSpice has caught an exception thrown from an event handler.
-        Reimplement QApplication::notify() and catch all exceptions.
+*) change Theme QMap to use pointer instead of solid object. Keep dymanically allocated objects around then nuke on exit.
 
+*) context menu tossing up these errors
+    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
+    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
+    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
+    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
+    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
+    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
+    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
+
+    on a fresh file open right clicking has 4 disabled actions. Undo, Redo, Cut, Copy
+    after selection is present Cut, Copy, and Paste are avaiable, Rewrap appears; Undo and Redo still disabled.
+    Obviously we can control what is on the menu so we need to be a bit more controlling when adding items.
 
 
 *) Need EDT command dialog

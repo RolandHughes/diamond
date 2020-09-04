@@ -283,10 +283,10 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
     /*;;;;;
      *  We have a chicken and egg problem here.
      *  Autoload happens before MainWindow is fully created.
-     *  The ideal solution would be to create the syntax highlighter 
+     *  The ideal solution would be to create the syntax highlighter
      *  _before_ setting data. When you do that syntax highlighting happens auto-magically.
      *  We aren't far enough up during autoload to allow this. You spastically crash
-     *  once the last line has been processed by highlightBlock() because the highlighter 
+     *  once the last line has been processed by highlightBlock() because the highlighter
      *  wants to update a tab not yet fully created for a not yet fully created MainWindow.
      *
      *  Need to find a way of decoupling menu creations from having all of the files already
@@ -303,7 +303,7 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
     m_textEdit->setPlainText( fileData );
     //  Need to drain the swamp here. Really big files have a massive drag
     //  with all of the highlighting.
-    QCoreApplication::processEvents();
+    QApplication::processEvents();
 
     if ( m_textEdit->m_owner == "tab" )
     {
@@ -397,7 +397,6 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
 
     if ( ! file.open( QFile::WriteOnly | QFile::Text ) )
     {
-
         QString tmp = fileName;
 
         if ( tmp.isEmpty() )
@@ -410,15 +409,29 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
         return false;
     }
 
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+
     if ( Overlord::getInstance()->removeSpaces() )
     {
         deleteEOL_Spaces();
     }
 
-    QApplication::setOverrideCursor( Qt::WaitCursor );
-    file.write( m_textEdit->toPlainText().toUtf8() );
-    QApplication::restoreOverrideCursor();
+    if ( Overlord::getInstance()->astyleOnSave() )
+    {
+        QString suffix = suffixName( fileName ).toLower();
 
+        if ( validAstyleSuffix( suffix ) )
+        {
+            m_textEdit->astyleBuffer( true );
+        }
+    }
+
+    if ( Overlord::getInstance()->makeBackups() )
+    {
+        qDebug() << "Need to make backups here";
+    }
+
+    file.write( m_textEdit->toPlainText().toUtf8() );
     m_textEdit->document()->setModified( false );
 
     int index = Overlord::getInstance()->openedFilesFind( fileName );
@@ -428,6 +441,7 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
         Overlord::getInstance()->openedModifiedReplace( index,false );
         openTab_UpdateOneAction( index,false );
     }
+
 
     if ( m_isSplit )
     {
@@ -442,6 +456,7 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
         setStatusBar( tr( "File saved" ), 2000 );
     }
 
+    QApplication::restoreOverrideCursor();
     return true;
 }
 

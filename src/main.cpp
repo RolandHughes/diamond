@@ -15,6 +15,7 @@
 #include "diamond_build_info.h"
 #include "mainwindow.h"
 #include "util.h"
+#include "overlord.h"
 
 #include <QApplication>
 #include <QDialog>
@@ -69,6 +70,9 @@ int main( int argc, char *argv[] )
 
         try
         {
+            // establish our singleton and parent it to the application
+            //
+            Overlord::getInstance()->setParent(&app);
             MainWindow dw( fileList, flagList );
             dw.show();
 

@@ -145,11 +145,11 @@ public:
     CS_SIGNAL_1( Public, void timedMessage( QString msg, int milliSeconds ) )
     CS_SIGNAL_2( timedMessage, msg, milliSeconds )
 
-    
+
 
     // editing API for use by MainWindow
     //
-    void astyleBuffer();
+    void astyleBuffer( bool needToWait = false );
     void indentIncr( QString route );
     void indentDecr( QString route );
     void deleteLine();
@@ -161,7 +161,7 @@ public:
     void selectLine();
     void selectWord();
     void caseUpper();
-    void caseLower();   
+    void caseLower();
     void caseCap();
     void goLine();
     void goColumn();
@@ -174,7 +174,7 @@ public:
     void fixSpaces_Tab();
     void deleteEOL_Spaces();
     void rewrapParaphragh();
-    void setSyntax(bool skipQueueRun=false);
+    void setSyntax( bool skipQueueRun=false );
 
 
     // spell check
@@ -195,8 +195,8 @@ private:
     CS_SLOT_1( Private, void spell_addUserDict() )
     CS_SLOT_2( spell_addUserDict )
 
-    void astyleComplete(int exitCode, QProcess::ExitStatus status);
-    void astyleError(QProcess::ProcessError error);
+    void astyleComplete( int exitCode, QProcess::ExitStatus status );
+    void astyleError( QProcess::ProcessError error );
     void setScreenColors();
     void changeFont();
     bool handleEdtKey( int key, int modifiers );
@@ -260,7 +260,6 @@ private:
     void update_LineNumWidth( int newBlockCount );
 
     QProcess *m_astyleProcess;
-    QString  m_aStyleFile;
 };
 
 

@@ -340,6 +340,7 @@ private:
     void macroLoad();
     void macroEditNames();
     void spellCheck();
+    void astyle();
 
     // options
     void setColors();

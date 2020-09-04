@@ -15,14 +15,17 @@
 #include <qtconcurrentrun.h>
 #include <QThread>
 #include <QTime>
+#include <iostream>
 
 Overlord *Overlord::m_instance = nullptr;
 
 Overlord::Overlord() :
-    m_isComplete( false )
+    QObject(nullptr)
+    , m_isComplete( false )
     , m_changed( false )
     , m_needsBroadcast( false )
     , m_edtDirection( false )
+    , m_closed( false )
 {
     connect( &m_settings, &Settings::Move, this, &Overlord::Move );
     connect( &m_settings, &Settings::Resize, this, &Overlord::Resize );
@@ -30,6 +33,13 @@ Overlord::Overlord() :
 
 Overlord::~Overlord()
 {
+    // can't risk calling close() here because event loop is on 
+    // it's way out the door if not already gone. The save() call
+    // needs event loop.
+    //
+    std::cout << "Overlord::~Overlord() called";
+
+#if 0
     if ( m_flushTimer.isActive() )
     {
         m_flushTimer.stop();
@@ -43,11 +53,17 @@ Overlord::~Overlord()
     // TODO:: see if we need to delete SyntaxPatterns in QMAP
     //        as they were dynamically allocated
     //
-
+#endif
+    if (!m_closed)
+    {
+        close();
+    }
 }
 
 void Overlord::close()
 {
+    qDebug() << "called Overlord::close()";
+    m_closed = true;
     if ( m_flushTimer.isActive() )
     {
         m_flushTimer.stop();
@@ -62,6 +78,9 @@ void Overlord::close()
     {
         m_settings.save();
     }
+
+    qDebug() << "removing temp dir";
+    m_tmpDir.remove();
 }
 
 void Overlord::checkForChange()

@@ -22,6 +22,7 @@
 #include <QLineEdit>
 #include <QString>
 #include <QToolButton>
+#include <QStringParser>
 
 #include <qglobal.h>
 
@@ -34,16 +35,20 @@ Dialog_Options::Dialog_Options( QWidget *parent )
     this->setWindowIcon( QIcon( "://resources/diamond.png" ) );
     m_ui->keypad_label->setPixmap( QPixmap( "://resources/EDT-Keypad.png" ) );
 
+    QValidator *validator = new QIntValidator( 3, 32767, this );
+    m_ui->maxVersions->setValidator( validator );
+
     initData();
 
-    connect( m_ui->dictMain_TB, &QToolButton::clicked, this, &Dialog_Options::pick_Main );
-    connect( m_ui->dictUser_TB, &QToolButton::clicked, this, &Dialog_Options::pick_User );
-    connect( m_ui->syntax_TB,   &QToolButton::clicked, this, &Dialog_Options::pick_Syntax );
+    connect( m_ui->backupDirectory_TB,  &QToolButton::clicked, this, &Dialog_Options::pick_BackupDirectory );
+    connect( m_ui->dictMain_TB,         &QToolButton::clicked, this, &Dialog_Options::pick_Main );
+    connect( m_ui->dictUser_TB,         &QToolButton::clicked, this, &Dialog_Options::pick_User );
+    connect( m_ui->syntax_TB,           &QToolButton::clicked, this, &Dialog_Options::pick_Syntax );
 
-    connect( m_ui->reset_PB,    &QPushButton::clicked, this, &Dialog_Options::reset_StandardKey );
-    connect( m_ui->save_PB,     &QPushButton::clicked, this, &Dialog_Options::save );
-    connect( m_ui->cancel_PB,   &QPushButton::clicked, this, &Dialog_Options::cancel );
-    connect( m_ui->edtHelp_PB,  &QPushButton::clicked, this, &Dialog_Options::show_help );
+    connect( m_ui->reset_PB,            &QPushButton::clicked, this, &Dialog_Options::reset_StandardKey );
+    connect( m_ui->save_PB,             &QPushButton::clicked, this, &Dialog_Options::save );
+    connect( m_ui->cancel_PB,           &QPushButton::clicked, this, &Dialog_Options::cancel );
+    connect( m_ui->edtHelp_PB,          &QPushButton::clicked, this, &Dialog_Options::show_help );
 
     m_ui->tabWidget->setCurrentIndex( 0 );
 }
@@ -86,6 +91,11 @@ void Dialog_Options::initData()
     m_ui->tabSpacing_CB->addItems( list );
     m_ui->tabSpacing_CB->setEditable( false );
 
+    QString mxV = QString( "%1" ).formatArg( m_options.maxVersions() );
+    qDebug() << "mxV: " << mxV;
+    qDebug() << "  maxVersions(): " << m_options.maxVersions();
+    m_ui->maxVersions->setText( mxV );
+
     index = m_ui->tabSpacing_CB->findText( QString::number( m_options.tabSpacing() ) );
     m_ui->tabSpacing_CB->setCurrentIndex( index );
 
@@ -97,6 +107,10 @@ void Dialog_Options::initData()
 
     m_ui->enable_EDT_CKB->setChecked( m_options.keys().edtEnabled() );
 
+    m_ui->astyle_CKB->setChecked( m_options.astyleOnSave() );
+    m_ui->createBackups_CKB->setChecked( m_options.makeBackups() );
+
+    m_ui->backupDirectory->setText( m_options.backupDirectory() );
     m_ui->dictMain->setText( m_options.mainDictionary() );
     m_ui->dictMain->setCursorPosition( 0 );
 
@@ -191,6 +205,7 @@ void Dialog_Options::save()
     // ** tab 1
     m_options.set_formatDate( m_ui->dateFormat_CB->currentText() );
     m_options.set_formatTime( m_ui->timeFormat_CB->currentText() );
+    m_options.set_backupDirectory( m_ui->backupDirectory->text() );
     m_options.set_mainDictionary( m_ui->dictMain->text() );
     m_options.set_userDictionary( m_ui->dictUser->text() );
     m_options.set_syntaxPath( m_ui->syntax->text() );
@@ -201,6 +216,11 @@ void Dialog_Options::save()
     m_options.set_useSpaces( m_ui->useSpaces_CKB->isChecked() );
     m_options.set_removeSpaces( m_ui->removeSpace_CKB->isChecked() );
     m_options.set_autoLoad( m_ui->autoLoad_CKB->isChecked() );
+    m_options.keys().set_edtEnabled( m_ui->enable_EDT_CKB->isChecked() );
+    m_options.set_astyleOnSave( m_ui->astyle_CKB->isChecked() );
+    value = m_ui->maxVersions->text();
+    qDebug() << "value: " << value;
+    m_options.set_maxVersions( value.toInteger<int>() );
 
     m_options.set_preloadClipper( m_ui->clipper_CKB->isChecked() );
     m_options.set_preloadCmake( m_ui->cmake_CKB->isChecked() );
@@ -263,9 +283,8 @@ void Dialog_Options::save()
     m_options.keys().set_spellCheck( m_ui->key_spellCheck->text() );
     m_options.keys().set_copyBuffer( m_ui->key_copyBuffer->text() );
 
-    //** tab 4
+    // ** tab 4
     m_options.keys().set_edtGotoLine( m_ui->key_EDT_GotoLine->text() );
-    m_options.keys().set_edtEnabled( m_ui->enable_EDT_CKB->isChecked() );
     m_options.keys().set_numLockGold( m_ui->numLock_RB->isChecked() );
     m_options.keys().set_scrollLockGold( m_ui->scrollLock_RB->isChecked() );
     m_options.keys().set_edtCopy( m_ui->key_EDT_Copy->text() );
@@ -302,6 +321,25 @@ void Dialog_Options::pick_Main()
     if ( ! fileName.isEmpty() )
     {
         m_ui->dictMain->setText( fileName );
+    }
+}
+
+void Dialog_Options::pick_BackupDirectory()
+{
+    QString selectedFilter;
+    QFileDialog::Options options;
+
+    // force windows 7 and 8 to honor initial path
+    options = QFileDialog::ForceInitialDir_Win7;
+
+    QString dir = QFileDialog::getExistingDirectory( this, tr( "Open Directory" ),
+                  QDir::homePath(),
+                  QFileDialog::ShowDirsOnly
+                  | QFileDialog::DontResolveSymlinks );
+
+    if ( ! dir.isEmpty() )
+    {
+        m_ui->backupDirectory->setText( dir );
     }
 }
 

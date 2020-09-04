@@ -221,6 +221,7 @@
     <addaction name="actionMacro_EditNames"/>
     <addaction name="separator"/>
     <addaction name="actionSpell_Check"/>
+    <addaction name="actionAstyle"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -820,6 +821,11 @@
   <action name="actionClipboard">
    <property name="text">
     <string>Clipboard</string>
+   </property>
+  </action>
+  <action name="actionAstyle">
+   <property name="text">
+    <string>Astyle</string>
    </property>
   </action>
  </widget>

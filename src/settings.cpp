@@ -700,6 +700,9 @@ bool Settings::load()
             return ok;
         }
 
+        m_options.set_backupDirectory( object.value( "backupDirectory").toString());
+        m_options.set_astyleOnSave( object.value("astyleOnSave").toBool());
+        m_options.set_maxVersions( object.value("maxVersions").toInt());
         m_options.keys().set_edtGotoLine( object.value( "key-edt-gotoLine" ).toString() );
         m_options.keys().set_edtCopy( object.value( "key-edt-copy" ).toString() );
         m_options.keys().set_edtInsertFile( object.value( "key-edt-insertFile" ).toString() );
@@ -991,6 +994,9 @@ void Settings::save()
     object.insert( "preload-sh",        m_options.preloadSh() );
     object.insert( "preload-txt",       m_options.preloadTxt() );
     object.insert( "preload-xml",       m_options.preloadXml() );
+    object.insert( "backupDirectory",   m_options.backupDirectory());
+    object.insert( "maxVersions",       m_options.maxVersions());
+    object.insert( "astyleOnSave",      m_options.astyleOnSave());
 
 
     object.insert( "column-mode",   m_isColumnMode );

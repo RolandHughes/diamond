@@ -40,6 +40,7 @@ private:
     void pick_Main();
     void pick_User();
     void pick_Syntax();
+    void pick_BackupDirectory();
 
     void reset_StandardKey();
     void save();

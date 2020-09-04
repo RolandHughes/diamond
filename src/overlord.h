@@ -51,9 +51,12 @@ public:
     bool    isComplete()                    { return m_isComplete;}
     int     rewrapColumn()                  { return m_settings.m_options.rewrapColumn();}
     int     tabSpacing()                    { return m_settings.m_options.tabSpacing();}
+    int     maxVersions()                   { return m_settings.m_options.maxVersions();}
     bool    useSpaces()                     { return m_settings.m_options.useSpaces();}
     bool    removeSpaces()                  { return m_settings.m_options.removeSpaces();}
     bool    autoLoad()                      { return m_settings.m_options.autoLoad();}
+    bool    astyleOnSave()                  { return m_settings.m_options.astyleOnSave();}
+    bool    makeBackups()                   { return m_settings.m_options.makeBackups();}
     bool    preloadClipper()                { return m_settings.m_options.preloadClipper();}
     bool    preloadCmake()                  { return m_settings.m_options.preloadCmake();}
     bool    preloadCpp()                    { return m_settings.m_options.preloadCpp();}
@@ -76,6 +79,7 @@ public:
 
     QString formatDate()                    { return m_settings.m_options.formatDate();}
     QString formatTime()                    { return m_settings.m_options.formatTime();}
+    QString backupDirectory()               { return m_settings.m_options.backupDirectory();}
     QString mainDictionary()                { return m_settings.m_options.mainDictionary();}
     QString userDictionary()                { return m_settings.m_options.userDictionary();}
     QString aboutUrl()                      { return m_settings.m_options.aboutUrl();}
@@ -315,6 +319,7 @@ private:
 
     QMap<QString, SyntaxPatterns *> m_syntaxPatterns;
     bool m_edtDirection;  // do not save this - always default to forward when starting
+    bool m_closed;        // do not save this - used by destructor to see if we need to close
 };
 
 #endif

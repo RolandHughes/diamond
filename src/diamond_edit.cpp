@@ -2862,6 +2862,13 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
             return true;
         }
 
+        if ( keyStr == Overlord::getInstance()->keys().edtInsertFile() )
+        {
+            m_edtSelectActive = false;
+            not_done( "insert file" );
+            return true;
+        }
+
     }
     else
     {
@@ -3303,7 +3310,7 @@ void DiamondTextEdit::clearEdtSelection()
     setTextCursor( cursor );
 }
 
-void DiamondTextEdit::astyleBuffer()
+void DiamondTextEdit::astyleBuffer( bool needToWait )
 {
     if ( m_astyleProcess )
     {
@@ -3311,7 +3318,8 @@ void DiamondTextEdit::astyleBuffer()
         return;
     }
 
-// XXXXXX
+    timedMessage( tr( "Styling . . ." ), 0 );
+    QApplication::setOverrideCursor( Qt::WaitCursor );
     QString fname = strippedName( m_curFile ).toLower();
 
     if ( fname.length() <= 1 )
@@ -3321,8 +3329,8 @@ void DiamondTextEdit::astyleBuffer()
     }
 
     QDir tDir( Overlord::getInstance()->tempDir() );
-    m_aStyleFile = tDir.absoluteFilePath( fname );
-    QFile tFile( m_aStyleFile );
+    QString aStyleFile = tDir.absoluteFilePath( fname );
+    QFile tFile( aStyleFile );
 
     if ( tFile.exists() )
     {
@@ -3339,35 +3347,48 @@ void DiamondTextEdit::astyleBuffer()
 
     m_astyleProcess = new QProcess( this );
 
-    QString command = QString( "astyle \"%1\"" );
+    QString command = QString( "astyle --stdin=\"%1\"" );
     command = QStringParser::formatArg( command, tFile.fileName() );
 
-    connect( m_astyleProcess, static_cast<void( QProcess::* )( int, QProcess::ExitStatus )>( &QProcess::finished ),
-             this, &DiamondTextEdit::astyleComplete );
-
-    connect( m_astyleProcess, static_cast<void( QProcess::* )( QProcess::ProcessError )>( &QProcess::errorOccurred ),
-             this, &DiamondTextEdit::astyleError );
-
-    m_astyleProcess->start( command );
+    QTextCursor lastCursorPos = textCursor();
+    Overlord::getInstance()->set_lastActiveRow( lastCursorPos.blockNumber() );
+    Overlord::getInstance()->set_lastActiveColumn( lastCursorPos.positionInBlock() );
 
 
-    bool retVal = m_astyleProcess->waitForStarted();
-
-    if ( !retVal )
+    if ( !needToWait )
     {
-        QString errStr = QString( m_astyleProcess->readAllStandardError() );
-        csError( tr( "Astyle" ), errStr );
-        csError( tr( "AStyle" ), tr( "AStyle must be installed and in execution path to use this feature" ) );
-        m_astyleProcess->deleteLater();
-        m_astyleProcess = nullptr;
+        connect( m_astyleProcess, static_cast<void( QProcess::* )( int, QProcess::ExitStatus )>( &QProcess::finished ),
+                 this, &DiamondTextEdit::astyleComplete );
+
+        connect( m_astyleProcess, static_cast<void( QProcess::* )( QProcess::ProcessError )>( &QProcess::errorOccurred ),
+                 this, &DiamondTextEdit::astyleError );
+
+        m_astyleProcess->start( command );
+
+
+        bool retVal = m_astyleProcess->waitForStarted();
+
+        if ( !retVal )
+        {
+            QString errStr = QString( m_astyleProcess->readAllStandardError() );
+            csError( tr( "Astyle" ), errStr );
+            csError( tr( "AStyle" ), tr( "AStyle must be installed and in execution path to use this feature" ) );
+            m_astyleProcess->deleteLater();
+            m_astyleProcess = nullptr;
+        }
+    }
+    else
+    {
+        QTextCursor lastCursorPos = textCursor();
+        m_astyleProcess->start( command );
+        m_astyleProcess->waitForFinished();
+        astyleComplete( 0, QProcess::NormalExit );
     }
 }
 
 void DiamondTextEdit::astyleComplete( int exitCode, QProcess::ExitStatus status )
 {
-    qDebug() << "astyleComplete: exitCode: " << exitCode << "  ExitStatus: " << status;
-
-    if ( status != QProcess::NormalExit )
+    if ( status != QProcess::NormalExit || exitCode != 0 )
     {
         QString errStr = QString( m_astyleProcess->readAllStandardError() );
         csError( tr( "Astyle" ), errStr );
@@ -3376,31 +3397,33 @@ void DiamondTextEdit::astyleComplete( int exitCode, QProcess::ExitStatus status 
         return;
     }
 
-    // TODO:: may have to save cursor position
-    //
-            QTextCursor lastCursorPos = textCursor();
-            //Overlord::getInstance()->set_lastActiveRow( c.blockNumber() );
-            //Overlord::getInstance()->set_lastActiveColumn( c.positionInBlock() );
+    QString txt( m_astyleProcess->readAllStandardOutput() );
 
-    QFile tFile( m_aStyleFile );
-    tFile.open( QIODevice::ReadOnly | QIODevice::Text );
+    if ( txt.length() > 0 )
+    {
+        setPlainText( txt );
+        QApplication::processEvents();
 
-    QString txt( tFile.readAll() );
-    setPlainText( txt );
+        QTextCursor cursor( document()->findBlockByNumber( Overlord::getInstance()->lastActiveRow() ) );
+        cursor.movePosition( QTextCursor::StartOfLine );
+        cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveColumn() - 1 );
+        setTextCursor( cursor );
+    }
+    else
+    {
+        csError( tr( "Astyle" ), tr( "Output of Astyle had zero length" ) );
+    }
+
+    timedMessage( tr( "Styling finished" ), 1500 );
     m_astyleProcess->deleteLater();
     m_astyleProcess = nullptr;
-    m_aStyleFile = "";
-
-                    QTextCursor cursor( document()->findBlockByNumber( lastCursorPos.blockNumber() ) );
-                    cursor.movePosition( QTextCursor::StartOfLine );
-                    cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, lastCursorPos.positionInBlock() - 1 );
-                    setTextCursor( cursor );
-
+    QApplication::restoreOverrideCursor();
 }
 
 void DiamondTextEdit::astyleError( QProcess::ProcessError error )
 {
-    qDebug() << "Astyle error: " << error;
+    Q_UNUSED( error );
+    timedMessage( tr( "Styling finished" ), 1500 );
     QString msg( m_astyleProcess->readAllStandardError() );
     csError( tr( "Astyle" ), msg );
     m_astyleProcess->deleteLater();

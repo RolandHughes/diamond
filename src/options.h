@@ -34,15 +34,20 @@ public:
     friend bool operator ==( const Options &left, const Options &right );
     friend bool operator !=( const Options &left, const Options &right );
 
+    static const QString DEFAULT_BACKUP_DIR;
+
     //
     // getters
     //
     int             rewrapColumn()      { return m_rewrapColumn;}
     int             tabSpacing()        { return m_tabSpacing;}
+    int             maxVersions()       { return m_maxVersions;}
     bool            useSpaces()         { return m_useSpaces;}
     bool            removeSpaces()      { return m_removeSpaces;}
     bool            autoLoad()          { return m_autoLoad;}
     bool            isAutoDetect()      { return m_autoDetect;}
+    bool            makeBackups()       { return m_makeBackups;}
+    bool            astyleOnSave()      { return m_astyleOnSave;}
     bool            preloadClipper()    { return m_preloadClipper;}
     bool            preloadCmake()      { return m_preloadCmake;}
     bool            preloadCpp()        { return m_preloadCpp;}
@@ -64,6 +69,7 @@ public:
     bool            preloadXml()        { return m_preloadXml;}
     QString         formatDate()        { return m_formatDate;}
     QString         formatTime()        { return m_formatTime;}
+    QString         backupDirectory()   { return m_backupDirectory;}
     QString         mainDictionary()    { return m_mainDictionary;}
     QString         userDictionary()    { return m_userDictionary;}
     QString         syntaxPath()        { return m_syntaxPath;}
@@ -76,11 +82,13 @@ public:
     //
     void set_rewrapColumn( int col )                { m_rewrapColumn = col;}
     void set_tabSpacing( int tabStop )              { m_tabSpacing = tabStop;}
+    void set_maxVersions( int max)                  { m_maxVersions = max; }
     void set_useSpaces( bool yesNo )                { m_useSpaces = yesNo;}
     void set_removeSpaces( bool yesNo )             { m_removeSpaces = yesNo;}
     void set_autoLoad( bool yesNo )                 { m_autoLoad = yesNo;}
     void set_formatDate( QString fmt )              { m_formatDate = fmt;}
     void set_formatTime( QString fmt )              { m_formatTime = fmt;}
+    void set_backupDirectory( QString directory )   { m_backupDirectory = directory; }
     void set_mainDictionary( QString dictionary )   { m_mainDictionary = dictionary;}
     void set_userDictionary( QString dictionary )   { m_userDictionary = dictionary;}
     void set_syntaxPath( QString path )             { m_syntaxPath = path;}
@@ -104,6 +112,8 @@ public:
     void set_preloadSh( bool yesNo )                 { m_preloadSh = yesNo;}
     void set_preloadTxt( bool yesNo )                { m_preloadTxt = yesNo;}
     void set_preloadXml( bool yesNo )                { m_preloadXml = yesNo;}
+    void set_astyleOnSave( bool yesNo )              { m_astyleOnSave = yesNo;}
+    void set_makeBackups( bool yesNo )               { m_makeBackups = yesNo;}
 
 
 private:
@@ -121,11 +131,14 @@ private:
      ;;  See: https://www.logikalsolutions.com/wordpress/information-technology/most-text-editors-get-tabs-wrong/
     */
     int m_tabSpacing;
+    int m_maxVersions;
 
     bool m_useSpaces;
     bool m_removeSpaces;
     bool m_autoLoad;
     bool m_autoDetect;      // do not save this to file - runtime only
+    bool m_makeBackups;
+    bool m_astyleOnSave;
 
     bool m_preloadClipper;
     bool m_preloadCmake;
@@ -147,13 +160,13 @@ private:
     bool m_preloadTxt;
     bool m_preloadXml;
 
-
     QString m_formatDate;
     QString m_formatTime;
     QString m_mainDictionary;
     QString m_userDictionary;
     QString m_syntaxPath;
     QString m_aboutUrl;
+    QString m_backupDirectory;
 
     KeyDefinitions m_keys;
 };

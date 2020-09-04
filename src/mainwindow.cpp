@@ -49,6 +49,8 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     m_ui->setupUi( this );
     setDiamondTitle( "untitled.txt" );
 
+    m_ui->actionAstyle->setDisabled(true);
+
     m_appPath = QApplication::applicationDirPath();
     Overlord::getInstance()->set_appPath( m_appPath );
 
@@ -96,6 +98,9 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
 
 
     // put off file loading, etc. until after the user can see the editor.
+    // this also ensures the event loop is running because the slot won't be 
+    // executed until the event can be processed.
+    //
     QTimer::singleShot( 150, this, SLOT( startupStep2() ) );
 
 }
@@ -114,6 +119,20 @@ void MainWindow::startupStep2()
         throw std::runtime_error( "abort_no_message" );
     }
 
+    QProcess astyleCheck(this);
+
+    astyleCheck.start( "astyle --help");
+
+    bool retVal = astyleCheck.waitForFinished();
+
+    if (retVal)
+    {
+        QString helpText( astyleCheck.readAllStandardOutput());
+        if ( helpText.length() > 100)
+        {
+            m_ui->actionAstyle->setDisabled(false);
+        }
+    }
 
     // recent folders
     rfolder_CreateMenus();
@@ -530,6 +549,7 @@ void MainWindow::createConnections()
     connect( m_ui->actionMacro_Load,        &QAction::triggered, this, &MainWindow::macroLoad );
     connect( m_ui->actionMacro_EditNames,   &QAction::triggered, this, &MainWindow::macroEditNames );
     connect( m_ui->actionSpell_Check,       &QAction::triggered, this, &MainWindow::spellCheck );
+    connect( m_ui->actionAstyle,            &QAction::triggered, this, &MainWindow::astyle );
 
     // settings
     connect( m_ui->actionColors,            &QAction::triggered, this, &MainWindow::setColors );
@@ -1128,3 +1148,10 @@ void MainWindow::showClipboard()
     delete dw;
 }
 
+void MainWindow::astyle()
+{
+    if (m_textEdit)
+    {
+    m_textEdit->astyleBuffer();
+    }
+}
