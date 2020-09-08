@@ -426,12 +426,10 @@ void MainWindow::deleteOldSplit()
 
 void MainWindow::splitCloseClicked()
 {
-    qDebug() << "splitCloseClicked() called";
     deleteOldSplit();
     // There is a jiggling and juggling of focus with this close button
     // It gets focus back after we leave here.
     //
-    qDebug() << "starting timer";
     m_refocusTimer->start();
 
 }

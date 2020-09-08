@@ -133,12 +133,9 @@ void MainWindow::closeEvent( QCloseEvent *event )
 
     if ( exit )
     {
-        // TODO:: this is where we need to obtain current size and position
-        //        to store on close.
         Overlord::getInstance()->set_lastPosition( pos() );
         Overlord::getInstance()->set_lastSize( size() );
         Overlord::getInstance()->close();
-        //delete Overlord::getInstance();
         event->accept();
 
     }
@@ -195,7 +192,7 @@ QString MainWindow::get_curFileName( int whichTab )
 
 
 
-bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool isReload )
+bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool isReload, bool isReadOnly)
 {
 #if defined (Q_OS_WIN)
     // change forward to backslash
@@ -304,6 +301,8 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
     //  Need to drain the swamp here. Really big files have a massive drag
     //  with all of the highlighting.
     QApplication::processEvents();
+
+    m_textEdit->setReadOnly( isReadOnly);
 
     if ( m_textEdit->m_owner == "tab" )
     {
@@ -428,7 +427,7 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
 
     if ( Overlord::getInstance()->makeBackups() )
     {
-        qDebug() << "Need to make backups here";
+        backupAndTrim( fileName );
     }
 
     file.write( m_textEdit->toPlainText().toUtf8() );
@@ -556,7 +555,6 @@ void MainWindow::setStatus_FName( QString fullName )
 }
 
 
-
 // copy buffer
 void MainWindow::showCopyBuffer()
 {
@@ -632,4 +630,107 @@ void MainWindow::dropEvent( QDropEvent *event )
 void MainWindow::forceSyntax( SyntaxTypes data )
 {
     m_textEdit->forceSyntax( data );
+}
+
+void MainWindow::backupAndTrim( QString fileName )
+{
+    if ( !QFile::exists( fileName ) )
+    {
+        return;
+    }
+
+    QDir backupDir( Overlord::getInstance()->backupDirectory() );
+    QStringList filters;
+    QString wild = QString( "\'%1.b*\'" ).formatArg( fileName );
+    wild.replace( ":", "!" );
+    wild.replace( "\\", "!" );
+    wild.replace( "/", "!" );
+
+    QString w4 = wild;
+    w4.replace( "\'", "*" );
+    filters << w4;
+
+    QStringList backupFiles = backupDir.entryList( filters, QDir::Files | QDir::Writable, QDir::Name );
+
+    // Looks weird but we are deleting the lowest backup numbers
+    // which will be at the beginning of the list.
+    bool okFlag = true;
+
+    while ( ( backupFiles.size() >= Overlord::getInstance()->maxVersions() ) && okFlag )
+    {
+        QString fName = strippedName( backupFiles.takeFirst() );
+        okFlag = backupDir.remove( fName );
+
+        if ( !okFlag )
+        {
+            QString msg = QString( "Failed to remove " )+  fName;
+            csError( tr( "Purging Backups" ), msg );
+        }
+    }
+
+    int versionNumber = -1;
+
+    if ( backupFiles.size() > 0 )
+    {
+        QString lastFile = backupFiles.last();
+        QString tmp = suffixName( lastFile );
+        QRegularExpression rx( "[0-9]+" );
+        QRegularExpressionMatch match = rx.match( tmp );
+
+        if ( match.hasMatch() )
+        {
+            versionNumber = match.captured( 0 ).toInteger<int>();
+        }
+    }
+
+    versionNumber++;
+    QString newSuffix = QString( ".b%1\'" ).formatArg( versionNumber, 5, 10, '0' );
+    QString destName = wild;
+    destName = destName.replace( ".b*\'", newSuffix );
+    destName = backupDir.absoluteFilePath( destName );
+
+    // TODO:: QFile::copy() is busted.
+    //        This only works on Linux/Unix right now. Need to see how long before QFile::copy() will be fixed.
+    //
+#ifdef Q_OS_WIN
+    QString cmd = QString( "cp \"%1\" \"%2\"" ).formatArgs( fileName, destName );
+    system( cmd.toStdString().c_str() );
+#elif defined(Q_OS_UNIX)
+    QString cmd = QString( "cp \"%1\" \"%2\"" ).formatArgs( fileName, destName );
+    system( cmd.toStdString().c_str() );
+#else
+    csError( tr("Backups"), tr("Currently unable to copy file on this OS"));
+#endif
+
+    // NOTE: maxVersions from overlord is the maximum number of backup versions
+    //       to keep around. If set to 12 we will dutifully keep up to 12,
+    //       deleting the lowest versioned one to make room for a new one.
+    //
+    //       The version NUMBER will continue to increase. Your 12 backup versions
+    //       could have version numbers 20000 through 20012.
+    //
+    //       At some point it is theoretically possible you save so many versions of one
+    //       file that you bump into our magic maximum version number. This is when
+    //       we start renaming files so the oldest is version zero.
+    //
+    if ( versionNumber >= DiamondLimits::BACKUP_VERSION_MAX )
+    {
+        versionNumber = 0;
+        // refresh the list
+        //
+        backupFiles = backupDir.entryList( filters, QDir::Files | QDir::Writable, QDir::Name );
+
+        while ( backupFiles.size() > 0 )
+        {
+            QString firstFile = backupFiles.takeFirst();
+            QString suffix = QString( ".%1" ).formatArg( suffixName( firstFile ) );
+            QString newSuffix = QString( ".b%1" ).formatArg( versionNumber, 5, 10, '0' );
+            QString newName = strippedName( firstFile );
+            newName.replace( suffix, newSuffix );
+
+            backupDir.rename( strippedName( firstFile ), newName );
+
+            versionNumber++;
+        }
+    }
 }

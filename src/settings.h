@@ -76,7 +76,6 @@ public:
 
 private:
     void generateDefaultThemes();
-    //void createAndLoadNew();
 
     bool    openedFilesContains( QString name );
     int     openedFilesFind( QString name );
@@ -170,11 +169,11 @@ private:
     bool            m_showLineNumbers;
     bool            m_showSpaces;
 
-    // TODO:: We need to change this to be a pointer and not delete 
+    // TODO:: We need to change this to be a pointer and not delete
     //        the "newed" object until it needs to be removed from QMap.
     //        Really need to test this out with Valgrind.
     //        I don't think the explaination below actually covers a solid copy of a dynamically created object.
-    // 
+    //
     /*
      *   The way it works is as follows:
      *

@@ -70,7 +70,7 @@ public:
     QStringList spell_getMaybe( QString word );
 
     // support
-    bool loadFile( QString fileName, bool newTab, bool isAuto, bool isReload = false );
+    bool loadFile( QString fileName, bool newTab, bool isAuto, bool isReload = false, bool isReadOnly = false );
 
     void Move( QPoint pos );
     void Resize( QSize size );
@@ -137,6 +137,7 @@ private:
     QStringList m_recursiveList;
     QFrame *m_findWidget;
     QStandardItemModel *m_model;
+    QStandardItemModel *m_backupModel;
     QList<advFindStruct> advFind_getResults( bool &aborted );
     void findRecursive( const QString &path, bool isFirstLoop = true );
     void advFind_ShowFiles( QList<advFindStruct> foundList );
@@ -369,6 +370,12 @@ private:
     CS_SLOT_1( Private, void advFind_Close() )
     CS_SLOT_2( advFind_Close )
 
+    // backups
+    CS_SLOT_1( Private, void backup_View( const QModelIndex &index ) )
+    CS_SLOT_2( advFind_View )
+
+    void showBackups();
+    void show_backups(QString fileName);
 
     // copy buffer
     void showCopyBuffer();
@@ -414,6 +421,8 @@ private:
     void splitCloseClicked();
 
     void deleteOldSplit();
+
+    void backupAndTrim( QString fileName );
 };
 
 #endif

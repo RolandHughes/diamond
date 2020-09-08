@@ -29,8 +29,8 @@ public:
     Dialog_Colors( QWidget *parent );
     ~Dialog_Colors();
 
-    CS_SIGNAL_1( Public, void changeSettings( Settings *settings ) )
-    CS_SIGNAL_2( changeSettings, settings )
+//    CS_SIGNAL_1( Public, void changeSettings( Settings *settings ) )
+//    CS_SIGNAL_2( changeSettings, settings )
 
 private:
     Ui::Dialog_Colors *m_ui;

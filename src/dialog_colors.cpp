@@ -533,7 +533,6 @@ void Dialog_Colors::importClicked()
             }
 
             m_localSettings.add_theme( theme );
-            //theme->deleteLater();
             delete theme;
             rebuildComboBox( true );
         }
@@ -614,15 +613,9 @@ void Dialog_Colors::text_TB()
     QColor color = m_localSettings.currentTheme().colorText();
     m_localSettings.currentTheme().set_colorText( pickColor( color ) );
 
-    //
     colorBox( m_ui->text_Color, m_localSettings.currentTheme().colorText() );
 
-    //
-    QPalette temp;
-    temp = m_ui->sample->palette();
-    temp.setColor( QPalette::Text, m_localSettings.currentTheme().colorText() );
-    temp.setColor( QPalette::Base, m_localSettings.currentTheme().colorBack() );
-    m_ui->sample->setPalette( temp );
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::back_TB()
@@ -630,15 +623,9 @@ void Dialog_Colors::back_TB()
     QColor color = m_localSettings.currentTheme().colorBack();
     m_localSettings.currentTheme().set_colorBack( pickColor( color ) );
 
-    //
     colorBox( m_ui->back_Color, m_localSettings.currentTheme().colorBack() );
 
-    //
-    QPalette temp;
-    temp = m_ui->sample->palette();
-    temp.setColor( QPalette::Text, m_localSettings.currentTheme().colorText() );
-    temp.setColor( QPalette::Base, m_localSettings.currentTheme().colorBack() );
-    m_ui->sample->setPalette( temp );
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::gutterText_TB()
@@ -646,9 +633,9 @@ void Dialog_Colors::gutterText_TB()
     QColor color = m_localSettings.currentTheme().gutterText();
     m_localSettings.currentTheme().set_gutterText( pickColor( color ) );
 
-    //
     colorBox( m_ui->gutterText_Color, m_localSettings.currentTheme().gutterText() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::gutterBack_TB()
@@ -656,9 +643,9 @@ void Dialog_Colors::gutterBack_TB()
     QColor color = m_localSettings.currentTheme().gutterBack();
     m_localSettings.currentTheme().set_gutterBack( pickColor( color ) );
 
-    //
     colorBox( m_ui->gutterBack_Color, m_localSettings.currentTheme().gutterBack() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::current_TB()
@@ -666,9 +653,9 @@ void Dialog_Colors::current_TB()
     QColor color = m_localSettings.currentTheme().currentLineBack();
     m_localSettings.currentTheme().set_currentLineBack( pickColor( color ) );
 
-    //
     colorBox( m_ui->current_Color, m_localSettings.currentTheme().currentLineBack() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::key_TB()
@@ -676,9 +663,9 @@ void Dialog_Colors::key_TB()
     QColor color = m_localSettings.currentTheme().syntaxKey().color();
     m_localSettings.currentTheme().syntaxKey().set_color( pickColor( color ) );
 
-    //
     colorBox( m_ui->key_Color, m_localSettings.currentTheme().syntaxKey().color() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::type_TB()
@@ -686,9 +673,9 @@ void Dialog_Colors::type_TB()
     QColor color = m_localSettings.currentTheme().syntaxType().color();
     m_localSettings.currentTheme().syntaxType().set_color( pickColor( color ) );
 
-    //
     colorBox( m_ui->type_Color, m_localSettings.currentTheme().syntaxType().color() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::class_TB()
@@ -696,9 +683,9 @@ void Dialog_Colors::class_TB()
     QColor color = m_localSettings.currentTheme().syntaxClass().color();
     m_localSettings.currentTheme().syntaxClass().set_color( pickColor( color ) );
 
-    //
     colorBox( m_ui->class_Color, m_localSettings.currentTheme().syntaxClass().color() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::func_TB()
@@ -706,9 +693,9 @@ void Dialog_Colors::func_TB()
     QColor color = m_localSettings.currentTheme().syntaxFunc().color();
     m_localSettings.currentTheme().syntaxFunc().set_color( pickColor( color ) );
 
-    //
     colorBox( m_ui->func_Color, m_localSettings.currentTheme().syntaxFunc().color() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::quote_TB()
@@ -716,9 +703,9 @@ void Dialog_Colors::quote_TB()
     QColor color = m_localSettings.currentTheme().syntaxQuote().color();
     m_localSettings.currentTheme().syntaxQuote().set_color( pickColor( color ) );
 
-    //
     colorBox( m_ui->quote_Color, m_localSettings.currentTheme().syntaxQuote().color() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::comment_TB()
@@ -726,9 +713,9 @@ void Dialog_Colors::comment_TB()
     QColor color = m_localSettings.currentTheme().syntaxComment().color();
     m_localSettings.currentTheme().syntaxComment().set_color( pickColor( color ) );
 
-    //
     colorBox( m_ui->comment_Color, m_localSettings.currentTheme().syntaxComment().color() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::mline_TB()
@@ -736,9 +723,9 @@ void Dialog_Colors::mline_TB()
     QColor color = m_localSettings.currentTheme().syntaxMLine().color();
     m_localSettings.currentTheme().syntaxMLine().set_color( pickColor( color ) );
 
-    //
     colorBox( m_ui->mline_Color, m_localSettings.currentTheme().syntaxMLine().color() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::const_TB()
@@ -746,13 +733,12 @@ void Dialog_Colors::const_TB()
     QColor color = m_localSettings.currentTheme().syntaxConstant().color();
     m_localSettings.currentTheme().syntaxConstant().set_color( pickColor( color ) );
 
-    //
     colorBox( m_ui->const_Color, m_localSettings.currentTheme().syntaxConstant().color() );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 
-/**/
 void Dialog_Colors::key_bold()
 {
     QFont::Weight f = QFont::Normal;
@@ -763,7 +749,8 @@ void Dialog_Colors::key_bold()
     }
 
     m_localSettings.currentTheme().syntaxKey().set_weight( f );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::key_italic()
@@ -777,7 +764,7 @@ void Dialog_Colors::key_italic()
 
     m_localSettings.currentTheme().syntaxKey().set_italic( b );
 
-    themeChanged( m_localSettings.activeTheme() );
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::type_bold()
@@ -786,11 +773,12 @@ void Dialog_Colors::type_bold()
 
     if ( m_ui->type_Bold_CB->isChecked() )
     {
-        f = QFont::Normal;
+        f = QFont::Bold;
     }
 
     m_localSettings.currentTheme().syntaxType().set_weight( f );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::type_italic()
@@ -803,7 +791,8 @@ void Dialog_Colors::type_italic()
     }
 
     m_localSettings.currentTheme().syntaxType().set_italic( b );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::class_bold()
@@ -816,7 +805,8 @@ void Dialog_Colors::class_bold()
     }
 
     m_localSettings.currentTheme().syntaxClass().set_weight( f );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::class_italic()
@@ -829,7 +819,8 @@ void Dialog_Colors::class_italic()
     }
 
     m_localSettings.currentTheme().syntaxClass().set_italic( b );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::func_bold()
@@ -842,7 +833,8 @@ void Dialog_Colors::func_bold()
     }
 
     m_localSettings.currentTheme().syntaxFunc().set_weight( f );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::func_italic()
@@ -855,7 +847,8 @@ void Dialog_Colors::func_italic()
     }
 
     m_localSettings.currentTheme().syntaxFunc().set_italic( b );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::quote_bold()
@@ -868,7 +861,8 @@ void Dialog_Colors::quote_bold()
     }
 
     m_localSettings.currentTheme().syntaxQuote().set_weight( f );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::quote_italic()
@@ -881,7 +875,8 @@ void Dialog_Colors::quote_italic()
     }
 
     m_localSettings.currentTheme().syntaxQuote().set_italic( b );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::comment_bold()
@@ -894,7 +889,8 @@ void Dialog_Colors::comment_bold()
     }
 
     m_localSettings.currentTheme().syntaxComment().set_weight( f );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::comment_italic()
@@ -907,7 +903,8 @@ void Dialog_Colors::comment_italic()
     }
 
     m_localSettings.currentTheme().syntaxComment().set_italic( b );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::mline_bold()
@@ -920,7 +917,8 @@ void Dialog_Colors::mline_bold()
     }
 
     m_localSettings.currentTheme().syntaxMLine().set_weight( f );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::mline_italic()
@@ -933,16 +931,13 @@ void Dialog_Colors::mline_italic()
     }
 
     m_localSettings.currentTheme().syntaxMLine().set_italic( b );
-    themeChanged( m_localSettings.activeTheme() );
+
+    m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::save()
 {
-    // first signal so anything connected can start updating
-    //
-    changeSettings( &m_localSettings );
-
-    // Now update Overlord
+    // update Overlord
     //
     Overlord::getInstance()->updateSettingsFromLocalCopy( m_localSettings );
     this->done( QDialog::Accepted );

@@ -82,7 +82,7 @@ public:
     //
     void set_rewrapColumn( int col )                { m_rewrapColumn = col;}
     void set_tabSpacing( int tabStop )              { m_tabSpacing = tabStop;}
-    void set_maxVersions( int max)                  { m_maxVersions = max; }
+    void set_maxVersions( int max )                  { m_maxVersions = max; }
     void set_useSpaces( bool yesNo )                { m_useSpaces = yesNo;}
     void set_removeSpaces( bool yesNo )             { m_removeSpaces = yesNo;}
     void set_autoLoad( bool yesNo )                 { m_autoLoad = yesNo;}

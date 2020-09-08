@@ -25,6 +25,7 @@
 #include <QProgressDialog>
 #include <QTextStream>
 #include <QTableView>
+#include <QDateTime>
 
 // * find
 void MainWindow::find()
@@ -417,6 +418,120 @@ void MainWindow::findRecursive( const QString &path, bool isFirstLoop )
     }
 }
 
+void MainWindow::showBackups()
+{
+    if (m_textEdit)
+    {
+        if (m_textEdit->currentFile().length() > 0)
+        {
+            show_backups(m_textEdit->currentFile());
+        }
+    }
+}
+
+void MainWindow::show_backups(QString fileName)
+{
+    if (fileName.isEmpty() || fileName.length() < 1)
+    {
+        csError( tr("Backups"), tr("no filename provided"));
+        return;
+    }
+
+    QDir backupDir( Overlord::getInstance()->backupDirectory() );
+    QStringList filters;
+    QString wild = QString( "\'%1.b*\'" ).formatArg( fileName );
+    wild.replace( ":", "!" );
+    wild.replace( "\\", "!" );
+    wild.replace( "/", "!" );
+
+    QString w4 = wild;
+    w4.replace( "\'", "*" );
+    filters << w4;
+
+    QStringList backupFiles = backupDir.entryList( filters, QDir::Files | QDir::Writable, QDir::Name );
+
+    if (backupFiles.size() < 1)
+    {
+        csError( tr("Backups"), tr("no backups found"));
+        return;
+    }
+
+    qDebug() << "backupFiles: " << backupFiles;
+
+    int index = m_splitter->indexOf( m_findWidget );
+
+    if ( index > 0 )
+    {
+        m_findWidget->deleteLater();
+    }
+
+    // create the find window
+    m_findWidget = new QFrame( this );
+    m_findWidget->setFrameShape( QFrame::Panel );
+
+    QTableView *view = new QTableView( this );
+
+    m_backupModel = new QStandardItemModel;
+    m_backupModel->setColumnCount( 2 );
+    m_backupModel->setHeaderData( 0, Qt::Horizontal, tr( "File Name" ) );
+    m_backupModel->setHeaderData( 1, Qt::Horizontal, tr( "Last Modified" ) );
+
+    view->setModel( m_backupModel );
+
+    view->setSelectionMode( QAbstractItemView::SingleSelection );
+    view->setSelectionBehavior( QAbstractItemView::SelectRows );
+    view->setEditTriggers( QAbstractItemView::NoEditTriggers );
+
+    view->setColumnWidth( 0, 200 );
+    view->setColumnWidth( 1, 75 );
+
+    view->horizontalHeader()->setStretchLastSection( true );
+
+    // background color
+    view->setAlternatingRowColors( true );
+    view->setStyleSheet( "alternate-background-color: lightyellow" );
+
+    int row = 0;
+
+    for ( QString fName : backupFiles )
+    {
+
+        QFileInfo info( backupDir, fName);
+        QStandardItem *item1  = new QStandardItem( fName );
+        QStandardItem *item0  = new QStandardItem( info.lastModified().toString(Qt::ISODate));
+
+        m_backupModel->insertRow( row );
+        m_backupModel->setItem( row, 0, item0 );
+        m_backupModel->setItem( row, 1, item1 );
+
+        ++row;
+    }
+
+    //
+    QPushButton *closeButton = new QPushButton();
+    closeButton->setText( "Close" );
+
+    QBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch();
+    buttonLayout->addWidget( closeButton );
+    buttonLayout->addStretch();
+
+    QBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget( view );
+    layout->addLayout( buttonLayout );
+
+    m_findWidget->setLayout( layout );
+
+    m_splitter->setOrientation( Qt::Vertical );
+    m_splitter->addWidget( m_findWidget );
+
+    // must call after addWidget
+    view->resizeRowsToContents();
+
+    connect( view,        &QTableView::clicked,  this, &MainWindow::backup_View );
+    connect( closeButton, &QPushButton::clicked, this, &MainWindow::advFind_Close );
+}
+
 void MainWindow::advFind_ShowFiles( QList<advFindStruct> foundList )
 {
     int index = m_splitter->indexOf( m_findWidget );
@@ -511,10 +626,51 @@ void MainWindow::advFind_Close()
 {
     m_findWidget->close();
     m_findWidget->deleteLater();
+    m_findWidget = nullptr;
     // keyboard needs to go back to text edit
     // We are in a slot for a button on the widget
     // we are getting rid of.
     m_refocusTimer->start();
+}
+
+void MainWindow::backup_View( const QModelIndex &index)
+{
+    int row = index.row();
+
+    if ( row < 0 )
+    {
+        return;
+    }
+
+    QString fileName = m_backupModel->item( row,1 )->data( Qt::DisplayRole ).toString();
+
+    // is the file already open?
+    bool open = false;
+    int max   = m_tabWidget->count();
+
+    for ( int index = 0; index < max; ++index )
+    {
+        QString tcurFile = this->get_curFileName( index );
+
+        if ( tcurFile == fileName )
+        {
+            m_tabWidget->setCurrentIndex( index );
+
+            open = true;
+            break;
+        }
+    }
+
+    //
+    if ( ! open )
+    {
+        QDir backupDir( Overlord::getInstance()->backupDirectory());
+        QString fullName = backupDir.absoluteFilePath( fileName);
+        open = loadFile( fullName, true, false, true );
+    }
+
+    m_refocusTimer->start();
+
 }
 
 void MainWindow::advFind_View( const QModelIndex &index )
@@ -565,6 +721,8 @@ void MainWindow::advFind_View( const QModelIndex &index )
         cursor.movePosition( QTextCursor::NextBlock, QTextCursor::MoveAnchor, lineNumber-1 );
         m_textEdit->setTextCursor( cursor );
     }
+
+    m_refocusTimer->start();
 }
 
 

@@ -153,6 +153,7 @@
     <addaction name="separator"/>
     <addaction name="actionDisplay_HTML"/>
     <addaction name="actionClipboard"/>
+    <addaction name="actionBackups"/>
    </widget>
    <widget class="QMenu" name="menuDocument">
     <property name="title">
@@ -826,6 +827,11 @@
   <action name="actionAstyle">
    <property name="text">
     <string>Astyle</string>
+   </property>
+  </action>
+  <action name="actionBackups">
+   <property name="text">
+    <string>Backups</string>
    </property>
   </action>
  </widget>

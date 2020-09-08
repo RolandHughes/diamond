@@ -1,43 +1,23 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
-
-*) Clicking tab should transfer focus to textEdit
-
-*) Clicking X in tab is closing changed file without prompting. Needs to check for change and prompt for save.
-
-*) Implement GOLD-I (insert file)
-
-*) GET BACKUPS IMPLEMENTED!!!!!
-
-*) Advanced Find, doublclicking entry needs to set focus on DiamondTextEdit, not remain on the line
-
-*) change Theme QMap to use pointer instead of solid object. Keep dymanically allocated objects around then nuke on exit.
-
-*) context menu tossing up these errors
-    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
-    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
-    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
-    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
-    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
-    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
-    QObject::connect() QAction::triggered(bool) Unable to connect to receiver in DiamondTextEdit  Signal Index: 0 Slot Index: -1
-
-    on a fresh file open right clicking has 4 disabled actions. Undo, Redo, Cut, Copy
-    after selection is present Cut, Copy, and Paste are avaiable, Rewrap appears; Undo and Redo still disabled.
-    Obviously we can control what is on the menu so we need to be a bit more controlling when adding items.
-
-
-*) Need EDT command dialog
+*) Look at first time run sequence for a Diamond install. There was some kind of dialog about creating a new default config file or a custom location.
+   Appears to only happen on Windows. Have to test there.
 
 *) test turning spellcheck on in big text document.
 
-*) update EDT Help text to talk about what actually got implemented and how Apple/MAC users will be screwed when it comes to using select and arrow keys because their arrow keys are considered part of the keypad.
-
-*) FILL not implemented  *** rewrapParagraph() is on the context menu
+*) EDT keys don't seem to work in split window/frame
 
 *) Need to be able to show FF character. It gets inserted, but does not show.  This will require gutting QPlainTextEdit I think. Need to see how it shows spaces and tabs.
 
 *) Fix macro save - make it actually happen - test create-use-save-reload of macros
+    from menu_action.cpp
+    m_textEdit->macroStart();
+    m_textEdit->macroStop();
+        // save macro to global list
+        m_macroList = m_textEdit->get_MacroKeyList();
+    Global list should now be in Settings. Only the global list should be saved and loaded.
+    EDT keys might need some work to be part of macro.
+
 *) test out macro save/load/use. I really butchered that.
 
 *) Find all of the TODO:: comments and clean them up. Now that we have startup stages for main window many of the tightly coupled things can be done in stage2 or stage3
@@ -45,20 +25,18 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
 
 *) File->new should NOT whack the first tab
-*) File->New should not be whacking the current file tab, it should create a new
- tab
-*) Should not be nuking/skipping empty tab at startup if there is any file name in the list.
-
+*) File->New should not be whacking the current file tab, it should always create a new tab even if there is an empty tab.
 
 *) add support for EDT commands
     S|some-text|new-text|sel   wh  rest
     INC file.name =buff-name
     INC file.name
-    WRITE   (log into Eisner and verify WRITE options)
+    WRITE file.name [range] | ALL | SELECT
     EXIT
     QUIT
     See what other EDT and LSE commands are worth adding.
     LINE 9999
+    SUBSTITUTE   /QUERY   WHOLE | REST | BEFORE | SELECTION
 
 *) COBOL, FORTRAN, BASIC, and most other large installed base languages DO NOT support
  // or /* */ for comments. That part of Syntax Highlighting must be moved to the
@@ -67,11 +45,14 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
  "The Minimum You Need to Know to Be an OpenVMS Application Developer" to learn
  more about other languages.
 
-
+*) It would be nice to support a user supplied tab stop list so the editor could support COBOL, FORTRAN, and several other
+   languages. Old FORTRAN had very specific column for comment start. ANSI COBOL starts AREA-B in column 8 with the
+   continuation/comment indicator in column 7. Columns 73-80 are additinoal ignored comments.
 
 *) read documentation for QSyntaxHighlighter in CopperSpice
    see if there is any support for "matching" {(<
    if so add option to turn on "matching" highlight
+    ~/Downloads/qq31-parenthesis.zip  source code for QtQuarterly31.pdf shows how to do parentesis matching. Should be able to expand for handle <> [] {} as well as ()
 
 *) search online for matching brace logic
 

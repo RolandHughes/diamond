@@ -37,10 +37,10 @@
 // all other supported platforms use 1.5 or newer
 
 SpellCheck::SpellCheck( const QString &dictMain, const QString &dictUser ) :
-    m_userFname( dictUser)
+    m_userFname( dictUser )
 {
     QString dicFname  = dictMain;
-    QString affFName  = dicFname.replace( ".dic", ".aff", Qt::CaseInsensitive);
+    QString affFName  = dicFname.replace( ".dic", ".aff", Qt::CaseInsensitive );
 
     m_hunspell = new Hunspell( affFName.constData(), dicFname.constData() );
 
@@ -181,9 +181,9 @@ void SpellCheck::addToUserDict( const QString &word )
     }
 }
 
-SpellCheck &SpellCheck::operator =( const SpellCheck &def)
+SpellCheck &SpellCheck::operator =( const SpellCheck &def )
 {
-    if (this != &def)
+    if ( this != &def )
     {
         m_userFname     = def.m_userFname;
         m_codec         = def.m_codec;
@@ -193,9 +193,9 @@ SpellCheck &SpellCheck::operator =( const SpellCheck &def)
     return *this;
 }
 
-SpellCheck::SpellCheck( const SpellCheck &def) :
-    m_userFname( def.m_userFname)
-    , m_codec( def.m_codec)
-    , m_hunspell( def.m_hunspell)
+SpellCheck::SpellCheck( const SpellCheck &def ) :
+    m_userFname( def.m_userFname )
+    , m_codec( def.m_codec )
+    , m_hunspell( def.m_hunspell )
 {
 }

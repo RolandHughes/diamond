@@ -16,6 +16,7 @@
 #include "util.h"
 #include "overlord.h"
 #include "dialog_edt_help.h"
+#include "diamondlimits.h"
 
 #include <QFileDialog>
 #include <QKeySequence>
@@ -35,7 +36,7 @@ Dialog_Options::Dialog_Options( QWidget *parent )
     this->setWindowIcon( QIcon( "://resources/diamond.png" ) );
     m_ui->keypad_label->setPixmap( QPixmap( "://resources/EDT-Keypad.png" ) );
 
-    QValidator *validator = new QIntValidator( 3, 32767, this );
+    QValidator *validator = new QIntValidator( 3, DiamondLimits::BACKUP_VERSION_MAX, this );
     m_ui->maxVersions->setValidator( validator );
 
     initData();
@@ -92,8 +93,6 @@ void Dialog_Options::initData()
     m_ui->tabSpacing_CB->setEditable( false );
 
     QString mxV = QString( "%1" ).formatArg( m_options.maxVersions() );
-    qDebug() << "mxV: " << mxV;
-    qDebug() << "  maxVersions(): " << m_options.maxVersions();
     m_ui->maxVersions->setText( mxV );
 
     index = m_ui->tabSpacing_CB->findText( QString::number( m_options.tabSpacing() ) );
@@ -218,8 +217,8 @@ void Dialog_Options::save()
     m_options.set_autoLoad( m_ui->autoLoad_CKB->isChecked() );
     m_options.keys().set_edtEnabled( m_ui->enable_EDT_CKB->isChecked() );
     m_options.set_astyleOnSave( m_ui->astyle_CKB->isChecked() );
+    m_options.set_makeBackups( m_ui->createBackups_CKB->isChecked() );
     value = m_ui->maxVersions->text();
-    qDebug() << "value: " << value;
     m_options.set_maxVersions( value.toInteger<int>() );
 
     m_options.set_preloadClipper( m_ui->clipper_CKB->isChecked() );

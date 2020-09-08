@@ -31,6 +31,11 @@ void KeyLineEdit::keyPressEvent( QKeyEvent *event )
     int key = event->key();
     int modifiers = event->modifiers();
 
+    if ( m_blockModifiers && ( modifiers != 0 ) )
+    {
+        return;
+    }
+
     if ( key == Qt::Key_Control || key == Qt::Key_Shift || key == Qt::Key_Alt || key == Qt::Key_Meta )
     {
         // do nothing yet

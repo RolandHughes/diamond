@@ -23,7 +23,7 @@ class SpellCheck
 {
 public:
     SpellCheck( const QString &dictMain, const QString &dictUser );
-    SpellCheck( const SpellCheck &def);
+    SpellCheck( const SpellCheck &def );
     ~SpellCheck();
 
     bool spell( QStringView word );

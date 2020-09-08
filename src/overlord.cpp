@@ -20,7 +20,7 @@
 Overlord *Overlord::m_instance = nullptr;
 
 Overlord::Overlord() :
-    QObject(nullptr)
+    QObject( nullptr )
     , m_isComplete( false )
     , m_changed( false )
     , m_needsBroadcast( false )
@@ -33,28 +33,11 @@ Overlord::Overlord() :
 
 Overlord::~Overlord()
 {
-    // can't risk calling close() here because event loop is on 
+    // can't risk calling close() here because event loop is on
     // it's way out the door if not already gone. The save() call
     // needs event loop.
     //
-    std::cout << "Overlord::~Overlord() called";
-
-#if 0
-    if ( m_flushTimer.isActive() )
-    {
-        m_flushTimer.stop();
-    }
-
-    if ( m_broadcastTimer.isActive() )
-    {
-        m_broadcastTimer.stop();
-    }
-
-    // TODO:: see if we need to delete SyntaxPatterns in QMAP
-    //        as they were dynamically allocated
-    //
-#endif
-    if (!m_closed)
+    if ( !m_closed )
     {
         close();
     }
@@ -62,8 +45,8 @@ Overlord::~Overlord()
 
 void Overlord::close()
 {
-    qDebug() << "called Overlord::close()";
     m_closed = true;
+
     if ( m_flushTimer.isActive() )
     {
         m_flushTimer.stop();
@@ -79,7 +62,6 @@ void Overlord::close()
         m_settings.save();
     }
 
-    qDebug() << "removing temp dir";
     m_tmpDir.remove();
 }
 

@@ -67,6 +67,8 @@ public:
     QTextCursor get_Cursor();
 
 
+    void edtInsertFile();
+
     // syntax
     QString get_SyntaxFile();
     void set_SyntaxFile( QString fname );
@@ -149,117 +151,138 @@ public:
 
     // editing API for use by MainWindow
     //
-    void astyleBuffer( bool needToWait = false );
-    void indentIncr( QString route );
-    void indentDecr( QString route );
-    void deleteLine();
-    void deleteEOL();
-    void deleteThroughEOL();
-    void insertSymbol();
-    void selectAll();
-    void selectBlock();
-    void selectLine();
-    void selectWord();
-    void caseUpper();
-    void caseLower();
-    void caseCap();
-    void goLine();
-    void goColumn();
-    void insertDate();
-    void insertTime();
-    void goTop();
-    void goBottom();
-    void moveBar();
-    void fixTab_Spaces();
-    void fixSpaces_Tab();
-    void deleteEOL_Spaces();
-    void rewrapParaphragh();
-    void setSyntax( bool skipQueueRun=false );
+    CS_SLOT_1( Public, void deleteLine() )
+    CS_SLOT_2( deleteLine )
+
+    CS_SLOT_1( Public, void deleteEOL() )
+    CS_SLOT_2( deleteEOL )
+
+    CS_SLOT_1( Public, void deleteThroughEOL() )
+    CS_SLOT_2( deleteThroughEOL )
+
+    CS_SLOT_1( Public, void insertDate() )
+    CS_SLOT_2( insertDate )
+
+    CS_SLOT_1( Public, void insertTime() )
+    CS_SLOT_2( insertTime )
+
+    CS_SLOT_1( Public, void caseUpper() )
+    CS_SLOT_2( caseUpper )
+
+    CS_SLOT_1( Public, void caseLower() )
+    CS_SLOT_2( caseLower )
+
+    CS_SLOT_1( Public, void caseCap() )
+    CS_SLOT_2( caseCap )
+
+    CS_SLOT_1( Public, void caseChange() )
+    CS_SLOT_2( caseChange )
+
+    CS_SLOT_1( Public, void selectAll() )
+    CS_SLOT_2( selectAll)
+
+        void astyleBuffer( bool needToWait = false );
+        void indentIncr( QString route );
+        void indentDecr( QString route );
+        void insertSymbol();
+        void selectBlock();
+        void selectLine();
+        void selectWord();
+        void goLine();
+        void goColumn();
+        void goTop();
+        void goBottom();
+        void moveBar();
+        void fixTab_Spaces();
+        void fixSpaces_Tab();
+        void deleteEOL_Spaces();
+        void rewrapParaphragh();
+        void setSyntax( bool skipQueueRun=false );
 
 
-    // spell check
-    void update_display();
+        // spell check
+        void update_display();
 
-protected:
-    void contextMenuEvent( QContextMenuEvent *event );
-    bool event( QEvent *event );
-    void keyPressEvent( QKeyEvent *event );
-    void keyReleaseEvent( QKeyEvent *event );
-    void resizeEvent( QResizeEvent *event );
-    void mousePressEvent( QMouseEvent *event );
+        protected:
+        void contextMenuEvent( QContextMenuEvent *event );
+        bool event( QEvent *event );
+        void keyPressEvent( QKeyEvent *event );
+        void keyReleaseEvent( QKeyEvent *event );
+        void resizeEvent( QResizeEvent *event );
+        void mousePressEvent( QMouseEvent *event );
 
-private:
-    CS_SLOT_1( Private, void spell_replaceWord() )
-    CS_SLOT_2( spell_replaceWord )
+        private:
+        CS_SLOT_1( Private, void spell_replaceWord() )
+        CS_SLOT_2( spell_replaceWord )
 
-    CS_SLOT_1( Private, void spell_addUserDict() )
-    CS_SLOT_2( spell_addUserDict )
+        CS_SLOT_1( Private, void spell_addUserDict() )
+        CS_SLOT_2( spell_addUserDict )
 
-    void astyleComplete( int exitCode, QProcess::ExitStatus status );
-    void astyleError( QProcess::ProcessError error );
-    void setScreenColors();
-    void changeFont();
-    bool handleEdtKey( int key, int modifiers );
-    void edtSectionUp( QTextCursor::MoveMode mode );
-    void edtSectionDown( QTextCursor::MoveMode mode );
-    void edtKeyRight( QTextCursor::MoveMode mode );
-    void edtKeyLeft( QTextCursor::MoveMode mode );
-    void edtLineUp( QTextCursor::MoveMode mode );
-    void edtLineDown( QTextCursor::MoveMode mode );
-    void edtEndOfLine( QTextCursor::MoveMode mode );
-    void edtHome( QTextCursor::MoveMode mode );
-
-
-    Settings *m_settingsPtr;
-    Themes m_lastTheme;
-    QFont m_lastNormalFont;
-    QFont m_lastColumnFont;
-
-    QWidget *m_lineNumArea;
-    QString m_curFile; // TODO:: need to set this each time file opened
-
-    // tab stops
-    QList<int> m_tabStops;
-    void setUpTabStops();  // TODO:: We should allow a list here so COBOL card format could be supported
-
-    // column mode
-    int m_undoCount;
-    void removeColumnModeSpaces();
-
-    bool m_colHighlight;
-    bool m_currentKeyGold;
-    bool m_edtSelectActive;
-
-    int m_startRow;
-    int m_startCol;
-    int m_endRow;
-    int m_endCol;
-    int m_lastTabSpacing;
+        void astyleComplete( int exitCode, QProcess::ExitStatus status );
+        void astyleError( QProcess::ProcessError error );
+        void setScreenColors();
+        void changeFont();
+        bool handleEdtKey( int key, int modifiers );
+        void edtSectionUp( QTextCursor::MoveMode mode );
+        void edtSectionDown( QTextCursor::MoveMode mode );
+        void edtKeyRight( QTextCursor::MoveMode mode );
+        void edtKeyLeft( QTextCursor::MoveMode mode );
+        void edtLineUp( QTextCursor::MoveMode mode );
+        void edtLineDown( QTextCursor::MoveMode mode );
+        void edtEndOfLine( QTextCursor::MoveMode mode );
+        void edtHome( QTextCursor::MoveMode mode );
 
 
-    // copy buffer
-    QList<QString> m_copyBuffer;
-    void addToCopyBuffer( const QString &text );
+        Settings *m_settingsPtr;
+        Themes m_lastTheme;
+        QFont m_lastNormalFont;
+        QFont m_lastColumnFont;
 
-    // macro
-    bool m_record;
-    QList<QKeyEvent *> m_macroKeyList;
+        QWidget *m_lineNumArea;
+        QString m_curFile;
 
-    // spell check
-    QStringList spell_getMaybe( QString word );
-    void createSpellCheck();
-    QTextCursor m_cursor;
-    bool m_isSpellCheck;
-    SpellCheck *m_spellCheck;
+        // tab stops
+        QList<int> m_tabStops;
+        void setUpTabStops();
 
-    // syntax
-    Syntax *m_syntaxParser;
-    QString m_synFName;
-    SyntaxTypes m_syntaxEnum;
+        // column mode
+        int m_undoCount;
+        void removeColumnModeSpaces();
 
-    void update_LineNumWidth( int newBlockCount );
+        bool m_colHighlight;
+        bool m_currentKeyGold;
+        bool m_edtSelectActive;
 
-    QProcess *m_astyleProcess;
+        int m_startRow;
+        int m_startCol;
+        int m_endRow;
+        int m_endCol;
+        int m_lastTabSpacing;
+
+
+        // copy buffer
+        QList<QString> m_copyBuffer;
+        void addToCopyBuffer( const QString &text );
+
+        // macro
+        bool m_record;
+        QList<QKeyEvent *> m_macroKeyList;
+
+        // spell check
+        QStringList spell_getMaybe( QString word );
+        void createSpellCheck();
+        QTextCursor m_cursor;
+        bool m_isSpellCheck;
+        SpellCheck *m_spellCheck;
+
+        // syntax
+        Syntax *m_syntaxParser;
+        QString m_synFName;
+        SyntaxTypes m_syntaxEnum;
+
+        void update_LineNumWidth( int newBlockCount );
+
+        QProcess *m_astyleProcess;
 };
 
 

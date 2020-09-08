@@ -49,7 +49,7 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     m_ui->setupUi( this );
     setDiamondTitle( "untitled.txt" );
 
-    m_ui->actionAstyle->setDisabled(true);
+    m_ui->actionAstyle->setDisabled( true );
 
     m_appPath = QApplication::applicationDirPath();
     Overlord::getInstance()->set_appPath( m_appPath );
@@ -98,7 +98,7 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
 
 
     // put off file loading, etc. until after the user can see the editor.
-    // this also ensures the event loop is running because the slot won't be 
+    // this also ensures the event loop is running because the slot won't be
     // executed until the event can be processed.
     //
     QTimer::singleShot( 150, this, SLOT( startupStep2() ) );
@@ -119,18 +119,19 @@ void MainWindow::startupStep2()
         throw std::runtime_error( "abort_no_message" );
     }
 
-    QProcess astyleCheck(this);
+    QProcess astyleCheck( this );
 
-    astyleCheck.start( "astyle --help");
+    astyleCheck.start( "astyle --help" );
 
     bool retVal = astyleCheck.waitForFinished();
 
-    if (retVal)
+    if ( retVal )
     {
-        QString helpText( astyleCheck.readAllStandardOutput());
-        if ( helpText.length() > 100)
+        QString helpText( astyleCheck.readAllStandardOutput() );
+
+        if ( helpText.length() > 100 )
         {
-            m_ui->actionAstyle->setDisabled(false);
+            m_ui->actionAstyle->setDisabled( false );
         }
     }
 
@@ -168,8 +169,8 @@ void MainWindow::startupStep2()
     }
 
     qDebug() << "lastPosition: " << Overlord::getInstance()->lastPosition() << "  lastSize: " << Overlord::getInstance()->lastSize();
-    this->move( Overlord::getInstance()->lastPosition());
-    this->resize( Overlord::getInstance()->lastSize());
+    this->move( Overlord::getInstance()->lastPosition() );
+    this->resize( Overlord::getInstance()->lastSize() );
 
     connect( Overlord::getInstance(), &Overlord::Move, this, &MainWindow::Move );
     connect( Overlord::getInstance(), &Overlord::Resize, this, &MainWindow::Resize );
@@ -231,6 +232,11 @@ void MainWindow::tabNew()
     int index = m_tabWidget->addTab( m_textEdit, "untitled.txt" );
     m_tabWidget->setCurrentIndex( index );
 
+//  TODO:: tabs are basically wrong.
+//         A tab isn't a set of spaces it is a tab stop.
+//         When a tab is 8 that means the cursor STOPS every 8 spaces, not lands after the next 8 space boundary
+//         COBOL AREA-B starts in column 8 because that is where the tab stopped the typewriter.
+//
     int tmp = m_textEdit->fontMetrics().width( " " );
     m_textEdit->setTabStopWidth( tmp * Overlord::getInstance()->tabSpacing() );
 
@@ -270,6 +276,7 @@ void MainWindow::tabNew()
 
 void MainWindow::mw_tabClose()
 {
+    qDebug() << "mw_tabClose()";
     int index = m_tabWidget->currentIndex();
     tabClose( index );
 }
@@ -510,6 +517,7 @@ void MainWindow::createConnections()
     connect( m_ui->actionShow_Breaks,       &QAction::triggered, this, &MainWindow::show_Breaks );
     connect( m_ui->actionDisplay_HTML,      &QAction::triggered, this, &MainWindow::displayHTML );
     connect( m_ui->actionClipboard,         &QAction::triggered, this, &MainWindow::showClipboard );
+    connect( m_ui->actionBackups,           &QAction::triggered, this, &MainWindow::showBackups);
 
     // document
     connect( m_ui->actionSyn_C,             &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_C );       } );
@@ -620,6 +628,8 @@ void MainWindow::createToggles()
     m_ui->actionRedo->setEnabled( false );
     m_ui->actionCut->setEnabled( false );
     m_ui->actionCopy->setEnabled( false );
+
+    m_ui->actionBackups->setEnabled( Overlord::getInstance()->backupDirectory().length() > 1);
 
     connect( m_tabWidget, &QTabWidget::currentChanged,    this, &MainWindow::tabChanged );
     connect( m_tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::tabClose );
@@ -1150,8 +1160,8 @@ void MainWindow::showClipboard()
 
 void MainWindow::astyle()
 {
-    if (m_textEdit)
+    if ( m_textEdit )
     {
-    m_textEdit->astyleBuffer();
+        m_textEdit->astyleBuffer();
     }
 }

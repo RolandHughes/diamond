@@ -529,6 +529,7 @@ void MainWindow::mw_paste()
 
 void MainWindow::selectAll()
 {
+    qDebug() << "menu action selectAll()";
     m_textEdit->selectAll();
 }
 
@@ -618,7 +619,7 @@ void MainWindow::columnMode()
         Overlord::getInstance()->set_isColumnMode( true );
     }
 
-    setStatus_ColMode();    // TODO:: see if this needs to be in DiamondTextEdit
+    setStatus_ColMode();
 }
 
 
@@ -698,7 +699,6 @@ void MainWindow::wordWrap()
 
 }
 
-// TODO:: Move this into DiamondTextEdit
 void MainWindow::show_Spaces()
 {
     QTextDocument *td   = m_textEdit->document();

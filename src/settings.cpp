@@ -127,6 +127,7 @@ Settings &Settings::operator =( const Settings &other )
         m_edtLastDeletedWord        = other.m_edtLastDeletedWord;
         m_edtLastDeletedLine        = other.m_edtLastDeletedLine;
         m_edtLastDeletedChar        = other.m_edtLastDeletedChar;
+
     }
 
     return *this;
@@ -392,9 +393,9 @@ void Settings::copyTheme( QString name, QString dest )
     {
         if ( !themeNameExists( dest ) )
         {
-            Themes tempTheme = m_themes[name];
-            m_themes[dest] = tempTheme;
-            m_themes[dest].set_protection( false );
+            Themes destTheme = m_themes[name];
+            destTheme.set_name( dest );
+            m_themes[dest] = destTheme;
             m_activeTheme = dest;
         }
         else
@@ -437,7 +438,6 @@ void Settings::add_theme( Themes *theme )
     // replace the existing theme.
     if ( theme != nullptr )
     {
-        qDebug() << "theme->name(): " << theme->name();
         m_themes[theme->name()] = *theme;
         m_activeTheme = theme->name();
     }
@@ -700,9 +700,10 @@ bool Settings::load()
             return ok;
         }
 
-        m_options.set_backupDirectory( object.value( "backupDirectory").toString());
-        m_options.set_astyleOnSave( object.value("astyleOnSave").toBool());
-        m_options.set_maxVersions( object.value("maxVersions").toInt());
+        m_options.set_backupDirectory( object.value( "backupDirectory" ).toString() );
+        m_options.set_astyleOnSave( object.value( "astyleOnSave" ).toBool() );
+        m_options.set_maxVersions( object.value( "maxVersions" ).toInt() );
+        m_options.set_makeBackups( object.value( "enableBackups" ).toBool() );
         m_options.keys().set_edtGotoLine( object.value( "key-edt-gotoLine" ).toString() );
         m_options.keys().set_edtCopy( object.value( "key-edt-copy" ).toString() );
         m_options.keys().set_edtInsertFile( object.value( "key-edt-insertFile" ).toString() );
@@ -745,15 +746,17 @@ bool Settings::load()
         for ( int x=0; x < themeCount; x++ )
         {
             QJsonObject theme = themesArray[x].toObject();
-            Themes elm;
 
-            elm.set_colorText( colorFromValueString( theme.value( "theme-color-text" ).toString() ) );
-            elm.set_colorBack( colorFromValueString( theme.value( "theme-color-back" ).toString() ) );
-            elm.set_gutterText( colorFromValueString( theme.value( "theme-color-gutterText" ).toString() ) );
-            elm.set_gutterBack( colorFromValueString( theme.value( "theme-color-gutterBack" ).toString() ) );
-            elm.set_currentLineBack( colorFromValueString( theme.value( "theme-color-currentLineBack" ).toString() ) );
-            elm.set_name( theme.value( "theme-name" ).toString() );
-            elm.set_protected( theme.value( "theme-protected" ).toBool() );
+            QString themeName = theme.value( "theme-name" ).toString();
+            Themes *elm = new Themes( themeName );
+
+            elm->set_colorText( colorFromValueString( theme.value( "theme-color-text" ).toString() ) );
+            elm->set_colorBack( colorFromValueString( theme.value( "theme-color-back" ).toString() ) );
+            elm->set_gutterText( colorFromValueString( theme.value( "theme-color-gutterText" ).toString() ) );
+            elm->set_gutterBack( colorFromValueString( theme.value( "theme-color-gutterBack" ).toString() ) );
+            elm->set_currentLineBack( colorFromValueString( theme.value( "theme-color-currentLineBack" ).toString() ) );
+            elm->set_name( theme.value( "theme-name" ).toString() );
+            elm->set_protected( theme.value( "theme-protected" ).toBool() );
 
             list = theme.value( "theme-syntax-key" ).toArray();
 
@@ -764,7 +767,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxKey( attr );
+                elm->set_syntaxKey( attr );
             }
 
             list = theme.value( "theme-syntax-type" ).toArray();
@@ -774,7 +777,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxType( attr );
+                elm->set_syntaxType( attr );
             }
 
             list = theme.value( "theme-syntax-class" ).toArray();
@@ -784,7 +787,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxClass( attr );
+                elm->set_syntaxClass( attr );
             }
 
             list = theme.value( "theme-syntax-func" ).toArray();
@@ -794,7 +797,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxFunc( attr );
+                elm->set_syntaxFunc( attr );
             }
 
             list = theme.value( "theme-syntax-quote" ).toArray();
@@ -804,7 +807,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxQuote( attr );
+                elm->set_syntaxQuote( attr );
             }
 
             list = theme.value( "theme-syntax-comment" ).toArray();
@@ -814,7 +817,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxComment( attr );
+                elm->set_syntaxComment( attr );
             }
 
             list = theme.value( "theme-syntax-mline" ).toArray();
@@ -824,7 +827,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxMLine( attr );
+                elm->set_syntaxMLine( attr );
             }
 
             list = theme.value( "theme-syntax-constant" ).toArray();
@@ -834,10 +837,11 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm.set_syntaxConstant( attr );
+                elm->set_syntaxConstant( attr );
             }
 
-            m_themes[elm.name()] = elm;
+            m_themes[elm->name()] = *elm;
+            delete elm;
         }
 
         m_edtLastDeletedWord = object.value( "edt-lastDeletedWord" ).toString();
@@ -994,9 +998,10 @@ void Settings::save()
     object.insert( "preload-sh",        m_options.preloadSh() );
     object.insert( "preload-txt",       m_options.preloadTxt() );
     object.insert( "preload-xml",       m_options.preloadXml() );
-    object.insert( "backupDirectory",   m_options.backupDirectory());
-    object.insert( "maxVersions",       m_options.maxVersions());
-    object.insert( "astyleOnSave",      m_options.astyleOnSave());
+    object.insert( "backupDirectory",   m_options.backupDirectory() );
+    object.insert( "maxVersions",       m_options.maxVersions() );
+    object.insert( "astyleOnSave",      m_options.astyleOnSave() );
+    object.insert( "enableBackups",     m_options.makeBackups() );
 
 
     object.insert( "column-mode",   m_isColumnMode );
@@ -1262,7 +1267,7 @@ void Settings::trimBackups( QString path )
     // which will be at the beginning of the list.
     bool okFlag = true;
 
-    while ( ( backupFiles.size() >= DiamondLimits::BACKUP_FILES_MAX ) && okFlag )
+    while ( ( backupFiles.size() >= DiamondLimits::CONFIG_FILES_MAX ) && okFlag )
     {
         QString fName = strippedName( backupFiles.takeFirst() );
         okFlag = dir.remove( fName );
@@ -1296,7 +1301,7 @@ void Settings::trimBackups( QString path )
         csError( tr( "Purging Backups" ), msg );
     }
 
-    if ( versionNumber > DiamondLimits::BACKUP_VERSION_MAX )
+    if ( versionNumber > DiamondLimits::CONFIG_VERSION_MAX )
     {
         versionNumber = 0;
         // refresh the list
@@ -1481,7 +1486,7 @@ void Settings::generateDefaultThemes()
      */
     QStringList themeData =
     {
-        "CLASSIC, #000000, #FFFFFF, QT::DARKGRAY, 0XD0D0D0, #FFFF99, #0000FF, Y, N, #0000FF, N, N, #800080, N, N, #0000FF, N, N, #008000, N, N, #008000, N, N, #008000, N, N, #FF518C, N, N",
+        "CLASSIC, #000000, #FFFFFF, #808080, #D0D0D0, #FFFF99, #0000FF, Y, N, #0000FF, N, N, #800080, N, N, #0000FF, N, N, #008000, N, N, #008000, N, N, #008000, N, N, #FF518C, N, N",
         "SOLARIZEDLIGHT, #657B83, #FDF6E3, #657B83, #E0DBCD, #E0DBCD, #709D06, N, N, #B58900, N, N, #268BD2, N, N, #657B83, N, N, #2AA198, N, N, #93A1A1, N, Y,#93A1A1, N, Y, #FF518C, N, N",
         "GRAYGREY, #000000, #C7D1D3, #000000, #D1DED1, #D7DEDE, #98061A,  Y, N, #9C061A, N, N, #0000FF, N, N, #00007F, N, N, #005500, N, N, #434343, N, Y, #434343, N, Y, #9C061A, N, N",
         "JUSTDARKENOUGH, #F4F4F4, #424244, #000000, #848278, #232220, #00C2C2, N, N, #C195B4, N, N, #55AAFF, N, N, #00EBAD, N, N, #FFFF00, N, N, #F59F00, N, Y, #F59F00, N, Y, #FF518C, N, N",
@@ -1489,7 +1494,16 @@ void Settings::generateDefaultThemes()
         "COBALT, #F8F8F8, #09223F, #888888, #111111, #00162A, #FA9E18, N, N, #FFEF79, N, N, #42D915, N,N, #FFDD00, N, N, #42D915, N, N, #008AFF, N, N, #008AFF, N, N, #FF518C, N, N",
         "GreenAndGold, #000000, #F1EEC2, #000000, #6C9359, #D5D39B, #AA0000, N, N, #FF0000, N, N, #0000FF, N, N, #00008D, N, N, #006200, N, N, #7C7C7C, N, N, #7C7C7C, N, N, #FF518C, N, N",
         "DeepLedger, #000000, #8EDAA0, #000000, #4B673E, #8EDAA0, #555500, N, N, #AD1D3C, N, N, #2F5F8F, N, N, #780050, N, N, #005500, N, N, #7C7C7C, N, N, #7C7C7C, N, N, #FF518C, N, N",
-        "Ledger, #000000, #C6FAC6, #000000, #4B673E, #C6FAC6, #555500, N, N, #AD1D3C, N, N, #2F5F8F, N, N, #8700CA, N, N, #005500, N, N, #7C7C7C, N, N, #7C7C7C, N, N, #FF518C, N, N"
+        "Ledger, #000000, #C6FAC6, #000000, #4B673E, #C6FAC6, #555500, N, N, #AD1D3C, N, N, #2F5F8F, N, N, #8700CA, N, N, #005500, N, N, #7C7C7C, N, N, #7C7C7C, N, N, #FF518C, N, N",
+        "SLATE, #000000, #778899, #000000, #D1DED1, #D1DED1, #98061A, Y, N, #98061A, N, N, #0000FF, N, N, #00007F, N, N, #005500, N, N, #434343, N, N, #434343, N, N, #9C061A, N, N",
+        "Snow, #000000, #FFFAFA, #000000, #D1DED1, #D1DED1, #98061A, Y, N, #550000, N, N, #0000FF, N, N, #55557F, N, N, #005500, N, N, #434343, N, N, #434343, N, N, #00FF7F, N, N",
+        "Ivory, #000000, #FFFFF0, #000000, #D1DED1, #D1DED1, #98061A, Y, N, #9C061A, N, N, #0000FF, N, N, #00007F, N, N, #005500, N, N, #434343, N, N, #434343, N, N, #9C061A, N, N",
+        "Non-Silver, #000000, #C0C0C0, #000000, #D1DED1, #D1DED1, #9C061A, Y, N, #550000, N, N, #0000FF, N, N, #55557F, N, N, #005500, N, N, #434343, N, N, #434343, N, N, #8A0893, N, N",
+        "New-Grey, #000000, #B9C3C5, #000000, #D7DEDE, #D7DEDE, #051498, Y, N, #9C061A, N, N, #8400C6, N, N, #D400D4, N, N, #2C7631, N, N, #0000FF, N, N, #0000FF, N, N, #55557F, N, N",
+        "Funky-1, #EAEAEA, #434300, #000000, #7F7F66, #090807, #FFAA00, Y, N, #FFFF00, N, N, #779DF0, N, N, #FFB5D3, N, N, #399D40, N, N, #AAFFFF, N, Y, #AAFFFF, N, Y, #55557F, N, N",
+        "Fred, #000000, #FFFFFF, #808080, #D0D0D0, #FFFF99, #0000FF, Y, N, #00007F, N, N, #800080, N, N, #0000B9, N, N, #008000, N, N, #55557F, N, Y, #55557F, N, Y, #AA0000, N, N",
+        "YABU, #FFFFFF, #2F0047, #F0F0F0, #610091, #610091, #0055FF, Y, N, #55FFFF, N, N, #FFFF7F, N, N, #07BDFF, N, N, #00DF00, N, N, #8989CC, N, Y, #8989CC, N, Y, #AA0000, N, N",
+        "YABU, #FFFFFF, #3E0000, #F0F0F0, #6B6970, #700000, #0055FF, Y, N, #55FFFF, N, N, #FFFF7F, N, N, #07BDFF, N, N, #00DF00, N, N, #8989CC, N, Y, #8989CC, N, Y, #AA0000, N, N"
     };
 
     TextAttributes attr;
@@ -1656,11 +1670,10 @@ void Settings::generateDefaultThemes()
         theme->set_syntaxConstant( attr );
 
         m_themes[theme->name()] = *theme;
-
         delete theme;
     }
 
-    m_activeTheme = "COBALT";
+    m_activeTheme = "CLASSIC";
 }
 
 // eventually this can go away. It is for transitional users
@@ -1670,15 +1683,15 @@ void Settings::importOldConfig( QJsonObject object )
     QJsonValue value;
     QJsonArray list;
 
-    Themes elm( "User", false );
+    Themes *elm = new Themes( "User", false );
     TextAttributes attr;
 
     // colors
-    elm.set_colorText( colorFromValueString( object.value( "color-text" ).toString() ) );
-    elm.set_colorBack( colorFromValueString( object.value( "color-back" ).toString() ) );
-    elm.set_gutterText( QColor( "QT::DARKGRAY" ) );
-    elm.set_gutterBack( QColor( "0XD0D0D0" ) );
-    elm.set_currentLineBack( colorFromValueString( object.value( "color-highBack" ).toString() ) );
+    elm->set_colorText( colorFromValueString( object.value( "color-text" ).toString() ) );
+    elm->set_colorBack( colorFromValueString( object.value( "color-back" ).toString() ) );
+    elm->set_gutterText( QColor( "QT::DARKGRAY" ) );
+    elm->set_gutterBack( QColor( "0XD0D0D0" ) );
+    elm->set_currentLineBack( colorFromValueString( object.value( "color-highBack" ).toString() ) );
 
 
     list = object.value( "syntax-key" ).toArray();
@@ -1688,7 +1701,7 @@ void Settings::importOldConfig( QJsonObject object )
         attr.set_weight( list.at( 0 ).toDouble() );
         attr.set_italic( list.at( 1 ).toBool() );
         attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-        elm.set_syntaxKey( attr );
+        elm->set_syntaxKey( attr );
     }
 
     list = object.value( "syntax-type" ).toArray();
@@ -1698,7 +1711,7 @@ void Settings::importOldConfig( QJsonObject object )
         attr.set_weight( list.at( 0 ).toDouble() );
         attr.set_italic( list.at( 1 ).toBool() );
         attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-        elm.set_syntaxType( attr );
+        elm->set_syntaxType( attr );
     }
 
     list = object.value( "syntax-class" ).toArray();
@@ -1708,7 +1721,7 @@ void Settings::importOldConfig( QJsonObject object )
         attr.set_weight( list.at( 0 ).toDouble() );
         attr.set_italic( list.at( 1 ).toBool() );
         attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-        elm.set_syntaxClass( attr );
+        elm->set_syntaxClass( attr );
     }
 
     list = object.value( "syntax-func" ).toArray();
@@ -1718,7 +1731,7 @@ void Settings::importOldConfig( QJsonObject object )
         attr.set_weight( list.at( 0 ).toDouble() );
         attr.set_italic( list.at( 1 ).toBool() );
         attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-        elm.set_syntaxFunc( attr );
+        elm->set_syntaxFunc( attr );
     }
 
     list = object.value( "syntax-quote" ).toArray();
@@ -1728,7 +1741,7 @@ void Settings::importOldConfig( QJsonObject object )
         attr.set_weight( list.at( 0 ).toDouble() );
         attr.set_italic( list.at( 1 ).toBool() );
         attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-        elm.set_syntaxQuote( attr );
+        elm->set_syntaxQuote( attr );
     }
 
     list = object.value( "syntax-comment" ).toArray();
@@ -1738,7 +1751,7 @@ void Settings::importOldConfig( QJsonObject object )
         attr.set_weight( list.at( 0 ).toDouble() );
         attr.set_italic( list.at( 1 ).toBool() );
         attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-        elm.set_syntaxComment( attr );
+        elm->set_syntaxComment( attr );
     }
 
 
@@ -1749,7 +1762,7 @@ void Settings::importOldConfig( QJsonObject object )
         attr.set_weight( list.at( 0 ).toDouble() );
         attr.set_italic( list.at( 1 ).toBool() );
         attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-        elm.set_syntaxMLine( attr );
+        elm->set_syntaxMLine( attr );
     }
 
     // legacy didn't support contstants
@@ -1757,10 +1770,11 @@ void Settings::importOldConfig( QJsonObject object )
     attr.set_weight( QFont::Normal );
     attr.set_italic( false );
     attr.set_color( QColor( "#FF518C" ) );
-    elm.set_syntaxConstant( attr );
+    elm->set_syntaxConstant( attr );
 
-    m_themes[elm.name()] = elm;
+    m_themes[elm->name()] = *elm;
+    delete elm;
 
-    m_activeTheme = elm.name();
+    m_activeTheme = elm->name();
 
 }

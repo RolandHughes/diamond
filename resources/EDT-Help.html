@@ -105,7 +105,7 @@ Keypad image courtesy of John H. Reinhardt
 </tr>
 
 </table>
-<br> 
+<br>
 <h3 style="text-align:center">Editing</h3>
 <table style="border-color: black; border-style: solid; width:100%">
 <tr>
@@ -188,6 +188,20 @@ Keypad image courtesy of John H. Reinhardt
   <td>Deletes the currently selected text and replaces it with the text from the
     paste buffer (clipboard)</td>
 </tr>
+<tr>
+  <td><b>CHNGCASE</b> [GOLD WORD (the 1 key)]</td>
+  <td>If you have no current selection this will change the case of the character "under" the cursor. This editor places the cursor "between" characters so the case will be changed for the directionally sensitive "next" character. When you have a current selection the case of every letter is changed.  ThIs Is BaD would become tHiS iS bAd.</td>
+</tr>
 </table>
+<h3 style="text-align:center">Not implemented</h3>
+<p><b>COMMAND</b> There are a small number of EDT commands that would still prove useful in this day and age, but none have been implemented.</p>
+<p><b>SUBS</b> By today's standard this was a complex key sequence for making a text substitution then finding the next matching text. I spent 20 years on DEC platforms and never used it. The SUBS command was much easier and less prone to user error. When you hit the SUBS key combination you will be presented with the "Find" dialog</p>
+<img src="://resources/rewrap.png" width="350"
+     height="400" alt="" align="left" style="margin: 10px 40px 10px 10px;"><p><b>FILL</b> In the very old days when we never turned on wordwrap for fear of forgetting it and trashing a large source file, FILL was necessary. You selected a bunch of lines and it would "pack" as many words as possible without splitting a word on each line. When we only had an 80 column screen and narrow continuous form only allowed for 80 printed columns this was how we made our documentation look like we cared. Today you have wordwrap and many free word processors. This editor has wordwrap and spell check. It also has a rewrap option on the context menu. It just wasn't worth the effort to implement FILL.</p>
+
+<h3 style="text-align:center">Some Apple/MAC users will be a bit hosed</h3>
+<p>Most of you probably won't be impacted. If you have on of the Apple/MAC keyboards that sends the numeric keypad modifier with every arrow key then you won't be able to hit the EDT SELECT key and use the arrow keys to make your selection. This could also impact certain laptop users where the keyboard doesn't have an independent numeric keypad. <b>EDT Navigation is meant to be used with a numeric keypad.</b> If your OS or keyboard had to do something cute to simulate such a thing you probably shouldn't turn on the support. You can still navigate by character, line, and word; you just have to use the EDT keys.</p>
 </body>
+
+
 </html>

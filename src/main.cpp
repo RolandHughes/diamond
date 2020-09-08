@@ -72,7 +72,7 @@ int main( int argc, char *argv[] )
         {
             // establish our singleton and parent it to the application
             //
-            Overlord::getInstance()->setParent(&app);
+            Overlord::getInstance()->setParent( &app );
             MainWindow dw( fileList, flagList );
             dw.show();
 

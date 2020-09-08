@@ -44,6 +44,7 @@
 #include <qtconcurrentrun.h>
 #include <QThread>
 #include <QStringParser>
+#include <QFileDialog>
 
 static const int MESSAGE_TIME = 3000;
 
@@ -314,13 +315,14 @@ void DiamondTextEdit::contextMenuEvent( QContextMenuEvent *event )
     menu->addSeparator();
     menu->addAction( "Delete Line",    this, SLOT( deleteLine() ) );
     menu->addAction( "Delete to EOL",  this, SLOT( deleteEOL() ) );
+    menu->addAction( "Delete Through EOL", this, SLOT( deleteThroughEOL() ) );
 
     if ( isSelected )
     {
         menu->addSeparator();
         menu->addAction( "Uppercase",   this, SLOT( caseUpper() ) );
         menu->addAction( "Lowercase",   this, SLOT( caseLower() ) );
-
+        menu->addAction( "Change case", this, SLOT( caseChange() ) );
     }
     else
     {
@@ -359,7 +361,7 @@ void DiamondTextEdit::set_SyntaxParser( Syntax *parser )
     if ( parser )
     {
         // TODO:: find a way to make this faster.
-        //        big files really kill inital load of big files
+        //        big files really kill inital load
         //
         m_syntaxParser->processSyntax( m_settingsPtr );
     }
@@ -682,6 +684,7 @@ bool DiamondTextEdit::event( QEvent *event )
 
         if ( modifiers == Qt::ControlModifier && ( key == Qt::Key_A || key == Qt::Key_X || key == Qt::Key_C  || key == Qt::Key_V ) )
         {
+            qDebug() << "another spot we catch default selectAll, cut, copy, paste";
             /// required to disable default selectAll(), cut(), copy(), paste()
             return false;
         }
@@ -1354,8 +1357,25 @@ void DiamondTextEdit::deleteEOL()
 
 void DiamondTextEdit::deleteThroughEOL()
 {
-    // TODO:: This needs to delete EOL and the new line character(s) following
-    //
+    m_edtSelectActive = false;
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+
+    if ( Overlord::getInstance()->edtDirection() )
+    {
+        cursor.movePosition( QTextCursor::Up, QTextCursor::KeepAnchor, 1 );
+        cursor.movePosition( QTextCursor::EndOfLine, QTextCursor::KeepAnchor, 1 );
+    }
+    else
+    {
+        cursor.movePosition( QTextCursor::Down, QTextCursor::KeepAnchor, 1 );
+        cursor.movePosition( QTextCursor::StartOfLine, QTextCursor::KeepAnchor, 1 );
+    }
+
+    Overlord::getInstance()->set_edtLastDeletedLine( cursor.selectedText() );
+    cursor.removeSelectedText();
+    cursor.endEditBlock();
+    setTextCursor( cursor );
 }
 
 void DiamondTextEdit::insertSymbol()
@@ -1388,28 +1408,103 @@ void DiamondTextEdit::insertSymbol()
 
 void DiamondTextEdit::selectAll()
 {
-    textCursor().select( QTextCursor::Document );
+    QTextCursor cursor( textCursor() );
+    cursor.select( QTextCursor::Document );
+    setTextCursor( cursor );
     m_edtSelectActive = true;
 }
 
 void DiamondTextEdit::selectBlock()
 {
-    textCursor().select( QTextCursor::BlockUnderCursor );
+    QTextCursor cursor( textCursor() );
+    cursor.select( QTextCursor::BlockUnderCursor );
+    setTextCursor( cursor );
     m_edtSelectActive = true;
 }
 
 void DiamondTextEdit::selectLine()
 {
-    textCursor().select( QTextCursor::LineUnderCursor );
+    QTextCursor cursor( textCursor() );
+    cursor.select( QTextCursor::LineUnderCursor );
+    setTextCursor( cursor );
     m_edtSelectActive = true;
 }
 
 void DiamondTextEdit::selectWord()
 {
-    textCursor().select( QTextCursor::WordUnderCursor );
+    QTextCursor cursor( textCursor() );
+    cursor.select( QTextCursor::WordUnderCursor );
+    setTextCursor( cursor );
     m_edtSelectActive = true;
 }
 
+void DiamondTextEdit::caseChange()
+{
+    m_edtSelectActive = false;
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+
+    if ( cursor.hasSelection() )
+    {
+        QString txt = cursor.selectedText();
+        QString newText;
+        cursor.removeSelectedText();
+
+        for ( int i=0; i < txt.size(); i++ )
+        {
+            // have to skip over non-letters
+            //
+            if ( txt.at( i ).isUpper() )
+            {
+                newText.append( txt.at( i ).toLower() );
+            }
+            else if ( txt.at( i ).isLower() )
+            {
+                newText.append( txt.at( i ).toUpper() );
+            }
+            else
+            {
+                newText.append( txt.at( i ) );
+            }
+        }
+
+        cursor.insertText( newText );
+    }
+    else
+    {
+        // process character "under" cursor
+        // problem is cursor is always between characters
+        // this makes direction important
+        //
+        QString txt;
+
+        if ( Overlord::getInstance()->edtDirection() )
+        {
+            cursor.movePosition( QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, 1 );
+        }
+        else
+        {
+            cursor.movePosition( QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1 );
+        }
+
+        txt = cursor.selectedText();
+        cursor.removeSelectedText();
+
+        if ( txt.at( 0 ).isUpper() )
+        {
+            cursor.insertText( txt.at( 0 ).toLower() );
+        }
+        else
+        {
+            cursor.insertText( txt.at( 0 ).toUpper() );
+        }
+
+    }
+
+    cursor.endEditBlock();
+    setTextCursor( cursor );
+
+}
 void DiamondTextEdit::caseUpper()
 {
     QTextCursor cursor( textCursor() );
@@ -1423,6 +1518,7 @@ void DiamondTextEdit::caseUpper()
 
     cursor.removeSelectedText();
     cursor.insertText( text.toUpper() );
+    setTextCursor( cursor );
     clearEdtSelection();
 }
 
@@ -1439,6 +1535,7 @@ void DiamondTextEdit::caseLower()
 
     cursor.removeSelectedText();
     cursor.insertText( text.toLower() );
+    setTextCursor( cursor );
     clearEdtSelection();
 
 }
@@ -1459,6 +1556,7 @@ void DiamondTextEdit::caseCap()
 
     cursor.removeSelectedText();
     cursor.insertText( text );
+    setTextCursor( cursor );
     clearEdtSelection();
 }
 
@@ -1863,7 +1961,6 @@ void DiamondTextEdit::deleteEOL_Spaces()
 
         while ( true )
         {
-            // TODO:: use this logic for deletethroughEOL
             cursor.movePosition( QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, 1 );
             tmp = cursor.selectedText();
 
@@ -1890,8 +1987,6 @@ QString DiamondTextEdit::currentFile()
     return m_curFile;
 }
 
-// TODO:: this might need to be combined with loading of file.
-//        have to find that portion of the code and see.
 void DiamondTextEdit::setCurrentFile( QString fileName )
 {
     m_curFile = fileName;
@@ -2111,8 +2206,6 @@ void DiamondTextEdit::setUpTabStops()
 {
     if ( m_lastTabSpacing != m_settingsPtr->tabSpacing() )
     {
-        // TODO:: need to allow option of user supplied tab stop
-        //        list so COBOL card format could be supported.
         int tabStop;
 
         m_tabStops.clear();
@@ -2135,7 +2228,6 @@ void DiamondTextEdit::changeSettings( Settings *settings )
 
     if ( m_lastTheme != m_settingsPtr->currentTheme() )
     {
-
         setScreenColors();
         m_lastTheme = m_settingsPtr->currentTheme();
         queueRunSyntax( m_synFName );
@@ -2333,6 +2425,8 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 
                 break;
 
+            // TODO:: if user has other than default keys assigned this won't work.
+            //
             case Qt::Key_C:
                 if ( isCtrl )
                 {
@@ -2345,6 +2439,17 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                 }
 
                 break;
+
+            case Qt::Key_A:
+                if ( isCtrl )
+                {
+                    selectAll();
+                    m_edtSelectActive = true;
+                    return true;
+                }
+
+                break;
+
 
             case Qt::Key_Control:
             case Qt::Key_Alt:
@@ -2427,70 +2532,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
             case Qt::Key_End:
                 if ( isKeypad )
                 {
-                    m_edtSelectActive = false;
-                    QTextCursor cursor = textCursor();
-                    cursor.beginEditBlock();
-
-                    if ( cursor.hasSelection() )
-                    {
-                        QString txt = cursor.selectedText();
-                        QString newText;
-                        cursor.removeSelectedText();
-
-                        for ( int i=0; i < txt.size(); i++ )
-                        {
-                            // have to skip over non-letters
-                            //
-                            if ( txt.at( i ).isUpper() )
-                            {
-                                newText.append( txt.at( i ).toLower() );
-                            }
-                            else if ( txt.at( i ).isLower() )
-                            {
-                                newText.append( txt.at( i ).toUpper() );
-                            }
-                            else
-                            {
-                                newText.append( txt.at( i ) );
-                            }
-                        }
-
-                        cursor.insertText( newText );
-                    }
-                    else
-                    {
-                        // process character "under" cursor
-                        // problem is cursor is always between characters
-                        // this makes direction important
-                        //
-                        QString txt;
-
-                        if ( Overlord::getInstance()->edtDirection() )
-                        {
-                            cursor.movePosition( QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, 1 );
-                        }
-                        else
-                        {
-                            cursor.movePosition( QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1 );
-                        }
-
-                        txt = cursor.selectedText();
-                        cursor.removeSelectedText();
-
-                        if ( txt.at( 0 ).isUpper() )
-                        {
-                            cursor.insertText( txt.at( 0 ).toLower() );
-                        }
-                        else
-                        {
-                            cursor.insertText( txt.at( 0 ).toUpper() );
-                        }
-
-                    }
-
-                    cursor.endEditBlock();
-                    setTextCursor( cursor );
-
+                    caseChange();
                     return true;
                 }
 
@@ -2505,6 +2547,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                     cursor.beginEditBlock();
                     cursor.movePosition( QTextCursor::EndOfLine, QTextCursor::KeepAnchor, 1 );
                     Overlord::getInstance()->set_edtLastDeletedLine( cursor.selectedText() );
+                    addToCopyBuffer( cursor.selectedText() );
                     cursor.removeSelectedText();
                     cursor.endEditBlock();
                     setTextCursor( cursor );
@@ -2712,11 +2755,8 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                             || ( Overlord::getInstance()->edtWordAltOption()
                                  && ( modifiers & Qt::AltModifier ) ) )
                     {
-                        qDebug() << "undelete word";
-
                         if ( !Overlord::getInstance()->edtLastDeletedWord().isEmpty() )
                         {
-                            qDebug() << "last deleted word not empty";
                             QTextCursor cursor = textCursor();
                             cursor.beginEditBlock();
                             cursor.insertText( Overlord::getInstance()->edtLastDeletedWord() );
@@ -2865,7 +2905,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
         if ( keyStr == Overlord::getInstance()->keys().edtInsertFile() )
         {
             m_edtSelectActive = false;
-            not_done( "insert file" );
+            edtInsertFile();
             return true;
         }
 
@@ -2993,6 +3033,10 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                         edtCut();
                         m_edtSelectActive = false;
                     }
+                    else
+                    {
+                        timedMessage( tr( "No active select range" ), MESSAGE_TIME );
+                    }
 
                     // TODO:: message about no active selection
 
@@ -3098,6 +3142,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                         }
 
                         Overlord::getInstance()->set_edtLastDeletedWord( cursor.selectedText() );
+                        addToCopyBuffer( cursor.selectedText() );
                         cursor.removeSelectedText();
                         cursor.endEditBlock();
                         setTextCursor( cursor );
@@ -3165,25 +3210,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
             case Qt::Key_Minus:
                 if ( isKeypad )
                 {
-                    m_edtSelectActive = false;
-                    QTextCursor cursor = textCursor();
-                    cursor.beginEditBlock();
-
-                    if ( Overlord::getInstance()->edtDirection() )
-                    {
-                        cursor.movePosition( QTextCursor::Up, QTextCursor::KeepAnchor, 1 );
-                        cursor.movePosition( QTextCursor::EndOfLine, QTextCursor::KeepAnchor, 1 );
-                    }
-                    else
-                    {
-                        cursor.movePosition( QTextCursor::Down, QTextCursor::KeepAnchor, 1 );
-                        cursor.movePosition( QTextCursor::StartOfLine, QTextCursor::KeepAnchor, 1 );
-                    }
-
-                    Overlord::getInstance()->set_edtLastDeletedLine( cursor.selectedText() );
-                    cursor.removeSelectedText();
-                    cursor.endEditBlock();
-                    setTextCursor( cursor );
+                    deleteThroughEOL();
                     return true;
                 }
 
@@ -3337,11 +3364,8 @@ void DiamondTextEdit::astyleBuffer( bool needToWait )
         tFile.remove();
     }
 
-    qDebug() << "tFile: " << tFile.fileName();
-
     tFile.open( QIODevice::WriteOnly | QIODevice::Text );
-    qint64 bytesRead = tFile.write( this->toPlainText().toUtf8() );
-    qDebug() << "bytesRead: " << bytesRead;
+    tFile.write( this->toPlainText().toUtf8() );
     tFile.flush();
     tFile.close();
 
@@ -3403,11 +3427,11 @@ void DiamondTextEdit::astyleComplete( int exitCode, QProcess::ExitStatus status 
     {
         setPlainText( txt );
         QApplication::processEvents();
-
         QTextCursor cursor( document()->findBlockByNumber( Overlord::getInstance()->lastActiveRow() ) );
         cursor.movePosition( QTextCursor::StartOfLine );
         cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveColumn() - 1 );
         setTextCursor( cursor );
+        document()->setModified( true );
     }
     else
     {
@@ -3428,4 +3452,37 @@ void DiamondTextEdit::astyleError( QProcess::ProcessError error )
     csError( tr( "Astyle" ), msg );
     m_astyleProcess->deleteLater();
     m_astyleProcess = nullptr;
+}
+
+void DiamondTextEdit::edtInsertFile()
+{
+    QString selectedFilter;
+    QFileDialog::Options options;
+
+    // force windows 7 and 8 to honor initial path
+    options = QFileDialog::ForceInitialDir_Win7;
+
+    QStringList fileList = QFileDialog::getOpenFileNames( this, tr( "Select File" ),
+                           pathName( currentFile() ), tr( "All Files (*)" ), &selectedFilter, options );
+
+    for ( const QString &fileName : fileList )
+    {
+        if ( ! fileName.isEmpty() )
+        {
+            QFile file( fileName );
+
+            if ( !file.open( QFile::ReadOnly | QFile::Text ) )
+            {
+                csError( tr( "EDT Insert" ), tr( "Unable to open file in text mode" ) );
+                return;
+            }
+
+            QByteArray temp = file.readAll();
+
+            QString fileData = QString::fromUtf8( temp );
+
+            insertPlainText( fileData );
+        }
+    }
+
 }

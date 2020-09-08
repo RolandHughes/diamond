@@ -23,8 +23,9 @@ public:
     static const int PRESET_FOLDERS_MAX  = 15;
     static const int RECENT_FOLDERS_MAX  = 10;
     static const int RECENT_FILES_MAX    = 10;
-    static const int BACKUP_FILES_MAX    = 6;
-    static const int BACKUP_VERSION_MAX  = 900;
+    static const int CONFIG_FILES_MAX    = 6;
+    static const int CONFIG_VERSION_MAX  = 900;
+    static const int BACKUP_VERSION_MAX  = 32767;
 };
 
 #endif
