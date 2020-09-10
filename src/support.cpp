@@ -24,6 +24,8 @@
 #include <QSysInfo>
 #include <QUrl>
 #include <QTime>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 void MainWindow::argLoad( QList<QString> argList )
 {
@@ -192,7 +194,7 @@ QString MainWindow::get_curFileName( int whichTab )
 
 
 
-bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool isReload, bool isReadOnly)
+bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool isReload, bool isReadOnly )
 {
 #if defined (Q_OS_WIN)
     // change forward to backslash
@@ -302,7 +304,7 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
     //  with all of the highlighting.
     QApplication::processEvents();
 
-    m_textEdit->setReadOnly( isReadOnly);
+    m_textEdit->setReadOnly( isReadOnly );
 
     if ( m_textEdit->m_owner == "tab" )
     {
@@ -392,6 +394,14 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
     fileName.replace( '/', '\\' );
 #endif
 
+    if ( QFile::exists( fileName ) )
+    {
+        if ( Overlord::getInstance()->makeBackups() )
+        {
+            backupAndTrim( fileName );
+        }
+    }
+
     QFile file( fileName );
 
     if ( ! file.open( QFile::WriteOnly | QFile::Text ) )
@@ -425,10 +435,6 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
         }
     }
 
-    if ( Overlord::getInstance()->makeBackups() )
-    {
-        backupAndTrim( fileName );
-    }
 
     file.write( m_textEdit->toPlainText().toUtf8() );
     m_textEdit->document()->setModified( false );
@@ -690,17 +696,20 @@ void MainWindow::backupAndTrim( QString fileName )
     destName = backupDir.absoluteFilePath( destName );
 
     // TODO:: QFile::copy() is busted.
-    //        This only works on Linux/Unix right now. Need to see how long before QFile::copy() will be fixed.
+    //        Need to see how long before QFile::copy() will be fixed.
     //
-#ifdef Q_OS_WIN
-    QString cmd = QString( "cp \"%1\" \"%2\"" ).formatArgs( fileName, destName );
-    system( cmd.toStdString().c_str() );
-#elif defined(Q_OS_UNIX)
-    QString cmd = QString( "cp \"%1\" \"%2\"" ).formatArgs( fileName, destName );
-    system( cmd.toStdString().c_str() );
-#else
-    csError( tr("Backups"), tr("Currently unable to copy file on this OS"));
-#endif
+    //  No bout-a-doubt-it this sucks
+    //
+
+    qDebug() << "fileName: " << fileName;
+    qDebug() << "destName: " << destName; //
+
+    std::error_code ec;
+
+    fs::copy( fileName.toStdString(), destName.toStdString(), ec );
+
+    QString ecStr = QString::fromStdString( ec.message() );
+    qDebug() << "ec: " << ecStr; // How can this tell me success when it copies a zero length file? The input is over 19K bytes.
 
     // NOTE: maxVersions from overlord is the maximum number of backup versions
     //       to keep around. If set to 12 we will dutifully keep up to 12,

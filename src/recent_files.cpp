@@ -67,14 +67,12 @@ void MainWindow::rf_Open()
 
         if ( ! ok )
         {
-            // TODO:: move this logic into overlord so we can set changed flag
-            //
-            // remove file from list since it did not load
             int index = Overlord::getInstance()->recentFiles().indexOf( action->text() );
 
             if ( index >= 0 )
             {
                 Overlord::getInstance()->recentFiles().removeAt( index );
+                Overlord::getInstance()->markToNotify();
 
                 // update actions
                 rf_UpdateActions();
@@ -130,13 +128,12 @@ void MainWindow::rf_RemoveFName()
     {
         QString fName = action->data().toString();
 
-        // TODO:: move this logic into overlord so we can set change flag
-        //
         int index = Overlord::getInstance()->recentFiles().indexOf( fName );
 
         if ( index >= 0 )
         {
             Overlord::getInstance()->recentFiles().removeAt( index );
+            Overlord::getInstance()->markToNotify();
 
             // update actions
             rf_UpdateActions();

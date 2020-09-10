@@ -255,6 +255,9 @@ public:
     void set_edtLastDeletedWord( QString word );
     void set_edtLastDeletedLine( QString line );
     void set_edtLastDeletedChar( QString c );  // because JSON doesn't do QChar
+    void set_syntaxPath( const QString path);
+    void set_mainDictionary( const QString path);
+    void set_userDictionary( const QString path);
 
 
     void openedFilesClear();
@@ -291,12 +294,12 @@ public:
     void updatePreFolderListFromLocalCopy( QStringList &lst );
     //
     // end dangerous methods
+    void markToNotify();
 
 
 
 private:
     Overlord();
-    void markToNotify();
     void preloadSyntax();
 
     void checkForChange();

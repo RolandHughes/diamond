@@ -3038,8 +3038,6 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                         timedMessage( tr( "No active select range" ), MESSAGE_TIME );
                     }
 
-                    // TODO:: message about no active selection
-
                     return true;
                 }
 

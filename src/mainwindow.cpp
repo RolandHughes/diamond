@@ -135,6 +135,29 @@ void MainWindow::startupStep2()
         }
     }
 
+    QString syntaxPath = Overlord::getInstance()->syntaxPath();
+
+        if ( ! QFile::exists( syntaxPath + "syn_txt.json" ) )
+        {
+            Overlord::getInstance()->set_syntaxPath( get_SyntaxPath( syntaxPath ));
+        }
+
+
+        if ( ! QFile::exists( Overlord::getInstance()->mainDictionary() ) )
+        {
+            Overlord::getInstance()->set_mainDictionary( get_xxFile( "Dictionary File (*.dic)", "en_US.dic", "Dictionary Files (*.dic)" ));
+        }
+
+        Overlord::getInstance()->set_userDictionary( pathName( Overlord::getInstance()->mainDictionary() ) + "/userDict.txt");
+
+        if ( ! QFile::exists( Overlord::getInstance()->mainDictionary() ) )
+        {
+            // add missing file
+            QFile temp( Overlord::getInstance()->mainDictionary() );
+            temp.open( QIODevice::WriteOnly );
+            temp.close();
+        }
+
     // recent folders
     rfolder_CreateMenus();
 

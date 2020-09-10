@@ -50,8 +50,6 @@ Options::Options() :
     , m_formatDate( QString( "MM/dd/yyyy" ) )
     , m_formatTime( QString( "h:mm ap" ) )
 {
-    // TODO:: These 2 should be class members.
-    //
     // TODO:: kind of sucks having to have multiple classes know about appPath.
     //        Redistribute the data so that only one class has all of the
     //        path based information.
@@ -77,14 +75,6 @@ Options::Options() :
         temp.close();
     }
 
-    QDir home( QDir::homePath() );
-
-    m_backupDirectory = home.absoluteFilePath( DEFAULT_BACKUP_DIR );
-
-    if ( !home.exists( DEFAULT_BACKUP_DIR ) )
-    {
-        home.mkdir( DEFAULT_BACKUP_DIR );
-    }
 
 #elif defined(Q_OS_MAC)
 
@@ -113,43 +103,22 @@ Options::Options() :
 
 #endif
 
+    QDir home( QDir::homePath() );
+
+    m_backupDirectory = home.absoluteFilePath( DEFAULT_BACKUP_DIR );
+
+    if ( !home.exists( DEFAULT_BACKUP_DIR ) )
+    {
+        home.mkdir( DEFAULT_BACKUP_DIR );
+    }
+
+
     QFile::copy( resourcePath + "/dictionary/en_US.aff", libraryPath + "dictionary/en_US.aff" );
     QFile::copy( resourcePath + "/dictionary/en_US.dic", libraryPath + "dictionary/en_US.dic" );
 
     if ( ! m_autoDetect )
     {
         m_syntaxPath = QCoreApplication::applicationDirPath() + "/syntax/";
-        // TODO:: Need to put some kind of test in MainWindow constructor or a singleshot
-        //        timer here to emit a signal once event loop is up.
-        //        We shouldn't be launcing a dialog from inside of a data class.
-#if 0
-
-        if ( ! QFile::exists( m_syntaxPath + "syn_txt.json" ) )
-        {
-            m_syntaxPath = get_SyntaxPath( m_syntaxPath );
-        }
-
-#endif
-
-        // TODO:: Same^%*&%^* problem here. Too tightly coupled.
-        //
-#if 0
-
-        if ( ! QFile::exists( m_mainDictionary ) )
-        {
-            dictFile = get_xxFile( "Dictionary File (*.dic)", "en_US.dic", "Dictionary Files (*.dic)" );
-        }
-
-#endif
-        m_userDictionary = pathName( m_mainDictionary ) + "/userDict.txt";
-
-        if ( ! QFile::exists( m_mainDictionary ) )
-        {
-            // add missing file
-            QFile temp( m_mainDictionary );
-            temp.open( QIODevice::WriteOnly );
-            temp.close();
-        }
     }
 }
 

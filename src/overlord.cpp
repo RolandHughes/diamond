@@ -817,3 +817,21 @@ void Overlord::set_edtLastDeletedChar( QString c )
     markToNotify();
     checkForBroadcast();        // needs to go out immediately in case cut and paste between buffers
 }
+
+void Overlord::set_syntaxPath( const QString path)
+{
+    m_settings.set_syntaxPath( path);
+    markToNotify();
+}
+
+void Overlord::set_mainDictionary( const QString path)
+{
+    m_settings.set_mainDictionary( path);
+    markToNotify();
+}
+
+void Overlord::set_userDictionary( const QString path)
+{
+    m_settings.set_userDictionary( path);
+    markToNotify();
+}

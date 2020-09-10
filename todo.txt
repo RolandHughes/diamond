@@ -1,14 +1,5 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
-*) Look at first time run sequence for a Diamond install. There was some kind of dialog about creating a new default config file or a custom location.
-   Appears to only happen on Windows. Have to test there.
-
-*) test turning spellcheck on in big text document.
-
-*) EDT keys don't seem to work in split window/frame
-
-*) Need to be able to show FF character. It gets inserted, but does not show.  This will require gutting QPlainTextEdit I think. Need to see how it shows spaces and tabs.
-
 *) Fix macro save - make it actually happen - test create-use-save-reload of macros
     from menu_action.cpp
     m_textEdit->macroStart();
@@ -18,9 +9,25 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
     Global list should now be in Settings. Only the global list should be saved and loaded.
     EDT keys might need some work to be part of macro.
 
+*) Create Debian build script  Use IPOS debian build as a guide. Need to create .desktop file as well. .desktop should change binary path based on installation directory.
+
+*) read documentation for QSyntaxHighlighter in CopperSpice
+   see if there is any support for "matching" {(<
+   if so add option to turn on "matching" highlight
+    ~/Downloads/qq31-parenthesis.zip  source code for QtQuarterly31.pdf shows how to do parentesis matching. Should be able to expand for handle <> [] {} as well as ()
+
+*) Make EDT Prompt appear at bottom of Window and be modal.
+
+*) Look at first time run sequence for a Diamond install. There was some kind of dialog about creating a new default config file or a custom location.
+   Appears to only happen on Windows. Have to test there.
+
+*) EDT keys don't seem to work in split window/frame
+
+*) Need to be able to show FF character. It gets inserted, but does not show.  This will require gutting QPlainTextEdit I think. Need to see how it shows spaces and tabs.
+
+
 *) test out macro save/load/use. I really butchered that.
 
-*) Find all of the TODO:: comments and clean them up. Now that we have startup stages for main window many of the tightly coupled things can be done in stage2 or stage3
 *) debug regular expression to C/C++ definition for numeric constant
 
 
@@ -49,11 +56,31 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
    languages. Old FORTRAN had very specific column for comment start. ANSI COBOL starts AREA-B in column 8 with the
    continuation/comment indicator in column 7. Columns 73-80 are additinoal ignored comments.
 
-*) read documentation for QSyntaxHighlighter in CopperSpice
-   see if there is any support for "matching" {(<
-   if so add option to turn on "matching" highlight
-    ~/Downloads/qq31-parenthesis.zip  source code for QtQuarterly31.pdf shows how to do parentesis matching. Should be able to expand for handle <> [] {} as well as ()
-
-*) search online for matching brace logic
-
 *) Get ^M substitution working for EDT search. The problem isn't the substitution. The problem is the "blocks" in QPlainTextEdit. The new line character isn't in the actual text. Have to write a custom search that looks for a block starting with everything after ^M and then checks the end of the preceeding block to see that it matches.
+
+
+=====
+Linux dependencies for .DEB creation
+
+roland@roland-amd-desktop:~/Projects/diamond_debug$ ldd diamond
+	linux-vdso.so.1 (0x00007ffe28113000)
+	libCsGui1.6.so => /home/roland/Projects/diamond_debug/./libCsGui1.6.so (0x00007f2bc65e8000)
+	libCsCore1.6.so => /home/roland/Projects/diamond_debug/./libCsCore1.6.so (0x00007f2bc5b78000)
+	libhunspell-1.7.so.0 => /lib/x86_64-linux-gnu/libhunspell-1.7.so.0 (0x00007f2bc5af0000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f2bc5908000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f2bc58e8000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f2bc56f0000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f2bc56c8000)
+	libOpenGL.so.0 => /lib/x86_64-linux-gnu/libOpenGL.so.0 (0x00007f2bc5698000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f2bc5678000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f2bc5528000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f2bca048000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f2bc5520000)
+	libGLdispatch.so.0 => /lib/x86_64-linux-gnu/libGLdispatch.so.0 (0x00007f2bc5468000)
+roland@roland-amd-desktop:~/Projects/diamond_debug$
+
+libc6 (>= 2.31)
+libstdc++6 (>= 10)
+zlib1g
+hunspell
+libOpenGl (>= 1.3.1)

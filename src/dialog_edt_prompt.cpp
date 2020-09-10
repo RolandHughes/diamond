@@ -70,13 +70,6 @@ void Dialog_Edt_Prompt::showEvent( QShowEvent *e )
 {
     if ( parent() )
     {
-#if 0
-        qDebug() << "bottomLeft before: " << rect().bottomLeft();
-        QRect parentRect( parentWidget()->mapToGlobal( QPoint( 0, 0 ) ), parentWidget()->size() );
-        qDebug() << "parent rec bottomLeft: " << parentRect.bottomLeft();
-        rect().moveBottomLeft( parentRect.bottomLeft() );
-        qDebug() << "bottomLeft after: " << rect().bottomLeft();
-#endif
 
         QSize parentSize = parentWidget()->size();
         int w = size().width();

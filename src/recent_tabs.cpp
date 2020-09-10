@@ -155,7 +155,6 @@ void MainWindow::openTab_redo()
     QAction *action;
     action = ( QAction * )sender();
 
-    // TODO:: this should save settings
     if ( action )
     {
         // re-populate m_openedFiles and m_openedModified
@@ -172,7 +171,6 @@ void MainWindow::openTab_redo()
             tName = this->get_curFileName( k );
             Overlord::getInstance()->openedFilesAppend( tName );
 
-            //
             temp = m_tabWidget->widget( k );
             textEdit = dynamic_cast<DiamondTextEdit *>( temp );
 

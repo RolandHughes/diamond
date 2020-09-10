@@ -20,9 +20,6 @@
 
 #include "keydefinitions.h"
 
-//  Class used to exchange information with Options dialog
-//  All of these values come from the Settings class.
-//  TODO::
 class Options
 {
 public:
@@ -82,7 +79,7 @@ public:
     //
     void set_rewrapColumn( int col )                { m_rewrapColumn = col;}
     void set_tabSpacing( int tabStop )              { m_tabSpacing = tabStop;}
-    void set_maxVersions( int max )                  { m_maxVersions = max; }
+    void set_maxVersions( int max )                 { m_maxVersions = max; }
     void set_useSpaces( bool yesNo )                { m_useSpaces = yesNo;}
     void set_removeSpaces( bool yesNo )             { m_removeSpaces = yesNo;}
     void set_autoLoad( bool yesNo )                 { m_autoLoad = yesNo;}
@@ -91,29 +88,29 @@ public:
     void set_backupDirectory( QString directory )   { m_backupDirectory = directory; }
     void set_mainDictionary( QString dictionary )   { m_mainDictionary = dictionary;}
     void set_userDictionary( QString dictionary )   { m_userDictionary = dictionary;}
-    void set_syntaxPath( QString path )             { m_syntaxPath = path;}
+    void set_syntaxPath( const QString path )       { m_syntaxPath = path;}
     void set_abouturl( QString url )                { m_aboutUrl = url;}
-    void set_preloadClipper( bool yesNo )            { m_preloadClipper = yesNo;}
-    void set_preloadCmake( bool yesNo )              { m_preloadCmake = yesNo;}
-    void set_preloadCpp( bool yesNo )                { m_preloadCpp = yesNo;}
-    void set_preloadCss( bool yesNo )                { m_preloadCss = yesNo;}
-    void set_preloadDoxy( bool yesNo )               { m_preloadDoxy = yesNo;}
-    void set_preloadErrLog( bool yesNo )             { m_preloadErrLog = yesNo;}
-    void set_preloadHtml( bool yesNo )               { m_preloadHtml = yesNo;}
-    void set_preloadJava( bool yesNo )                { m_preloadJava = yesNo;}
-    void set_preloadJs( bool yesNo )                 { m_preloadJs = yesNo;}
-    void set_preloadJson( bool yesNo )               { m_preloadJson = yesNo;}
-    void set_preloadMake( bool yesNo )               { m_preloadMake = yesNo;}
-    void set_preloadNone( bool yesNo )               { m_preloadNone = yesNo;}
-    void set_preloadNSI( bool yesNo )                { m_preloadNSI = yesNo;}
-    void set_preloadPhp( bool yesNo )                { m_preloadPhp = yesNo;}
-    void set_preloadPl( bool yesNo )                 { m_preloadPl = yesNo;}
-    void set_preloadPy( bool yesNo )                 { m_preloadPy = yesNo;}
-    void set_preloadSh( bool yesNo )                 { m_preloadSh = yesNo;}
-    void set_preloadTxt( bool yesNo )                { m_preloadTxt = yesNo;}
-    void set_preloadXml( bool yesNo )                { m_preloadXml = yesNo;}
-    void set_astyleOnSave( bool yesNo )              { m_astyleOnSave = yesNo;}
-    void set_makeBackups( bool yesNo )               { m_makeBackups = yesNo;}
+    void set_preloadClipper( bool yesNo )           { m_preloadClipper = yesNo;}
+    void set_preloadCmake( bool yesNo )             { m_preloadCmake = yesNo;}
+    void set_preloadCpp( bool yesNo )               { m_preloadCpp = yesNo;}
+    void set_preloadCss( bool yesNo )               { m_preloadCss = yesNo;}
+    void set_preloadDoxy( bool yesNo )              { m_preloadDoxy = yesNo;}
+    void set_preloadErrLog( bool yesNo )            { m_preloadErrLog = yesNo;}
+    void set_preloadHtml( bool yesNo )              { m_preloadHtml = yesNo;}
+    void set_preloadJava( bool yesNo )              { m_preloadJava = yesNo;}
+    void set_preloadJs( bool yesNo )                { m_preloadJs = yesNo;}
+    void set_preloadJson( bool yesNo )              { m_preloadJson = yesNo;}
+    void set_preloadMake( bool yesNo )              { m_preloadMake = yesNo;}
+    void set_preloadNone( bool yesNo )              { m_preloadNone = yesNo;}
+    void set_preloadNSI( bool yesNo )               { m_preloadNSI = yesNo;}
+    void set_preloadPhp( bool yesNo )               { m_preloadPhp = yesNo;}
+    void set_preloadPl( bool yesNo )                { m_preloadPl = yesNo;}
+    void set_preloadPy( bool yesNo )                { m_preloadPy = yesNo;}
+    void set_preloadSh( bool yesNo )                { m_preloadSh = yesNo;}
+    void set_preloadTxt( bool yesNo )               { m_preloadTxt = yesNo;}
+    void set_preloadXml( bool yesNo )               { m_preloadXml = yesNo;}
+    void set_astyleOnSave( bool yesNo )             { m_astyleOnSave = yesNo;}
+    void set_makeBackups( bool yesNo )              { m_makeBackups = yesNo;}
 
 
 private:
@@ -171,8 +168,6 @@ private:
     KeyDefinitions m_keys;
 };
 
-// TODO:: look up Enum Class - maybe put this Enum inside of Options class
-//
 enum SyntaxTypes {SYN_C, SYN_CLIPPER, SYN_CMAKE, SYN_CSS, SYN_DOXY, SYN_ERRLOG, SYN_HTML,
                   SYN_JAVA, SYN_JS, SYN_JSON, SYN_MAKE, SYN_NSIS, SYN_TEXT,
                   SYN_SHELL, SYN_PERL, SYN_PHP, SYN_PYTHON, SYN_XML,

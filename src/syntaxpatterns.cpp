@@ -131,8 +131,6 @@ QByteArray SyntaxPatterns::readSyntaxFile()
 
     if ( pattern_file.isEmpty() )
     {
-// TODO:: Need to see if it is possible to default to text syntax here.
-//        would also be nice if we could find which file name causes this.
         csError( tr( "Read Syntax File" ), tr( "Syntax file name was not supplied." ) );
         return data;
     }

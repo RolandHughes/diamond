@@ -71,7 +71,10 @@ public:
     // setters
     //
     void set_activeTheme( const QString &name )     { m_activeTheme = name;}
+    void set_syntaxPath( const QString path)        { m_options.set_syntaxPath(path); }
     void add_theme( Themes *theme );
+    void set_mainDictionary( const QString path)    { m_options.set_mainDictionary(path); }
+    void set_userDictionary( const QString path)    { m_options.set_userDictionary(path); }
 
 
 private:
@@ -121,7 +124,7 @@ private:
     void trimBackups( QString path );
     void createThemeArray( QJsonObject &object );
 
-    bool load(); // TODO:: need ability to check for old version and convert it
+    bool load();
     void save();
 
 
@@ -169,18 +172,15 @@ private:
     bool            m_showLineNumbers;
     bool            m_showSpaces;
 
-    // TODO:: We need to change this to be a pointer and not delete
-    //        the "newed" object until it needs to be removed from QMap.
-    //        Really need to test this out with Valgrind.
-    //        I don't think the explaination below actually covers a solid copy of a dynamically created object.
-    //
     /*
-     *   The way it works is as follows:
+     *   The way object cleanup works is as follows:
      *
      * Parented QObject instances are destroyed by their parent
      * Unparented QObject instances are not destroyed by anyone, you must call QObject::deleteLater()
      * At the end of the program, static Singleton instances should be destroyed in program shutdown
-    */
+     * Need to run Valgrind or something to find out what happens when QMap makes a solid copy of
+     * a dynamically allocated theme.
+     */
 
     QMap <QString, Themes> m_themes;
 
