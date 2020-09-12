@@ -84,6 +84,8 @@ SyntaxPatterns::SyntaxPatterns( QString fileName ) :
         constant_Patterns.append( list.at( k ).toString() );
     }
 
+    qDebug() << "constant_Patterns: " << constant_Patterns;
+
     // single line comment
     commentSingle = object.value( "comment-single" ).toString();
 
@@ -128,6 +130,8 @@ SyntaxPatterns &SyntaxPatterns::operator = ( const SyntaxPatterns &other )
 QByteArray SyntaxPatterns::readSyntaxFile()
 {
     QByteArray data;
+
+    qDebug() << "pattern_file: " << pattern_file;
 
     if ( pattern_file.isEmpty() )
     {

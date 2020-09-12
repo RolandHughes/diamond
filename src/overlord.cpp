@@ -94,13 +94,16 @@ bool Overlord::set_configFileName( QString name )
     if ( retVal )
     {
         m_isComplete = true;
+        connect( &m_broadcastTimer, &QTimer::timeout, this, &Overlord::checkForBroadcast );
+        connect( &m_flushTimer, &QTimer::timeout, this, &Overlord::checkForChange );
+
         m_flushTimer.start( 30000 );   // flush to disk at most every 30 seconds
         m_broadcastTimer.start( 3000 ); // broadcast up to once every 3 seconds
 
         preloadSyntax();
+        qDebug() << "emitting preloadComplete()";
+        preloadComplete();
 
-        connect( &m_broadcastTimer, &QTimer::timeout, this, &Overlord::checkForBroadcast );
-        connect( &m_flushTimer, &QTimer::timeout, this, &Overlord::checkForChange );
     }
 
     return retVal;
@@ -664,6 +667,9 @@ void Overlord::replaceListMove( int index, int dest )
 
 SyntaxPatterns *Overlord::getSyntaxPatterns( QString fileName )
 {
+    qDebug() << "getSyntaxPatterns() called with: " << fileName;
+    qDebug() << "keys(): " << m_syntaxPatterns.keys();
+
     if ( !m_syntaxPatterns.contains( fileName ) )
     {
         m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
@@ -690,6 +696,7 @@ void Overlord::preloadSyntax()
 
     if ( m_settings.m_options.preloadCpp() )
     {
+        qDebug() << "preloading CPP";
         fileName = m_settings.syntaxPath() + "syn_cpp.json";
         m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
     }
@@ -780,6 +787,7 @@ void Overlord::preloadSyntax()
 
     if ( m_settings.m_options.preloadTxt() )
     {
+        qDebug() << "preloading txt";
         fileName = m_settings.syntaxPath() + "syn_txt.json";
         m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
     }
@@ -818,20 +826,20 @@ void Overlord::set_edtLastDeletedChar( QString c )
     checkForBroadcast();        // needs to go out immediately in case cut and paste between buffers
 }
 
-void Overlord::set_syntaxPath( const QString path)
+void Overlord::set_syntaxPath( const QString path )
 {
-    m_settings.set_syntaxPath( path);
+    m_settings.set_syntaxPath( path );
     markToNotify();
 }
 
-void Overlord::set_mainDictionary( const QString path)
+void Overlord::set_mainDictionary( const QString path )
 {
-    m_settings.set_mainDictionary( path);
+    m_settings.set_mainDictionary( path );
     markToNotify();
 }
 
-void Overlord::set_userDictionary( const QString path)
+void Overlord::set_userDictionary( const QString path )
 {
-    m_settings.set_userDictionary( path);
+    m_settings.set_userDictionary( path );
     markToNotify();
 }

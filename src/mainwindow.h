@@ -82,6 +82,9 @@ public:
     CS_SLOT_1( Public, void startupStep3() )
     CS_SLOT_2( startupStep3 )
 
+    CS_SIGNAL_1( Public, void nextStartupStep() )
+    CS_SIGNAL_2( nextStartupStep )
+
     void showEdtHelp();
     void split_Horizontal();
     void split_Vertical();
@@ -200,6 +203,7 @@ private:
     // status bar
     QLabel *m_statusLine;
     QLabel *m_statusMode;
+    QLabel *m_statusReadWrite;
     QLabel *m_statusName;
 
     void openDoc( QString path );
@@ -220,7 +224,7 @@ private:
     void setStatus_ColMode();
     void setStatus_FName( QString name );
     void showNotDone( QString item );
-
+    void setStatus_ReadWrite( bool yesNo );
 
     QString get_SyntaxPath( QString syntaxPath );
     QString get_xxFile( QString title, QString fname, QString filter );
@@ -246,7 +250,8 @@ private:
     bool saveFile( QString fileName, Overlord::SaveFiles saveType );
     bool saveAs( Overlord::SaveFiles saveType );
 
-    void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false, bool isAutoLoad = false );
+    void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false, bool isAutoLoad = false,
+                          bool isReadOnly = false );
     void setDiamondTitle( const QString title );
     void forceSyntax( SyntaxTypes data );
     QString get_curFileName( int whichTab );
@@ -375,7 +380,7 @@ private:
     CS_SLOT_2( advFind_View )
 
     void showBackups();
-    void show_backups(QString fileName);
+    void show_backups( QString fileName, SyntaxTypes syntaxType );
 
     // copy buffer
     void showCopyBuffer();

@@ -84,33 +84,23 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     m_actionCopyBuffer = new QShortcut( this );
     connect( m_actionCopyBuffer, &QShortcut::activated, this, &MainWindow::showCopyBuffer );
 
-    // screen setup
-    createShortCuts( true );
-    createToolBars();
-    createStatusBar();
-    createToggles();
-    createConnections();
+    // set flags after reading config and before autoload
+    if ( m_flagList.contains( "--no_autoload", Qt::CaseInsensitive ) )
+    {
+        Overlord::getInstance()->set_flagNoAutoLoad( true );
+    }
 
-    m_refocusTimer = new QTimer( this );
-    m_refocusTimer->setInterval( 500 );
+    if ( m_flagList.contains( "--no_saveconfig", Qt::CaseInsensitive ) )
+    {
+        Overlord::getInstance()->set_flagNoSaveConfig( true );
+    }
 
-    connect( m_refocusTimer, &QTimer::timeout, this, &MainWindow::refocusTab );
-
-
-    // put off file loading, etc. until after the user can see the editor.
-    // this also ensures the event loop is running because the slot won't be
-    // executed until the event can be processed.
-    //
-    QTimer::singleShot( 150, this, SLOT( startupStep2() ) );
-
-}
-
-void MainWindow::startupStep2()
-{
     // Because the user "could" be prompted to choose a file or location
     // this critical part of Settings has to be done here.
     //
     getConfigFileName();
+
+    connect( Overlord::getInstance(), &Overlord::preloadComplete, this, &MainWindow::startupStep2, Qt::QueuedConnection );
 
     if ( ! Overlord::getInstance()->set_configFileName( m_configFileName ) )
     {
@@ -118,6 +108,46 @@ void MainWindow::startupStep2()
         csError( tr( "Configuration File Missing" ), tr( "Unable to locate or open the Diamond Configuration file." ) );
         throw std::runtime_error( "abort_no_message" );
     }
+
+    QString syntaxPath = Overlord::getInstance()->syntaxPath();
+
+    if ( ! QFile::exists( syntaxPath + "syn_txt.json" ) )
+    {
+        Overlord::getInstance()->set_syntaxPath( get_SyntaxPath( syntaxPath ) );
+    }
+
+
+    if ( ! QFile::exists( Overlord::getInstance()->mainDictionary() ) )
+    {
+        Overlord::getInstance()->set_mainDictionary( get_xxFile( "Dictionary File (*.dic)", "en_US.dic", "Dictionary Files (*.dic)" ) );
+    }
+
+    Overlord::getInstance()->set_userDictionary( pathName( Overlord::getInstance()->mainDictionary() ) + "/userDict.txt" );
+
+    if ( ! QFile::exists( Overlord::getInstance()->mainDictionary() ) )
+    {
+        // add missing file
+        QFile temp( Overlord::getInstance()->mainDictionary() );
+        temp.open( QIODevice::WriteOnly );
+        temp.close();
+    }
+
+
+    m_refocusTimer = new QTimer( this );
+    m_refocusTimer->setInterval( 500 );
+
+    connect( m_refocusTimer, &QTimer::timeout, this, &MainWindow::refocusTab );
+
+}
+
+void MainWindow::startupStep2()
+{
+    // screen setup
+    createShortCuts( true );
+    createToolBars();
+    createStatusBar();
+    createToggles();
+    createConnections();
 
     QProcess astyleCheck( this );
 
@@ -135,28 +165,6 @@ void MainWindow::startupStep2()
         }
     }
 
-    QString syntaxPath = Overlord::getInstance()->syntaxPath();
-
-        if ( ! QFile::exists( syntaxPath + "syn_txt.json" ) )
-        {
-            Overlord::getInstance()->set_syntaxPath( get_SyntaxPath( syntaxPath ));
-        }
-
-
-        if ( ! QFile::exists( Overlord::getInstance()->mainDictionary() ) )
-        {
-            Overlord::getInstance()->set_mainDictionary( get_xxFile( "Dictionary File (*.dic)", "en_US.dic", "Dictionary Files (*.dic)" ));
-        }
-
-        Overlord::getInstance()->set_userDictionary( pathName( Overlord::getInstance()->mainDictionary() ) + "/userDict.txt");
-
-        if ( ! QFile::exists( Overlord::getInstance()->mainDictionary() ) )
-        {
-            // add missing file
-            QFile temp( Overlord::getInstance()->mainDictionary() );
-            temp.open( QIODevice::WriteOnly );
-            temp.close();
-        }
 
     // recent folders
     rfolder_CreateMenus();
@@ -180,18 +188,6 @@ void MainWindow::startupStep2()
     m_ui->menuWindow->setContextMenuPolicy( Qt::CustomContextMenu );
     connect( m_ui->menuWindow, &QMenu::customContextMenuRequested, this, &MainWindow::showContext_Tabs );
 
-    // set flags after reading config and before autoload
-    if ( m_flagList.contains( "--no_autoload", Qt::CaseInsensitive ) )
-    {
-        Overlord::getInstance()->set_flagNoAutoLoad( true );
-    }
-
-    if ( m_flagList.contains( "--no_saveconfig", Qt::CaseInsensitive ) )
-    {
-        Overlord::getInstance()->set_flagNoSaveConfig( true );
-    }
-
-    qDebug() << "lastPosition: " << Overlord::getInstance()->lastPosition() << "  lastSize: " << Overlord::getInstance()->lastSize();
     this->move( Overlord::getInstance()->lastPosition() );
     this->resize( Overlord::getInstance()->lastSize() );
 
@@ -199,14 +195,16 @@ void MainWindow::startupStep2()
     connect( Overlord::getInstance(), &Overlord::Resize, this, &MainWindow::Resize );
 
     // Let the queue drain before we autoload any files
-    QTimer::singleShot( 150, this, SLOT( startupStep3() ) );
+    connect( this, &MainWindow::nextStartupStep, this, &MainWindow::startupStep3, Qt::QueuedConnection );
 
+    nextStartupStep();  // use of queued connection allows us to drain the event queue
 }
 
 void MainWindow::startupStep3()
 {
     if ( Overlord::getInstance()->autoLoad() && ! Overlord::getInstance()->flagNoAutoLoad() )
     {
+        qDebug() << "startupStep3 about to run autoLoad";
         autoLoad();
     }
 
@@ -348,7 +346,7 @@ void MainWindow::tabChanged( int index )
         m_noSplit_textEdit = m_textEdit;
 
         m_curFile = this->get_curFileName( index );
-        this->setCurrentTitle( m_curFile, true );
+        this->setCurrentTitle( m_curFile, true, false, false, m_textEdit->isReadOnly() );
 
         // **
         setStatus_LineCol();
@@ -375,6 +373,7 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
 
     if ( t_textEdit )
     {
+
         if ( m_textEdit->m_owner == t_textEdit->m_owner )
         {
             // do nothing
@@ -395,6 +394,7 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
                 m_curFile = get_curFileName( index );
 
                 setStatus_FName( m_curFile );
+                setStatus_ReadWrite( m_textEdit->isReadOnly() );
 
 
             }
@@ -404,7 +404,7 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
 
                 m_curFile = m_splitFileName;
                 setStatus_FName( m_curFile );
-
+                setStatus_ReadWrite( m_textEdit->isReadOnly() );
             }
 
             setStatus_LineCol();
@@ -416,6 +416,8 @@ void MainWindow::focusChanged( QWidget *prior, QWidget *current )
             show_Breaks();
 
         }
+
+        refocusTab();
     }
 }
 
@@ -540,7 +542,7 @@ void MainWindow::createConnections()
     connect( m_ui->actionShow_Breaks,       &QAction::triggered, this, &MainWindow::show_Breaks );
     connect( m_ui->actionDisplay_HTML,      &QAction::triggered, this, &MainWindow::displayHTML );
     connect( m_ui->actionClipboard,         &QAction::triggered, this, &MainWindow::showClipboard );
-    connect( m_ui->actionBackups,           &QAction::triggered, this, &MainWindow::showBackups);
+    connect( m_ui->actionBackups,           &QAction::triggered, this, &MainWindow::showBackups );
 
     // document
     connect( m_ui->actionSyn_C,             &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_C );       } );
@@ -652,7 +654,7 @@ void MainWindow::createToggles()
     m_ui->actionCut->setEnabled( false );
     m_ui->actionCopy->setEnabled( false );
 
-    m_ui->actionBackups->setEnabled( Overlord::getInstance()->backupDirectory().length() > 1);
+    m_ui->actionBackups->setEnabled( Overlord::getInstance()->backupDirectory().length() > 1 );
 
     connect( m_tabWidget, &QTabWidget::currentChanged,    this, &MainWindow::tabChanged );
     connect( m_tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::tabClose );
@@ -820,16 +822,16 @@ void MainWindow::createToolBars()
 void MainWindow::createStatusBar()
 {
     m_statusLine = new QLabel( "", this );
-    //m_statusLine->setFrameStyle(QFrame::Panel| QFrame::Sunken);
 
     m_statusMode = new QLabel( "", this );
-    //m_statusMode->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
     m_statusName = new QLabel( "", this );
-    //m_statusName->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+
+    m_statusReadWrite = new QLabel( "", this );
 
     statusBar()->addPermanentWidget( m_statusLine, 0 );
     statusBar()->addPermanentWidget( m_statusMode, 0 );
+    statusBar()->addPermanentWidget( m_statusReadWrite, 0 );
     statusBar()->addPermanentWidget( m_statusName, 0 );
 }
 

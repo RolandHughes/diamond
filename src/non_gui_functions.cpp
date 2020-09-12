@@ -107,7 +107,6 @@ bool validAstyleSuffix( QString suffix )
     if ( cppList.contains( suffix.toLower() ) )
     {
         retVal = true;
-
     }
 
     return retVal;

@@ -347,6 +347,8 @@ void MainWindow::split_NameChanged( int data )
             // get document matching the file name
             m_split_textEdit->setDocument( textEdit->document() );
 
+            m_split_textEdit->setReadOnly( textEdit->isReadOnly() );
+
             if ( m_split_textEdit->get_ColumnMode() )
             {
                 m_split_textEdit->setFont( Overlord::getInstance()->fontColumn() );
@@ -368,6 +370,7 @@ void MainWindow::split_NameChanged( int data )
             //
             m_curFile = m_splitFileName;
             setStatus_FName( m_curFile );
+            setStatus_ReadWrite( m_textEdit->isReadOnly() );
 
             // ** retrieve slected syntax type
 //       m_syntaxParser = m_textEdit->get_SyntaxParser();

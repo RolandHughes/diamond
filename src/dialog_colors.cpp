@@ -80,6 +80,8 @@ Dialog_Colors::Dialog_Colors( QWidget *parent )
     connect( m_ui->export_button,     &QPushButton::clicked, this, &Dialog_Colors::exportClicked );
     connect( m_ui->import_button,     &QPushButton::clicked, this, &Dialog_Colors::importClicked );
 
+    connect( m_ui->sample, &DiamondTextEdit::cursorPositionChanged, m_ui->sample, &DiamondTextEdit::moveBar );
+
     rebuildComboBox( false );
 }
 

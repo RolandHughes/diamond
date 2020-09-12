@@ -45,6 +45,7 @@
 #include <QThread>
 #include <QStringParser>
 #include <QFileDialog>
+#include <QUuid>
 
 static const int MESSAGE_TIME = 3000;
 
@@ -2267,6 +2268,13 @@ void DiamondTextEdit::changeFont()
 //
 bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 {
+    if ( isReadOnly() )
+    {
+        timedMessage( tr( "Buffer is read Only" ), MESSAGE_TIME );
+        qDebug() << "caught typing in read only buffer";
+        return true;
+    }
+
     // don't let modifier keypress hose up GOLD key logic
     //
     QString keyStr = QKeySequence( key, modifiers ).toString( QKeySequence::NativeText );
@@ -3335,7 +3343,66 @@ void DiamondTextEdit::clearEdtSelection()
     setTextCursor( cursor );
 }
 
-void DiamondTextEdit::astyleBuffer( bool needToWait )
+/*
+ *  Used by AStyle on save and potentially other places.
+ *  The main difference between astyleBuffer and AstyleNewBuffer is here we
+ *  not only wait for completion but return the buffer. The caller is responsible
+ *  for making changes to the actual document this editor instance has.
+ *
+ *  This method exists because the syntax highlighting of files containing several
+ *  thousand lines is very slow. The straight forward approach of letting the buffer
+ *  be styled before writing to disk can lead to zero length files being written. It's
+ *  a timing thing.
+ *
+ *  If you save with AstyleOnSave set to true while an Astyle is running, this method
+ *  will launch another Astyle process. AstyleBuffer will throw up an error message.
+ */
+
+QByteArray DiamondTextEdit::astyleNewBuffer()
+{
+    QByteArray retVal;
+
+    timedMessage( tr( "Styling . . ." ), 0 );
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+    QString uuidStr = QUuid::createUuid().toString();
+    uuidStr.remove( "-" );
+    uuidStr.remove( "{" );
+    uuidStr.remove( "}" );
+    QString fname = QString( "ANB_%1_%2" ).formatArgs( uuidStr, strippedName( m_curFile ).toLower() );
+
+    QDir tDir( Overlord::getInstance()->tempDir() );
+    QString aStyleFile = tDir.absoluteFilePath( fname );
+    QFile tFile( aStyleFile );
+
+    if ( tFile.exists() )
+    {
+        tFile.remove();
+    }
+
+    tFile.open( QIODevice::WriteOnly | QIODevice::Text );
+    tFile.write( this->toPlainText().toUtf8() );
+    tFile.flush();
+    tFile.close();
+
+    QProcess *astyleProcess = new QProcess( this );
+
+    QString command = QString( "astyle --stdin=\"%1\"" );
+    command = QStringParser::formatArg( command, tFile.fileName() );
+
+    QTextCursor lastCursorPos = textCursor();
+    astyleProcess->start( command );
+    astyleProcess->waitForFinished();
+    retVal = astyleProcess->readAllStandardOutput();
+
+    timedMessage( tr( "Styling finished" ), 1500 );
+    astyleProcess->deleteLater();
+    QApplication::restoreOverrideCursor();
+
+    return retVal;
+
+}
+
+void DiamondTextEdit::astyleBuffer()
 {
     if ( m_astyleProcess )
     {
@@ -3343,15 +3410,20 @@ void DiamondTextEdit::astyleBuffer( bool needToWait )
         return;
     }
 
-    timedMessage( tr( "Styling . . ." ), 0 );
-    QApplication::setOverrideCursor( Qt::WaitCursor );
-    QString fname = strippedName( m_curFile ).toLower();
-
-    if ( fname.length() <= 1 )
+    if ( !validAstyleSuffix( suffixName( m_curFile ) ) )
     {
-        csError( tr( "Astle" ), tr( "Need a valid file name" ) );
-        return;
+        timedMessage( tr( "Not a supported file extension for styling" ), 1500 );
     }
+
+    timedMessage( tr( "Styling . . ." ), 0 );
+
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+
+    QString uuidStr = QUuid::createUuid().toString();
+    uuidStr.remove( "-" );
+    uuidStr.remove( "{" );
+    uuidStr.remove( "}" );
+    QString fname = QString( "ab_%1_%2" ).formatArgs( uuidStr, strippedName( m_curFile ).toLower() );
 
     QDir tDir( Overlord::getInstance()->tempDir() );
     QString aStyleFile = tDir.absoluteFilePath( fname );
@@ -3377,34 +3449,24 @@ void DiamondTextEdit::astyleBuffer( bool needToWait )
     Overlord::getInstance()->set_lastActiveColumn( lastCursorPos.positionInBlock() );
 
 
-    if ( !needToWait )
+    connect( m_astyleProcess, static_cast<void( QProcess::* )( int, QProcess::ExitStatus )>( &QProcess::finished ),
+             this, &DiamondTextEdit::astyleComplete );
+
+    connect( m_astyleProcess, static_cast<void( QProcess::* )( QProcess::ProcessError )>( &QProcess::errorOccurred ),
+             this, &DiamondTextEdit::astyleError );
+
+    m_astyleProcess->start( command );
+
+
+    bool retVal = m_astyleProcess->waitForStarted();
+
+    if ( !retVal )
     {
-        connect( m_astyleProcess, static_cast<void( QProcess::* )( int, QProcess::ExitStatus )>( &QProcess::finished ),
-                 this, &DiamondTextEdit::astyleComplete );
-
-        connect( m_astyleProcess, static_cast<void( QProcess::* )( QProcess::ProcessError )>( &QProcess::errorOccurred ),
-                 this, &DiamondTextEdit::astyleError );
-
-        m_astyleProcess->start( command );
-
-
-        bool retVal = m_astyleProcess->waitForStarted();
-
-        if ( !retVal )
-        {
-            QString errStr = QString( m_astyleProcess->readAllStandardError() );
-            csError( tr( "Astyle" ), errStr );
-            csError( tr( "AStyle" ), tr( "AStyle must be installed and in execution path to use this feature" ) );
-            m_astyleProcess->deleteLater();
-            m_astyleProcess = nullptr;
-        }
-    }
-    else
-    {
-        QTextCursor lastCursorPos = textCursor();
-        m_astyleProcess->start( command );
-        m_astyleProcess->waitForFinished();
-        astyleComplete( 0, QProcess::NormalExit );
+        QString errStr = QString( m_astyleProcess->readAllStandardError() );
+        csError( tr( "Astyle" ), errStr );
+        csError( tr( "AStyle" ), tr( "AStyle must be installed and in execution path to use this feature" ) );
+        m_astyleProcess->deleteLater();
+        m_astyleProcess = nullptr;
     }
 }
 

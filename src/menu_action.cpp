@@ -378,6 +378,7 @@ bool MainWindow::saveAs( Overlord::SaveFiles saveType )
         }
     }
 
+
     // force windows 7 and 8 to honor initial path
     options = QFileDialog::ForceInitialDir_Win7;
 

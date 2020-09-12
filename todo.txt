@@ -1,5 +1,16 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
+*) Replace mainwindow step timer with queued connection from Overlord. I think what happens is the list asks for syntax before it is loaded and we return an empty syntax or fail to load syntax.
+
+    Autoload is happening before we have the syntax fully loaded. End up with just basic theme colors.
+
+
+*) Each Theme should provide its own colors for selected text
+    QPallette roles
+    QPalette::Highlight
+    QPalette::HighlightedText
+
+
 *) Fix macro save - make it actually happen - test create-use-save-reload of macros
     from menu_action.cpp
     m_textEdit->macroStart();
@@ -9,6 +20,8 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
     Global list should now be in Settings. Only the global list should be saved and loaded.
     EDT keys might need some work to be part of macro.
 
+*) test out macro save/load/use. I really butchered that.
+
 *) Create Debian build script  Use IPOS debian build as a guide. Need to create .desktop file as well. .desktop should change binary path based on installation directory.
 
 *) read documentation for QSyntaxHighlighter in CopperSpice
@@ -16,19 +29,19 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
    if so add option to turn on "matching" highlight
     ~/Downloads/qq31-parenthesis.zip  source code for QtQuarterly31.pdf shows how to do parentesis matching. Should be able to expand for handle <> [] {} as well as ()
 
-*) Make EDT Prompt appear at bottom of Window and be modal.
+*) Write up text about new features and changes.
 
-*) Look at first time run sequence for a Diamond install. There was some kind of dialog about creating a new default config file or a custom location.
-   Appears to only happen on Windows. Have to test there.
+
+*) DEL L does not work on wrapped line or very last line of file. Need to look into that.
+
+*) Make EDT Prompt appear at bottom of Window and be modal.
 
 *) EDT keys don't seem to work in split window/frame
 
 *) Need to be able to show FF character. It gets inserted, but does not show.  This will require gutting QPlainTextEdit I think. Need to see how it shows spaces and tabs.
 
 
-*) test out macro save/load/use. I really butchered that.
 
-*) debug regular expression to C/C++ definition for numeric constant
 
 
 *) File->new should NOT whack the first tab
@@ -57,6 +70,7 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
    continuation/comment indicator in column 7. Columns 73-80 are additinoal ignored comments.
 
 *) Get ^M substitution working for EDT search. The problem isn't the substitution. The problem is the "blocks" in QPlainTextEdit. The new line character isn't in the actual text. Have to write a custom search that looks for a block starting with everything after ^M and then checks the end of the preceeding block to see that it matches.
+
 
 
 =====

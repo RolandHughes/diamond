@@ -304,11 +304,9 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
     //  with all of the highlighting.
     QApplication::processEvents();
 
-    m_textEdit->setReadOnly( isReadOnly );
-
     if ( m_textEdit->m_owner == "tab" )
     {
-        setCurrentTitle( fileName, false, isReload );
+        setCurrentTitle( fileName, false, isReload, isAuto, isReadOnly );
     }
 
     QApplication::restoreOverrideCursor();
@@ -429,16 +427,43 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
     {
         QString suffix = suffixName( fileName ).toLower();
 
+        QTextCursor lastCursorPos( m_textEdit->textCursor() );
+
+        int row = lastCursorPos.blockNumber();
+        int column = lastCursorPos.positionInBlock();
+
         if ( validAstyleSuffix( suffix ) )
         {
-            m_textEdit->astyleBuffer( true );
+            QByteArray styledText = m_textEdit->astyleNewBuffer();
+
+            if ( styledText.size() > 0 )
+            {
+                file.write( styledText );
+                QString txt = QString::fromUtf8( styledText );
+                m_textEdit->setPlainText( txt );
+
+                QTextCursor cursor( m_textEdit->document()->findBlockByNumber( row ) );
+                cursor.movePosition( QTextCursor::StartOfLine );
+                cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, column - 1 );
+                m_textEdit->setTextCursor( cursor );
+                QApplication::processEvents();
+            }
         }
+        else
+        {
+            // just write the files that cannot be styled
+            setStatusBar( tr( "Styling produced a zero length file" ), 2000 );
+            file.write( m_textEdit->toPlainText().toUtf8() );
+        }
+
+
+    }
+    else
+    {
+        file.write( m_textEdit->toPlainText().toUtf8() );
     }
 
-
-    file.write( m_textEdit->toPlainText().toUtf8() );
     m_textEdit->document()->setModified( false );
-
     int index = Overlord::getInstance()->openedFilesFind( fileName );
 
     if ( index != -1 )
@@ -467,7 +492,7 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
 
 
 // title & status bar
-void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool isReload, bool isAutoLoad )
+void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool isReload, bool isAutoLoad, bool isReadOnly )
 {
     QString showName;
 
@@ -481,6 +506,7 @@ void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool 
         showName  = "untitled.txt";
 
         setStatus_FName( showName );
+        setStatus_ReadWrite( isReadOnly );
 
         // change the name on the tab to "untitled.txt"
         int index = m_tabWidget->currentIndex();
@@ -489,7 +515,9 @@ void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool 
         m_tabWidget->setTabWhatsThis( index, showName );
 
         if ( Overlord::getInstance()->isComplete() )
-        { m_textEdit->forceSyntax( SYN_TEXT ); }
+        {
+            m_textEdit->forceSyntax( SYN_TEXT );
+        }
 
     }
     else
@@ -500,6 +528,7 @@ void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool 
         showName  = m_curFile;
 
         setStatus_FName( m_curFile );
+        setStatus_ReadWrite( isReadOnly );
 
         // change the name on the tab to m_curFile
         int index = m_tabWidget->currentIndex();
@@ -518,6 +547,8 @@ void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool 
             m_textEdit->setSyntax( isAutoLoad );
         }
     }
+
+    m_textEdit->setReadOnly( isReadOnly );
 
     setDiamondTitle( showName );
 }
@@ -558,6 +589,18 @@ void MainWindow::setStatus_ColMode()
 void MainWindow::setStatus_FName( QString fullName )
 {
     m_statusName->setText( " " + fullName + "  " );
+}
+
+void MainWindow::setStatus_ReadWrite( bool yesNo )
+{
+    if ( yesNo )
+    {
+        m_statusReadWrite->setText( "ReadOnly" );
+    }
+    else
+    {
+        m_statusReadWrite->setText( "Write" );
+    }
 }
 
 
@@ -698,18 +741,12 @@ void MainWindow::backupAndTrim( QString fileName )
     // TODO:: QFile::copy() is busted.
     //        Need to see how long before QFile::copy() will be fixed.
     //
-    //  No bout-a-doubt-it this sucks
-    //
-
-    qDebug() << "fileName: " << fileName;
-    qDebug() << "destName: " << destName; //
 
     std::error_code ec;
 
     fs::copy( fileName.toStdString(), destName.toStdString(), ec );
 
     QString ecStr = QString::fromStdString( ec.message() );
-    qDebug() << "ec: " << ecStr; // How can this tell me success when it copies a zero length file? The input is over 19K bytes.
 
     // NOTE: maxVersions from overlord is the maximum number of backup versions
     //       to keep around. If set to 12 we will dutifully keep up to 12,

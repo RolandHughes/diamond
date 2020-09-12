@@ -44,7 +44,8 @@ public:
     CS_SIGNAL_1( Public, void Resize( QSize size ) )
     CS_SIGNAL_2( Resize, size )
 
-
+    CS_SIGNAL_1( Public, void preloadComplete() )
+    CS_SIGNAL_2( preloadComplete )
 
     // Getters
     //
@@ -255,9 +256,9 @@ public:
     void set_edtLastDeletedWord( QString word );
     void set_edtLastDeletedLine( QString line );
     void set_edtLastDeletedChar( QString c );  // because JSON doesn't do QChar
-    void set_syntaxPath( const QString path);
-    void set_mainDictionary( const QString path);
-    void set_userDictionary( const QString path);
+    void set_syntaxPath( const QString path );
+    void set_mainDictionary( const QString path );
+    void set_userDictionary( const QString path );
 
 
     void openedFilesClear();

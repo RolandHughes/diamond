@@ -420,20 +420,20 @@ void MainWindow::findRecursive( const QString &path, bool isFirstLoop )
 
 void MainWindow::showBackups()
 {
-    if (m_textEdit)
+    if ( m_textEdit )
     {
-        if (m_textEdit->currentFile().length() > 0)
+        if ( m_textEdit->currentFile().length() > 0 )
         {
-            show_backups(m_textEdit->currentFile());
+            show_backups( m_textEdit->currentFile(), m_textEdit->get_SyntaxEnum() );
         }
     }
 }
 
-void MainWindow::show_backups(QString fileName)
+void MainWindow::show_backups( QString fileName, SyntaxTypes syntaxType )
 {
-    if (fileName.isEmpty() || fileName.length() < 1)
+    if ( fileName.isEmpty() || fileName.length() < 1 )
     {
-        csError( tr("Backups"), tr("no filename provided"));
+        csError( tr( "Backups" ), tr( "no filename provided" ) );
         return;
     }
 
@@ -450,13 +450,12 @@ void MainWindow::show_backups(QString fileName)
 
     QStringList backupFiles = backupDir.entryList( filters, QDir::Files | QDir::Writable, QDir::Name );
 
-    if (backupFiles.size() < 1)
+    if ( backupFiles.size() < 1 )
     {
-        csError( tr("Backups"), tr("no backups found"));
+        csError( tr( "Backups" ), tr( "no backups found" ) );
         return;
     }
 
-    qDebug() << "backupFiles: " << backupFiles;
 
     int index = m_splitter->indexOf( m_findWidget );
 
@@ -473,8 +472,8 @@ void MainWindow::show_backups(QString fileName)
 
     m_backupModel = new QStandardItemModel;
     m_backupModel->setColumnCount( 2 );
-    m_backupModel->setHeaderData( 0, Qt::Horizontal, tr( "File Name" ) );
-    m_backupModel->setHeaderData( 1, Qt::Horizontal, tr( "Last Modified" ) );
+    m_backupModel->setHeaderData( 0, Qt::Horizontal, tr( "Last Modified" ) );
+    m_backupModel->setHeaderData( 1, Qt::Horizontal, tr( "File Name" ) );
 
     view->setModel( m_backupModel );
 
@@ -496,9 +495,11 @@ void MainWindow::show_backups(QString fileName)
     for ( QString fName : backupFiles )
     {
 
-        QFileInfo info( backupDir, fName);
+        QFileInfo info( backupDir, fName );
+        QStandardItem *item0  = new QStandardItem( info.lastModified().toString( Qt::ISODate ) );
         QStandardItem *item1  = new QStandardItem( fName );
-        QStandardItem *item0  = new QStandardItem( info.lastModified().toString(Qt::ISODate));
+
+        item1->setData( syntaxType, Qt::UserRole );
 
         m_backupModel->insertRow( row );
         m_backupModel->setItem( row, 0, item0 );
@@ -633,7 +634,7 @@ void MainWindow::advFind_Close()
     m_refocusTimer->start();
 }
 
-void MainWindow::backup_View( const QModelIndex &index)
+void MainWindow::backup_View( const QModelIndex &index )
 {
     int row = index.row();
 
@@ -643,6 +644,7 @@ void MainWindow::backup_View( const QModelIndex &index)
     }
 
     QString fileName = m_backupModel->item( row,1 )->data( Qt::DisplayRole ).toString();
+    int     syntax   = m_backupModel->item( row,1 )->data( Qt::UserRole ).toInt();
 
     // is the file already open?
     bool open = false;
@@ -664,9 +666,10 @@ void MainWindow::backup_View( const QModelIndex &index)
     //
     if ( ! open )
     {
-        QDir backupDir( Overlord::getInstance()->backupDirectory());
-        QString fullName = backupDir.absoluteFilePath( fileName);
-        open = loadFile( fullName, true, false, true );
+        QDir backupDir( Overlord::getInstance()->backupDirectory() );
+        QString fullName = backupDir.absoluteFilePath( fileName );
+        open = loadFile( fullName, true, false, false, true );
+        m_textEdit->forceSyntax( static_cast<SyntaxTypes>( syntax ) );
     }
 
     m_refocusTimer->start();
