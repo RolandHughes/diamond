@@ -26,6 +26,7 @@ SyntaxPatterns::SyntaxPatterns( QString fileName ) :
 
     if ( data.isEmpty() )
     {
+        qDebug() << "  &&&&&&&&&&&&&& Failed to read pattern file: " << fileName;
         csError( "SyntaxPatters", QString( "Failed to read pattern file: %1" ).formatArg( fileName ) );
         return;
     }
@@ -84,8 +85,6 @@ SyntaxPatterns::SyntaxPatterns( QString fileName ) :
         constant_Patterns.append( list.at( k ).toString() );
     }
 
-    qDebug() << "constant_Patterns: " << constant_Patterns;
-
     // single line comment
     commentSingle = object.value( "comment-single" ).toString();
 
@@ -130,8 +129,6 @@ SyntaxPatterns &SyntaxPatterns::operator = ( const SyntaxPatterns &other )
 QByteArray SyntaxPatterns::readSyntaxFile()
 {
     QByteArray data;
-
-    qDebug() << "pattern_file: " << pattern_file;
 
     if ( pattern_file.isEmpty() )
     {

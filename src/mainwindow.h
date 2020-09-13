@@ -85,6 +85,9 @@ public:
     CS_SIGNAL_1( Public, void nextStartupStep() )
     CS_SIGNAL_2( nextStartupStep )
 
+    CS_SIGNAL_1( Public, void queueNextPart() )
+    CS_SIGNAL_2( queueNextPart )
+
     void showEdtHelp();
     void split_Horizontal();
     void split_Vertical();
@@ -144,6 +147,8 @@ private:
     QList<advFindStruct> advFind_getResults( bool &aborted );
     void findRecursive( const QString &path, bool isFirstLoop = true );
     void advFind_ShowFiles( QList<advFindStruct> foundList );
+
+    void onceEventLoopStarts();
 
     // replace
     int getReply();
@@ -250,8 +255,7 @@ private:
     bool saveFile( QString fileName, Overlord::SaveFiles saveType );
     bool saveAs( Overlord::SaveFiles saveType );
 
-    void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false, bool isAutoLoad = false,
-                          bool isReadOnly = false );
+    void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false, bool isReadOnly = false );
     void setDiamondTitle( const QString title );
     void forceSyntax( SyntaxTypes data );
     QString get_curFileName( int whichTab );

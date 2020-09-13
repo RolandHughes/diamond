@@ -198,7 +198,7 @@ public:
     void fixSpaces_Tab();
     void deleteEOL_Spaces();
     void rewrapParaphragh();
-    void setSyntax( bool skipQueueRun=false );
+    void setSyntax();
 
 
     // spell check

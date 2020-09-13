@@ -1994,7 +1994,7 @@ void DiamondTextEdit::setCurrentFile( QString fileName )
 }
 
 // **document
-void DiamondTextEdit::setSyntax( bool skipQueueRun )
+void DiamondTextEdit::setSyntax()
 {
     if ( m_syntaxParser )
     {
@@ -2083,11 +2083,17 @@ void DiamondTextEdit::setSyntax( bool skipQueueRun )
         // use default
         suffix   = "txt";
         synFName = m_settingsPtr->syntaxPath() + "syn_txt.json";
+        qDebug() << " defaulted to : " << synFName;
+    }
+    else
+    {
+        m_synFName = synFName;
     }
 
     //
     if ( ! QFile::exists( synFName ) )
     {
+        qDebug() << "defaulting to SYN_NONE";
         setSynType( SYN_NONE );
 
         m_syntaxEnum = SYN_NONE;
@@ -2196,10 +2202,7 @@ void DiamondTextEdit::setSyntax( bool skipQueueRun )
         // check the menu item
         setSynType( m_syntaxEnum );
 
-        if ( !skipQueueRun )
-        {
-            queueRunSyntax( synFName );
-        }
+        queueRunSyntax( synFName );
     }
 }
 

@@ -95,6 +95,14 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
         Overlord::getInstance()->set_flagNoSaveConfig( true );
     }
 
+    connect( this, &MainWindow::queueNextPart, this, &MainWindow::onceEventLoopStarts );
+
+    queueNextPart();
+
+}
+
+void MainWindow::onceEventLoopStarts()
+{
     // Because the user "could" be prompted to choose a file or location
     // this critical part of Settings has to be done here.
     //
@@ -113,6 +121,7 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
 
     if ( ! QFile::exists( syntaxPath + "syn_txt.json" ) )
     {
+        qDebug() << "syntax path not set in Overlord";
         Overlord::getInstance()->set_syntaxPath( get_SyntaxPath( syntaxPath ) );
     }
 
@@ -204,7 +213,6 @@ void MainWindow::startupStep3()
 {
     if ( Overlord::getInstance()->autoLoad() && ! Overlord::getInstance()->flagNoAutoLoad() )
     {
-        qDebug() << "startupStep3 about to run autoLoad";
         autoLoad();
     }
 
@@ -346,7 +354,7 @@ void MainWindow::tabChanged( int index )
         m_noSplit_textEdit = m_textEdit;
 
         m_curFile = this->get_curFileName( index );
-        this->setCurrentTitle( m_curFile, true, false, false, m_textEdit->isReadOnly() );
+        this->setCurrentTitle( m_curFile, true, false, m_textEdit->isReadOnly() );
 
         // **
         setStatus_LineCol();

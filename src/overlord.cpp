@@ -16,6 +16,7 @@
 #include <QThread>
 #include <QTime>
 #include <iostream>
+#include <QApplication>
 
 Overlord *Overlord::m_instance = nullptr;
 
@@ -101,7 +102,6 @@ bool Overlord::set_configFileName( QString name )
         m_broadcastTimer.start( 3000 ); // broadcast up to once every 3 seconds
 
         preloadSyntax();
-        qDebug() << "emitting preloadComplete()";
         preloadComplete();
 
     }
@@ -667,9 +667,6 @@ void Overlord::replaceListMove( int index, int dest )
 
 SyntaxPatterns *Overlord::getSyntaxPatterns( QString fileName )
 {
-    qDebug() << "getSyntaxPatterns() called with: " << fileName;
-    qDebug() << "keys(): " << m_syntaxPatterns.keys();
-
     if ( !m_syntaxPatterns.contains( fileName ) )
     {
         m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
@@ -696,7 +693,6 @@ void Overlord::preloadSyntax()
 
     if ( m_settings.m_options.preloadCpp() )
     {
-        qDebug() << "preloading CPP";
         fileName = m_settings.syntaxPath() + "syn_cpp.json";
         m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
     }
@@ -787,7 +783,6 @@ void Overlord::preloadSyntax()
 
     if ( m_settings.m_options.preloadTxt() )
     {
-        qDebug() << "preloading txt";
         fileName = m_settings.syntaxPath() + "syn_txt.json";
         m_syntaxPatterns[fileName] = new SyntaxPatterns( fileName );
     }

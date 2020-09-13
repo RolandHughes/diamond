@@ -306,7 +306,7 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
 
     if ( m_textEdit->m_owner == "tab" )
     {
-        setCurrentTitle( fileName, false, isReload, isAuto, isReadOnly );
+        setCurrentTitle( fileName, false, isReload, isReadOnly );
     }
 
     QApplication::restoreOverrideCursor();
@@ -492,7 +492,7 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
 
 
 // title & status bar
-void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool isReload, bool isAutoLoad, bool isReadOnly )
+void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool isReload, bool isReadOnly )
 {
     QString showName;
 
@@ -544,7 +544,7 @@ void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool 
 
         if ( ! tabChange && ! isReload )
         {
-            m_textEdit->setSyntax( isAutoLoad );
+            m_textEdit->setSyntax();
         }
     }
 
