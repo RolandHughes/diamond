@@ -26,8 +26,16 @@
 // ** file
 void MainWindow::newFile()
 {
-    // TODO:: this is wrong. It whacks the last opened tab. Needs to open a new tab.
-    //        never saw querySave();
+
+    // There might have been a valid reason to make File->new whack the existing tab contents instead of
+    // creating a new tab like every other tab based editor I've ever used. There was no comment here
+    // explaining that decision so I'm changing this to follow industry trends.
+    //
+    // More than once I whacked files I really wanted.
+    //
+    // As a compromise, if the current tab is completely empty we whack it. If not, we create a new
+    // tab.
+#if 0
     bool okClose = querySave();
 
     if ( okClose )
@@ -35,6 +43,23 @@ void MainWindow::newFile()
         m_textEdit->clear();
         setCurrentTitle( "" );
     }
+
+#else
+    qDebug() << "characterCount() : " << m_textEdit->document()->characterCount();
+
+    // for some reason an empty document has a characterCount of 1
+    //
+    if ( m_textEdit->document()->characterCount() > 1 )
+    {
+        tabNew();
+    }
+    else
+    {
+        m_textEdit->clear();
+        setCurrentTitle( "" );
+    }
+
+#endif
 }
 
 void MainWindow::open_RelatedFile()

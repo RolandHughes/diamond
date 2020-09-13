@@ -1,9 +1,6 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
-*) Replace mainwindow step timer with queued connection from Overlord. I think what happens is the list asks for syntax before it is loaded and we return an empty syntax or fail to load syntax.
-
-    Autoload is happening before we have the syntax fully loaded. End up with just basic theme colors.
-
+*) Create Debian build script  Use IPOS debian build as a guide. Need to create .desktop file as well. .desktop should change binary path based on installation directory.
 
 *) Each Theme should provide its own colors for selected text
     QPallette roles
@@ -22,7 +19,6 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
 *) test out macro save/load/use. I really butchered that.
 
-*) Create Debian build script  Use IPOS debian build as a guide. Need to create .desktop file as well. .desktop should change binary path based on installation directory.
 
 *) read documentation for QSyntaxHighlighter in CopperSpice
    see if there is any support for "matching" {(<
@@ -58,7 +54,7 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
     LINE 9999
     SUBSTITUTE   /QUERY   WHOLE | REST | BEFORE | SELECTION
 
-*) COBOL, FORTRAN, BASIC, and most other large installed base languages DO NOT support
+*) ANSI COBOL, FORTRAN IV, FORTRAN 77, DEC BASIC, and most other large installed base languages DO NOT support
  // or /* */ for comments. That part of Syntax Highlighting must be moved to the
  patters. For COBOL a comment is * in column 7 when using 72-column CARD format
  or as the first character in a line when using "free" format. Pick up a copy of
