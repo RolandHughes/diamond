@@ -7,9 +7,9 @@ cmake_policy(SET CMP0042 NEW)
 
 project(diamond)
 
-set(BUILD_MAJOR "1")
-set(BUILD_MINOR "3")
-set(BUILD_MICRO "4")
+set(BUILD_MAJOR "2")
+set(BUILD_MINOR "0")
+set(BUILD_MICRO "0")
 
 set(BUILD_COMPONENTS "diamond")
 
@@ -32,6 +32,16 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "(Linux|OpenBSD|FreeBSD|NetBSD|DragonFly)")
    include(GNUInstallDirs)
 
    set(CMAKE_INSTALL_RPATH "\$ORIGIN")
+
+   set(DIAMOND_INSTALLED_SIZE "150000")
+
+   # this architecture value is only used on the control file for a debian package.
+   # if the value is bogus or empty on other platforms it simply doesn't matter.
+   # 
+   EXECUTE_PROCESS( COMMAND dpkg --print-architecture  OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE DIAMOND_ARCHITECTURE)
+   
+
+   message( STATUS "Architecture: ${DIAMOND_ARCHITECTURE}")
 
    # lots of warnings and all warnings as errors
    add_compile_options(-Wall -Wextra -pedantic -Werror)
@@ -95,6 +105,32 @@ configure_file(
    ${CMAKE_SOURCE_DIR}/src/diamond_build_info.h.in
    src/diamond_build_info.h
 )
+
+if(CMAKE_SYSTEM_NAME MATCHES "(Linux|OpenBSD|FreeBSD|NetBSD|DragonFly)")
+    #  Update files needed for Debian
+    #  Note: You need to update DIAMOND_INSTALLED_SIZE to reflect current installed size
+    #
+    configure_file(
+       ${CMAKE_SOURCE_DIR}/deb_build.etc/control.in
+       deb_build.etc/control
+    )
+    
+    #  postrm has some heavy syntax - just copy
+    configure_file(
+       ${CMAKE_SOURCE_DIR}/deb_build.etc/postrm.in
+       deb_build.etc/postrm
+       COPYONLY
+    )
+    
+    #  hopefully we never need to replace values in rules
+    configure_file(
+       ${CMAKE_SOURCE_DIR}/deb_build.etc/rules.in
+       deb_build.etc/rules
+       COPYONLY
+    )
+
+endif()
+
 
 # location for building binary files
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

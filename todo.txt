@@ -1,6 +1,35 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
+*) Getting blank line after Architecture in control.
 *) Create Debian build script  Use IPOS debian build as a guide. Need to create .desktop file as well. .desktop should change binary path based on installation directory.
+
+*) Create Ubuntu 16.04 VM to test debian build on. if successful test install on 20.
+
+*) If you build with recent NVidia drivers installed you will have libOpenGL.os.0 as a dependency
+
+roland@roland-amd-desktop:~/Projects/diamond_debian/opt/diamond$ ldd diamond
+	linux-vdso.so.1 (0x00007fffbe183000)
+	libCsGui1.6.so => /home/roland/Projects/diamond_debian/opt/diamond/./libCsGui1.6.so (0x00007f425a8e0000)
+	libCsCore1.6.so => /home/roland/Projects/diamond_debian/opt/diamond/./libCsCore1.6.so (0x00007f4259e70000)
+	libhunspell-1.7.so.0 => /lib/x86_64-linux-gnu/libhunspell-1.7.so.0 (0x00007f4259de8000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f4259c00000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f4259be0000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f42599e8000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f42599c0000)
+	libOpenGL.so.0 => /lib/x86_64-linux-gnu/libOpenGL.so.0 (0x00007f4259990000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f4259970000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f4259820000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f425e220000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f4259818000)
+	libGLdispatch.so.0 => /lib/x86_64-linux-gnu/libGLdispatch.so.0 (0x00007f4259760000)
+
+
+
+
+
+
+
+
 
 *) Each Theme should provide its own colors for selected text
     QPallette roles
@@ -23,25 +52,17 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
 *) read documentation for QSyntaxHighlighter in CopperSpice
    see if there is any support for "matching" {(<
    if so add option to turn on "matching" highlight
-    ~/Downloads/qq31-parenthesis.zip  source code for QtQuarterly31.pdf shows how to do parentesis matching. Should be able to expand for handle <> [] {} as well as ()
-
-*) Write up text about new features and changes.
+    ~/Downloads/qq31-parenthesis.zip  source code for QtQuarterly31.pdf shows how to do parentesis matching. Should be able to expand to handle <> [] {} as well as ()
 
 
 *) DEL L does not work on wrapped line or very last line of file. Need to look into that.
 
 *) Make EDT Prompt appear at bottom of Window and be modal.
 
-*) EDT keys don't seem to work in split window/frame
+*) EDT keys don't seem to always work in split window/frame - should be fixed by CsPlainTextEditor class creation.
 
-*) Need to be able to show FF character. It gets inserted, but does not show.  This will require gutting QPlainTextEdit I think. Need to see how it shows spaces and tabs.
+*) Need to be able to show FF character. It gets inserted, but does not show.  This will require gutting QPlainTextEdit I think. Need to see how it shows spaces and tabs and add this feature to CsPlainTextEditor class.
 
-
-
-
-
-*) File->new should NOT whack the first tab
-*) File->New should not be whacking the current file tab, it should always create a new tab even if there is an empty tab.
 
 *) add support for EDT commands
     S|some-text|new-text|sel   wh  rest
@@ -53,6 +74,7 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
     See what other EDT and LSE commands are worth adding.
     LINE 9999
     SUBSTITUTE   /QUERY   WHOLE | REST | BEFORE | SELECTION
+    probably add Astyle command
 
 *) ANSI COBOL, FORTRAN IV, FORTRAN 77, DEC BASIC, and most other large installed base languages DO NOT support
  // or /* */ for comments. That part of Syntax Highlighting must be moved to the
@@ -70,27 +92,24 @@ file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
 
 =====
-Linux dependencies for .DEB creation
 
-roland@roland-amd-desktop:~/Projects/diamond_debug$ ldd diamond
-	linux-vdso.so.1 (0x00007ffe28113000)
-	libCsGui1.6.so => /home/roland/Projects/diamond_debug/./libCsGui1.6.so (0x00007f2bc65e8000)
-	libCsCore1.6.so => /home/roland/Projects/diamond_debug/./libCsCore1.6.so (0x00007f2bc5b78000)
-	libhunspell-1.7.so.0 => /lib/x86_64-linux-gnu/libhunspell-1.7.so.0 (0x00007f2bc5af0000)
-	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f2bc5908000)
-	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f2bc58e8000)
-	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f2bc56f0000)
-	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f2bc56c8000)
-	libOpenGL.so.0 => /lib/x86_64-linux-gnu/libOpenGL.so.0 (0x00007f2bc5698000)
-	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f2bc5678000)
-	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f2bc5528000)
-	/lib64/ld-linux-x86-64.so.2 (0x00007f2bca048000)
-	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f2bc5520000)
-	libGLdispatch.so.0 => /lib/x86_64-linux-gnu/libGLdispatch.so.0 (0x00007f2bc5468000)
-roland@roland-amd-desktop:~/Projects/diamond_debug$
+roland@roland-amd-desktop:~/Projects/diamond_debug$ du -ks
+146632	.
 
-libc6 (>= 2.31)
-libstdc++6 (>= 10)
-zlib1g
-hunspell
-libOpenGl (>= 1.3.1)
+roland@roland-amd-desktop:~$ du -sk Projects/diamond_debug
+146632	Projects/diamond_debug
+
+diamond_build/src/diamond_build_info.h
+
+constexpr const char *versionString = "1.3.4";
+
+need to grep for *versionString then sed to chop everything after = and remove quotes along with ;. That value needs to be thumped into the Version: line of control.
+
+re='^[0-9]+$'
+if [[ $version =~ $re ]] ; then
+    sed -i "s/Version: .*/Version: ${version}/g" build.etc/control
+    if [ $? -ne 0 ]; then
+    	echo "Replace version string in control file failed"
+    	exit 1
+    fi
+fi

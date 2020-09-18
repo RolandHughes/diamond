@@ -71,10 +71,10 @@ public:
     // setters
     //
     void set_activeTheme( const QString &name )     { m_activeTheme = name;}
-    void set_syntaxPath( const QString path)        { m_options.set_syntaxPath(path); }
+    void set_syntaxPath( const QString path )        { m_options.set_syntaxPath( path ); }
     void add_theme( Themes *theme );
-    void set_mainDictionary( const QString path)    { m_options.set_mainDictionary(path); }
-    void set_userDictionary( const QString path)    { m_options.set_userDictionary(path); }
+    void set_mainDictionary( const QString path )    { m_options.set_mainDictionary( path ); }
+    void set_userDictionary( const QString path )    { m_options.set_userDictionary( path ); }
 
 
 private:
