@@ -112,7 +112,11 @@ ninja install
 echo "*** Copying files to Debian tree"
 # deb_build.etc/preinst deb_build.etc/postinst deb_build.etc/prerm
 cp -f "$BUILD_DIR"/deb_build.etc/control "$BUILD_DIR"/deb_build.etc/postrm "$DEBIAN_DIR"/DEBIAN
-chmod 0775 "$DEBIAN_DIR"/DEBIAN/*
+#
+# Files in this directory need to be marked executable.
+#
+chmod 0664 "$DEBIAN_DIR"/DEBIAN/*
+chmod +x "$DEBIAN_DIR"/DEBIAN/postrm
 
 #  Note: If you want changelog to actually have anything in it, you need to create one
 #        I put a placeholder in the project for now because I didn't want to 
@@ -129,7 +133,7 @@ cp "$RELEASE_DIR"/syntax/* "$DEBIAN_DIR"/opt/diamond/syntax
 cp "$RELEASE_DIR"/diamond "$DEBIAN_DIR"/opt/diamond
 cp "$RELEASE_DIR"/lib*.so "$DEBIAN_DIR"/opt/diamond
 
-chmod 0775 "$DEBIAN_DIR"/usr/share/doc/diamond/*
+chmod 0664 "$DEBIAN_DIR"/usr/share/doc/diamond/*
 
 gzip --best "$DEBIAN_DIR"/usr/share/doc/diamond/changelog*
 
