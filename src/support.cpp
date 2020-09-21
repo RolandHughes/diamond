@@ -757,19 +757,18 @@ void MainWindow::backupAndTrim( QString fileName )
 
 #else
     QString cpyCmd;
-    qDebug() << "took else path of #if 0";
 #ifdef Q_OS_WIN
     cpyCmd = QString( "copy \"%1\" \"%2\"" ).formatArgs( fileName, destName );
 #else
     cpyCmd = QString( "cp \"%1\" \"%2\"" ).formatArgs( fileName, destName );
 #endif
-    qDebug() << "About to execute: " << cpyCmd;
-    system( cpyCmd.toStdString().c_str() );
+
+    if ( system( cpyCmd.toStdString().c_str() ) != EXIT_SUCCESS )
+    {
+        csError( "Backup", "Failed to make backup copy" );
+    }
 
 #endif
-
-    //
-    qDebug() << "backup copy should exist";
 
     // NOTE: maxVersions from overlord is the maximum number of backup versions
     //       to keep around. If set to 12 we will dutifully keep up to 12,
