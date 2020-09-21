@@ -24,8 +24,6 @@
 #include <QSysInfo>
 #include <QUrl>
 #include <QTime>
-#include <filesystem>
-namespace fs = std::filesystem;
 
 void MainWindow::argLoad( QList<QString> argList )
 {
@@ -741,12 +739,37 @@ void MainWindow::backupAndTrim( QString fileName )
     // TODO:: QFile::copy() is busted.
     //        Need to see how long before QFile::copy() will be fixed.
     //
+    //        Ubuntu 18 g++7 doesn't have full -std=c++17 support.
+    //        at some point g++8 moved filesystem from experimental into
+    //        main library so could just #include <filesystem> and use the code below
+    //
+    //        Don't want to drag g++8 experimental lib around or have convoluted
+    //        build to detect when building on partial C++17 support.
+    //
+    //        Besides, QFile::copy() should get fixed.
 
+#if 0
     std::error_code ec;
 
     fs::copy( fileName.toStdString(), destName.toStdString(), ec );
 
     QString ecStr = QString::fromStdString( ec.message() );
+
+#else
+    QString cpyCmd;
+    qDebug() << "took else path of #if 0";
+#ifdef Q_OS_WIN
+    cpyCmd = QString( "copy \"%1\" \"%2\"" ).formatArgs( fileName, destName );
+#else
+    cpyCmd = QString( "cp \"%1\" \"%2\"" ).formatArgs( fileName, destName );
+#endif
+    qDebug() << "About to execute: " << cpyCmd;
+    system( cpyCmd.toStdString().c_str() );
+
+#endif
+
+    //
+    qDebug() << "backup copy should exist";
 
     // NOTE: maxVersions from overlord is the maximum number of backup versions
     //       to keep around. If set to 12 we will dutifully keep up to 12,
