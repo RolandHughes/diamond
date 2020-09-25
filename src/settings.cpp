@@ -61,7 +61,7 @@ Settings::Settings() :
     m_fontNormal            = QFont( "Monospace", 10 );
     m_fontColumn            = QFont( "Monospace", 10 );
     m_appPath               = QCoreApplication::applicationDirPath();
-    m_priorPath             = m_appPath;
+    m_priorPath             = QDir::homePath();
     m_advancedFindFolder    = m_appPath;
 
     generateDefaultThemes();
@@ -840,6 +840,11 @@ bool Settings::load()
                 elm->set_syntaxConstant( attr );
             }
 
+            // TODO:: this might be a memory leak
+            //        could not get answer about solid copy of
+            //        non-parented object inside of QMap. How was
+            //        it created? It is just a gadget so it cannot have parent
+            //
             m_themes[elm->name()] = *elm;
             delete elm;
         }

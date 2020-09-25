@@ -25,7 +25,6 @@ class Overlord : public QObject
     CS_OBJECT( Overlord )
 
 public:
-    ~Overlord();
     enum SaveFiles { SAVE_ONE, SAVE_ALL };
 
     static Overlord *getInstance();

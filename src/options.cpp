@@ -15,6 +15,7 @@
 #include "options.h"
 #include "non_gui_functions.h"
 #include <QDir>
+#include "util.h"
 
 const QString Options::DEFAULT_BACKUP_DIR = QString( "Diamond_Backups" );
 
@@ -54,7 +55,7 @@ Options::Options() :
     //        Redistribute the data so that only one class has all of the
     //        path based information.
     //
-    QString resourcePath = QCoreApplication::applicationDirPath();
+    QString resourcePath = QCoreApplication::applicationDirPath() +"/";
     QString libraryPath  = QDir::homePath() + "/.config/Diamond/";
 
     // TODO:: refactor this #if. We do much the same on both sides of it.
@@ -115,6 +116,7 @@ Options::Options() :
 
     QFile::copy( resourcePath + "/dictionary/en_US.aff", libraryPath + "dictionary/en_US.aff" );
     QFile::copy( resourcePath + "/dictionary/en_US.dic", libraryPath + "dictionary/en_US.dic" );
+    QFile::copy( resourcePath + "/dictionary/userDict.txt", libraryPath + "dictionary/userDict.txt" );
 
     if ( ! m_autoDetect )
     {

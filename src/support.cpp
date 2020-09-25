@@ -607,18 +607,16 @@ void MainWindow::showCopyBuffer()
 {
     QList<QString> copyBuffer = m_textEdit->copyBuffer();
 
-    Dialog_Buffer *dw = new Dialog_Buffer( copyBuffer );
-    int result = dw->exec();
+    Dialog_Buffer dw( copyBuffer );
+    int result = dw.exec();
 
     if ( result == QDialog::Accepted )
     {
-        int index = dw->get_Index();
+        int index = dw.get_Index();
 
         QString text = copyBuffer.at( index );
         m_textEdit->textCursor().insertText( text );
     }
-
-    delete dw;
 }
 
 
@@ -769,6 +767,7 @@ void MainWindow::backupAndTrim( QString fileName )
     }
 
 #endif
+
 
     // NOTE: maxVersions from overlord is the maximum number of backup versions
     //       to keep around. If set to 12 we will dutifully keep up to 12,

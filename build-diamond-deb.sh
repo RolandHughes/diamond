@@ -37,7 +37,7 @@ astyle --quiet -n src/*.cpp src/*.h
 echo "Cleanup backup files"
 find . -type f -iname '*~' -exec rm -f {} \;
 
-#  Step 2 : Establish fresh clean directories 
+#  Step 2 : Establish fresh clean directories
 #
 echo "*** Establishing fresh directories"
 SCRIPT_DIR="$PWD"
@@ -67,7 +67,7 @@ if [ -d "$DEBIAN_DIR" ]; then
 fi
 
 #  Because of the way diamond currently builds and is designed
-#  I'm going to violate Debian rules and thump this into a single directory 
+#  I'm going to violate Debian rules and thump this into a single directory
 #  under opt.
 #
 #  Properly packaged the binary would be in /usr/local/bin
@@ -77,7 +77,7 @@ fi
 #
 #  I have to change too much to fix that right now.
 #
-#  NOTE: This means that Diamond will always use the CopperSpice libraries in 
+#  NOTE: This means that Diamond will always use the CopperSpice libraries in
 #        its directory even if newer, better ones are installed for systemwide use.
 #
 #  create the directories we will use so they are fresh and clean
@@ -91,6 +91,8 @@ mkdir -p "$DEBIAN_DIR"/opt/diamond/printerdrivers
 mkdir -p "$DEBIAN_DIR"/opt/diamond/syntax
 mkdir -p "$DEBIAN_DIR"/usr/share/doc/diamond
 mkdir -p "$DEBIAN_DIR"/usr/share/applications
+mkdir -p "$DEBIAN_DIR"/usr/share/pixmaps
+mkdir -p "$DEBIAN_DIR"/usr/share/menu
 
 #  save working directory just in case
 #
@@ -111,27 +113,30 @@ ninja install
 #
 echo "*** Copying files to Debian tree"
 # deb_build.etc/preinst deb_build.etc/postinst deb_build.etc/prerm
-cp -f "$BUILD_DIR"/deb_build.etc/control "$BUILD_DIR"/deb_build.etc/postrm "$DEBIAN_DIR"/DEBIAN
+cp -f "$BUILD_DIR"/deb_build.etc/control "$BUILD_DIR"/deb_build.etc/postrm "$BUILD_DIR"/deb_build.etc/postinst "$DEBIAN_DIR"/DEBIAN
 #
 # Files in this directory need to be marked executable.
 #
 chmod 0664 "$DEBIAN_DIR"/DEBIAN/*
 chmod +x "$DEBIAN_DIR"/DEBIAN/postrm
+chmod +x "$DEBIAN_DIR"/DEBIAN/postinst
 
 #  Note: If you want changelog to actually have anything in it, you need to create one
-#        I put a placeholder in the project for now because I didn't want to 
+#        I put a placeholder in the project for now because I didn't want to
 #        saddle this build script with git-buildpackage dependencies
 #
 cp "$SCRIPT_DIR"/LICENSE "$DEBIAN_DIR"/usr/share/doc/diamond
 cp "$SCRIPT_DIR"/changelog "$DEBIAN_DIR"/usr/share/doc/diamond/changelog.Debian
-cp "$SCRIPT_DIR"/diamond.desktop "$DEBIAN_DIR"/usr/share/applications
+cp "$SCRIPT_DIR"/menu/diamond "$DEBIAN_DIR"/usr/share/menu
 
+cp "$RELEASE_DIR"/diamond.desktop "$DEBIAN_DIR"/usr/share/applications
 cp "$RELEASE_DIR"/dictionary/* "$DEBIAN_DIR"/opt/diamond/dictionary
 cp "$RELEASE_DIR"/platforms/* "$DEBIAN_DIR"/opt/diamond/platforms
 cp "$RELEASE_DIR"/printerdrivers/* "$DEBIAN_DIR"/opt/diamond/printerdrivers
 cp "$RELEASE_DIR"/syntax/* "$DEBIAN_DIR"/opt/diamond/syntax
 cp "$RELEASE_DIR"/diamond "$DEBIAN_DIR"/opt/diamond
 cp "$RELEASE_DIR"/lib*.so "$DEBIAN_DIR"/opt/diamond
+cp "$RELEASE_DIR"/diamond.png "$DEBIAN_DIR"/usr/share/pixmaps
 
 chmod 0664 "$DEBIAN_DIR"/usr/share/doc/diamond/*
 

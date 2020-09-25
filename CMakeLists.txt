@@ -115,10 +115,22 @@ if(CMAKE_SYSTEM_NAME MATCHES "(Linux|OpenBSD|FreeBSD|NetBSD|DragonFly)")
        deb_build.etc/control
     )
     
+    configure_file(
+       ${CMAKE_SOURCE_DIR}/diamond.desktop.in
+       diamond.desktop
+    )
+
     #  postrm has some heavy syntax - just copy
     configure_file(
        ${CMAKE_SOURCE_DIR}/deb_build.etc/postrm.in
        deb_build.etc/postrm
+       COPYONLY
+    )
+
+    #  postinst has some heavy syntax - just copy
+    configure_file(
+       ${CMAKE_SOURCE_DIR}/deb_build.etc/postinst.in
+       deb_build.etc/postinst
        COPYONLY
     )
     

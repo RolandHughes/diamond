@@ -196,6 +196,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "(Linux|OpenBSD|FreeBSD|NetBSD|DragonFly)")
    )
 
    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../resources/diamond.png  DESTINATION .)
+   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../diamond.desktop DESTINATION .)
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
 

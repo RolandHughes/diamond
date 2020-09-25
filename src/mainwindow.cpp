@@ -62,7 +62,7 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     setAcceptDrops( true );
 
     // remaining methods must be done after json_Read for config
-    m_tabWidget = new QTabWidget;
+    m_tabWidget = new QTabWidget( this );
     m_tabWidget->setTabsClosable( true );
     m_tabWidget->setMovable( true );
     m_tabWidget->setWhatsThis( "tab_widget" );
@@ -857,19 +857,15 @@ void MainWindow::showNotDone( QString item )
 // **settings
 void MainWindow::setColors()
 {
-    Dialog_Colors *dw = new Dialog_Colors( this );
+    Dialog_Colors dw( this );
 
-    dw->exec();
-
-    delete dw;
+    dw.exec();
 }
 
 void MainWindow::setFont()
 {
-    Dialog_Fonts *dw = new Dialog_Fonts( Overlord::getInstance()->fontNormal(), Overlord::getInstance()->fontColumn() );
-    dw->exec();
-
-    delete dw;
+    Dialog_Fonts dw( Overlord::getInstance()->fontNormal(), Overlord::getInstance()->fontColumn() );
+    dw.exec();
 }
 
 void MainWindow::setOptions()
@@ -877,37 +873,31 @@ void MainWindow::setOptions()
     Options options = Overlord::getInstance()->pullLocalCopyOfOptions();
 
 
-    Dialog_Options *dw = new Dialog_Options( this );
-    int result = dw->exec();
+    Dialog_Options dw( this );
+    int result = dw.exec();
 
     if ( result == QDialog::Accepted )
     {
         // false will redisplay only user defined shortcuts
         this->createShortCuts( true );
     }
-
-    delete dw;
 }
 
 void MainWindow::setPresetFolders()
 {
-    Dialog_Preset *dw = new Dialog_Preset( this );
-    int result = dw->exec();
+    Dialog_Preset dw( this );
+    int result = dw.exec();
 
     if ( result == QDialog::Accepted )
     {
         prefolder_RedoList();
     }
-
-    delete dw;
 }
 
 void MainWindow::setPrintOptions()
 {
-    Dialog_PrintOptions *dw = new Dialog_PrintOptions( this );
-    dw->exec();
-
-    delete dw;
+    Dialog_PrintOptions dw( this );
+    dw.exec();
 }
 
 QString MainWindow::get_SyntaxPath( QString syntaxPath )
@@ -1164,18 +1154,16 @@ void MainWindow::move_ConfigFile()
 
 void MainWindow::showEdtHelp()
 {
-    Dialog_Edt_Help *dw = new Dialog_Edt_Help( this );
-    dw->exec();
-
-    delete dw;
+    Dialog_Edt_Help dw( this );
+    dw.exec();
 }
 
 void MainWindow::showClipboard()
 {
-    QDialog *dw = new QDialog( this );
-    dw->setMinimumSize( 400, 400 );
-    dw->setWindowTitle( "Clipboard contents" );
-    dw->setFont( Overlord::getInstance()->fontNormal() );
+    QDialog dw( this );
+    dw.setMinimumSize( 400, 400 );
+    dw.setWindowTitle( "Clipboard contents" );
+    dw.setFont( Overlord::getInstance()->fontNormal() );
 
     QHBoxLayout *layout = new QHBoxLayout;
 
@@ -1184,11 +1172,9 @@ void MainWindow::showClipboard()
     ed->setText( QApplication::clipboard()->text() );
 
     layout->addWidget( ed );
-    dw->setLayout( layout );
+    dw.setLayout( layout );
 
-    dw->exec();
-
-    delete dw;
+    dw.exec();
 }
 
 void MainWindow::astyle()

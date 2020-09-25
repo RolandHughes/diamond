@@ -32,18 +32,6 @@ Overlord::Overlord() :
     connect( &m_settings, &Settings::Resize, this, &Overlord::Resize );
 }
 
-Overlord::~Overlord()
-{
-    // can't risk calling close() here because event loop is on
-    // it's way out the door if not already gone. The save() call
-    // needs event loop.
-    //
-    if ( !m_closed )
-    {
-        close();
-    }
-}
-
 void Overlord::close()
 {
     m_closed = true;
@@ -62,8 +50,6 @@ void Overlord::close()
     {
         m_settings.save();
     }
-
-    m_tmpDir.remove();
 }
 
 void Overlord::checkForChange()
@@ -103,7 +89,6 @@ bool Overlord::set_configFileName( QString name )
 
         preloadSyntax();
         preloadComplete();
-
     }
 
     return retVal;

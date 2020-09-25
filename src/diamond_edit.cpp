@@ -128,7 +128,7 @@ DiamondTextEdit::~DiamondTextEdit()
             m_astyleProcess->kill();
         }
 
-        m_astyleProcess->deleteLater();
+        delete m_astyleProcess;
         m_astyleProcess = nullptr;
     }
 }
@@ -336,7 +336,7 @@ void DiamondTextEdit::contextMenuEvent( QContextMenuEvent *event )
     }
 
     menu->exec( event->globalPos() );
-    delete menu;
+    //delete menu;
 }
 
 // ** syntax
@@ -1381,12 +1381,12 @@ void DiamondTextEdit::deleteThroughEOL()
 
 void DiamondTextEdit::insertSymbol()
 {
-    Dialog_Symbols *dw = new Dialog_Symbols( this );
-    int result = dw->exec();
+    Dialog_Symbols dw( this );
+    int result = dw.exec();
 
     if ( result == QDialog::Accepted )
     {
-        QString text = dw->get_Symbol();
+        QString text = dw.get_Symbol();
 
         if ( ! text.isEmpty() )
         {
@@ -1402,8 +1402,6 @@ void DiamondTextEdit::insertSymbol()
             }
         }
     }
-
-    delete dw;
 
 }
 
@@ -2681,19 +2679,19 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                     // don't clear EDT select active.
                     // many delopers set a mark then search for some text to find the end
                     // of the selection range.
-                    Dialog_Edt_Prompt *dw = new Dialog_Edt_Prompt( "Search for: ", true, this );
+                    Dialog_Edt_Prompt dw( "Search for: ", true, this );
                     QString selectedText = textCursor().selectedText();
 
                     if ( ! selectedText.isEmpty() )
                     {
-                        dw->setText( selectedText );
+                        dw.setText( selectedText );
                     }
 
-                    dw->exec();
+                    dw.exec();
 
-                    QString txt = dw->text();
+                    QString txt = dw.text();
 
-                    if ( dw->ctrlMSubstitution() )
+                    if ( dw.ctrlMSubstitution() )
                     {
                         txt = txt.replace( "^M", "\n" );
                     }
@@ -2714,7 +2712,7 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
 
                         Overlord::getInstance()->set_findFlags( 0 );
 
-                        switch ( dw->terminator() )
+                        switch ( dw.terminator() )
                         {
                             case Edt_LineEdit::ADVANCE:
                                 Overlord::getInstance()->set_edtDirection( false );
@@ -2747,7 +2745,6 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
                         }
                     }
 
-                    delete dw;
                     return true;
                 }
 

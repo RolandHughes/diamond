@@ -40,14 +40,14 @@ void MainWindow::find()
         Overlord::getInstance()->set_findText( selectedText );
     }
 
-    Dialog_Find *dw = new Dialog_Find( this, Overlord::getInstance()->findText(), Overlord::getInstance()->findList() );
-    int result = dw->exec();
+    Dialog_Find dw( this, Overlord::getInstance()->findText(), Overlord::getInstance()->findList() );
+    int result = dw.exec();
 
     if ( result == QDialog::Accepted )
     {
 
-        Overlord::getInstance()->set_findText( dw->get_findText() );
-        Overlord::getInstance()->set_findList( dw->get_findList() );
+        Overlord::getInstance()->set_findText( dw.get_findText() );
+        Overlord::getInstance()->set_findList( dw.get_findList() );
 
         // add to combo list if not already there
         int index = Overlord::getInstance()->findListFind( Overlord::getInstance()->findText() );
@@ -64,21 +64,21 @@ void MainWindow::find()
         // get the flags
         Overlord::getInstance()->set_findFlags( 0 );
 
-        Overlord::getInstance()->set_findDirection( dw->get_Direction() );
+        Overlord::getInstance()->set_findDirection( dw.get_Direction() );
 
         if ( ! Overlord::getInstance()->findDirection() )
         {
             Overlord::getInstance()->set_findFlagsBackward();
         }
 
-        Overlord::getInstance()->set_findCase( dw->get_Case() );
+        Overlord::getInstance()->set_findCase( dw.get_Case() );
 
         if ( Overlord::getInstance()->findCase() )
         {
             Overlord::getInstance()->set_findFlagsCaseSensitive();
         }
 
-        Overlord::getInstance()->set_findWholeWords( dw->get_WholeWords() );
+        Overlord::getInstance()->set_findWholeWords( dw.get_WholeWords() );
 
         if ( Overlord::getInstance()->findWholeWords() )
         {
@@ -101,15 +101,13 @@ void MainWindow::find()
     {
         Overlord::getInstance()->set_findText( saveText );
 
-        bool upd_Find = dw->get_Upd_Find();
+        bool upd_Find = dw.get_Upd_Find();
 
         if ( upd_Find )
         {
-            Overlord::getInstance()->set_findList( dw->get_findList() );
+            Overlord::getInstance()->set_findList( dw.get_findList() );
         }
     }
-
-    delete dw;
 }
 
 void MainWindow::findNext()
@@ -242,7 +240,8 @@ void MainWindow::advFind()
         break;
     }
 
-    delete m_dwAdvFind;
+    m_dwAdvFind->deleteLater();
+    m_dwAdvFind = nullptr;
 }
 
 QList<advFindStruct> MainWindow::advFind_getResults( bool &aborted )
@@ -742,17 +741,17 @@ void MainWindow::replace()
         Overlord::getInstance()->set_findText( selectedText );
     }
 
-    Dialog_Replace *dw = new Dialog_Replace( this,
-            Overlord::getInstance()->findText(),
-            Overlord::getInstance()->findList(),
-            Overlord::getInstance()->replaceText(),
-            Overlord::getInstance()->replaceList() );
-    int result = dw->exec();
+    Dialog_Replace dw( this,
+                       Overlord::getInstance()->findText(),
+                       Overlord::getInstance()->findList(),
+                       Overlord::getInstance()->replaceText(),
+                       Overlord::getInstance()->replaceList() );
+    int result = dw.exec();
 
     if ( result >= QDialog::Accepted )
     {
-        Overlord::getInstance()->set_findText( dw->get_findText() );
-        Overlord::getInstance()->set_findList( dw->get_findList() );
+        Overlord::getInstance()->set_findText( dw.get_findText() );
+        Overlord::getInstance()->set_findList( dw.get_findList() );
 
         // add to list if not found
         int index = Overlord::getInstance()->findListFind( Overlord::getInstance()->findText() );
@@ -766,8 +765,8 @@ void MainWindow::replace()
             Overlord::getInstance()->findListMove( index,0 );
         }
 
-        Overlord::getInstance()->set_replaceText( dw->get_replaceText() );
-        Overlord::getInstance()->set_replaceList( dw->get_replaceList() );
+        Overlord::getInstance()->set_replaceText( dw.get_replaceText() );
+        Overlord::getInstance()->set_replaceList( dw.get_replaceList() );
 
         // add to list if not found
         index = Overlord::getInstance()->replaceListFind( Overlord::getInstance()->replaceText() );
@@ -784,14 +783,14 @@ void MainWindow::replace()
         // get the flags
         Overlord::getInstance()->set_findFlags( 0 );
 
-        Overlord::getInstance()->set_findCase( dw->get_Case() );
+        Overlord::getInstance()->set_findCase( dw.get_Case() );
 
         if ( Overlord::getInstance()->findCase() )
         {
             Overlord::getInstance()->set_findFlagsCaseSensitive();
         }
 
-        Overlord::getInstance()->set_findWholeWords( dw->get_WholeWords() );
+        Overlord::getInstance()->set_findWholeWords( dw.get_WholeWords() );
 
         if ( Overlord::getInstance()->findWholeWords() )
         {
@@ -818,21 +817,20 @@ void MainWindow::replace()
     {
         Overlord::getInstance()->set_findText( saveText );
 
-        bool upd_Find    = dw->get_Upd_Find();
-        bool upd_Replace = dw->get_Upd_Replace();
+        bool upd_Find    = dw.get_Upd_Find();
+        bool upd_Replace = dw.get_Upd_Replace();
 
         if ( upd_Find && ! upd_Replace )
         {
-            Overlord::getInstance()->set_findList( dw->get_findList() );
+            Overlord::getInstance()->set_findList( dw.get_findList() );
         }
         else if ( upd_Replace )
         {
-            Overlord::getInstance()->set_findList( dw->get_findList() );
-            Overlord::getInstance()->set_replaceList( dw->get_replaceList() );
+            Overlord::getInstance()->set_findList( dw.get_findList() );
+            Overlord::getInstance()->set_replaceList( dw.get_replaceList() );
         }
     }
 
-    delete dw;
 }
 
 void MainWindow::replaceQuery()
@@ -918,7 +916,7 @@ void MainWindow::replaceQuery()
         }
     }
 
-    delete dw;
+    dw->deleteLater();
 
     cursor.clearSelection();
     m_textEdit->setTextCursor( cursor );
