@@ -55,14 +55,29 @@ Options::Options() :
     //        Redistribute the data so that only one class has all of the
     //        path based information.
     //
-    QString resourcePath = QCoreApplication::applicationDirPath() +"/";
+    QString resourcePath = QCoreApplication::applicationDirPath();
     QString libraryPath  = QDir::homePath() + "/.config/Diamond/";
+
 
     // TODO:: refactor this #if. We do much the same on both sides of it.
     //
 #if defined(Q_OS_UNIX) && ! defined(Q_OS_MAC)
 
     m_autoDetect = true;
+
+    QDir d;
+    QString pth = libraryPath + "dictionary";
+
+    if ( !d.exists( pth ) )
+    {
+        bool rslt = d.mkpath( pth );
+
+        if ( !rslt )
+        {
+            csError( "Options", "Failed to create directory path: " + pth );
+        }
+    }
+
 
     // get syntax folder (1)
     m_syntaxPath        = resourcePath + "/syntax/";
@@ -85,6 +100,19 @@ Options::Options() :
         resourcePath = pathName( QCoreApplication::applicationDirPath() )
                        + "/../Contents/Resources";
         libraryPath  = QDir::homePath() + "/Library/Diamond/";
+
+        QDir d;
+        QString pth = libraryPath + "dictionary";
+
+        if ( !d.exists( pth ) )
+        {
+            bool rslt = d.mkpath( pth );
+
+            if ( !rslt )
+            {
+                csError( "Options", "Failed to create directory path: " + pth );
+            }
+        }
 
         QDir dir = resourcePath;
         dir.makeAbsolute();
@@ -113,10 +141,62 @@ Options::Options() :
         home.mkdir( DEFAULT_BACKUP_DIR );
     }
 
+    QString affFile         = m_mainDictionary.left( m_mainDictionary.length() - 3 ) + "aff";
+    QString affResource     = resourcePath + "/dictionary/en_US.aff";
+    QString en_USResource   = resourcePath + "/dictionary/en_US.dic";
+    QString userResource    = resourcePath + "/dictionary/userDict.txt";
 
-    QFile::copy( resourcePath + "/dictionary/en_US.aff", libraryPath + "dictionary/en_US.aff" );
-    QFile::copy( resourcePath + "/dictionary/en_US.dic", libraryPath + "dictionary/en_US.dic" );
-    QFile::copy( resourcePath + "/dictionary/userDict.txt", libraryPath + "dictionary/userDict.txt" );
+    // TODO:: QFile::copy() is busted.
+    //        Need to see how long before QFile::copy() will be fixed.
+    //
+    //        Ubuntu 18 g++7 doesn't have full -std=c++17 support.
+    //        at some point g++8 moved filesystem from experimental into
+    //        main library so could just #include <filesystem> and use the code below
+    //
+    //        Don't want to drag g++8 experimental lib around or have convoluted
+    //        build to detect when building on partial C++17 support.
+    //
+    //        Besides, QFile::copy() should get fixed.
+
+#if 0
+    std::error_code ec;
+
+    fs::copy( affResource, affFile, ec );
+    fs::copy( en_USResource, m_mainDictionary, ec );
+    fs::copy( userResource, m_userDictionary );
+
+    QString ecStr = QString::fromStdString( ec.message() );
+
+#else
+    QString cpyAffCmd;
+    QString cpyUSCmd;
+    QString cpyUserCmd;
+#ifdef Q_OS_WIN
+    cpyAffCmd   = QString( "copy \"%1\" \"%2\"" ).formatArgs( affResource, affFile );
+    cpyUSCmd    = QString( "copy \"%1\" \"%2\"" ).formatArgs( en_USResource, m_mainDictionary );
+    cpyUserCmd  = QString( "copy \"%1\" \"%2\"" ).formatArgs( userResource, m_userDictionary );
+#else
+    cpyAffCmd   = QString( "cp \"%1\" \"%2\"" ).formatArgs( affResource, affFile );
+    cpyUSCmd    = QString( "cp \"%1\" \"%2\"" ).formatArgs( en_USResource, m_mainDictionary );
+    cpyUserCmd  = QString( "cp \"%1\" \"%2\"" ).formatArgs( userResource, m_userDictionary );
+#endif
+
+    if ( system( cpyAffCmd.toStdString().c_str() ) != EXIT_SUCCESS )
+    {
+        csError( "Options", "Failed to copy AFF file" );
+    }
+
+    if ( system( cpyUSCmd.toStdString().c_str() ) != EXIT_SUCCESS )
+    {
+        csError( "Options", "Failed to copy main default dictionary" );
+    }
+
+    if ( system( cpyUserCmd.toStdString().c_str() ) != EXIT_SUCCESS )
+    {
+        csError( "Options", "Failed to copy User dictionary" );
+    }
+
+#endif
 
     if ( ! m_autoDetect )
     {

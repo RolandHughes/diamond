@@ -5,7 +5,7 @@ Maintainer: Roland Hughes <roland@logikalsolutions.com>
 Installed-Size: @DIAMOND_INSTALLED_SIZE@
 Architecture: @DIAMOND_ARCHITECTURE@
 Version: @PACKAGE_VERSION@
-Depends: libc6 (>= 2.31), libstdc++6 (>= 10), zlib1g, hunspell, libopengl0
+Depends: libc6 (>= 2.27), libstdc++6 (>= 8.4), zlib1g, hunspell, libopengl0
 Description: This is the Diamond text editor.
  Diamond has been developed using the CopperSpice cross
  platform C++ libraries. It supports EDT keypad navigation,
