@@ -1,40 +1,19 @@
 file:///home/roland/CopperSpice/html/class_qregularexpression.html
 
-*) Getting blank line after Architecture in control.
-*) Create Debian build script  Use IPOS debian build as a guide. Need to create .desktop file as well. .desktop should change binary path based on installation directory.
+*) try hard coding syntax highlighting for numbers. See if we can get one of the stolen things to work.
 
-*) Create Ubuntu 16.04 VM to test debian build on. if successful test install on 20.
+*) themes in settings is walking on stuff behind it in RAM. At least it looks like that when these fields came after.
+    QString         m_edtLastDeletedWord;
+    QString         m_edtLastDeletedLine;
+    QString         m_edtLastDeletedChar;
+   m_edtLastDeletedLine got huge quantities of garbage in it. Odd because m_edtLastDeletedWord was fine
+   Might have nothing to do with it at all. Last deleted line might have had regular expression stuff that hosed things.
 
-*) If you build with recent NVidia drivers installed you will have libOpenGL.os.0 as a dependency
+*) Change file open dialog to use system instead of Qt.
 
-roland@roland-amd-desktop:~/Projects/diamond_debian/opt/diamond$ ldd diamond
-	linux-vdso.so.1 (0x00007fffbe183000)
-	libCsGui1.6.so => /home/roland/Projects/diamond_debian/opt/diamond/./libCsGui1.6.so (0x00007f425a8e0000)
-	libCsCore1.6.so => /home/roland/Projects/diamond_debian/opt/diamond/./libCsCore1.6.so (0x00007f4259e70000)
-	libhunspell-1.7.so.0 => /lib/x86_64-linux-gnu/libhunspell-1.7.so.0 (0x00007f4259de8000)
-	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f4259c00000)
-	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f4259be0000)
-	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f42599e8000)
-	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f42599c0000)
-	libOpenGL.so.0 => /lib/x86_64-linux-gnu/libOpenGL.so.0 (0x00007f4259990000)
-	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f4259970000)
-	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f4259820000)
-	/lib64/ld-linux-x86-64.so.2 (0x00007f425e220000)
-	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f4259818000)
-	libGLdispatch.so.0 => /lib/x86_64-linux-gnu/libGLdispatch.so.0 (0x00007f4259760000)
+*) Move comment syntax highlighting into each syntax file. This is prep work for supporting COBOL, FORTRAN, etc.
 
-
-
-
-
-
-
-
-
-*) Each Theme should provide its own colors for selected text
-    QPallette roles
-    QPalette::Highlight
-    QPalette::HighlightedText
+*) Take another stab at Themes as pointers. When copying the QMap need to create new objects. When comparing QMap need to compare value-at
 
 
 *) Fix macro save - make it actually happen - test create-use-save-reload of macros
@@ -49,11 +28,19 @@ roland@roland-amd-desktop:~/Projects/diamond_debian/opt/diamond$ ldd diamond
 *) test out macro save/load/use. I really butchered that.
 
 
+*) Each Theme should provide its own colors for selected text
+    QPalette roles
+    QPalette::Highlight
+    QPalette::HighlightedText
+
+
 *) read documentation for QSyntaxHighlighter in CopperSpice
    see if there is any support for "matching" {(<
    if so add option to turn on "matching" highlight
     ~/Downloads/qq31-parenthesis.zip  source code for QtQuarterly31.pdf shows how to do parentesis matching. Should be able to expand to handle <> [] {} as well as ()
 
+*) Create an RPM
+*) See if Fedora allows me to create a Snap container.
 
 *) DEL L does not work on wrapped line or very last line of file. Need to look into that.
 

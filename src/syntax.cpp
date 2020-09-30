@@ -46,7 +46,6 @@ void Syntax::processSyntax( Settings *settings )
 
     highlightingRules.clear();
 
-    //
     HighlightingRule rule;
 
     for ( const QString &pattern : patterns->key_Patterns )
@@ -132,6 +131,7 @@ void Syntax::processSyntax( Settings *settings )
 
         highlightingRules.append( rule );
     }
+
 
     for ( const QString &pattern : patterns->constant_Patterns )
     {

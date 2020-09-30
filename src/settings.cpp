@@ -64,6 +64,14 @@ Settings::Settings() :
     m_priorPath             = QDir::homePath();
     m_advancedFindFolder    = m_appPath;
 
+    // TODO:: if unused these get ever growing garbage in the
+    //        config.json file. It is not a pointer issue because I
+    //        move them to different places and they get the same garbage.
+    //
+    m_edtLastDeletedChar = "";
+    m_edtLastDeletedLine = "";
+    m_edtLastDeletedWord = "";
+
     generateDefaultThemes();
 
     // TODO:: find out why this list has to be full

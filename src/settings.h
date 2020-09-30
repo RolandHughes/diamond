@@ -137,6 +137,9 @@ private:
     QString         m_advancedFindText;
     QString         m_appPath;
     QString         m_configFileName;
+    QString         m_edtLastDeletedChar;
+    QString         m_edtLastDeletedLine;
+    QString         m_edtLastDeletedWord;
     bool            m_findCase;
     bool            m_findDirection;
     QTextDocument::FindFlags m_findFlags;
@@ -184,9 +187,6 @@ private:
 
     QMap <QString, Themes> m_themes;
 
-    QString         m_edtLastDeletedWord;
-    QString         m_edtLastDeletedLine;
-    QString         m_edtLastDeletedChar;
 
 };
 
