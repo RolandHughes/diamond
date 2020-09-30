@@ -45,7 +45,6 @@ void MainWindow::newFile()
     }
 
 #else
-    qDebug() << "characterCount() : " << m_textEdit->document()->characterCount();
 
     // for some reason an empty document has a characterCount of 1
     //

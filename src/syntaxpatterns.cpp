@@ -76,7 +76,6 @@ SyntaxPatterns::SyntaxPatterns( QString fileName ) :
     }
 
     // constants
-#if 0
     list = object.value( "constants" ).toArray();
     cnt  = list.count();
 
@@ -85,13 +84,6 @@ SyntaxPatterns::SyntaxPatterns( QString fileName ) :
         constant_Patterns.append( list.at( k ).toString() );
     }
 
-#else
-    QString ptn = "[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?(ul)?(UL)?[lL]?[uU]?[fF]?";
-    constant_Patterns.append( ptn );
-    ptn = "(0[xX][a-fA-F0-9]+)(ul)?(UL)?[lL]?[uU]?";
-    constant_Patterns.append( ptn );
-
-#endif
 
     // single line comment
     commentSingle = object.value( "comment-single" ).toString();
