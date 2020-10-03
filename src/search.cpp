@@ -311,7 +311,7 @@ QList<advFindStruct> MainWindow::advFind_getResults( bool &aborted )
 
         progressDialog.setValue( k );
         progressDialog.setLabelText( tr( "Searching file %1 of %2" ).formatArg( k ).formatArg( searchList.size() ) );
-        qApp->processEvents();
+        //qApp->processEvents();
 
         if ( progressDialog.wasCanceled() )
         {

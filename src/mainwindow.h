@@ -61,6 +61,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow( QStringList fileList, QStringList flagList );
 
+    ~MainWindow();
+
 
     // indent
     void indentIncr( QString route );

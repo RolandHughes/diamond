@@ -101,13 +101,11 @@ Settings &Settings::operator =( const Settings &other )
     {
         if ( m_preFolderList.count() > 0 )
         {
-            qDebug() << "copy constructor deleting preFolderList\n";
             m_preFolderList.clear();
         }
 
         if ( m_themes.count() > 0 )
         {
-            qDebug() << "copy constructor deleting themes" << "\n";
             deleteAllThemes();
         }
 

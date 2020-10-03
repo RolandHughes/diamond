@@ -300,12 +300,7 @@ bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool i
     m_textEdit->setPlainText( fileData );
     //  Need to drain the swamp here. Really big files have a massive drag
     //  with all of the highlighting.
-    QApplication::processEvents();
-
-    if ( m_textEdit->m_owner == "tab" )
-    {
-        setCurrentTitle( fileName, false, isReload, isReadOnly );
-    }
+    //QApplication::processEvents();
 
     QApplication::restoreOverrideCursor();
 
@@ -444,7 +439,7 @@ bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
                 cursor.movePosition( QTextCursor::StartOfLine );
                 cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, column - 1 );
                 m_textEdit->setTextCursor( cursor );
-                QApplication::processEvents();
+                //QApplication::processEvents();
             }
         }
         else

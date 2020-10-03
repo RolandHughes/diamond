@@ -103,7 +103,7 @@ void Dialog_AdvFind::showBusyMsg()
     }
 
     show();
-    QApplication::processEvents();
+    //QApplication::processEvents();
 }
 
 void Dialog_AdvFind::showNotBusyMsg()
@@ -120,7 +120,7 @@ void Dialog_AdvFind::showNotBusyMsg()
     m_ui->horizontalSpacer_32->changeSize( 8,25 );
     m_ui->cancel_PB->setVisible( true );
 
-    QApplication::processEvents();
+    //QApplication::processEvents();
 }
 
 void Dialog_AdvFind::cancel()

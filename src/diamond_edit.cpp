@@ -357,6 +357,12 @@ Syntax *DiamondTextEdit::get_SyntaxParser()
 
 void DiamondTextEdit::set_SyntaxParser( Syntax *parser )
 {
+    if ( m_syntaxParser )
+    {
+        m_syntaxParser->setDocument( nullptr );
+        delete m_syntaxParser;
+    }
+
     m_syntaxParser = parser;
 
     if ( parser )
@@ -1095,16 +1101,9 @@ void DiamondTextEdit::runSyntax( QString synFName )
     // save syntax file name
     set_SyntaxFile( synFName );
 
-    if ( m_syntaxParser )
-    {
-        set_SyntaxParser( nullptr );
-        delete m_syntaxParser;
-        m_syntaxParser = nullptr;
-    }
-
-    Syntax *parser = new Syntax( document(), synFName, m_spellCheck );
-
-    set_SyntaxParser( parser );
+    set_SyntaxParser( new Syntax( nullptr, synFName, m_spellCheck ) );
+    m_syntaxParser->setDocument( document());
+    
 }
 
 void DiamondTextEdit::spell_replaceWord()
@@ -1994,13 +1993,6 @@ void DiamondTextEdit::setCurrentFile( QString fileName )
 // **document
 void DiamondTextEdit::setSyntax()
 {
-    if ( m_syntaxParser )
-    {
-        set_SyntaxParser( nullptr );
-        delete m_syntaxParser;
-        m_syntaxParser = nullptr;
-    }
-
     QString fname  = "";
     QString suffix = "txt";
 
@@ -2196,9 +2188,6 @@ void DiamondTextEdit::setSyntax()
         // save the menu enum
         setSynType( m_syntaxEnum );
         set_SyntaxEnum( m_syntaxEnum );
-
-        // check the menu item
-        setSynType( m_syntaxEnum );
 
         queueRunSyntax( synFName );
     }
@@ -3486,7 +3475,7 @@ void DiamondTextEdit::astyleComplete( int exitCode, QProcess::ExitStatus status 
     if ( txt.length() > 0 )
     {
         setPlainText( txt );
-        QApplication::processEvents();
+        //QApplication::processEvents();
         QTextCursor cursor( document()->findBlockByNumber( Overlord::getInstance()->lastActiveRow() ) );
         cursor.movePosition( QTextCursor::StartOfLine );
         cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveColumn() - 1 );

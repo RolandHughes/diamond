@@ -41,6 +41,8 @@ protected:
     void highlightBlock( const QString &text );
 
 private:
+    void deleteHighlightingRules();
+
     QString m_syntaxFile;
 
     SpellCheck *m_spellCheck;
@@ -59,7 +61,7 @@ private:
         QTextCharFormat format;
     };
 
-    QVector<HighlightingRule> highlightingRules;
+    QVector<HighlightingRule *> highlightingRules;
 };
 
 #endif

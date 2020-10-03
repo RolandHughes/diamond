@@ -38,15 +38,33 @@ Syntax::Syntax( QTextDocument *document, QString synFName, SpellCheck *spell )
 
 Syntax::~Syntax()
 {
+    deleteHighlightingRules();
+}
+
+void Syntax::deleteHighlightingRules()
+{
+    if ( highlightingRules.count() > 0 )
+    {
+        for ( HighlightingRule *rule : highlightingRules )
+        {
+            if ( rule )
+            {
+                delete rule;
+            }
+        }
+
+        highlightingRules.clear();
+    }
+
 }
 
 void Syntax::processSyntax( Settings *settings )
 {
     SyntaxPatterns *patterns = Overlord::getInstance()->getSyntaxPatterns( m_syntaxFile );
 
-    highlightingRules.clear();
+    deleteHighlightingRules();
 
-    HighlightingRule rule;
+    HighlightingRule *rule;
 
     for ( const QString &pattern : patterns->key_Patterns )
     {
@@ -55,15 +73,17 @@ void Syntax::processSyntax( Settings *settings )
             continue;
         }
 
+        rule = new HighlightingRule;
+
         // key
-        rule.format.setFontWeight( settings->currentTheme()->syntaxKey().weight() );
-        rule.format.setFontItalic( settings->currentTheme()->syntaxKey().italic() );
-        rule.format.setForeground( settings->currentTheme()->syntaxKey().color() );
-        rule.pattern = QRegularExpression( pattern );
+        rule->format.setFontWeight( settings->currentTheme()->syntaxKey().weight() );
+        rule->format.setFontItalic( settings->currentTheme()->syntaxKey().italic() );
+        rule->format.setForeground( settings->currentTheme()->syntaxKey().color() );
+        rule->pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
         {
-            rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
+            rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
         highlightingRules.append( rule );
@@ -76,15 +96,17 @@ void Syntax::processSyntax( Settings *settings )
             continue;
         }
 
+        rule = new HighlightingRule;
+
         // class
-        rule.format.setFontWeight( settings->currentTheme()->syntaxClass().weight() );
-        rule.format.setFontItalic( settings->currentTheme()->syntaxClass().italic() );
-        rule.format.setForeground( settings->currentTheme()->syntaxClass().color() );
-        rule.pattern = QRegularExpression( pattern );
+        rule->format.setFontWeight( settings->currentTheme()->syntaxClass().weight() );
+        rule->format.setFontItalic( settings->currentTheme()->syntaxClass().italic() );
+        rule->format.setForeground( settings->currentTheme()->syntaxClass().color() );
+        rule->pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
         {
-            rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
+            rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
         highlightingRules.append( rule );
@@ -97,15 +119,17 @@ void Syntax::processSyntax( Settings *settings )
             continue;
         }
 
+        rule = new HighlightingRule;
+
         // func
-        rule.format.setFontWeight( settings->currentTheme()->syntaxFunc().weight() );
-        rule.format.setFontItalic( settings->currentTheme()->syntaxFunc().italic() );
-        rule.format.setForeground( settings->currentTheme()->syntaxFunc().color() );
-        rule.pattern = QRegularExpression( pattern );
+        rule->format.setFontWeight( settings->currentTheme()->syntaxFunc().weight() );
+        rule->format.setFontItalic( settings->currentTheme()->syntaxFunc().italic() );
+        rule->format.setForeground( settings->currentTheme()->syntaxFunc().color() );
+        rule->pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
         {
-            rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
+            rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
         highlightingRules.append( rule );
@@ -118,15 +142,17 @@ void Syntax::processSyntax( Settings *settings )
             continue;
         }
 
+        rule = new HighlightingRule;
+
         // types
-        rule.format.setFontWeight( settings->currentTheme()->syntaxType().weight() );
-        rule.format.setFontItalic( settings->currentTheme()->syntaxType().italic() );
-        rule.format.setForeground( settings->currentTheme()->syntaxType().color() );
-        rule.pattern = QRegularExpression( pattern );
+        rule->format.setFontWeight( settings->currentTheme()->syntaxType().weight() );
+        rule->format.setFontItalic( settings->currentTheme()->syntaxType().italic() );
+        rule->format.setForeground( settings->currentTheme()->syntaxType().color() );
+        rule->pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
         {
-            rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
+            rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
         highlightingRules.append( rule );
@@ -140,36 +166,41 @@ void Syntax::processSyntax( Settings *settings )
             continue;
         }
 
+        rule = new HighlightingRule;
+
         // types
-        rule.format.setFontWeight( settings->currentTheme()->syntaxConstant().weight() );
-        rule.format.setFontItalic( settings->currentTheme()->syntaxConstant().italic() );
-        rule.format.setForeground( settings->currentTheme()->syntaxConstant().color() );
-        rule.pattern = QRegularExpression( pattern );
+        rule->format.setFontWeight( settings->currentTheme()->syntaxConstant().weight() );
+        rule->format.setFontItalic( settings->currentTheme()->syntaxConstant().italic() );
+        rule->format.setForeground( settings->currentTheme()->syntaxConstant().color() );
+        rule->pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
         {
-            rule.pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
+            rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
         highlightingRules.append( rule );
     }
 
+    rule = new HighlightingRule;
+
     // quoted text - everyone
-    rule.format.setFontWeight( settings->currentTheme()->syntaxQuote().weight() );
-    rule.format.setFontItalic( settings->currentTheme()->syntaxQuote().italic() );
-    rule.format.setForeground( settings->currentTheme()->syntaxQuote().color() );
-    rule.pattern = QRegularExpression( "\".*?\"" );
+    rule->format.setFontWeight( settings->currentTheme()->syntaxQuote().weight() );
+    rule->format.setFontItalic( settings->currentTheme()->syntaxQuote().italic() );
+    rule->format.setForeground( settings->currentTheme()->syntaxQuote().color() );
+    rule->pattern = QRegularExpression( "\".*?\"" );
     highlightingRules.append( rule );
 
+    rule = new HighlightingRule;
 
     //  TODO:: this needs to be fixed
     //         Only works for languages that ripped off C comments.
     //         Won't work for COBOL, FORTRAN, BASIC, etc.
     //
-    rule.format.setFontWeight( settings->currentTheme()->syntaxComment().weight() );
-    rule.format.setFontItalic( settings->currentTheme()->syntaxComment().italic() );
-    rule.format.setForeground( settings->currentTheme()->syntaxComment().color() );
-    rule.pattern = QRegularExpression( patterns->commentSingle );
+    rule->format.setFontWeight( settings->currentTheme()->syntaxComment().weight() );
+    rule->format.setFontItalic( settings->currentTheme()->syntaxComment().italic() );
+    rule->format.setForeground( settings->currentTheme()->syntaxComment().color() );
+    rule->pattern = QRegularExpression( patterns->commentSingle );
     highlightingRules.append( rule );
 
 
@@ -203,19 +234,19 @@ void Syntax::highlightBlock( const QString &text )
     QRegularExpressionMatch match;
 
 
-    for ( auto &rule : highlightingRules )
+    for ( HighlightingRule *rule : highlightingRules )
     {
-        match = rule.pattern.match( text );
+        match = rule->pattern.match( text );
 
         while ( match.hasMatch() )
         {
             int index  = match.capturedStart( 0 ) - text.begin();
             int length = match.capturedLength();
 
-            setFormat( index, length, rule.format );
+            setFormat( index, length, rule->format );
 
             // get new match
-            match = rule.pattern.match( text, match.capturedEnd( 0 ) );
+            match = rule->pattern.match( text, match.capturedEnd( 0 ) );
         }
     }
 

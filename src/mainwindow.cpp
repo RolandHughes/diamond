@@ -42,7 +42,7 @@
 #include <QClipboard>
 
 MainWindow::MainWindow( QStringList fileList, QStringList flagList )
-    : QMainWindow(nullptr)
+    : QMainWindow( nullptr )
     , m_ui( new Ui::MainWindow )
     , m_fileList( fileList )
     , m_flagList( flagList )
@@ -100,6 +100,11 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
 
     queueNextPart();
 
+}
+
+MainWindow::~MainWindow()
+{
+    delete m_ui;
 }
 
 void MainWindow::onceEventLoopStarts()
