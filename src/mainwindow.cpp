@@ -42,7 +42,8 @@
 #include <QClipboard>
 
 MainWindow::MainWindow( QStringList fileList, QStringList flagList )
-    : m_ui( new Ui::MainWindow )
+    : QMainWindow(nullptr)
+    , m_ui( new Ui::MainWindow )
     , m_fileList( fileList )
     , m_flagList( flagList )
 {

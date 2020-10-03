@@ -32,6 +32,16 @@ Overlord::Overlord() :
     connect( &m_settings, &Settings::Resize, this, &Overlord::Resize );
 }
 
+Overlord::~Overlord()
+{
+    for (SyntaxPatterns *ptr : m_syntaxPatterns)
+    {
+        delete ptr;
+    }
+
+    m_syntaxPatterns.clear();
+}
+
 void Overlord::close()
 {
     m_closed = true;

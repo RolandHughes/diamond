@@ -21,6 +21,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <iostream>
 
 static void showHelp();
 static void showVersion();
@@ -77,6 +78,23 @@ int main( int argc, char *argv[] )
             dw.show();
 
             retval = app.exec();
+
+        }
+        catch ( std::bad_alloc &e )
+        {
+            const QString what = QString::fromUtf8( e.what() );
+
+            QString errMsg = "bad_alloc: " + what;
+
+            std::cout << "bad_alloc: " << what.toStdWString().c_str() << '\n';
+            
+            QMessageBox msgB;
+            msgB.setWindowTitle( "Diamond / Issue" );
+            msgB.setIcon( QMessageBox::NoIcon );
+            msgB.setMinimumWidth( 100 );
+
+            msgB.setText( errMsg );
+            msgB.exec();
 
         }
         catch ( std::exception &e )

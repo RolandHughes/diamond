@@ -64,10 +64,6 @@ Settings::Settings() :
     m_priorPath             = QDir::homePath();
     m_advancedFindFolder    = m_appPath;
 
-    // TODO:: if unused these get ever growing garbage in the
-    //        config.json file. It is not a pointer issue because I
-    //        move them to different places and they get the same garbage.
-    //
     m_edtLastDeletedChar = "";
     m_edtLastDeletedLine = "";
     m_edtLastDeletedWord = "";
@@ -84,10 +80,37 @@ Settings::Settings() :
     m_isComplete = true;
 }
 
+Settings::~Settings()
+{
+    deleteAllThemes();
+}
+
+void Settings::deleteAllThemes()
+{
+    for ( Themes *ptr : m_themes )
+    {
+        delete ptr;
+    }
+
+    m_themes.clear();
+}
+
 Settings &Settings::operator =( const Settings &other )
 {
     if ( this != &other )
     {
+        if ( m_preFolderList.count() > 0 )
+        {
+            qDebug() << "copy constructor deleting preFolderList\n";
+            m_preFolderList.clear();
+        }
+
+        if ( m_themes.count() > 0 )
+        {
+            qDebug() << "copy constructor deleting themes" << "\n";
+            deleteAllThemes();
+        }
+
         m_activeTheme               = other.m_activeTheme;
         m_advancedFCase             = other.m_advancedFCase;
         m_advancedFSearchFolders    = other.m_advancedFSearchFolders;
@@ -131,7 +154,15 @@ Settings &Settings::operator =( const Settings &other )
         m_showLineHighlight         = other.m_showLineHighlight;
         m_showLineNumbers           = other.m_showLineNumbers;
         m_showSpaces                = other.m_showSpaces;
-        m_themes                    = other.m_themes;
+
+        for ( Themes *ptr : other.m_themes )
+        {
+            if ( nullptr != ptr )
+            {
+                m_themes[ ptr->name()] = new Themes( *ptr );
+            }
+        }
+
         m_edtLastDeletedWord        = other.m_edtLastDeletedWord;
         m_edtLastDeletedLine        = other.m_edtLastDeletedLine;
         m_edtLastDeletedChar        = other.m_edtLastDeletedChar;
@@ -141,259 +172,6 @@ Settings &Settings::operator =( const Settings &other )
     return *this;
 }
 
-bool operator ==( const Settings &left, const Settings &right )
-{
-    bool retVal = true;
-
-    if ( left.m_activeTheme != right.m_activeTheme )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_advancedFCase != right.m_advancedFCase )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_advancedFSearchFolders != right.m_advancedFSearchFolders )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_advancedFWholeWords != right.m_advancedFWholeWords )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_advancedFindFileType != right.m_advancedFindFileType )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_advancedFindFolder != right.m_advancedFindFolder )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_advancedFindText != right.m_advancedFindText )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_appPath != right.m_appPath )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_configFileName != right.m_configFileName )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_findCase != right.m_findCase )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_findDirection != right.m_findDirection )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_findFlags != right.m_findFlags )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_findList != right.m_findList )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_findText != right.m_findText )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_findWholeWords != right.m_findWholeWords )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_flagNoAutoLoad != right.m_flagNoAutoLoad )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_flagNoSaveConfig != right.m_flagNoSaveConfig )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_fontColumn != right.m_fontColumn )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_fontNormal != right.m_fontNormal )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_isColumnMode != right.m_isColumnMode )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_isComplete != right.m_isComplete )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_isSpellCheck != right.m_isSpellCheck )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_isWordWrap != right.m_isWordWrap )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_lastPosition != right.m_lastPosition )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_lastSize != right.m_lastSize )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_lastActiveFile != right.m_lastActiveFile )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_lastActiveRow != right.m_lastActiveRow )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_lastActiveColumn != right.m_lastActiveColumn )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_macroNames != right.m_macroNames )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_openedFiles != right.m_openedFiles )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_openedModified != right.m_openedModified )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_options != right.m_options )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_preFolderList != right.m_preFolderList )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_printSettings != right.m_printSettings )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_priorPath != right.m_priorPath )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_rFolderList != right.m_rFolderList )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_replaceList != right.m_replaceList )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_replaceText != right.m_replaceText )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_recentFilesList != right.m_recentFilesList )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_showBreaks != right.m_showBreaks )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_showLineHighlight != right.m_showLineHighlight )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_showLineNumbers != right.m_showLineNumbers )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_showSpaces != right.m_showSpaces )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_themes != right.m_themes )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtLastDeletedWord != right.m_edtLastDeletedWord )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtLastDeletedLine != right.m_edtLastDeletedLine )
-    {
-        retVal = false;
-    }
-
-    if ( left.m_edtLastDeletedChar != right.m_edtLastDeletedChar )
-    {
-        retVal = false;
-    }
-
-    return retVal;
-}
-
-bool operator !=( const Settings &left, const Settings &right )
-{
-    bool retVal = true;
-
-    if ( left == right )
-    {
-        retVal = false;
-    }
-
-    return retVal;
-}
 
 void Settings::copyTheme( QString name, QString dest )
 {
@@ -401,10 +179,8 @@ void Settings::copyTheme( QString name, QString dest )
     {
         if ( !themeNameExists( dest ) )
         {
-            Themes destTheme = m_themes[name];
-            destTheme.set_name( dest );
-            m_themes[dest] = destTheme;
-            m_activeTheme = dest;
+            m_themes[dest] = new Themes( *m_themes[name] );
+            m_themes[dest]->set_name( dest );
         }
         else
         {
@@ -426,6 +202,7 @@ void Settings::deleteTheme( QString name )
 {
     if ( themeNameExists( name ) )
     {
+        delete m_themes[name];
         m_themes.remove( name );
 
         if ( m_activeTheme.compare( name ) == 0 )
@@ -446,7 +223,7 @@ void Settings::add_theme( Themes *theme )
     // replace the existing theme.
     if ( theme != nullptr )
     {
-        m_themes[theme->name()] = *theme;
+        m_themes[theme->name()] = theme;
         m_activeTheme = theme->name();
     }
 }
@@ -472,6 +249,11 @@ bool Settings::load()
 
     if ( ok )
     {
+
+        // need to get rid of the default themes
+        // constructor created.
+        //
+        deleteAllThemes();
 
         // get existing json data
         QByteArray data = json_ReadFile();
@@ -756,15 +538,15 @@ bool Settings::load()
             QJsonObject theme = themesArray[x].toObject();
 
             QString themeName = theme.value( "theme-name" ).toString();
-            Themes *elm = new Themes( themeName );
+            m_themes[themeName] = new Themes( themeName );
 
-            elm->set_colorText( colorFromValueString( theme.value( "theme-color-text" ).toString() ) );
-            elm->set_colorBack( colorFromValueString( theme.value( "theme-color-back" ).toString() ) );
-            elm->set_gutterText( colorFromValueString( theme.value( "theme-color-gutterText" ).toString() ) );
-            elm->set_gutterBack( colorFromValueString( theme.value( "theme-color-gutterBack" ).toString() ) );
-            elm->set_currentLineBack( colorFromValueString( theme.value( "theme-color-currentLineBack" ).toString() ) );
-            elm->set_name( theme.value( "theme-name" ).toString() );
-            elm->set_protected( theme.value( "theme-protected" ).toBool() );
+            m_themes[themeName]->set_colorText( colorFromValueString( theme.value( "theme-color-text" ).toString() ) );
+            m_themes[themeName]->set_colorBack( colorFromValueString( theme.value( "theme-color-back" ).toString() ) );
+            m_themes[themeName]->set_gutterText( colorFromValueString( theme.value( "theme-color-gutterText" ).toString() ) );
+            m_themes[themeName]->set_gutterBack( colorFromValueString( theme.value( "theme-color-gutterBack" ).toString() ) );
+            m_themes[themeName]->set_currentLineBack( colorFromValueString( theme.value( "theme-color-currentLineBack" ).toString() ) );
+            m_themes[themeName]->set_name( theme.value( "theme-name" ).toString() );
+            m_themes[themeName]->set_protected( theme.value( "theme-protected" ).toBool() );
 
             list = theme.value( "theme-syntax-key" ).toArray();
 
@@ -775,7 +557,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm->set_syntaxKey( attr );
+                m_themes[themeName]->set_syntaxKey( attr );
             }
 
             list = theme.value( "theme-syntax-type" ).toArray();
@@ -785,7 +567,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm->set_syntaxType( attr );
+                m_themes[themeName]->set_syntaxType( attr );
             }
 
             list = theme.value( "theme-syntax-class" ).toArray();
@@ -795,7 +577,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm->set_syntaxClass( attr );
+                m_themes[themeName]->set_syntaxClass( attr );
             }
 
             list = theme.value( "theme-syntax-func" ).toArray();
@@ -805,7 +587,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm->set_syntaxFunc( attr );
+                m_themes[themeName]->set_syntaxFunc( attr );
             }
 
             list = theme.value( "theme-syntax-quote" ).toArray();
@@ -815,7 +597,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm->set_syntaxQuote( attr );
+                m_themes[themeName]->set_syntaxQuote( attr );
             }
 
             list = theme.value( "theme-syntax-comment" ).toArray();
@@ -825,7 +607,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm->set_syntaxComment( attr );
+                m_themes[themeName]->set_syntaxComment( attr );
             }
 
             list = theme.value( "theme-syntax-mline" ).toArray();
@@ -835,7 +617,7 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm->set_syntaxMLine( attr );
+                m_themes[themeName]->set_syntaxMLine( attr );
             }
 
             list = theme.value( "theme-syntax-constant" ).toArray();
@@ -845,16 +627,8 @@ bool Settings::load()
                 attr.set_weight( list.at( 0 ).toDouble() );
                 attr.set_italic( list.at( 1 ).toBool() );
                 attr.set_color( colorFromValueString( list.at( 2 ).toString() ) );
-                elm->set_syntaxConstant( attr );
+                m_themes[themeName]->set_syntaxConstant( attr );
             }
-
-            // TODO:: this might be a memory leak
-            //        could not get answer about solid copy of
-            //        non-parented object inside of QMap. How was
-            //        it created? It is just a gadget so it cannot have parent
-            //
-            m_themes[elm->name()] = *elm;
-            delete elm;
         }
 
         m_edtLastDeletedWord = object.value( "edt-lastDeletedWord" ).toString();
@@ -897,56 +671,56 @@ void Settings::createThemeArray( QJsonObject &object )
     list.append( true );
     list.append( 0 );
 
-    for ( Themes theme : m_themes )
+    for ( Themes *theme : m_themes )
     {
         QJsonObject arrayElement;
 
-        arrayElement.insert( "theme-name", theme.name() );
-        arrayElement.insert( "theme-protected", theme.isProtected() );
-        arrayElement.insert( "theme-color-text", getRGBString( theme.colorText() ) );
-        arrayElement.insert( "theme-color-back", getRGBString( theme.colorBack() ) );
-        arrayElement.insert( "theme-color-gutterText", getRGBString( theme.gutterText() ) );
-        arrayElement.insert( "theme-color-gutterBack", getRGBString( theme.gutterBack() ) );
-        arrayElement.insert( "theme-color-currentLineBack", getRGBString( theme.currentLineBack() ) );
+        arrayElement.insert( "theme-name", theme->name() );
+        arrayElement.insert( "theme-protected", theme->isProtected() );
+        arrayElement.insert( "theme-color-text", getRGBString( theme->colorText() ) );
+        arrayElement.insert( "theme-color-back", getRGBString( theme->colorBack() ) );
+        arrayElement.insert( "theme-color-gutterText", getRGBString( theme->gutterText() ) );
+        arrayElement.insert( "theme-color-gutterBack", getRGBString( theme->gutterBack() ) );
+        arrayElement.insert( "theme-color-currentLineBack", getRGBString( theme->currentLineBack() ) );
 
-        list.replace( 0, theme.syntaxKey().weight() );
-        list.replace( 1, theme.syntaxKey().italic() );
-        list.replace( 2, getRGBString( theme.syntaxKey().color() ) );
+        list.replace( 0, theme->syntaxKey().weight() );
+        list.replace( 1, theme->syntaxKey().italic() );
+        list.replace( 2, getRGBString( theme->syntaxKey().color() ) );
         arrayElement.insert( "theme-syntax-key", list );
 
-        list.replace( 0, theme.syntaxType().weight() );
-        list.replace( 1, theme.syntaxType().italic() );
-        list.replace( 2, getRGBString( theme.syntaxType().color() ) );
+        list.replace( 0, theme->syntaxType().weight() );
+        list.replace( 1, theme->syntaxType().italic() );
+        list.replace( 2, getRGBString( theme->syntaxType().color() ) );
         arrayElement.insert( "theme-syntax-type", list );
 
-        list.replace( 0, theme.syntaxClass().weight() );
-        list.replace( 1, theme.syntaxClass().italic() );
-        list.replace( 2, getRGBString( theme.syntaxClass().color() ) );
+        list.replace( 0, theme->syntaxClass().weight() );
+        list.replace( 1, theme->syntaxClass().italic() );
+        list.replace( 2, getRGBString( theme->syntaxClass().color() ) );
         arrayElement.insert( "theme-syntax-class", list );
 
-        list.replace( 0, theme.syntaxFunc().weight() );
-        list.replace( 1, theme.syntaxFunc().italic() );
-        list.replace( 2, getRGBString( theme.syntaxFunc().color() ) );
+        list.replace( 0, theme->syntaxFunc().weight() );
+        list.replace( 1, theme->syntaxFunc().italic() );
+        list.replace( 2, getRGBString( theme->syntaxFunc().color() ) );
         arrayElement.insert( "theme-syntax-func", list );
 
-        list.replace( 0, theme.syntaxQuote().weight() );
-        list.replace( 1, theme.syntaxQuote().italic() );
-        list.replace( 2, getRGBString( theme.syntaxQuote().color() ) );
+        list.replace( 0, theme->syntaxQuote().weight() );
+        list.replace( 1, theme->syntaxQuote().italic() );
+        list.replace( 2, getRGBString( theme->syntaxQuote().color() ) );
         arrayElement.insert( "theme-syntax-quote", list );
 
-        list.replace( 0, theme.syntaxComment().weight() );
-        list.replace( 1, theme.syntaxComment().italic() );
-        list.replace( 2, getRGBString( theme.syntaxComment().color() ) );
+        list.replace( 0, theme->syntaxComment().weight() );
+        list.replace( 1, theme->syntaxComment().italic() );
+        list.replace( 2, getRGBString( theme->syntaxComment().color() ) );
         arrayElement.insert( "theme-syntax-comment", list );
 
-        list.replace( 0, theme.syntaxMLine().weight() );
-        list.replace( 1, theme.syntaxMLine().italic() );
-        list.replace( 2, getRGBString( theme.syntaxMLine().color() ) );
+        list.replace( 0, theme->syntaxMLine().weight() );
+        list.replace( 1, theme->syntaxMLine().italic() );
+        list.replace( 2, getRGBString( theme->syntaxMLine().color() ) );
         arrayElement.insert( "theme-syntax-mline", list );
 
-        list.replace( 0, theme.syntaxConstant().weight() );
-        list.replace( 1, theme.syntaxConstant().italic() );
-        list.replace( 2, getRGBString( theme.syntaxConstant().color() ) );
+        list.replace( 0, theme->syntaxConstant().weight() );
+        list.replace( 1, theme->syntaxConstant().italic() );
+        list.replace( 2, getRGBString( theme->syntaxConstant().color() ) );
         arrayElement.insert( "theme-syntax-constant", list );
 
         themeArray.append( arrayElement );
@@ -1474,10 +1248,7 @@ bool Settings::recentFilesListContains( QString text )
 //
 void Settings::generateDefaultThemes()
 {
-    if ( m_themes.count() > 0 )
-    {
-        m_themes.clear();
-    }
+    deleteAllThemes();
 
     /* each line a single string
      * the n, n following syntax color is first Bold then Italic
@@ -1524,18 +1295,22 @@ void Settings::generateDefaultThemes()
     //        There is no "user" input here, only programmer error and the programmer 'should'
     //        have at least tested the "happy path."
     //
+    deleteAllThemes();
+
     for ( QString str : themeData )
     {
         QStringList lst = str.split( "," );
         int fld = 0;
 
-        Themes *theme = new Themes( lst[fld++].trimmed(), true ); // name
+        QString themeName = lst[fld++].trimmed();
 
-        theme->set_colorText( QColor( lst[fld++].trimmed() ) );
-        theme->set_colorBack( QColor( lst[fld++].trimmed() ) );
-        theme->set_gutterText( QColor( lst[fld++].trimmed() ) );
-        theme->set_gutterBack( QColor( lst[fld++].trimmed() ) );
-        theme->set_currentLineBack( QColor( lst[fld++].trimmed() ) );
+        m_themes[themeName] = new Themes( themeName, true );
+
+        m_themes[themeName]->set_colorText( QColor( lst[fld++].trimmed() ) );
+        m_themes[themeName]->set_colorBack( QColor( lst[fld++].trimmed() ) );
+        m_themes[themeName]->set_gutterText( QColor( lst[fld++].trimmed() ) );
+        m_themes[themeName]->set_gutterBack( QColor( lst[fld++].trimmed() ) );
+        m_themes[themeName]->set_currentLineBack( QColor( lst[fld++].trimmed() ) );
 
         // key
         attr.set_color( QColor( lst[fld++].trimmed() ) );
@@ -1553,7 +1328,7 @@ void Settings::generateDefaultThemes()
             attr.set_italic( true );
         }
 
-        theme->set_syntaxKey( attr );
+        m_themes[themeName]->set_syntaxKey( attr );
 
         // type
         attr.set_color( QColor( lst[fld++].trimmed() ) );
@@ -1571,7 +1346,7 @@ void Settings::generateDefaultThemes()
             attr.set_italic( true );
         }
 
-        theme->set_syntaxType( attr );
+        m_themes[themeName]->set_syntaxType( attr );
 
         // class
         attr.set_color( QColor( lst[fld++].trimmed() ) );
@@ -1589,7 +1364,7 @@ void Settings::generateDefaultThemes()
             attr.set_italic( true );
         }
 
-        theme->set_syntaxClass( attr );
+        m_themes[themeName]->set_syntaxClass( attr );
 
         // func
         attr.set_color( QColor( lst[fld++].trimmed() ) );
@@ -1607,7 +1382,7 @@ void Settings::generateDefaultThemes()
             attr.set_italic( true );
         }
 
-        theme->set_syntaxFunc( attr );
+        m_themes[themeName]->set_syntaxFunc( attr );
 
         // quote
         attr.set_color( QColor( lst[fld++].trimmed() ) );
@@ -1625,7 +1400,7 @@ void Settings::generateDefaultThemes()
             attr.set_italic( true );
         }
 
-        theme->set_syntaxQuote( attr );
+        m_themes[themeName]->set_syntaxQuote( attr );
 
         // Comment
         attr.set_color( QColor( lst[fld++].trimmed() ) );
@@ -1643,7 +1418,7 @@ void Settings::generateDefaultThemes()
             attr.set_italic( true );
         }
 
-        theme->set_syntaxComment( attr );
+        m_themes[themeName]->set_syntaxComment( attr );
 
         // MLine
         attr.set_color( QColor( lst[fld++].trimmed() ) );
@@ -1661,7 +1436,7 @@ void Settings::generateDefaultThemes()
             attr.set_italic( true );
         }
 
-        theme->set_syntaxMLine( attr );
+        m_themes[themeName]->set_syntaxMLine( attr );
 
         // Constant
         attr.set_color( QColor( lst[fld++].trimmed() ) );
@@ -1679,10 +1454,7 @@ void Settings::generateDefaultThemes()
             attr.set_italic( true );
         }
 
-        theme->set_syntaxConstant( attr );
-
-        m_themes[theme->name()] = *theme;
-        delete theme;
+        m_themes[themeName]->set_syntaxConstant( attr );
     }
 
     m_activeTheme = "CLASSIC";
@@ -1784,8 +1556,7 @@ void Settings::importOldConfig( QJsonObject object )
     attr.set_color( QColor( "#FF518C" ) );
     elm->set_syntaxConstant( attr );
 
-    m_themes[elm->name()] = *elm;
-    delete elm;
+    m_themes[elm->name()] = elm;
 
     m_activeTheme = elm->name();
 

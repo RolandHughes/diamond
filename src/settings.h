@@ -33,11 +33,10 @@ class Settings : public QObject
 
 public:
     Settings();
+    ~Settings();
 
     Settings &operator =( const Settings &other );
 
-    friend bool operator ==( const Settings &left, const Settings &right );
-    friend bool operator !=( const Settings &left, const Settings &right );
     friend class Overlord;
 
     void copyTheme( QString name, QString dest );
@@ -51,7 +50,7 @@ public:
     // getters
     //
     QString activeTheme()           { return m_activeTheme;}
-    Themes  &currentTheme()         { return m_themes[m_activeTheme];}
+    Themes  *currentTheme()         { return m_themes[m_activeTheme];}
     QString syntaxPath()            { return m_options.syntaxPath();}
     QStringList availableThemes()   { return m_themes.keys();}
     QFont   fontColumn()            { return m_fontColumn;}
@@ -85,6 +84,7 @@ private:
     void    openedModifiedReplace( int sub, bool yesNo );
     int     findListFind( QString text );
     bool    recentFilesListContains( QString text );
+    void    deleteAllThemes();
 
     void openedFilesClear()                     { m_openedFiles.clear();}
     void openedModifiedClear()                  { m_openedModified.clear();}
@@ -185,7 +185,7 @@ private:
      * a dynamically allocated theme.
      */
 
-    QMap <QString, Themes> m_themes;
+    QMap <QString, Themes *> m_themes;
 
 
 };

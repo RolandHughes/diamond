@@ -103,7 +103,7 @@ public:
     QFont   fontNormal()                    { return m_settings.m_fontNormal;}
     QFont   fontColumn()                    { return m_settings.m_fontColumn;}
 
-    Themes  &currentTheme()                 { return m_settings.m_themes[m_settings.m_activeTheme];}
+    Themes  *currentTheme()                 { return m_settings.m_themes[m_settings.m_activeTheme];}
     QStringList availableThemes()           { return m_settings.m_themes.keys();}
     bool themeNameExists( QString name )    { return m_settings.themeNameExists( name );}
 
@@ -300,6 +300,7 @@ public:
 
 private:
     Overlord();
+    ~Overlord();
     void preloadSyntax();
 
     void checkForChange();

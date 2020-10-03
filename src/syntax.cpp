@@ -56,9 +56,9 @@ void Syntax::processSyntax( Settings *settings )
         }
 
         // key
-        rule.format.setFontWeight( settings->currentTheme().syntaxKey().weight() );
-        rule.format.setFontItalic( settings->currentTheme().syntaxKey().italic() );
-        rule.format.setForeground( settings->currentTheme().syntaxKey().color() );
+        rule.format.setFontWeight( settings->currentTheme()->syntaxKey().weight() );
+        rule.format.setFontItalic( settings->currentTheme()->syntaxKey().italic() );
+        rule.format.setForeground( settings->currentTheme()->syntaxKey().color() );
         rule.pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
@@ -77,9 +77,9 @@ void Syntax::processSyntax( Settings *settings )
         }
 
         // class
-        rule.format.setFontWeight( settings->currentTheme().syntaxClass().weight() );
-        rule.format.setFontItalic( settings->currentTheme().syntaxClass().italic() );
-        rule.format.setForeground( settings->currentTheme().syntaxClass().color() );
+        rule.format.setFontWeight( settings->currentTheme()->syntaxClass().weight() );
+        rule.format.setFontItalic( settings->currentTheme()->syntaxClass().italic() );
+        rule.format.setForeground( settings->currentTheme()->syntaxClass().color() );
         rule.pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
@@ -98,9 +98,9 @@ void Syntax::processSyntax( Settings *settings )
         }
 
         // func
-        rule.format.setFontWeight( settings->currentTheme().syntaxFunc().weight() );
-        rule.format.setFontItalic( settings->currentTheme().syntaxFunc().italic() );
-        rule.format.setForeground( settings->currentTheme().syntaxFunc().color() );
+        rule.format.setFontWeight( settings->currentTheme()->syntaxFunc().weight() );
+        rule.format.setFontItalic( settings->currentTheme()->syntaxFunc().italic() );
+        rule.format.setForeground( settings->currentTheme()->syntaxFunc().color() );
         rule.pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
@@ -119,9 +119,9 @@ void Syntax::processSyntax( Settings *settings )
         }
 
         // types
-        rule.format.setFontWeight( settings->currentTheme().syntaxType().weight() );
-        rule.format.setFontItalic( settings->currentTheme().syntaxType().italic() );
-        rule.format.setForeground( settings->currentTheme().syntaxType().color() );
+        rule.format.setFontWeight( settings->currentTheme()->syntaxType().weight() );
+        rule.format.setFontItalic( settings->currentTheme()->syntaxType().italic() );
+        rule.format.setForeground( settings->currentTheme()->syntaxType().color() );
         rule.pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
@@ -141,9 +141,9 @@ void Syntax::processSyntax( Settings *settings )
         }
 
         // types
-        rule.format.setFontWeight( settings->currentTheme().syntaxConstant().weight() );
-        rule.format.setFontItalic( settings->currentTheme().syntaxConstant().italic() );
-        rule.format.setForeground( settings->currentTheme().syntaxConstant().color() );
+        rule.format.setFontWeight( settings->currentTheme()->syntaxConstant().weight() );
+        rule.format.setFontItalic( settings->currentTheme()->syntaxConstant().italic() );
+        rule.format.setForeground( settings->currentTheme()->syntaxConstant().color() );
         rule.pattern = QRegularExpression( pattern );
 
         if ( patterns->ignoreCase )
@@ -155,9 +155,9 @@ void Syntax::processSyntax( Settings *settings )
     }
 
     // quoted text - everyone
-    rule.format.setFontWeight( settings->currentTheme().syntaxQuote().weight() );
-    rule.format.setFontItalic( settings->currentTheme().syntaxQuote().italic() );
-    rule.format.setForeground( settings->currentTheme().syntaxQuote().color() );
+    rule.format.setFontWeight( settings->currentTheme()->syntaxQuote().weight() );
+    rule.format.setFontItalic( settings->currentTheme()->syntaxQuote().italic() );
+    rule.format.setForeground( settings->currentTheme()->syntaxQuote().color() );
     rule.pattern = QRegularExpression( "\".*?\"" );
     highlightingRules.append( rule );
 
@@ -166,16 +166,16 @@ void Syntax::processSyntax( Settings *settings )
     //         Only works for languages that ripped off C comments.
     //         Won't work for COBOL, FORTRAN, BASIC, etc.
     //
-    rule.format.setFontWeight( settings->currentTheme().syntaxComment().weight() );
-    rule.format.setFontItalic( settings->currentTheme().syntaxComment().italic() );
-    rule.format.setForeground( settings->currentTheme().syntaxComment().color() );
+    rule.format.setFontWeight( settings->currentTheme()->syntaxComment().weight() );
+    rule.format.setFontItalic( settings->currentTheme()->syntaxComment().italic() );
+    rule.format.setForeground( settings->currentTheme()->syntaxComment().color() );
     rule.pattern = QRegularExpression( patterns->commentSingle );
     highlightingRules.append( rule );
 
 
-    m_multiLineCommentFormat.setFontWeight( settings->currentTheme().syntaxMLine().weight() );
-    m_multiLineCommentFormat.setFontItalic( settings->currentTheme().syntaxMLine().italic() );
-    m_multiLineCommentFormat.setForeground( settings->currentTheme().syntaxMLine().color() );
+    m_multiLineCommentFormat.setFontWeight( settings->currentTheme()->syntaxMLine().weight() );
+    m_multiLineCommentFormat.setFontItalic( settings->currentTheme()->syntaxMLine().italic() );
+    m_multiLineCommentFormat.setForeground( settings->currentTheme()->syntaxMLine().color() );
     m_commentStartExpression = QRegularExpression( patterns->commentStart );
     m_commentEndExpression   = QRegularExpression( patterns->commentEnd );
 

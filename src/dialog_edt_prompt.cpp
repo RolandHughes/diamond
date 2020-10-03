@@ -31,8 +31,8 @@ Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QW
     //setModal(false);
 
     QPalette temp = palette();
-    temp.setColor( this->foregroundRole(), Overlord::getInstance()->currentTheme().colorText() );
-    temp.setColor( this->backgroundRole(), Overlord::getInstance()->currentTheme().colorBack() );
+    temp.setColor( this->foregroundRole(), Overlord::getInstance()->currentTheme()->colorText() );
+    temp.setColor( this->backgroundRole(), Overlord::getInstance()->currentTheme()->colorBack() );
     setPalette( temp );
 
     m_label = new QLabel( labelText, this );
@@ -40,7 +40,7 @@ Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QW
     m_lineEdit->set_allowDirection( allowDirection );
 
     temp = m_label->palette();
-    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().syntaxConstant().color() );
+    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme()->syntaxConstant().color() );
 
     connect( m_lineEdit, &Edt_LineEdit::inputComplete, this, &QDialog::accept );
 

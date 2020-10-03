@@ -112,111 +112,111 @@ void Dialog_Colors::themeChanged( const QString &themeName )
     m_ui->sample->changeSettings( &m_localSettings );
     // ordinary text
     m_ui->text_Color->setReadOnly( true );
-    colorBox( m_ui->text_Color, m_localSettings.currentTheme().colorText() );
+    colorBox( m_ui->text_Color, m_localSettings.currentTheme()->colorText() );
 
     m_ui->back_Color->setReadOnly( true );
-    colorBox( m_ui->back_Color, m_localSettings.currentTheme().colorBack() );
+    colorBox( m_ui->back_Color, m_localSettings.currentTheme()->colorBack() );
 
     // line number margin/gutter
     m_ui->gutterText_Color->setReadOnly( true );
-    colorBox( m_ui->gutterText_Color, m_localSettings.currentTheme().gutterText() );
+    colorBox( m_ui->gutterText_Color, m_localSettings.currentTheme()->gutterText() );
 
     m_ui->gutterBack_Color->setReadOnly( true );
-    colorBox( m_ui->gutterBack_Color, m_localSettings.currentTheme().gutterBack() );
+    colorBox( m_ui->gutterBack_Color, m_localSettings.currentTheme()->gutterBack() );
 
     // current line background color
     m_ui->current_Color->setReadOnly( true );
-    colorBox( m_ui->current_Color, m_localSettings.currentTheme().currentLineBack() );
+    colorBox( m_ui->current_Color, m_localSettings.currentTheme()->currentLineBack() );
 
     /* Key */
     m_ui->key_Color->setReadOnly( true );
-    colorBox( m_ui->key_Color, m_localSettings.currentTheme().syntaxKey().color() );
+    colorBox( m_ui->key_Color, m_localSettings.currentTheme()->syntaxKey().color() );
 
-    if ( m_localSettings.currentTheme().syntaxKey().weight() == QFont::Bold )
+    if ( m_localSettings.currentTheme()->syntaxKey().weight() == QFont::Bold )
     {
         m_ui->key_Bold_CB->setChecked( true );
     }
 
-    m_ui->key_Italic_CB->setChecked( m_localSettings.currentTheme().syntaxKey().italic() );
+    m_ui->key_Italic_CB->setChecked( m_localSettings.currentTheme()->syntaxKey().italic() );
 
     /* Type */
     m_ui->type_Color->setReadOnly( true );
-    colorBox( m_ui->type_Color, m_localSettings.currentTheme().syntaxType().color() );
+    colorBox( m_ui->type_Color, m_localSettings.currentTheme()->syntaxType().color() );
 
-    if ( m_localSettings.currentTheme().syntaxType().weight() == QFont::Bold )
+    if ( m_localSettings.currentTheme()->syntaxType().weight() == QFont::Bold )
     {
         m_ui->type_Bold_CB->setChecked( true );
     }
 
-    m_ui->type_Italic_CB->setChecked( m_localSettings.currentTheme().syntaxType().italic() );
+    m_ui->type_Italic_CB->setChecked( m_localSettings.currentTheme()->syntaxType().italic() );
 
     /* Class */
     m_ui->class_Color->setReadOnly( true );
-    colorBox( m_ui->class_Color, m_localSettings.currentTheme().syntaxClass().color() );
+    colorBox( m_ui->class_Color, m_localSettings.currentTheme()->syntaxClass().color() );
 
-    if ( m_localSettings.currentTheme().syntaxClass().weight() == QFont::Bold )
+    if ( m_localSettings.currentTheme()->syntaxClass().weight() == QFont::Bold )
     {
         m_ui->class_Bold_CB->setChecked( true );
     }
 
-    m_ui->class_Italic_CB->setChecked( m_localSettings.currentTheme().syntaxClass().italic() );
+    m_ui->class_Italic_CB->setChecked( m_localSettings.currentTheme()->syntaxClass().italic() );
 
     /* Func */
     m_ui->func_Color->setReadOnly( true );
-    colorBox( m_ui->func_Color, m_localSettings.currentTheme().syntaxFunc().color() );
+    colorBox( m_ui->func_Color, m_localSettings.currentTheme()->syntaxFunc().color() );
 
-    if ( m_localSettings.currentTheme().syntaxFunc().weight() == QFont::Bold )
+    if ( m_localSettings.currentTheme()->syntaxFunc().weight() == QFont::Bold )
     {
         m_ui->func_Bold_CB->setChecked( true );
     }
 
-    m_ui->func_Italic_CB->setChecked( m_localSettings.currentTheme().syntaxFunc().italic() );
+    m_ui->func_Italic_CB->setChecked( m_localSettings.currentTheme()->syntaxFunc().italic() );
 
     /* Quote */
     m_ui->quote_Color->setReadOnly( true );
-    colorBox( m_ui->quote_Color, m_localSettings.currentTheme().syntaxQuote().color() );
+    colorBox( m_ui->quote_Color, m_localSettings.currentTheme()->syntaxQuote().color() );
 
-    if ( m_localSettings.currentTheme().syntaxQuote().weight() == QFont::Bold )
+    if ( m_localSettings.currentTheme()->syntaxQuote().weight() == QFont::Bold )
     {
         m_ui->quote_Bold_CB->setChecked( true );
     }
 
-    m_ui->quote_Italic_CB->setChecked( m_localSettings.currentTheme().syntaxQuote().italic() );
+    m_ui->quote_Italic_CB->setChecked( m_localSettings.currentTheme()->syntaxQuote().italic() );
 
     /* Comment */
     m_ui->comment_Color->setReadOnly( true );
-    colorBox( m_ui->comment_Color, m_localSettings.currentTheme().syntaxComment().color() );
+    colorBox( m_ui->comment_Color, m_localSettings.currentTheme()->syntaxComment().color() );
 
-    if ( m_localSettings.currentTheme().syntaxComment().weight() == QFont::Bold )
+    if ( m_localSettings.currentTheme()->syntaxComment().weight() == QFont::Bold )
     {
         m_ui->comment_Bold_CB->setChecked( true );
     }
 
-    m_ui->comment_Italic_CB->setChecked( m_localSettings.currentTheme().syntaxComment().italic() );
+    m_ui->comment_Italic_CB->setChecked( m_localSettings.currentTheme()->syntaxComment().italic() );
 
     /* MLine comment*/
     m_ui->mline_Color->setReadOnly( true );
-    colorBox( m_ui->mline_Color, m_localSettings.currentTheme().syntaxMLine().color() );
+    colorBox( m_ui->mline_Color, m_localSettings.currentTheme()->syntaxMLine().color() );
 
-    if ( m_localSettings.currentTheme().syntaxMLine().weight() == QFont::Bold )
+    if ( m_localSettings.currentTheme()->syntaxMLine().weight() == QFont::Bold )
     {
         m_ui->mline_Bold_CB->setChecked( true );
     }
 
-    m_ui->mline_Italic_CB->setChecked( m_localSettings.currentTheme().syntaxMLine().italic() );
+    m_ui->mline_Italic_CB->setChecked( m_localSettings.currentTheme()->syntaxMLine().italic() );
 
     /* Constant */
     m_ui->const_Color->setReadOnly( true );
-    colorBox( m_ui->const_Color, m_localSettings.currentTheme().syntaxConstant().color() );
+    colorBox( m_ui->const_Color, m_localSettings.currentTheme()->syntaxConstant().color() );
 
-    if ( m_localSettings.currentTheme().syntaxConstant().weight() == QFont::Bold )
+    if ( m_localSettings.currentTheme()->syntaxConstant().weight() == QFont::Bold )
     {
         m_ui->constant_Bold_CB->setChecked( true );
     }
 
-    m_ui->constant_Italic_CB->setChecked( m_localSettings.currentTheme().syntaxConstant().italic() );
+    m_ui->constant_Italic_CB->setChecked( m_localSettings.currentTheme()->syntaxConstant().italic() );
 
-    if ( m_localSettings.currentTheme().isProtected() )
+    if ( m_localSettings.currentTheme()->isProtected() )
     {
         m_ui->delete_button->setEnabled( false );
     }
@@ -250,10 +250,10 @@ void Dialog_Colors::copyClicked()
 
 void Dialog_Colors::deleteClicked()
 {
-    qDebug() << "Theme: " << m_localSettings.currentTheme().name() << "  protected: "
-             << m_localSettings.currentTheme().isProtected();
+    qDebug() << "Theme: " << m_localSettings.currentTheme()->name() << "  protected: "
+             << m_localSettings.currentTheme()->isProtected();
 
-    if ( m_localSettings.currentTheme().isProtected() )
+    if ( m_localSettings.currentTheme()->isProtected() )
     {
         QMessageBox::warning( this, "Delete", "Cannot delete pre-installed theme",
                               QMessageBox::Ok );
@@ -295,52 +295,52 @@ void Dialog_Colors::exportClicked()
             list.append( true );
             list.append( 0 );
 
-            object.insert( "theme-name", m_localSettings.currentTheme().name() );
-            object.insert( "theme-protected", m_localSettings.currentTheme().isProtected() );
-            object.insert( "theme-color-text", getRGBString( m_localSettings.currentTheme().colorText() ) );
-            object.insert( "theme-color-back", getRGBString( m_localSettings.currentTheme().colorBack() ) );
-            object.insert( "theme-color-gutterText", getRGBString( m_localSettings.currentTheme().gutterText() ) );
-            object.insert( "theme-color-gutterBack", getRGBString( m_localSettings.currentTheme().gutterBack() ) );
-            object.insert( "theme-color-currentLineBack", getRGBString( m_localSettings.currentTheme().currentLineBack() ) );
+            object.insert( "theme-name", m_localSettings.currentTheme()->name() );
+            object.insert( "theme-protected", m_localSettings.currentTheme()->isProtected() );
+            object.insert( "theme-color-text", getRGBString( m_localSettings.currentTheme()->colorText() ) );
+            object.insert( "theme-color-back", getRGBString( m_localSettings.currentTheme()->colorBack() ) );
+            object.insert( "theme-color-gutterText", getRGBString( m_localSettings.currentTheme()->gutterText() ) );
+            object.insert( "theme-color-gutterBack", getRGBString( m_localSettings.currentTheme()->gutterBack() ) );
+            object.insert( "theme-color-currentLineBack", getRGBString( m_localSettings.currentTheme()->currentLineBack() ) );
 
-            list.replace( 0, m_localSettings.currentTheme().syntaxKey().weight() );
-            list.replace( 1, m_localSettings.currentTheme().syntaxKey().italic() );
-            list.replace( 2, getRGBString( m_localSettings.currentTheme().syntaxKey().color() ) );
+            list.replace( 0, m_localSettings.currentTheme()->syntaxKey().weight() );
+            list.replace( 1, m_localSettings.currentTheme()->syntaxKey().italic() );
+            list.replace( 2, getRGBString( m_localSettings.currentTheme()->syntaxKey().color() ) );
             object.insert( "theme-syntax-key", list );
 
-            list.replace( 0, m_localSettings.currentTheme().syntaxType().weight() );
-            list.replace( 1, m_localSettings.currentTheme().syntaxType().italic() );
-            list.replace( 2, getRGBString( m_localSettings.currentTheme().syntaxType().color() ) );
+            list.replace( 0, m_localSettings.currentTheme()->syntaxType().weight() );
+            list.replace( 1, m_localSettings.currentTheme()->syntaxType().italic() );
+            list.replace( 2, getRGBString( m_localSettings.currentTheme()->syntaxType().color() ) );
             object.insert( "theme-syntax-type", list );
 
-            list.replace( 0, m_localSettings.currentTheme().syntaxClass().weight() );
-            list.replace( 1, m_localSettings.currentTheme().syntaxClass().italic() );
-            list.replace( 2, getRGBString( m_localSettings.currentTheme().syntaxClass().color() ) );
+            list.replace( 0, m_localSettings.currentTheme()->syntaxClass().weight() );
+            list.replace( 1, m_localSettings.currentTheme()->syntaxClass().italic() );
+            list.replace( 2, getRGBString( m_localSettings.currentTheme()->syntaxClass().color() ) );
             object.insert( "theme-syntax-class", list );
 
-            list.replace( 0, m_localSettings.currentTheme().syntaxFunc().weight() );
-            list.replace( 1, m_localSettings.currentTheme().syntaxFunc().italic() );
-            list.replace( 2, getRGBString( m_localSettings.currentTheme().syntaxFunc().color() ) );
+            list.replace( 0, m_localSettings.currentTheme()->syntaxFunc().weight() );
+            list.replace( 1, m_localSettings.currentTheme()->syntaxFunc().italic() );
+            list.replace( 2, getRGBString( m_localSettings.currentTheme()->syntaxFunc().color() ) );
             object.insert( "theme-syntax-func", list );
 
-            list.replace( 0, m_localSettings.currentTheme().syntaxQuote().weight() );
-            list.replace( 1, m_localSettings.currentTheme().syntaxQuote().italic() );
-            list.replace( 2, getRGBString( m_localSettings.currentTheme().syntaxQuote().color() ) );
+            list.replace( 0, m_localSettings.currentTheme()->syntaxQuote().weight() );
+            list.replace( 1, m_localSettings.currentTheme()->syntaxQuote().italic() );
+            list.replace( 2, getRGBString( m_localSettings.currentTheme()->syntaxQuote().color() ) );
             object.insert( "theme-syntax-quote", list );
 
-            list.replace( 0, m_localSettings.currentTheme().syntaxComment().weight() );
-            list.replace( 1, m_localSettings.currentTheme().syntaxComment().italic() );
-            list.replace( 2, getRGBString( m_localSettings.currentTheme().syntaxComment().color() ) );
+            list.replace( 0, m_localSettings.currentTheme()->syntaxComment().weight() );
+            list.replace( 1, m_localSettings.currentTheme()->syntaxComment().italic() );
+            list.replace( 2, getRGBString( m_localSettings.currentTheme()->syntaxComment().color() ) );
             object.insert( "theme-syntax-comment", list );
 
-            list.replace( 0, m_localSettings.currentTheme().syntaxMLine().weight() );
-            list.replace( 1, m_localSettings.currentTheme().syntaxMLine().italic() );
-            list.replace( 2, getRGBString( m_localSettings.currentTheme().syntaxMLine().color() ) );
+            list.replace( 0, m_localSettings.currentTheme()->syntaxMLine().weight() );
+            list.replace( 1, m_localSettings.currentTheme()->syntaxMLine().italic() );
+            list.replace( 2, getRGBString( m_localSettings.currentTheme()->syntaxMLine().color() ) );
             object.insert( "theme-syntax-mline", list );
 
-            list.replace( 0, m_localSettings.currentTheme().syntaxConstant().weight() );
-            list.replace( 1, m_localSettings.currentTheme().syntaxConstant().italic() );
-            list.replace( 2, getRGBString( m_localSettings.currentTheme().syntaxConstant().color() ) );
+            list.replace( 0, m_localSettings.currentTheme()->syntaxConstant().weight() );
+            list.replace( 1, m_localSettings.currentTheme()->syntaxConstant().italic() );
+            list.replace( 2, getRGBString( m_localSettings.currentTheme()->syntaxConstant().color() ) );
             object.insert( "theme-syntax-constant", list );
 
             QJsonDocument doc( object );
@@ -612,130 +612,130 @@ QColor Dialog_Colors::pickColor( QColor oldColor )
 
 void Dialog_Colors::text_TB()
 {
-    QColor color = m_localSettings.currentTheme().colorText();
-    m_localSettings.currentTheme().set_colorText( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->colorText();
+    m_localSettings.currentTheme()->set_colorText( pickColor( color ) );
 
-    colorBox( m_ui->text_Color, m_localSettings.currentTheme().colorText() );
+    colorBox( m_ui->text_Color, m_localSettings.currentTheme()->colorText() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::back_TB()
 {
-    QColor color = m_localSettings.currentTheme().colorBack();
-    m_localSettings.currentTheme().set_colorBack( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->colorBack();
+    m_localSettings.currentTheme()->set_colorBack( pickColor( color ) );
 
-    colorBox( m_ui->back_Color, m_localSettings.currentTheme().colorBack() );
+    colorBox( m_ui->back_Color, m_localSettings.currentTheme()->colorBack() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::gutterText_TB()
 {
-    QColor color = m_localSettings.currentTheme().gutterText();
-    m_localSettings.currentTheme().set_gutterText( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->gutterText();
+    m_localSettings.currentTheme()->set_gutterText( pickColor( color ) );
 
-    colorBox( m_ui->gutterText_Color, m_localSettings.currentTheme().gutterText() );
+    colorBox( m_ui->gutterText_Color, m_localSettings.currentTheme()->gutterText() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::gutterBack_TB()
 {
-    QColor color = m_localSettings.currentTheme().gutterBack();
-    m_localSettings.currentTheme().set_gutterBack( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->gutterBack();
+    m_localSettings.currentTheme()->set_gutterBack( pickColor( color ) );
 
-    colorBox( m_ui->gutterBack_Color, m_localSettings.currentTheme().gutterBack() );
+    colorBox( m_ui->gutterBack_Color, m_localSettings.currentTheme()->gutterBack() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::current_TB()
 {
-    QColor color = m_localSettings.currentTheme().currentLineBack();
-    m_localSettings.currentTheme().set_currentLineBack( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->currentLineBack();
+    m_localSettings.currentTheme()->set_currentLineBack( pickColor( color ) );
 
-    colorBox( m_ui->current_Color, m_localSettings.currentTheme().currentLineBack() );
+    colorBox( m_ui->current_Color, m_localSettings.currentTheme()->currentLineBack() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::key_TB()
 {
-    QColor color = m_localSettings.currentTheme().syntaxKey().color();
-    m_localSettings.currentTheme().syntaxKey().set_color( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->syntaxKey().color();
+    m_localSettings.currentTheme()->syntaxKey().set_color( pickColor( color ) );
 
-    colorBox( m_ui->key_Color, m_localSettings.currentTheme().syntaxKey().color() );
+    colorBox( m_ui->key_Color, m_localSettings.currentTheme()->syntaxKey().color() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::type_TB()
 {
-    QColor color = m_localSettings.currentTheme().syntaxType().color();
-    m_localSettings.currentTheme().syntaxType().set_color( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->syntaxType().color();
+    m_localSettings.currentTheme()->syntaxType().set_color( pickColor( color ) );
 
-    colorBox( m_ui->type_Color, m_localSettings.currentTheme().syntaxType().color() );
+    colorBox( m_ui->type_Color, m_localSettings.currentTheme()->syntaxType().color() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::class_TB()
 {
-    QColor color = m_localSettings.currentTheme().syntaxClass().color();
-    m_localSettings.currentTheme().syntaxClass().set_color( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->syntaxClass().color();
+    m_localSettings.currentTheme()->syntaxClass().set_color( pickColor( color ) );
 
-    colorBox( m_ui->class_Color, m_localSettings.currentTheme().syntaxClass().color() );
+    colorBox( m_ui->class_Color, m_localSettings.currentTheme()->syntaxClass().color() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::func_TB()
 {
-    QColor color = m_localSettings.currentTheme().syntaxFunc().color();
-    m_localSettings.currentTheme().syntaxFunc().set_color( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->syntaxFunc().color();
+    m_localSettings.currentTheme()->syntaxFunc().set_color( pickColor( color ) );
 
-    colorBox( m_ui->func_Color, m_localSettings.currentTheme().syntaxFunc().color() );
+    colorBox( m_ui->func_Color, m_localSettings.currentTheme()->syntaxFunc().color() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::quote_TB()
 {
-    QColor color = m_localSettings.currentTheme().syntaxQuote().color();
-    m_localSettings.currentTheme().syntaxQuote().set_color( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->syntaxQuote().color();
+    m_localSettings.currentTheme()->syntaxQuote().set_color( pickColor( color ) );
 
-    colorBox( m_ui->quote_Color, m_localSettings.currentTheme().syntaxQuote().color() );
+    colorBox( m_ui->quote_Color, m_localSettings.currentTheme()->syntaxQuote().color() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::comment_TB()
 {
-    QColor color = m_localSettings.currentTheme().syntaxComment().color();
-    m_localSettings.currentTheme().syntaxComment().set_color( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->syntaxComment().color();
+    m_localSettings.currentTheme()->syntaxComment().set_color( pickColor( color ) );
 
-    colorBox( m_ui->comment_Color, m_localSettings.currentTheme().syntaxComment().color() );
+    colorBox( m_ui->comment_Color, m_localSettings.currentTheme()->syntaxComment().color() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::mline_TB()
 {
-    QColor color = m_localSettings.currentTheme().syntaxMLine().color();
-    m_localSettings.currentTheme().syntaxMLine().set_color( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->syntaxMLine().color();
+    m_localSettings.currentTheme()->syntaxMLine().set_color( pickColor( color ) );
 
-    colorBox( m_ui->mline_Color, m_localSettings.currentTheme().syntaxMLine().color() );
+    colorBox( m_ui->mline_Color, m_localSettings.currentTheme()->syntaxMLine().color() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
 
 void Dialog_Colors::const_TB()
 {
-    QColor color = m_localSettings.currentTheme().syntaxConstant().color();
-    m_localSettings.currentTheme().syntaxConstant().set_color( pickColor( color ) );
+    QColor color = m_localSettings.currentTheme()->syntaxConstant().color();
+    m_localSettings.currentTheme()->syntaxConstant().set_color( pickColor( color ) );
 
-    colorBox( m_ui->const_Color, m_localSettings.currentTheme().syntaxConstant().color() );
+    colorBox( m_ui->const_Color, m_localSettings.currentTheme()->syntaxConstant().color() );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -750,7 +750,7 @@ void Dialog_Colors::key_bold()
         f = QFont::Bold;
     }
 
-    m_localSettings.currentTheme().syntaxKey().set_weight( f );
+    m_localSettings.currentTheme()->syntaxKey().set_weight( f );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -764,7 +764,7 @@ void Dialog_Colors::key_italic()
         b = true;
     }
 
-    m_localSettings.currentTheme().syntaxKey().set_italic( b );
+    m_localSettings.currentTheme()->syntaxKey().set_italic( b );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -778,7 +778,7 @@ void Dialog_Colors::type_bold()
         f = QFont::Bold;
     }
 
-    m_localSettings.currentTheme().syntaxType().set_weight( f );
+    m_localSettings.currentTheme()->syntaxType().set_weight( f );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -792,7 +792,7 @@ void Dialog_Colors::type_italic()
         b = true;
     }
 
-    m_localSettings.currentTheme().syntaxType().set_italic( b );
+    m_localSettings.currentTheme()->syntaxType().set_italic( b );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -806,7 +806,7 @@ void Dialog_Colors::class_bold()
         f = QFont::Bold;
     }
 
-    m_localSettings.currentTheme().syntaxClass().set_weight( f );
+    m_localSettings.currentTheme()->syntaxClass().set_weight( f );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -820,7 +820,7 @@ void Dialog_Colors::class_italic()
         b = true;
     }
 
-    m_localSettings.currentTheme().syntaxClass().set_italic( b );
+    m_localSettings.currentTheme()->syntaxClass().set_italic( b );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -834,7 +834,7 @@ void Dialog_Colors::func_bold()
         f = QFont::Bold;
     }
 
-    m_localSettings.currentTheme().syntaxFunc().set_weight( f );
+    m_localSettings.currentTheme()->syntaxFunc().set_weight( f );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -848,7 +848,7 @@ void Dialog_Colors::func_italic()
         b = true;
     }
 
-    m_localSettings.currentTheme().syntaxFunc().set_italic( b );
+    m_localSettings.currentTheme()->syntaxFunc().set_italic( b );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -862,7 +862,7 @@ void Dialog_Colors::quote_bold()
         f = QFont::Bold;
     }
 
-    m_localSettings.currentTheme().syntaxQuote().set_weight( f );
+    m_localSettings.currentTheme()->syntaxQuote().set_weight( f );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -876,7 +876,7 @@ void Dialog_Colors::quote_italic()
         b = true;
     }
 
-    m_localSettings.currentTheme().syntaxQuote().set_italic( b );
+    m_localSettings.currentTheme()->syntaxQuote().set_italic( b );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -890,7 +890,7 @@ void Dialog_Colors::comment_bold()
         f = QFont::Bold;
     }
 
-    m_localSettings.currentTheme().syntaxComment().set_weight( f );
+    m_localSettings.currentTheme()->syntaxComment().set_weight( f );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -904,7 +904,7 @@ void Dialog_Colors::comment_italic()
         b = true;
     }
 
-    m_localSettings.currentTheme().syntaxComment().set_italic( b );
+    m_localSettings.currentTheme()->syntaxComment().set_italic( b );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -918,7 +918,7 @@ void Dialog_Colors::mline_bold()
         f = QFont::Bold;
     }
 
-    m_localSettings.currentTheme().syntaxMLine().set_weight( f );
+    m_localSettings.currentTheme()->syntaxMLine().set_weight( f );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }
@@ -932,7 +932,7 @@ void Dialog_Colors::mline_italic()
         b = true;
     }
 
-    m_localSettings.currentTheme().syntaxMLine().set_italic( b );
+    m_localSettings.currentTheme()->syntaxMLine().set_italic( b );
 
     m_ui->sample->changeSettings( &m_localSettings );
 }

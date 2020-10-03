@@ -43,8 +43,8 @@ void MainWindow::split_Vertical()
     }
 
     QPalette temp = m_split_textEdit->palette();
-    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().colorText() );
-    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme().colorBack() );
+    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme()->colorText() );
+    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme()->colorBack() );
     m_split_textEdit->setPalette( temp );
 
     // position on same line
@@ -149,8 +149,8 @@ void MainWindow::split_Horizontal()
     }
 
     QPalette temp = m_split_textEdit->palette();
-    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().colorText() );
-    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme().colorBack() );
+    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme()->colorText() );
+    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme()->colorBack() );
     m_split_textEdit->setPalette( temp );
 
     // position on same line
@@ -359,8 +359,8 @@ void MainWindow::split_NameChanged( int data )
             }
 
             QPalette temp = m_split_textEdit->palette();
-            temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme().colorText() );
-            temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme().colorBack() );
+            temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme()->colorText() );
+            temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme()->colorBack() );
             m_split_textEdit->setPalette( temp );
 
             m_textEdit = m_split_textEdit;

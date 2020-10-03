@@ -93,7 +93,7 @@ DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     // make local copies of the things that require a lot of work
     // so we only want to update that stuff when it actually changes.
     //
-    m_lastTheme      = m_settingsPtr->currentTheme();
+    m_lastTheme      = *m_settingsPtr->currentTheme();
     m_lastNormalFont = m_settingsPtr->fontNormal();
     m_lastColumnFont = m_settingsPtr->fontColumn();
 
@@ -140,7 +140,7 @@ void DiamondTextEdit::lineNum_PaintEvent( QPaintEvent *event )
     {
 
         QPainter painter( m_lineNumArea );
-        painter.fillRect( event->rect(), m_settingsPtr->currentTheme().gutterBack() );
+        painter.fillRect( event->rect(), m_settingsPtr->currentTheme()->gutterBack() );
 
         QTextBlock block = firstVisibleBlock();
         int blockNumber = block.blockNumber();
@@ -153,7 +153,7 @@ void DiamondTextEdit::lineNum_PaintEvent( QPaintEvent *event )
             {
                 QString number = QString::number( blockNumber + 1 );
 
-                painter.setPen( m_settingsPtr->currentTheme().gutterText() );
+                painter.setPen( m_settingsPtr->currentTheme()->gutterText() );
                 painter.drawText( 0, top, m_lineNumArea->width()-7, fontMetrics().height(), Qt::AlignRight, number );
             }
 
@@ -1784,13 +1784,13 @@ void DiamondTextEdit::moveBar()
     QColor textColor;
     QColor backColor;
 
-    textColor = m_settingsPtr->currentTheme().colorText();
-    backColor = m_settingsPtr->currentTheme().colorBack();
+    textColor = m_settingsPtr->currentTheme()->colorText();
+    backColor = m_settingsPtr->currentTheme()->colorBack();
 
     if ( m_settingsPtr->showLineHighlight() )
     {
         // on
-        backColor = m_settingsPtr->currentTheme().currentLineBack();
+        backColor = m_settingsPtr->currentTheme()->currentLineBack();
     }
 
     // We really should leave syntax highlight in place, just changing background
@@ -2228,10 +2228,10 @@ void DiamondTextEdit::changeSettings( Settings *settings )
 
     setUpTabStops();
 
-    if ( m_lastTheme != m_settingsPtr->currentTheme() )
+    if ( m_lastTheme != *m_settingsPtr->currentTheme() )
     {
         setScreenColors();
-        m_lastTheme = m_settingsPtr->currentTheme();
+        m_lastTheme = *m_settingsPtr->currentTheme();
         queueRunSyntax( m_synFName );
         moveBar();
     }
@@ -2248,8 +2248,8 @@ void DiamondTextEdit::changeSettings( Settings *settings )
 void DiamondTextEdit::setScreenColors()
 {
     QPalette tmp = palette();
-    tmp.setColor( QPalette::Text, m_settingsPtr->currentTheme().colorText() );
-    tmp.setColor( QPalette::Base, m_settingsPtr->currentTheme().colorBack() );
+    tmp.setColor( QPalette::Text, m_settingsPtr->currentTheme()->colorText() );
+    tmp.setColor( QPalette::Base, m_settingsPtr->currentTheme()->colorBack() );
     setPalette( tmp );
 }
 
