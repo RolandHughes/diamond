@@ -45,6 +45,7 @@
 #include <QTimer>
 
 class Dialog_AdvFind;
+class Dialog_Busy;
 
 
 struct advFindStruct
@@ -95,6 +96,8 @@ public:
     void split_Vertical();
     void showClipboard();
 
+    void showBusy();
+    void hideBusy();
     void refocusTab();
 
 protected:
@@ -104,191 +107,144 @@ protected:
     void resizeEvent( QResizeEvent *event );
 
 private:
-    Ui::MainWindow *m_ui;
-
-    QString m_appPath;
-
-    QString m_configFileName;
+    // methods come first
+    //
     void getConfigFileName();
-
-    QStringList m_fileList;
-    QStringList m_flagList;
-
-    // textEdit
-    DiamondTextEdit *m_textEdit;
-    QTabWidget *m_tabWidget;
-    QString m_curFile;
-
-    QTimer *m_refocusTimer;
-
-    // split
-    DiamondTextEdit *m_split_textEdit;
-    DiamondTextEdit *m_noSplit_textEdit;
-    QSplitter *m_splitter;
-
-    bool m_isSplit;
-    QFrame *m_splitWidget;
-    QString m_splitFileName;
-    QComboBox *m_splitName_CB;
-    QPushButton *m_splitClose_PB;
-
     void add_splitCombo( QString fullName );
     void rm_splitCombo( QString fullName );
     void update_splitCombo( QString fullName, bool isModified );
-
-    // copy buffer
-    QShortcut *m_actionCopyBuffer;
-
-    // advanced find
-    Dialog_AdvFind *m_dwAdvFind;
-
-    QStringList m_recursiveList;
-    QFrame *m_findWidget;
-    QStandardItemModel *m_model;
-    QStandardItemModel *m_backupModel;
     QList<advFindStruct> advFind_getResults( bool &aborted );
     void findRecursive( const QString &path, bool isFirstLoop = true );
     void advFind_ShowFiles( QList<advFindStruct> foundList );
-
     void onceEventLoopStarts();
-
-    // replace
     int getReply();
-
-    // macros
-    bool m_record;
-    QList<QKeyEvent *> m_macroList;
-
     void replaceQuery();
     void replaceAll();
-
-    // passed parms
     void autoLoad();
     void argLoad( QList<QString> argList );
-
-    // preset folders
-    QAction *prefolder_Actions[DiamondLimits::PRESET_FOLDERS_MAX];
-
     void prefolder_CreateMenus();
     void prefolder_RedoList();
-    //void prefolder_UpdateActions();
-
-    // recent folders
-    QAction *rfolder_Actions[DiamondLimits::RECENT_FOLDERS_MAX];
-
     void rfolder_CreateMenus();
     void rfolder_Add();
     void rfolder_UpdateActions();
-
-    // recent files
-    QAction *rf_Actions[DiamondLimits::RECENT_FILES_MAX];
-
     void rf_CreateMenus();
     void rf_Update();
     void rf_UpdateActions();
-
-
-    // open tabs
-    QAction *openTab_Actions[DiamondLimits::OPENTABS_MAX];
-
     void openTab_CreateMenus();
     void openTab_Add();
     void openTab_Delete();
     void openTab_UpdateActions();
-
     void openTab_Select( int index );
-    void openTab_UpdateOneAction( int index, bool isModified );
-
-    // menu bar
-    QToolBar *fileToolBar;
-    QToolBar *editToolBar;
-    QToolBar *searchToolBar;
-    QToolBar *viewToolBar;
-    QToolBar *toolsToolBar;
-    QToolBar *windowToolBar;
-
-    // status bar
-    QLabel *m_statusLine;
-    QLabel *m_statusMode;
-    QLabel *m_statusReadWrite;
-    QLabel *m_statusName;
-
     void openDoc( QString path );
     bool closeAll_Doc( bool isExit );
     void save_ConfigFile();
-
-    // create shortcuts, menus, status bar
     void createShortCuts( bool setupAll );
     void createToolBars();
     void createStatusBar();
     void createConnections();
     void createToggles();
-
     QString adjustKey( QString sequence );
-
     void setStatusBar( QString msg, int timeOut );
-
     void setStatus_ColMode();
     void setStatus_FName( QString name );
     void showNotDone( QString item );
     void setStatus_ReadWrite( bool yesNo );
-
     QString get_SyntaxPath( QString syntaxPath );
     QString get_xxFile( QString title, QString fname, QString filter );
-
-
-    // printing
-    int m_pageNo;
-    int m_pageCount;
-
-    QRectF m_printArea;
-    double m_resolution;
-
     int get_HeaderSize( QPainter *painter );
     int get_FooterSize( QPainter *painter );
-
     void doHeader( QPainter *painter );
     void doFooter( QPainter *painter );
     QString macroExpand( QString macro );
     QString convertBlockToHTML( const QString &plain, int tabSpacing ) const;
-
-    // support
     bool querySave();
     bool saveFile( QString fileName, Overlord::SaveFiles saveType );
     bool saveAs( Overlord::SaveFiles saveType );
-
     void setCurrentTitle( const QString &fileName, bool tabChange = false, bool isReload = false, bool isReadOnly = false );
     void setDiamondTitle( const QString title );
     void forceSyntax( SyntaxTypes data );
     QString get_curFileName( int whichTab );
-
     void focusChanged( QWidget *prior, QWidget *current );
-
     void newFile();
     void open_RelatedFile();
-
     bool close_Doc();
     void reload();
     bool save();
     void saveAll();
     void print();
-
     void printOut( QPrinter * );
     void printPdf();
     void printPreview();
-
     void mw_undo();
     void mw_redo();
     void mw_cut();
     void mw_copy();
     void mw_paste();
-
-    CS_SLOT_1( Private, void selectAll() )
-    CS_SLOT_2( selectAll )
-
     void selectBlock();
     void selectLine();
     void selectWord();
+    void caseCap();
+    void deleteThroughEOL();
+    void insertSymbol();
+    void columnMode();
+    void find();
+    void replace();
+    void findNext();
+    void findPrevious();
+    void advFind();
+    void goLine();
+    void goColumn();
+    void goTop();
+    void goBottom();
+    void lineHighlight();
+    void moveBar();
+    void lineNumbers();
+    void wordWrap();
+    void show_Spaces();
+    void show_Breaks();
+    void displayHTML();
+    void formatUnix();
+    void formatWin();
+    void fixTab_Spaces();
+    void fixSpaces_Tab();
+    void deleteEOL_Spaces();
+    void mw_macroStart();
+    void mw_macroStop();
+    void macroPlay();
+    void macroLoad();
+    void macroEditNames();
+    void spellCheck();
+    void astyle();
+    void setColors();
+    void setFont();
+    void setOptions();
+    void setPresetFolders();
+    void setPrintOptions();
+    void move_ConfigFile();
+    void tabNew();
+    void tabClose( int index );
+    void diamondHelp();
+    void about();
+    void documentWasModified();
+    void setStatus_LineCol();
+    void mw_tabClose();
+    void tabChanged( int index );
+    void showBackups();
+    void show_backups( QString fileName, SyntaxTypes syntaxType );
+    void showCopyBuffer();
+    void showContext_RecentFolder( const QPoint &pt );
+    void showContext_Files( const QPoint &pt );
+    void showContext_Tabs( const QPoint &pt );
+    void set_splitCombo();
+    void split_NameChanged( int data );
+    void splitCloseClicked();
+    void deleteOldSplit();
+    void backupAndTrim( QString fileName );
+
+    //    slots
+    //
+    CS_SLOT_1( Private, void selectAll() )
+    CS_SLOT_2( selectAll )
 
     CS_SLOT_1( Private, void caseUpper() )
     CS_SLOT_2( caseUpper )
@@ -296,15 +252,11 @@ private:
     CS_SLOT_1( Private, void caseLower() )
     CS_SLOT_2( caseLower )
 
-    void caseCap();
-
     CS_SLOT_1( Private, void deleteLine() )
     CS_SLOT_2( deleteLine )
 
     CS_SLOT_1( Private, void deleteEOL() )
     CS_SLOT_2( deleteEOL )
-
-    void deleteThroughEOL();
 
     CS_SLOT_1( Private, void insertDate() )
     CS_SLOT_2( insertDate )
@@ -315,84 +267,14 @@ private:
     CS_SLOT_1( Private, void rewrapParagraph() )
     CS_SLOT_2( rewrapParagraph )
 
-    void insertSymbol();
-    void columnMode();
-
-    void find();
-    void replace();
-    void findNext();
-    void findPrevious();
-    void advFind();
-
-    void goLine();
-    void goColumn();
-    void goTop();
-    void goBottom();
-
-    void lineHighlight();
-    void moveBar();
-    void lineNumbers();
-    void wordWrap();
-
-    void show_Spaces();
-    void show_Breaks();
-    void displayHTML();
-
-    // document
-    void formatUnix();
-    void formatWin();
-    void fixTab_Spaces();
-    void fixSpaces_Tab();
-    void deleteEOL_Spaces();
-
-    // macro
-    void mw_macroStart();
-    void mw_macroStop();
-    void macroPlay();
-    void macroLoad();
-    void macroEditNames();
-    void spellCheck();
-    void astyle();
-
-    // options
-    void setColors();
-    void setFont();
-    void setOptions();
-    void setPresetFolders();
-    void setPrintOptions();
-    void move_ConfigFile();
-    void tabNew();
-    void tabClose( int index );
-
-    // help
-    void diamondHelp();
-    void about();
-
-    //
-    void documentWasModified();
-    void setStatus_LineCol();
-    void mw_tabClose();
-    void tabChanged( int index );
-
-    // adv find
     CS_SLOT_1( Private, void advFind_View( const QModelIndex &index ) )
     CS_SLOT_2( advFind_View )
 
     CS_SLOT_1( Private, void advFind_Close() )
     CS_SLOT_2( advFind_Close )
 
-    // backups
     CS_SLOT_1( Private, void backup_View( const QModelIndex &index ) )
     CS_SLOT_2( advFind_View )
-
-    void showBackups();
-    void show_backups( QString fileName, SyntaxTypes syntaxType );
-
-    // copy buffer
-    void showCopyBuffer();
-
-    // recent folders
-    void showContext_RecentFolder( const QPoint &pt );
 
     CS_SLOT_1( Private, void rfolder_Open() )
     CS_SLOT_2( rfolder_Open )
@@ -403,12 +285,8 @@ private:
     CS_SLOT_1( Private, void rfolder_RemoveFName() )
     CS_SLOT_2( rfolder_RemoveFName )
 
-    // preset folders
     CS_SLOT_1( Private, void prefolder_Open() )
     CS_SLOT_2( prefolder_Open )
-
-    // recent files
-    void showContext_Files( const QPoint &pt );
 
     CS_SLOT_1( Private, void rf_Open() )
     CS_SLOT_2( rf_Open )
@@ -419,21 +297,60 @@ private:
     CS_SLOT_1( Private, void rf_RemoveFName() )
     CS_SLOT_2( rf_RemoveFName )
 
-    // open (tab) files
-    void showContext_Tabs( const QPoint &pt );
-
     CS_SLOT_1( Private, void openTab_redo() )
     CS_SLOT_2( openTab_redo )
 
-    // split
-    void set_splitCombo();
-    void split_NameChanged( int data );
 
-    void splitCloseClicked();
+    //;;;;;
+    // data members go here
+    //;;;;;
+    Ui::MainWindow *m_ui;
 
-    void deleteOldSplit();
+    QString m_appPath;
 
-    void backupAndTrim( QString fileName );
+    Dialog_Busy *m_busy;
+    QString m_configFileName;
+    QStringList m_fileList;
+    QStringList m_flagList;
+    QList<QKeyEvent *> m_macroList;
+    DiamondTextEdit *m_textEdit;
+    QTabWidget *m_tabWidget;
+    QString m_curFile;
+    QTimer *m_refocusTimer;
+    DiamondTextEdit *m_split_textEdit;
+    DiamondTextEdit *m_noSplit_textEdit;
+    QSplitter *m_splitter;
+    bool m_isSplit;
+    QFrame *m_splitWidget;
+    QString m_splitFileName;
+    QComboBox *m_splitName_CB;
+    QPushButton *m_splitClose_PB;
+    QShortcut *m_actionCopyBuffer;
+    Dialog_AdvFind *m_dwAdvFind;
+    QStringList m_recursiveList;
+    QFrame *m_findWidget;
+    QStandardItemModel *m_model;
+    QStandardItemModel *m_backupModel;
+    bool m_record;
+    QAction *prefolder_Actions[DiamondLimits::PRESET_FOLDERS_MAX];
+    QAction *rfolder_Actions[DiamondLimits::RECENT_FOLDERS_MAX];
+    QAction *rf_Actions[DiamondLimits::RECENT_FILES_MAX];
+    QAction *openTab_Actions[DiamondLimits::OPENTABS_MAX];
+    QToolBar *fileToolBar;
+    QToolBar *editToolBar;
+    QToolBar *searchToolBar;
+    QToolBar *viewToolBar;
+    QToolBar *toolsToolBar;
+    QToolBar *windowToolBar;
+    QLabel *m_statusLine;
+    QLabel *m_statusMode;
+    QLabel *m_statusReadWrite;
+    QLabel *m_statusName;
+    int m_pageNo;
+    int m_pageCount;
+    QRectF m_printArea;
+    double m_resolution;
+
 };
 
 #endif

@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-* Copyright (c) 2012-2020 Barbara Geller
+* Copyright (c) 2020 Roland Hughes
 *
 * Diamond Editor is free software: you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2
@@ -12,28 +12,26 @@
 *
 ***************************************************************************/
 
-#ifndef SEARCH_H
-#define SEARCH_H
+#ifndef DIALOG_BUSY_H
+#define DIALOG_BUSY_H
+
+#include "ui_dialog_busy.h"
 
 #include <QDialog>
 
-class MainWindow;
-
-class ReplaceReply: public QDialog
+class Dialog_Busy : public QDialog
 {
-    CS_OBJECT( ReplaceReply )
+    CS_OBJECT( Dialog_Busy )
 
 public:
-    ReplaceReply( MainWindow *parent );
-    ~ReplaceReply();
+    Dialog_Busy( QWidget *parent );
+    ~Dialog_Busy();
 
-    int getKey();
-
-protected:
-    void keyPressEvent( QKeyEvent *event );
+    void showBusy();
+    void hideBusy();
 
 private:
-    int m_replaceReply;
+    Ui::Dialog_Busy *m_ui;
 };
 
 #endif

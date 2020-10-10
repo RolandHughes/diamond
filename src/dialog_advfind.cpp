@@ -18,14 +18,14 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QToolButton>
+#include <QMovie>
 
 QStringList Dialog_AdvFind::dirCombo;
 
 Dialog_AdvFind::Dialog_AdvFind( QWidget *parent, QString findText, QString fileType, QString findFolder, bool searchFolders )
-    : QDialog( parent ), m_ui( new Ui::Dialog_AdvFind )
+    : QDialog( parent )
+    , m_ui( new Ui::Dialog_AdvFind )
 {
-    m_busyMsg = nullptr;
-
     m_ui->setupUi( this );
     setWindowIcon( QIcon( "://resources/diamond.png" ) );
 
@@ -72,55 +72,6 @@ void Dialog_AdvFind::pick_Folder()
 
         m_ui->findFolder->setEditText( newFolder );
     }
-}
-
-void Dialog_AdvFind::showBusyMsg()
-{
-    m_ui->find_PB->setVisible( false );
-    m_ui->horizontalSpacer_32->changeSize( 0,0 );
-    m_ui->cancel_PB->setVisible( false );
-
-    if ( m_busyMsg == nullptr )
-    {
-        m_busyMsg = new QLabel();
-        m_busyMsg->setText( "Preparing list of files, this process may take a minute..." );
-
-        QFont font = m_busyMsg->font();
-        font.setPointSize( 10 );
-        m_busyMsg->setFont( font );
-
-        QPalette palette = m_busyMsg->palette();
-        palette.setColor( QPalette::WindowText, QColor{0,0,255} );
-        m_busyMsg->setPalette( palette );
-
-        m_ui->layout_buttons->insertWidget( 2, m_busyMsg );
-
-    }
-    else
-    {
-        m_busyMsg->setVisible( true );
-
-    }
-
-    show();
-    //QApplication::processEvents();
-}
-
-void Dialog_AdvFind::showNotBusyMsg()
-{
-    if ( m_busyMsg == nullptr )
-    {
-        // prior search failed, nothing to undo
-        return;
-    }
-
-    m_busyMsg->setVisible( false );
-
-    m_ui->find_PB->setVisible( true );
-    m_ui->horizontalSpacer_32->changeSize( 8,25 );
-    m_ui->cancel_PB->setVisible( true );
-
-    //QApplication::processEvents();
 }
 
 void Dialog_AdvFind::cancel()

@@ -36,12 +36,9 @@ public:
     bool get_Case();
     bool get_WholeWords();
     bool get_SearchSubFolders();
-    void showBusyMsg();
-    void showNotBusyMsg();
 
 private:
     Ui::Dialog_AdvFind *m_ui;
-    QLabel *m_busyMsg;
 
     static QStringList dirCombo;
 

@@ -23,7 +23,7 @@ list(APPEND DIAMOND_INCLUDES
    ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.h
    ${CMAKE_CURRENT_SOURCE_DIR}/options.h
    ${CMAKE_CURRENT_SOURCE_DIR}/printsettings.h
-   ${CMAKE_CURRENT_SOURCE_DIR}/search.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/replacereply.h
    ${CMAKE_CURRENT_SOURCE_DIR}/settings.h
    ${CMAKE_CURRENT_SOURCE_DIR}/spellcheck.h
    ${CMAKE_CURRENT_SOURCE_DIR}/syntax.h
@@ -36,6 +36,7 @@ list(APPEND DIAMOND_INCLUDES
    ${CMAKE_CURRENT_SOURCE_DIR}/dialog_edt_help.h
    ${CMAKE_CURRENT_SOURCE_DIR}/edt_lineedit.h
    ${CMAKE_CURRENT_SOURCE_DIR}/dialog_edt_prompt.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/dialog_busy.h
 
    ${CMAKE_CURRENT_SOURCE_DIR}/diamond_build_info.h
 )
@@ -62,17 +63,11 @@ list(APPEND DIAMOND_SOURCES
    ${CMAKE_CURRENT_SOURCE_DIR}/keylineedit.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/menu_action.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/options.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/print.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/printsettings.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/recent_files.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/recent_tabs.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/search.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/replacereply.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/settings.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/spellcheck.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/split_window.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/support.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/syntax.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/textattributes.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/themes.cpp
@@ -83,6 +78,7 @@ list(APPEND DIAMOND_SOURCES
    ${CMAKE_CURRENT_SOURCE_DIR}/dialog_edt_help.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/edt_lineedit.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/dialog_edt_prompt.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/dialog_busy.cpp
 
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_advfind.ui
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_buffer.ui
@@ -100,6 +96,7 @@ list(APPEND DIAMOND_SOURCES
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_symbols.ui
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_xp_getdir.ui
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_edt_help.ui
+   ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_busy.ui
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/mainwindow.ui
 
    qrc_diamond.cpp
@@ -128,6 +125,7 @@ COPPERSPICE_RESOURCES(
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_symbols.ui
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_xp_getdir.ui
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_edt_help.ui
+   ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_busy.ui
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/mainwindow.ui
 )
 

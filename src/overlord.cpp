@@ -34,7 +34,7 @@ Overlord::Overlord() :
 
 Overlord::~Overlord()
 {
-    for (SyntaxPatterns *ptr : m_syntaxPatterns)
+    for ( SyntaxPatterns *ptr : m_syntaxPatterns )
     {
         delete ptr;
     }
@@ -479,6 +479,8 @@ void Overlord::set_replaceList( QStringList lst )
 void Overlord::updateSettingsFromLocalCopy( Settings &settings )
 {
     m_settings = settings;
+    m_needsBroadcast = false;
+    settingsChanged( &m_settings );
     markToNotify();
     checkForChange();
 }

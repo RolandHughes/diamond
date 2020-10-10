@@ -83,8 +83,6 @@ void showDialog( QDialog *t_Dialog )
     t_Dialog->show();
     t_Dialog->raise();
     t_Dialog->activateWindow();
-
-    //QApplication::processEvents();
 }
 
 QString get_DirPath( QWidget *parent, QString message, QString path )

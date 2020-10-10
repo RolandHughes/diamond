@@ -22,6 +22,15 @@
 #include <QKeySequence>
 #include <QLabel>
 #include <QToolBar>
+#include <QFSFileEngine>
+#include <QMimeData>
+#include <QProgressDialog>
+#include <QDateTime>
+#include <QPainter>
+#include <QPrintPreviewDialog>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QRect>
 #include "dialog_colors.h"
 #include "dialog_fonts.h"
 #include "dialog_options.h"
@@ -31,6 +40,14 @@
 #include "dialog_config.h"
 #include "overlord.h"
 #include "dialog_edt_help.h"
+#include "dialog_busy.h"
+#include "dialog_buffer.h"
+#include "replacereply.h"
+#include "dialog_advfind.h"
+#include "dialog_find.h"
+#include "dialog_replace.h"
+#include "dialog_open.h"
+#include "dialog_macro.h"
 
 
 #include <QBoxLayout>
@@ -80,6 +97,8 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
 
     // macros
     m_record = false;
+
+    m_busy = new Dialog_Busy( this );
 
     // copy buffer
     m_actionCopyBuffer = new QShortcut( this );
@@ -1188,5 +1207,4313 @@ void MainWindow::astyle()
     if ( m_textEdit )
     {
         m_textEdit->astyleBuffer();
+    }
+}
+
+void MainWindow::showBusy()
+{
+    m_busy->showBusy();
+    qApp->processEvents();
+}
+
+void MainWindow::hideBusy()
+{
+    m_busy->hideBusy();
+}
+
+void MainWindow::argLoad( QList<QString> argList )
+{
+    int argCnt = argList.count();
+
+    if ( !Overlord::getInstance()->flagNoAutoLoad() )
+    {
+        Overlord::getInstance()->openedFilesClear();
+        Overlord::getInstance()->openedModifiedClear();
+        Overlord::getInstance()->recentFileListClear();
+    }
+
+    for ( int k = 1; k < argCnt; k++ )
+    {
+        QString tempFile = argList.at( k );
+
+        // change to forward slash
+        tempFile = QDir::fromNativeSeparators( tempFile );
+
+        // expand for full path
+        QFileInfo tempPath( tempFile );
+        tempFile = tempPath.canonicalFilePath();
+
+        if ( tempFile.isEmpty() )
+        {
+            // do nothing
+
+        }
+        else if ( Overlord::getInstance()->openedFilesContains( tempFile ) )
+        {
+            // file is already open
+
+        }
+        else if ( QFile::exists( tempFile ) )
+        {
+            if ( loadFile( tempFile, true, true ) )
+            {
+                Overlord::getInstance()->openedFilesAppend( tempFile );
+            }
+        }
+    }
+}
+
+void MainWindow::autoLoad()
+{
+    QString fileName;
+    int count = Overlord::getInstance()->openedFilesCount();
+
+    if ( count == 0 )
+    {
+        tabNew();
+
+    }
+    else
+    {
+
+        for ( int k = 0; k < count; k++ )
+        {
+            fileName = Overlord::getInstance()->openedFiles( k );
+
+            // load existing files
+            loadFile( fileName, true, true );
+        }
+
+        QString lastFile = Overlord::getInstance()->lastActiveFile();
+
+        if ( !lastFile.isEmpty() )
+        {
+            bool found = false;
+
+            for ( int x=0; x < m_tabWidget->count() && !found; x++ )
+            {
+                DiamondTextEdit *ed = dynamic_cast<DiamondTextEdit *>( m_tabWidget->widget( x ) );
+
+                if ( ed && lastFile == m_tabWidget->tabText( x ) )
+                {
+                    QTextCursor cursor( ed->document()->findBlockByNumber( Overlord::getInstance()->lastActiveRow() ) );
+                    cursor.movePosition( QTextCursor::StartOfLine );
+                    cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveColumn() - 1 );
+                    ed->setTextCursor( cursor );
+                    m_tabWidget->setCurrentIndex( x );
+                    found = true;
+                }
+            }
+        }
+    }
+}
+
+void MainWindow::closeEvent( QCloseEvent *event )
+{
+    QWidget *topWidget = m_tabWidget->currentWidget();
+
+    if ( topWidget != nullptr )
+    {
+        DiamondTextEdit *ed = dynamic_cast<DiamondTextEdit *>( topWidget );
+
+        if ( ed != nullptr )
+        {
+            QTextCursor c = ed->textCursor();
+            Overlord::getInstance()->set_lastActiveFile( m_tabWidget->tabText( m_tabWidget->currentIndex() ) );
+            Overlord::getInstance()->set_lastActiveRow( c.blockNumber() );
+            Overlord::getInstance()->set_lastActiveColumn( c.positionInBlock() );
+        }
+    }
+
+    bool exit = closeAll_Doc( true );
+
+    if ( exit )
+    {
+        Overlord::getInstance()->set_lastPosition( pos() );
+        Overlord::getInstance()->set_lastSize( size() );
+        Overlord::getInstance()->close();
+        event->accept();
+
+    }
+    else
+    {
+        event->ignore();
+
+    }
+}
+
+void MainWindow::documentWasModified()
+{
+    bool isModified;
+
+    if ( m_isSplit )
+    {
+        isModified = m_noSplit_textEdit->document()->isModified();
+        update_splitCombo( m_curFile, isModified );
+
+    }
+    else
+    {
+        isModified = m_textEdit->document()->isModified();
+
+    }
+
+    setWindowModified( isModified );
+
+    int index = Overlord::getInstance()->openedFilesFind( m_curFile );
+
+    if ( index != -1 )
+    {
+        bool wasModified = Overlord::getInstance()->openedModified( index );
+
+        if ( wasModified != isModified )
+        {
+            Overlord::getInstance()->openedModifiedReplace( index,isModified );
+        }
+    }
+}
+
+QString MainWindow::get_curFileName( int whichTab )
+{
+    QString name = m_tabWidget->tabWhatsThis( whichTab );
+
+    if ( name == "untitled.txt" )
+    {
+        name = "";
+    }
+
+    return name;
+}
+
+
+
+bool MainWindow::loadFile( QString fileName, bool addNewTab, bool isAuto, bool isReload, bool isReadOnly )
+{
+#if defined (Q_OS_WIN)
+    // change forward to backslash
+    fileName.replace( '/', '\\' );
+#endif
+
+    // part 1
+    if ( addNewTab && ( m_tabWidget->count() > 0 ) )
+    {
+        // test if fileName is open in another tab
+        QFSFileEngine engine( fileName );
+
+        int count = m_tabWidget->count();
+
+        QWidget *temp;
+        DiamondTextEdit *textEdit;
+
+        for ( int k = 0; k < count; ++k )
+        {
+
+            temp = m_tabWidget->widget( k );
+            textEdit = dynamic_cast<DiamondTextEdit *>( temp );
+
+            if ( textEdit )
+            {
+                QString t_Fname = m_tabWidget->tabWhatsThis( k );
+                bool found      = false;
+
+                if ( engine.caseSensitive() )
+                {
+                    found = ( fileName == t_Fname );
+
+                }
+                else
+                {
+                    // usually only windows
+                    found = fileName.compare( t_Fname, Qt::CaseInsensitive ) == 0;
+                }
+
+                if ( found )
+                {
+                    // file is alredy open, select the tab
+                    m_textEdit = textEdit;
+                    m_tabWidget->setCurrentIndex( k );
+                    return true;
+                }
+            }
+        }
+    }
+
+    QFile file( fileName );
+
+    if ( ! file.open( QFile::ReadOnly | QFile::Text ) )
+    {
+
+        if ( ! isAuto )
+        {
+            // do not show this message
+
+            QString tmp = fileName;
+
+            if ( tmp.isEmpty() )
+            {
+                tmp = "(No file name available)";
+            }
+
+            QString error = tr( "Unable to open/read file:  %1\n%2." ).formatArgs( tmp, file.errorString() );
+            csError( tr( "Open/Read File" ), error );
+            return false;
+        }
+    }
+
+    setStatusBar( tr( "Loading File..." ), 0 );
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+
+    if ( addNewTab )
+    {
+        tabNew();
+
+        Overlord::getInstance()->set_priorPath( pathName( fileName ) );
+    }
+
+
+    if ( m_textEdit->m_owner == "tab" )
+    {
+        setCurrentTitle( fileName, false, isReload, isReadOnly );
+    }
+
+    file.seek( 0 );
+    QByteArray temp = file.readAll();
+
+    QString fileData = QString::fromUtf8( temp );
+
+    m_textEdit->setPlainText( fileData );
+
+    QApplication::restoreOverrideCursor();
+
+    if ( m_isSplit )
+    {
+        // update split combo box
+        add_splitCombo( fileName );
+    }
+
+    if ( ! addNewTab )
+    {
+        // recent folders
+        rfolder_Add();
+    }
+
+    if ( addNewTab && ( ! isAuto ) )
+    {
+        // update open tab list
+        openTab_Add();
+
+        int index = Overlord::getInstance()->openedFilesFind( fileName );
+
+        if ( index != -1 )
+        {
+            Overlord::getInstance()->openedModifiedReplace( index,false );
+        }
+    }
+
+    setStatusBar( tr( "File loaded" ), 1500 );
+
+    return true;
+}
+
+
+bool MainWindow::querySave()
+{
+    if ( m_textEdit->document()->isModified() )
+    {
+
+        QString fileName = m_curFile;
+
+        if ( m_curFile.isEmpty() )
+        {
+            fileName = "(Unknown Filename)";
+        }
+
+        QMessageBox quest;
+        quest.setWindowTitle( tr( "Diamond Editor" ) );
+        quest.setText( fileName + tr( " has been modified. Save changes?" ) );
+        quest.setStandardButtons( QMessageBox::Save | QMessageBox::Discard  | QMessageBox::Cancel );
+        quest.setDefaultButton( QMessageBox::Cancel );
+
+        int retval = quest.exec();
+
+        if ( retval == QMessageBox::Save )
+        {
+
+            if ( fileName == "untitled.txt" )
+            {
+                return saveAs( Overlord::SAVE_ONE );
+            }
+            else
+            {
+                return save();
+            }
+
+        }
+        else if ( retval == QMessageBox::Cancel )
+        {
+            return false;
+
+        }
+    }
+
+    return true;
+}
+
+bool MainWindow::saveFile( QString fileName, Overlord::SaveFiles saveType )
+{
+#if defined (Q_OS_WIN)
+    // change forward to backslash
+    fileName.replace( '/', '\\' );
+#endif
+
+    if ( QFile::exists( fileName ) )
+    {
+        if ( Overlord::getInstance()->makeBackups() )
+        {
+            backupAndTrim( fileName );
+        }
+    }
+
+    QFile file( fileName );
+
+    if ( ! file.open( QFile::WriteOnly | QFile::Text ) )
+    {
+        QString tmp = fileName;
+
+        if ( tmp.isEmpty() )
+        {
+            tmp = tr( "(No file name available)" );
+        }
+
+        QString error = tr( "Unable to save/write file %1:\n%2." ).formatArgs( tmp, file.errorString() );
+        csError( tr( "Save/Write File" ), error );
+        return false;
+    }
+
+    QApplication::setOverrideCursor( Qt::WaitCursor );
+
+    if ( Overlord::getInstance()->removeSpaces() )
+    {
+        deleteEOL_Spaces();
+    }
+
+    if ( Overlord::getInstance()->astyleOnSave() )
+    {
+        QString suffix = suffixName( fileName ).toLower();
+
+        QTextCursor lastCursorPos( m_textEdit->textCursor() );
+
+        int row = lastCursorPos.blockNumber();
+        int column = lastCursorPos.positionInBlock();
+
+        if ( validAstyleSuffix( suffix ) )
+        {
+            QByteArray styledText = m_textEdit->astyleNewBuffer();
+
+            if ( styledText.size() > 0 )
+            {
+                file.write( styledText );
+                QString txt = QString::fromUtf8( styledText );
+                m_textEdit->setPlainText( txt );
+
+                QTextCursor cursor( m_textEdit->document()->findBlockByNumber( row ) );
+                cursor.movePosition( QTextCursor::StartOfLine );
+                cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, column - 1 );
+                m_textEdit->setTextCursor( cursor );
+            }
+        }
+        else
+        {
+            // just write the files that cannot be styled
+            setStatusBar( tr( "Styling produced a zero length file" ), 2000 );
+            file.write( m_textEdit->toPlainText().toUtf8() );
+        }
+
+
+    }
+    else
+    {
+        file.write( m_textEdit->toPlainText().toUtf8() );
+    }
+
+    m_textEdit->document()->setModified( false );
+    int index = Overlord::getInstance()->openedFilesFind( fileName );
+
+    if ( index != -1 )
+    {
+        Overlord::getInstance()->openedModifiedReplace( index,false );
+    }
+
+
+    if ( m_isSplit )
+    {
+        update_splitCombo( fileName, false );
+    }
+
+    if ( saveType == Overlord::SAVE_ONE )
+    {
+        setWindowModified( false );
+        setDiamondTitle( fileName );
+
+        setStatusBar( tr( "File saved" ), 2000 );
+    }
+
+    QApplication::restoreOverrideCursor();
+    return true;
+}
+
+
+// title & status bar
+void MainWindow::setCurrentTitle( const QString &fileName, bool tabChange, bool isReload, bool isReadOnly )
+{
+    QString showName;
+
+    // adjusts the * in the title bar
+    setWindowModified( m_textEdit->document()->isModified() );
+
+    if ( fileName.isEmpty() )
+    {
+
+        m_curFile = "";
+        showName  = "untitled.txt";
+
+        setStatus_FName( showName );
+        setStatus_ReadWrite( isReadOnly );
+
+        // change the name on the tab to "untitled.txt"
+        int index = m_tabWidget->currentIndex();
+
+        m_tabWidget->setTabText( index, showName );
+        m_tabWidget->setTabWhatsThis( index, showName );
+
+        if ( Overlord::getInstance()->isComplete() )
+        {
+            m_textEdit->forceSyntax( SYN_TEXT );
+        }
+
+    }
+    else
+    {
+        // loading existing file
+
+        m_curFile = fileName;
+        showName  = m_curFile;
+
+        setStatus_FName( m_curFile );
+        setStatus_ReadWrite( isReadOnly );
+
+        // change the name on the tab to m_curFile
+        int index = m_tabWidget->currentIndex();
+
+        m_textEdit->setCurrentFile( m_curFile );
+        m_tabWidget->setTabText( index, strippedName( m_curFile ) );
+        m_tabWidget->setTabWhatsThis( index, m_curFile );
+
+        if ( ! Overlord::getInstance()->recentFilesListContains( m_curFile ) )
+        {
+            rf_Update();
+        }
+
+        if ( ! tabChange && ! isReload )
+        {
+            m_textEdit->setSyntax();
+        }
+    }
+
+    m_textEdit->setReadOnly( isReadOnly );
+
+    setDiamondTitle( showName );
+}
+
+void MainWindow::setDiamondTitle( const QString title )
+{
+    // displays as: Diamond Editor --  File Name[*]
+    QString temp = QChar( 0x02014 );
+    setWindowTitle( "Diamond Editor " + temp + " " + title + " [*]" );
+}
+
+void MainWindow::setStatus_LineCol()
+{
+    QTextCursor cursor( m_textEdit->textCursor() );
+
+    // emerald - adjust value when tabs are used instead of spaces
+    int adjColNum = cursor.columnNumber()+1;
+
+    m_statusLine->setText( " Line: "  + QString::number( cursor.blockNumber()+1 ) +
+                           "  Col: "  + QString::number( adjColNum ) + "  " );
+}
+
+void MainWindow::setStatus_ColMode()
+{
+    if ( Overlord::getInstance()->isColumnMode() )
+    {
+        m_statusMode->setText( " Column Mode  " );
+
+    }
+    else
+    {
+        m_statusMode->setText( " Line Mode  " );
+    }
+
+    m_textEdit->set_ColumnMode( Overlord::getInstance()->isColumnMode() );
+}
+
+void MainWindow::setStatus_FName( QString fullName )
+{
+    m_statusName->setText( " " + fullName + "  " );
+}
+
+void MainWindow::setStatus_ReadWrite( bool yesNo )
+{
+    if ( yesNo )
+    {
+        m_statusReadWrite->setText( "ReadOnly" );
+    }
+    else
+    {
+        m_statusReadWrite->setText( "Write" );
+    }
+}
+
+
+// copy buffer
+void MainWindow::showCopyBuffer()
+{
+    QList<QString> copyBuffer = m_textEdit->copyBuffer();
+
+    Dialog_Buffer dw( copyBuffer );
+    int result = dw.exec();
+
+    if ( result == QDialog::Accepted )
+    {
+        int index = dw.get_Index();
+
+        QString text = copyBuffer.at( index );
+        m_textEdit->textCursor().insertText( text );
+    }
+}
+
+
+// drag & drop
+void MainWindow::dragEnterEvent( QDragEnterEvent *event )
+{
+    if ( event->mimeData()->hasFormat( "text/uri-list" ) )
+    {
+        event->acceptProposedAction();
+    }
+    else if ( event->mimeData()->hasFormat( "text/plain" ) )
+    {
+        event->acceptProposedAction();
+
+    }
+}
+
+void MainWindow::dropEvent( QDropEvent *event )
+{
+    const QMimeData *mimeData = event->mimeData();
+
+    if ( mimeData->hasUrls() )
+    {
+
+        QList<QUrl> urls = mimeData->urls();
+
+        if ( urls.isEmpty() )
+        {
+            return;
+        }
+
+        QString fileName = urls.first().toLocalFile();
+
+        if ( ! fileName.isEmpty() )
+        {
+            loadFile( fileName, true, false );
+        }
+
+    }
+    else if ( mimeData->hasText() )
+    {
+        QTextCursor cursor( m_textEdit->textCursor() );
+
+        // set for undo stack
+        cursor.beginEditBlock();
+
+        cursor.insertText( mimeData->text() );
+
+        // set for undo stack
+        cursor.endEditBlock();
+    }
+
+}
+
+// target for lambda
+void MainWindow::forceSyntax( SyntaxTypes data )
+{
+    m_textEdit->forceSyntax( data );
+}
+
+void MainWindow::backupAndTrim( QString fileName )
+{
+    if ( !QFile::exists( fileName ) )
+    {
+        return;
+    }
+
+    QDir backupDir( Overlord::getInstance()->backupDirectory() );
+    QStringList filters;
+    QString wild = QString( "\'%1.b*\'" ).formatArg( fileName );
+    wild.replace( ":", "!" );
+    wild.replace( "\\", "!" );
+    wild.replace( "/", "!" );
+
+    QString w4 = wild;
+    w4.replace( "\'", "*" );
+    filters << w4;
+
+    QStringList backupFiles = backupDir.entryList( filters, QDir::Files | QDir::Writable, QDir::Name );
+
+    // Looks weird but we are deleting the lowest backup numbers
+    // which will be at the beginning of the list.
+    bool okFlag = true;
+
+    while ( ( backupFiles.size() >= Overlord::getInstance()->maxVersions() ) && okFlag )
+    {
+        QString fName = strippedName( backupFiles.takeFirst() );
+        okFlag = backupDir.remove( fName );
+
+        if ( !okFlag )
+        {
+            QString msg = QString( "Failed to remove " )+  fName;
+            csError( tr( "Purging Backups" ), msg );
+        }
+    }
+
+    int versionNumber = -1;
+
+    if ( backupFiles.size() > 0 )
+    {
+        QString lastFile = backupFiles.last();
+        QString tmp = suffixName( lastFile );
+        QRegularExpression rx( "[0-9]+" );
+        QRegularExpressionMatch match = rx.match( tmp );
+
+        if ( match.hasMatch() )
+        {
+            versionNumber = match.captured( 0 ).toInteger<int>();
+        }
+    }
+
+    versionNumber++;
+    QString newSuffix = QString( ".b%1\'" ).formatArg( versionNumber, 5, 10, '0' );
+    QString destName = wild;
+    destName = destName.replace( ".b*\'", newSuffix );
+    destName = backupDir.absoluteFilePath( destName );
+
+    // TODO:: QFile::copy() is busted.
+    //        Need to see how long before QFile::copy() will be fixed.
+    //
+    //        Ubuntu 18 g++7 doesn't have full -std=c++17 support.
+    //        at some point g++8 moved filesystem from experimental into
+    //        main library so could just #include <filesystem> and use the code below
+    //
+    //        Don't want to drag g++8 experimental lib around or have convoluted
+    //        build to detect when building on partial C++17 support.
+    //
+    //        Besides, QFile::copy() should get fixed.
+
+#if 0
+    std::error_code ec;
+
+    fs::copy( fileName.toStdString(), destName.toStdString(), ec );
+
+    QString ecStr = QString::fromStdString( ec.message() );
+
+#else
+    QString cpyCmd;
+#ifdef Q_OS_WIN
+    cpyCmd = QString( "copy \"%1\" \"%2\"" ).formatArgs( fileName, destName );
+#else
+    cpyCmd = QString( "cp \"%1\" \"%2\"" ).formatArgs( fileName, destName );
+#endif
+
+    if ( system( cpyCmd.toStdString().c_str() ) != EXIT_SUCCESS )
+    {
+        csError( "Backup", "Failed to make backup copy" );
+    }
+
+#endif
+
+
+    // NOTE: maxVersions from overlord is the maximum number of backup versions
+    //       to keep around. If set to 12 we will dutifully keep up to 12,
+    //       deleting the lowest versioned one to make room for a new one.
+    //
+    //       The version NUMBER will continue to increase. Your 12 backup versions
+    //       could have version numbers 20000 through 20012.
+    //
+    //       At some point it is theoretically possible you save so many versions of one
+    //       file that you bump into our magic maximum version number. This is when
+    //       we start renaming files so the oldest is version zero.
+    //
+    if ( versionNumber >= DiamondLimits::BACKUP_VERSION_MAX )
+    {
+        versionNumber = 0;
+        // refresh the list
+        //
+        backupFiles = backupDir.entryList( filters, QDir::Files | QDir::Writable, QDir::Name );
+
+        while ( backupFiles.size() > 0 )
+        {
+            QString firstFile = backupFiles.takeFirst();
+            QString suffix = QString( ".%1" ).formatArg( suffixName( firstFile ) );
+            QString newSuffix = QString( ".b%1" ).formatArg( versionNumber, 5, 10, '0' );
+            QString newName = strippedName( firstFile );
+            newName.replace( suffix, newSuffix );
+
+            backupDir.rename( strippedName( firstFile ), newName );
+
+            versionNumber++;
+        }
+    }
+}
+
+
+// * find
+void MainWindow::find()
+{
+    QString saveText = Overlord::getInstance()->findText();
+
+    QTextCursor cursor( m_textEdit->textCursor() );
+    QString selectedText = cursor.selectedText();
+
+    if ( ! selectedText.isEmpty() )
+    {
+        Overlord::getInstance()->set_findText( selectedText );
+    }
+
+    Dialog_Find dw( this, Overlord::getInstance()->findText(), Overlord::getInstance()->findList() );
+    int result = dw.exec();
+
+    if ( result == QDialog::Accepted )
+    {
+
+        Overlord::getInstance()->set_findText( dw.get_findText() );
+        Overlord::getInstance()->set_findList( dw.get_findList() );
+
+        // add to combo list if not already there
+        int index = Overlord::getInstance()->findListFind( Overlord::getInstance()->findText() );
+
+        if ( index == -1 )
+        {
+            Overlord::getInstance()->findList().prepend( Overlord::getInstance()->findText() );
+        }
+        else
+        {
+            Overlord::getInstance()->findList().move( index,0 );
+        }
+
+        // get the flags
+        Overlord::getInstance()->set_findFlags( 0 );
+
+        Overlord::getInstance()->set_findDirection( dw.get_Direction() );
+
+        if ( ! Overlord::getInstance()->findDirection() )
+        {
+            Overlord::getInstance()->set_findFlagsBackward();
+        }
+
+        Overlord::getInstance()->set_findCase( dw.get_Case() );
+
+        if ( Overlord::getInstance()->findCase() )
+        {
+            Overlord::getInstance()->set_findFlagsCaseSensitive();
+        }
+
+        Overlord::getInstance()->set_findWholeWords( dw.get_WholeWords() );
+
+        if ( Overlord::getInstance()->findWholeWords() )
+        {
+            Overlord::getInstance()->set_findFlagsWholeWords();
+        }
+
+        if ( ! Overlord::getInstance()->findText().isEmpty() )
+        {
+            bool found = m_textEdit->find( Overlord::getInstance()->findText(), Overlord::getInstance()->findFlags() );
+
+            if ( ! found )
+            {
+                // text not found, query if the user wants to search from top of file
+                findNext();
+            }
+        }
+
+    }
+    else
+    {
+        Overlord::getInstance()->set_findText( saveText );
+
+        bool upd_Find = dw.get_Upd_Find();
+
+        if ( upd_Find )
+        {
+            Overlord::getInstance()->set_findList( dw.get_findList() );
+        }
+    }
+}
+
+void MainWindow::findNext()
+{
+    // emerald - may want to modify m_FindText when text contains html
+
+    QTextDocument::FindFlags flags = QTextDocument::FindFlags( ~QTextDocument::FindBackward
+                                     & Overlord::getInstance()->findFlags() );
+    bool found = m_textEdit->find( Overlord::getInstance()->findText(), flags );
+
+    if ( ! found )
+    {
+        QString msg = "Not found: " + Overlord::getInstance()->findText() + "\n\n";
+        msg += "Search from the beginning of this document?\n";
+
+        QMessageBox msgFindNext( this );
+        msgFindNext.setWindowTitle( "Find" );
+        msgFindNext.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
+        msgFindNext.setDefaultButton( QMessageBox::Yes );
+        msgFindNext.setText( msg );
+
+        int result = msgFindNext.exec();
+
+        if ( result == QMessageBox::Yes )
+        {
+            // reset to the beginning of the document
+            QTextCursor cursor( m_textEdit->textCursor() );
+            cursor.movePosition( QTextCursor::Start );
+            m_textEdit->setTextCursor( cursor );
+
+            // search again
+            this->findNext();
+        }
+    }
+}
+
+void MainWindow::findPrevious()
+{
+    bool found = m_textEdit->find( Overlord::getInstance()->findText(),
+                                   QTextDocument::FindBackward | Overlord::getInstance()->findFlags() );
+
+    if ( ! found )
+    {
+        csError( "Find", "Not found: " + Overlord::getInstance()->findText() );
+    }
+}
+
+
+// * advanced find
+void MainWindow::advFind()
+{
+    QString saveText = Overlord::getInstance()->advancedFindText();
+
+    QTextCursor cursor( m_textEdit->textCursor() );
+    QString selectedText = cursor.selectedText();
+
+    if ( ! selectedText.isEmpty() )
+    {
+        Overlord::getInstance()->set_advancedFindText( selectedText );
+    }
+
+    m_dwAdvFind = new Dialog_AdvFind( this,
+                                      Overlord::getInstance()->advancedFindText(),
+                                      Overlord::getInstance()->advancedFindFileType(),
+                                      Overlord::getInstance()->advancedFindFolder(),
+                                      Overlord::getInstance()->advancedFSearchFolders() );
+
+    while ( true )
+    {
+        int result = m_dwAdvFind->exec();
+
+        if ( result == QDialog::Accepted )
+        {
+
+            Overlord::getInstance()->set_advancedFindText( m_dwAdvFind->get_findText() );
+            Overlord::getInstance()->set_advancedFindFileType( m_dwAdvFind->get_findType() );
+            Overlord::getInstance()->set_advancedFindFolder( m_dwAdvFind->get_findFolder() );
+
+            // get the flags
+            Overlord::getInstance()->set_advancedFCase( m_dwAdvFind->get_Case() );
+            Overlord::getInstance()->set_advancedFWholeWords( m_dwAdvFind->get_WholeWords() );
+            Overlord::getInstance()->set_advancedFSearchFolders( m_dwAdvFind->get_SearchSubFolders() );
+
+            if ( ! Overlord::getInstance()->advancedFindText().isEmpty() )
+            {
+
+                if ( Overlord::getInstance()->advancedFindFileType().isEmpty() )
+                {
+                    Overlord::getInstance()->set_advancedFindFileType( "*" );
+                }
+
+                if ( Overlord::getInstance()->advancedFindFolder().isEmpty() )
+                {
+                    Overlord::getInstance()->set_advancedFindFolder( QDir::currentPath() );
+                }
+
+                //
+                bool aborted = false;
+                showBusy();
+                QList<advFindStruct> foundList = this->advFind_getResults( aborted );
+                hideBusy();
+
+                if ( aborted )
+                {
+                    // do nothing
+
+                }
+                else if ( foundList.isEmpty() )
+                {
+                    csError( "Advanced Find", "Not found: " + Overlord::getInstance()->advancedFindText() );
+
+                    // allow user to search again
+                    continue;
+
+                }
+                else
+                {
+                    this->advFind_ShowFiles( foundList );
+
+                }
+            }
+
+        }
+        else
+        {
+            Overlord::getInstance()->set_advancedFindText( saveText );
+
+        }
+
+        // exit while loop
+        break;
+    }
+
+    m_dwAdvFind->deleteLater();
+    m_dwAdvFind = nullptr;
+}
+
+QList<advFindStruct> MainWindow::advFind_getResults( bool &aborted )
+{
+    aborted = false;
+
+    // part 1
+    QStringList searchList;
+    QDir currentDir;
+
+    if ( Overlord::getInstance()->advancedFSearchFolders() )
+    {
+        m_recursiveList.clear();
+
+        this->findRecursive( Overlord::getInstance()->advancedFindFolder() );
+        searchList = m_recursiveList;
+
+    }
+    else
+    {
+        currentDir = QDir( Overlord::getInstance()->advancedFindFolder() );
+        searchList = currentDir.entryList( QStringList( Overlord::getInstance()->advancedFindFileType() ),
+                                           QDir::Files | QDir::NoSymLinks );
+    }
+
+    QProgressDialog progressDialog( this );
+
+    progressDialog.setMinimumDuration( 1500 );
+    progressDialog.setMinimumWidth( 275 );
+    progressDialog.setRange( 0, searchList.size() );
+    progressDialog.setWindowTitle( tr( "Advanced File Search" ) );
+
+    progressDialog.setCancelButtonText( tr( "&Cancel" ) );
+    progressDialog.setCancelButtonCentered( true );
+
+    QLabel *label = new QLabel;
+
+    QFont font = label->font();
+    font.setPointSize( 11 );
+
+    label->setFont( font );
+    label->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
+    progressDialog.setLabel( label );
+
+    // part 2
+    QList<advFindStruct> foundList;
+    QString name;
+
+    enum Qt::CaseSensitivity caseFlag;
+    QRegularExpression regExp = QRegularExpression( "\\b" + Overlord::getInstance()->advancedFindText() + "\\b" );
+
+    if ( Overlord::getInstance()->advancedFCase() )
+    {
+        caseFlag = Qt::CaseSensitive;
+
+    }
+    else
+    {
+        caseFlag = Qt::CaseInsensitive;
+        regExp.setPatternOptions( QPatternOption::CaseInsensitiveOption );
+
+    }
+
+    // process each file
+    for ( int k = 0; k < searchList.size(); ++k )
+    {
+
+        progressDialog.setValue( k );
+        progressDialog.setLabelText( tr( "Searching file %1 of %2" ).formatArg( k ).formatArg( searchList.size() ) );
+
+        if ( progressDialog.wasCanceled() )
+        {
+            aborted = true;
+            break;
+        }
+
+        if ( Overlord::getInstance()->advancedFSearchFolders() )
+        {
+            name = searchList[k];
+
+        }
+        else
+        {
+            name = currentDir.absoluteFilePath( searchList[k] );
+
+        }
+
+#if defined (Q_OS_WIN)
+        // change forward to backslash
+        name.replace( '/', '\\' );
+#endif
+
+        QFile file( name );
+
+        if ( file.open( QIODevice::ReadOnly ) )
+        {
+            QString line;
+            QTextStream in( &file );
+
+            int lineNumber = 0;
+            int position   = 0;
+
+            while ( ! in.atEnd() )
+            {
+
+                line = in.readLine();
+                lineNumber++;
+
+                if ( Overlord::getInstance()->advancedFWholeWords() )
+                {
+                    position = line.indexOf( regExp );
+
+                }
+                else
+                {
+                    position = line.indexOf( Overlord::getInstance()->advancedFindText(), 0, caseFlag );
+
+                }
+
+                // store the results
+                if ( position != -1 )
+                {
+                    advFindStruct temp;
+
+                    temp.fileName   = name;
+                    temp.lineNumber = lineNumber;
+                    temp.text       = line.trimmed();
+
+                    foundList.append( temp );
+                }
+            }
+        }
+
+        file.close();
+    }
+
+    return foundList;
+}
+
+void MainWindow::findRecursive( const QString &path, bool isFirstLoop )
+{
+    QDir dir( path );
+    dir.setFilter( QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks );
+
+    QFileInfoList list = dir.entryInfoList( QStringList( Overlord::getInstance()->advancedFindFileType() ) );
+    int cnt = list.count();
+
+    qDebug() << "isFirstLoop: " << isFirstLoop << "  cnt: " << cnt << "\n";
+
+    if ( isFirstLoop && cnt > 0 )
+    {
+        qDebug() << "should be showing busy msg\n";
+        showBusy();
+    }
+
+    if ( ! list.isEmpty() )
+    {
+        for ( int k = 0; k != cnt; ++k )
+        {
+
+            QString filePath = list[k].filePath();
+
+            if ( list[k].isDir() )
+            {
+                // recursive
+                findRecursive( filePath, false );
+
+            }
+            else
+            {
+                m_recursiveList.append( filePath );
+
+            }
+        }
+    }
+}
+
+void MainWindow::showBackups()
+{
+    if ( m_textEdit )
+    {
+        if ( m_textEdit->currentFile().length() > 0 )
+        {
+            show_backups( m_textEdit->currentFile(), m_textEdit->get_SyntaxEnum() );
+        }
+    }
+}
+
+void MainWindow::show_backups( QString fileName, SyntaxTypes syntaxType )
+{
+    if ( fileName.isEmpty() || fileName.length() < 1 )
+    {
+        csError( tr( "Backups" ), tr( "no filename provided" ) );
+        return;
+    }
+
+    QDir backupDir( Overlord::getInstance()->backupDirectory() );
+    QStringList filters;
+    QString wild = QString( "\'%1.b*\'" ).formatArg( fileName );
+    wild.replace( ":", "!" );
+    wild.replace( "\\", "!" );
+    wild.replace( "/", "!" );
+
+    QString w4 = wild;
+    w4.replace( "\'", "*" );
+    filters << w4;
+
+    QStringList backupFiles = backupDir.entryList( filters, QDir::Files | QDir::Writable, QDir::Name );
+
+    if ( backupFiles.size() < 1 )
+    {
+        csError( tr( "Backups" ), tr( "no backups found" ) );
+        return;
+    }
+
+
+    int index = m_splitter->indexOf( m_findWidget );
+
+    if ( index > 0 )
+    {
+        m_findWidget->deleteLater();
+    }
+
+    // create the find window
+    m_findWidget = new QFrame( this );
+    m_findWidget->setFrameShape( QFrame::Panel );
+
+    QTableView *view = new QTableView( this );
+
+    m_backupModel = new QStandardItemModel;
+    m_backupModel->setColumnCount( 2 );
+    m_backupModel->setHeaderData( 0, Qt::Horizontal, tr( "Last Modified" ) );
+    m_backupModel->setHeaderData( 1, Qt::Horizontal, tr( "File Name" ) );
+
+    view->setModel( m_backupModel );
+
+    view->setSelectionMode( QAbstractItemView::SingleSelection );
+    view->setSelectionBehavior( QAbstractItemView::SelectRows );
+    view->setEditTriggers( QAbstractItemView::NoEditTriggers );
+
+    view->setColumnWidth( 0, 200 );
+    view->setColumnWidth( 1, 75 );
+
+    view->horizontalHeader()->setStretchLastSection( true );
+
+    // background color
+    view->setAlternatingRowColors( true );
+    view->setStyleSheet( "alternate-background-color: lightyellow" );
+
+    int row = 0;
+
+    for ( QString fName : backupFiles )
+    {
+
+        QFileInfo info( backupDir, fName );
+        QStandardItem *item0  = new QStandardItem( info.lastModified().toString( Qt::ISODate ) );
+        QStandardItem *item1  = new QStandardItem( fName );
+
+        item1->setData( syntaxType, Qt::UserRole );
+
+        m_backupModel->insertRow( row );
+        m_backupModel->setItem( row, 0, item0 );
+        m_backupModel->setItem( row, 1, item1 );
+
+        ++row;
+    }
+
+    //
+    QPushButton *closeButton = new QPushButton();
+    closeButton->setText( "Close" );
+
+    QBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch();
+    buttonLayout->addWidget( closeButton );
+    buttonLayout->addStretch();
+
+    QBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget( view );
+    layout->addLayout( buttonLayout );
+
+    m_findWidget->setLayout( layout );
+
+    m_splitter->setOrientation( Qt::Vertical );
+    m_splitter->addWidget( m_findWidget );
+
+    // must call after addWidget
+    view->resizeRowsToContents();
+
+    connect( view,        &QTableView::clicked,  this, &MainWindow::backup_View );
+    connect( closeButton, &QPushButton::clicked, this, &MainWindow::advFind_Close );
+}
+
+void MainWindow::advFind_ShowFiles( QList<advFindStruct> foundList )
+{
+    int index = m_splitter->indexOf( m_findWidget );
+
+    if ( index > 0 )
+    {
+        m_findWidget->deleteLater();
+    }
+
+    // create the find window
+    m_findWidget = new QFrame( this );
+    m_findWidget->setFrameShape( QFrame::Panel );
+
+    QTableView *view = new QTableView( this );
+
+    m_model = new QStandardItemModel;
+    m_model->setColumnCount( 3 );
+    m_model->setHeaderData( 0, Qt::Horizontal, tr( "File Name" ) );
+    m_model->setHeaderData( 1, Qt::Horizontal, tr( "Line #" ) );
+    m_model->setHeaderData( 2, Qt::Horizontal, tr( "Text" ) );
+
+    view->setModel( m_model );
+
+    view->setSelectionMode( QAbstractItemView::SingleSelection );
+    view->setSelectionBehavior( QAbstractItemView::SelectRows );
+    view->setEditTriggers( QAbstractItemView::NoEditTriggers );
+
+    view->setColumnWidth( 0, 300 );
+    view->setColumnWidth( 1, 75 );
+
+    view->horizontalHeader()->setStretchLastSection( true );
+
+    // use main window font and size, add feature to allow user to change font
+    // following code out for now since the font was too large
+
+//  QFont font = view->font();
+//  font.setPointSize(12);
+//  view->setFont(font);
+
+    // background color
+    view->setAlternatingRowColors( true );
+    view->setStyleSheet( "alternate-background-color: lightyellow" );
+
+    int row = 0;
+
+    for ( const auto &entry : foundList )
+    {
+
+        QStandardItem *item0  = new QStandardItem( entry.fileName );
+        QStandardItem *item1  = new QStandardItem( QString::number( entry.lineNumber ) );
+        QStandardItem *item2  = new QStandardItem( entry.text );
+
+        if ( entry.fileName.endsWith( ".wpd" ) )
+        {
+            item2->setText( "** WordPerfect file, text format incompatible" );
+        }
+
+        m_model->insertRow( row );
+        m_model->setItem( row, 0, item0 );
+        m_model->setItem( row, 1, item1 );
+        m_model->setItem( row, 2, item2 );
+
+        ++row;
+    }
+
+    //
+    QPushButton *closeButton = new QPushButton();
+    closeButton->setText( "Close" );
+
+    QBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch();
+    buttonLayout->addWidget( closeButton );
+    buttonLayout->addStretch();
+
+    QBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget( view );
+    layout->addLayout( buttonLayout );
+
+    m_findWidget->setLayout( layout );
+
+    m_splitter->setOrientation( Qt::Vertical );
+    m_splitter->addWidget( m_findWidget );
+
+    // must call after addWidget
+    view->resizeRowsToContents();
+
+    connect( view,        &QTableView::clicked,  this, &MainWindow::advFind_View );
+    connect( closeButton, &QPushButton::clicked, this, &MainWindow::advFind_Close );
+}
+
+void MainWindow::advFind_Close()
+{
+    m_findWidget->close();
+    m_findWidget->deleteLater();
+    m_findWidget = nullptr;
+    // keyboard needs to go back to text edit
+    // We are in a slot for a button on the widget
+    // we are getting rid of.
+    m_refocusTimer->start();
+}
+
+void MainWindow::backup_View( const QModelIndex &index )
+{
+    int row = index.row();
+
+    if ( row < 0 )
+    {
+        return;
+    }
+
+    QString fileName = m_backupModel->item( row,1 )->data( Qt::DisplayRole ).toString();
+    int     syntax   = m_backupModel->item( row,1 )->data( Qt::UserRole ).toInt();
+
+    // is the file already open?
+    bool open = false;
+    int max   = m_tabWidget->count();
+
+    for ( int index = 0; index < max; ++index )
+    {
+        QString tcurFile = this->get_curFileName( index );
+
+        if ( tcurFile == fileName )
+        {
+            m_tabWidget->setCurrentIndex( index );
+
+            open = true;
+            break;
+        }
+    }
+
+    //
+    if ( ! open )
+    {
+        QDir backupDir( Overlord::getInstance()->backupDirectory() );
+        QString fullName = backupDir.absoluteFilePath( fileName );
+        open = loadFile( fullName, true, false, false, true );
+        m_textEdit->forceSyntax( static_cast<SyntaxTypes>( syntax ) );
+    }
+
+    m_refocusTimer->start();
+
+}
+
+void MainWindow::advFind_View( const QModelIndex &index )
+{
+    int row = index.row();
+
+    if ( row < 0 )
+    {
+        return;
+    }
+
+    QString fileName = m_model->item( row,0 )->data( Qt::DisplayRole ).toString();
+    int lineNumber   = m_model->item( row,1 )->data( Qt::DisplayRole ).toInt();
+
+    if ( fileName.endsWith( ".wpd" ) )
+    {
+        csError( "Open File", "WordPerfect file, text format incompatible with Diamond" );
+        return;
+    }
+
+    // is the file already open?
+    bool open = false;
+    int max   = m_tabWidget->count();
+
+    for ( int index = 0; index < max; ++index )
+    {
+        QString tcurFile = this->get_curFileName( index );
+
+        if ( tcurFile == fileName )
+        {
+            m_tabWidget->setCurrentIndex( index );
+
+            open = true;
+            break;
+        }
+    }
+
+    //
+    if ( ! open )
+    {
+        open = loadFile( fileName, true, false );
+    }
+
+    if ( open )
+    {
+        QTextCursor cursor( m_textEdit->textCursor() );
+        cursor.movePosition( QTextCursor::Start );
+        cursor.movePosition( QTextCursor::NextBlock, QTextCursor::MoveAnchor, lineNumber-1 );
+        m_textEdit->setTextCursor( cursor );
+    }
+
+    m_refocusTimer->start();
+}
+
+
+// * replace
+void MainWindow::replace()
+{
+    QString saveText = Overlord::getInstance()->findText();
+
+    QTextCursor cursor( m_textEdit->textCursor() );
+    QString selectedText = cursor.selectedText();
+
+    if ( ! selectedText.isEmpty() )
+    {
+        Overlord::getInstance()->set_findText( selectedText );
+    }
+
+    Dialog_Replace dw( this,
+                       Overlord::getInstance()->findText(),
+                       Overlord::getInstance()->findList(),
+                       Overlord::getInstance()->replaceText(),
+                       Overlord::getInstance()->replaceList() );
+    int result = dw.exec();
+
+    if ( result >= QDialog::Accepted )
+    {
+        Overlord::getInstance()->set_findText( dw.get_findText() );
+        Overlord::getInstance()->set_findList( dw.get_findList() );
+
+        // add to list if not found
+        int index = Overlord::getInstance()->findListFind( Overlord::getInstance()->findText() );
+
+        if ( index == -1 )
+        {
+            Overlord::getInstance()->findListPrepend( Overlord::getInstance()->findText() );
+        }
+        else
+        {
+            Overlord::getInstance()->findListMove( index,0 );
+        }
+
+        Overlord::getInstance()->set_replaceText( dw.get_replaceText() );
+        Overlord::getInstance()->set_replaceList( dw.get_replaceList() );
+
+        // add to list if not found
+        index = Overlord::getInstance()->replaceListFind( Overlord::getInstance()->replaceText() );
+
+        if ( index == -1 )
+        {
+            Overlord::getInstance()->replaceListPrepend( Overlord::getInstance()->replaceText() );
+        }
+        else
+        {
+            Overlord::getInstance()->replaceListMove( index,0 );
+        }
+
+        // get the flags
+        Overlord::getInstance()->set_findFlags( 0 );
+
+        Overlord::getInstance()->set_findCase( dw.get_Case() );
+
+        if ( Overlord::getInstance()->findCase() )
+        {
+            Overlord::getInstance()->set_findFlagsCaseSensitive();
+        }
+
+        Overlord::getInstance()->set_findWholeWords( dw.get_WholeWords() );
+
+        if ( Overlord::getInstance()->findWholeWords() )
+        {
+            Overlord::getInstance()->set_findFlagsWholeWords();
+        }
+
+        if ( ! Overlord::getInstance()->findText().isEmpty() && ! Overlord::getInstance()->replaceText().isEmpty() )
+        {
+
+            if ( result == 1 )
+            {
+                replaceQuery();
+
+            }
+            else if ( result == 2 )
+            {
+                replaceAll();
+
+            }
+        }
+
+    }
+    else
+    {
+        Overlord::getInstance()->set_findText( saveText );
+
+        bool upd_Find    = dw.get_Upd_Find();
+        bool upd_Replace = dw.get_Upd_Replace();
+
+        if ( upd_Find && ! upd_Replace )
+        {
+            Overlord::getInstance()->set_findList( dw.get_findList() );
+        }
+        else if ( upd_Replace )
+        {
+            Overlord::getInstance()->set_findList( dw.get_findList() );
+            Overlord::getInstance()->set_replaceList( dw.get_replaceList() );
+        }
+    }
+
+}
+
+void MainWindow::replaceQuery()
+{
+    bool isFirst = true;
+    bool found;
+
+    // begin undo block
+    QTextCursor cursor( m_textEdit->textCursor() );
+    cursor.beginEditBlock();
+
+    ReplaceReply *dw = nullptr;
+
+    while ( true )
+    {
+        found = m_textEdit->find( Overlord::getInstance()->findText(), Overlord::getInstance()->findFlags() );
+
+        if ( found )
+        {
+
+            if ( isFirst )
+            {
+                isFirst = false;
+                dw = new ReplaceReply( this );
+            }
+
+            // aling near text
+            QRect rect  = m_textEdit->cursorRect();
+            QPoint point = rect.bottomLeft();
+            point.rx() += 25;
+            point.ry() += 10;
+            dw->move( m_textEdit->mapToGlobal( point ) );
+
+            int result = dw->exec();
+
+            if ( result == QDialog::Rejected )
+            {
+                break;
+            }
+
+            int key = dw->getKey();
+
+            if ( key == Qt::Key_unknown )
+            {
+                continue;
+
+            }
+            else if ( key == Qt::Key_A )
+            {
+                replaceAll();
+
+            }
+            else if ( key == Qt::Key_N )
+            {
+                continue;
+
+            }
+            else if ( key == Qt::Key_O )
+            {
+                cursor  = m_textEdit->textCursor();
+                cursor.insertText( Overlord::getInstance()->replaceText() );
+
+                break;
+
+            }
+            else if ( key == Qt::Key_S )
+            {
+                break;
+
+            }
+            else if ( key == Qt::Key_Y )
+            {
+                cursor  = m_textEdit->textCursor();
+                cursor.insertText( Overlord::getInstance()->replaceText() );
+
+            }
+
+        }
+        else
+        {
+            break;
+
+        }
+    }
+
+    dw->deleteLater();
+
+    cursor.clearSelection();
+    m_textEdit->setTextCursor( cursor );
+
+    // end of undo
+    cursor.endEditBlock();
+
+    if ( isFirst )
+    {
+        csError( "Replace", "Not found: " + Overlord::getInstance()->findText() );
+    }
+}
+
+void MainWindow::replaceAll()
+{
+    bool isFirst = true;
+    bool found;
+
+    // begin undo block
+    QTextCursor cursor( m_textEdit->textCursor() );
+    cursor.beginEditBlock();
+
+    while ( true )
+    {
+        found = m_textEdit->find( Overlord::getInstance()->findText(), Overlord::getInstance()->findFlags() );
+
+        if ( found )
+        {
+            isFirst = false;
+
+            cursor  = m_textEdit->textCursor();
+            cursor.insertText( Overlord::getInstance()->replaceText() );
+
+        }
+        else
+        {
+            break;
+
+        }
+    }
+
+    cursor.clearSelection();
+    m_textEdit->setTextCursor( cursor );
+
+    // end of undo
+    cursor.endEditBlock();
+
+    if ( isFirst )
+    {
+        csError( "Replace All", "Not found: " + Overlord::getInstance()->findText() );
+    }
+}
+
+
+// ** file
+void MainWindow::newFile()
+{
+
+    // There might have been a valid reason to make File->new whack the existing tab contents instead of
+    // creating a new tab like every other tab based editor I've ever used. There was no comment here
+    // explaining that decision so I'm changing this to follow industry trends.
+    //
+    // More than once I whacked files I really wanted.
+    //
+    // As a compromise, if the current tab is completely empty we whack it. If not, we create a new
+    // tab.
+#if 0
+    bool okClose = querySave();
+
+    if ( okClose )
+    {
+        m_textEdit->clear();
+        setCurrentTitle( "" );
+    }
+
+#else
+
+    // for some reason an empty document has a characterCount of 1
+    //
+    if ( m_textEdit->document()->characterCount() > 1 )
+    {
+        tabNew();
+    }
+    else
+    {
+        m_textEdit->clear();
+        setCurrentTitle( "" );
+    }
+
+#endif
+}
+
+void MainWindow::open_RelatedFile()
+{
+    QFileInfo tmp( m_curFile );
+    QString ext = tmp.suffix();
+
+    if ( ext == "cpp" || ext == "c" || ext == "cc" || ext == "m" || ext == "mm" || ext == "h" )
+    {
+        QStringList list;
+
+        QString tFile;
+        QString baseName = tmp.canonicalPath() + "/" +  tmp.completeBaseName();
+
+        if ( ext == "cpp" || ext == "c" || ext == "cc" || ext == "m" || ext == "mm" )
+        {
+            tFile = baseName + ".h";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+
+            tFile = baseName + "_p.h";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+
+        }
+        else if ( baseName.endsWith( "_p" ) && ext == "h" )
+        {
+
+            baseName.chop( 2 );
+
+            tFile = baseName + ".cpp";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+
+            tFile = baseName + ".c";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+
+            tFile = baseName + ".cc";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+
+            tFile = baseName + ".h";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+
+        }
+        else if ( ext == "h" )
+        {
+
+            tFile = baseName + ".cpp";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+
+            tFile = baseName + ".c";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+
+            tFile = baseName + ".c";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+
+            tFile = baseName + "_p.h";
+
+            if ( QFile::exists( tFile ) )
+            {
+                list.append( tFile );
+            }
+        }
+
+        //
+        int cnt = list.count();
+
+        if ( cnt == 0 )
+        {
+            csError( tr( "Open Related Files" ), tr( "No related files were found" ) );
+
+        }
+        else if ( cnt == 1 )
+        {
+            // open the one related file
+            this->loadFile( list.at( 0 ), true, false );
+
+        }
+        else
+        {
+            // display the full list of related files
+            Dialog_Open *dw = new Dialog_Open( this, list );
+            int result = dw->exec();
+
+            if ( result == QDialog::Accepted )
+            {
+                QString tmpF = dw->get_FileName();
+                this->loadFile( tmpF, true, false );
+            }
+
+            delete dw;
+        }
+
+    }
+    else
+    {
+        csError( tr( "Open Related Files" ), tr( "Related files only configured for .cpp, .c, .cc, .mm and .h files" ) );
+
+    }
+}
+
+void MainWindow::openDoc( QString path )
+{
+    QString selectedFilter;
+    QFileDialog::Options options;
+
+    // force windows 7 and 8 to honor initial path
+    options = QFileDialog::ForceInitialDir_Win7;
+
+    QStringList fileList = QFileDialog::getOpenFileNames( this, tr( "Select File" ),
+                           path, tr( "All Files (*)" ), &selectedFilter, options );
+
+    for ( const QString &fileName : fileList )
+    {
+        if ( ! fileName.isEmpty() )
+        {
+            loadFile( fileName, true, false );
+        }
+    }
+}
+
+bool MainWindow::close_Doc()
+{
+    bool okClose = querySave();
+
+    if ( okClose )
+    {
+
+        if ( m_isSplit )
+        {
+
+            if ( m_splitFileName == m_curFile )
+            {
+                // close the split tab
+                qDebug() << "Closing matching split";
+                splitCloseClicked();
+            }
+
+            rm_splitCombo( m_curFile );
+        }
+
+        openTab_Delete();
+
+        m_textEdit->clear();
+        setCurrentTitle( "" );
+    }
+
+    return okClose;
+}
+
+bool MainWindow::closeAll_Doc( bool isExit )
+{
+    bool allClosed = true;
+
+    QWidget *tmp;
+    DiamondTextEdit *textEdit;
+
+    int count = m_tabWidget->count();
+    int whichTab = 0;
+
+    // clear open tab list
+    Overlord::getInstance()->openedFilesClear();
+    Overlord::getInstance()->openedModifiedClear();
+
+    for ( int k = 0; k < count; ++k )
+    {
+
+        tmp = m_tabWidget->widget( whichTab );
+        textEdit = dynamic_cast<DiamondTextEdit *>( tmp );
+
+        if ( textEdit )
+        {
+            m_textEdit = textEdit;
+            m_curFile  = this->get_curFileName( whichTab );
+
+            bool okClose = querySave();
+
+            if ( okClose )
+            {
+
+                if ( isExit && ( m_curFile != "untitled.txt" ) )
+                {
+                    // save for the auto reload
+                    Overlord::getInstance()->openedFilesAppend( m_curFile );
+                    Overlord::getInstance()->openedModifiedAppend( false );
+                }
+
+                if ( m_tabWidget->count() == 1 )
+                {
+                    // do not remove this tab !
+
+                    m_textEdit->clear();
+                    setCurrentTitle( "" );
+
+                }
+                else
+                {
+                    m_tabWidget->removeTab( whichTab );
+
+                }
+
+            }
+            else
+            {
+                // modified file not closed, move over one tab
+                ++whichTab;
+
+                if ( m_curFile != "untitled.txt" )
+                {
+                    // save for the auto reload
+                    Overlord::getInstance()->openedFilesAppend( m_curFile );
+                    Overlord::getInstance()->openedModifiedAppend( true );
+                }
+
+                // at least one tab is staying open
+                allClosed = false;
+            }
+        }
+    }
+
+    if ( isExit && allClosed )
+    {
+        // about to close diamond
+
+    }
+    else
+    {
+        if ( m_isSplit )
+        {
+            // close the split tab
+            qDebug() << "closing split tab";
+            splitCloseClicked();
+        }
+
+        // update open tab list
+        openTab_UpdateActions();
+
+        m_tabWidget->setCurrentIndex( 0 );
+    }
+
+    return allClosed;
+}
+
+void MainWindow::reload()
+{
+    if ( m_curFile.isEmpty() )
+    {
+        csError( tr( "Reload" ), tr( "Unable to reload a file which was not saved." ) );
+
+    }
+    else if ( m_textEdit->document()->isModified() )
+    {
+
+        QMessageBox quest;
+        quest.setWindowTitle( tr( "Reload File" ) );
+        quest.setText( tr( "File: " ) + m_curFile + tr( " has been modified. Reload file?" ) );
+
+        QPushButton *reload = quest.addButton( "Reload", QMessageBox::AcceptRole );
+        quest.setStandardButtons( QMessageBox::Cancel );
+        quest.setDefaultButton( QMessageBox::Cancel );
+
+        quest.exec();
+
+        if ( quest.clickedButton() == reload )
+        {
+            loadFile( m_curFile, false, false, true );
+        }
+
+    }
+    else
+    {
+        loadFile( m_curFile, false, false, true );
+
+    }
+}
+
+bool MainWindow::save()
+{
+    if ( m_curFile.isEmpty() )
+    {
+        return saveAs( Overlord::SAVE_ONE );
+
+    }
+    else
+    {
+        return saveFile( m_curFile, Overlord::SAVE_ONE );
+
+    }
+}
+
+bool MainWindow::saveAs( Overlord::SaveFiles saveType )
+{
+    bool retval = false;
+
+    QString selectedFilter;
+    QFileDialog::Options options;
+
+    // find the current or prior path
+    QString path = pathName( m_curFile );
+
+    if ( path.isEmpty() || path == "." )
+    {
+        path = Overlord::getInstance()->priorPath();
+
+        if ( path.isEmpty() )
+        {
+            path = QDir::homePath();
+        }
+    }
+
+
+    // force windows 7 and 8 to honor initial path
+    options = QFileDialog::ForceInitialDir_Win7;
+
+    QString fileName = QFileDialog::getSaveFileName( this, tr( "Create or Select File" ),
+                       path, tr( "All Files (*)" ), &selectedFilter, options );
+
+    if ( fileName.isEmpty() )
+    {
+        retval = false;
+
+    }
+    else
+    {
+        retval = saveFile( fileName, saveType );
+
+        if ( retval )
+        {
+            // update open tab list
+            openTab_Delete();
+
+            if ( m_isSplit )
+            {
+                rm_splitCombo( m_curFile );
+            }
+
+            setCurrentTitle( fileName );
+
+            // update open tab list
+            openTab_Add();
+
+            if ( m_isSplit )
+            {
+                add_splitCombo( m_curFile );
+                set_splitCombo();
+            }
+        }
+    }
+
+    return retval;
+}
+
+void MainWindow::saveAll()
+{
+    // hold for reload
+    DiamondTextEdit *hold_textEdit = m_textEdit;
+    int hold_index = m_tabWidget->currentIndex();
+
+    QString fileName;
+
+    QWidget *tmp;
+    DiamondTextEdit *textEdit;
+
+    int count = m_tabWidget->count();
+
+    for ( int k = 0; k < count; ++k )
+    {
+
+        tmp = m_tabWidget->widget( k );
+        textEdit = dynamic_cast<DiamondTextEdit *>( tmp );
+
+        if ( textEdit )
+        {
+            m_textEdit = textEdit;
+            fileName   = m_tabWidget->tabWhatsThis( k );
+
+            if ( m_textEdit->document()->isModified() )
+            {
+
+                if ( fileName == "untitled.txt" )
+                {
+                    m_tabWidget->setCurrentIndex( k );
+                    saveAs( Overlord::SAVE_ALL );
+
+                }
+                else
+                {
+                    saveFile( fileName, Overlord::SAVE_ALL );
+
+                }
+            }
+        }
+    }
+
+    // reload the current textEdit again
+    m_textEdit = hold_textEdit;
+
+    if ( m_tabWidget->currentIndex() == hold_index )
+    {
+
+        fileName = m_tabWidget->tabWhatsThis( hold_index );
+
+        if ( fileName == "untitled.txt" )
+        {
+            m_curFile = "";
+
+        }
+        else
+        {
+            m_curFile = fileName;
+            setDiamondTitle( m_curFile );
+        }
+
+    }
+    else
+    {
+        m_tabWidget->setCurrentIndex( hold_index );
+
+    }
+
+    if ( ! m_textEdit->document()->isModified() )
+    {
+        setWindowModified( false );
+    }
+
+    if ( m_isSplit )
+    {
+        set_splitCombo();
+    }
+
+    setStatusBar( tr( "File(s) saved" ), 2000 );
+}
+
+
+// **edit
+void MainWindow::mw_undo()
+{
+    m_textEdit->undo();
+}
+
+void MainWindow::mw_redo()
+{
+    m_textEdit->redo();
+}
+
+void MainWindow::mw_cut()
+{
+    m_textEdit->cut();
+}
+
+void MainWindow::mw_copy()
+{
+    m_textEdit->copy();
+}
+
+void MainWindow::mw_paste()
+{
+    m_textEdit->paste();
+}
+
+void MainWindow::selectAll()
+{
+    qDebug() << "menu action selectAll()";
+    m_textEdit->selectAll();
+}
+
+void MainWindow::selectBlock()
+{
+    m_textEdit->selectLine();
+}
+
+void MainWindow::selectLine()
+{
+    m_textEdit->selectLine();
+}
+
+void MainWindow::selectWord()
+{
+    m_textEdit->selectWord();
+}
+
+void MainWindow::caseUpper()
+{
+    m_textEdit->caseUpper();
+}
+
+void MainWindow::caseLower()
+{
+    m_textEdit->caseLower();
+}
+
+void MainWindow::caseCap()
+{
+    m_textEdit->caseCap();
+}
+
+void MainWindow::insertDate()
+{
+    m_textEdit->insertDate();
+}
+
+void MainWindow::insertTime()
+{
+    m_textEdit->insertTime();
+}
+
+void MainWindow::insertSymbol()
+{
+    m_textEdit->insertSymbol();
+}
+
+void MainWindow::indentIncr( QString route )
+{
+    m_textEdit->indentIncr( route );
+}
+
+void MainWindow::indentDecr( QString route )
+{
+    m_textEdit->indentDecr( route );
+}
+
+void MainWindow::deleteLine()
+{
+    m_textEdit->deleteLine();
+}
+
+void MainWindow::deleteEOL()
+{
+    m_textEdit->deleteEOL();
+}
+
+void MainWindow::deleteThroughEOL()
+{
+    m_textEdit->deleteThroughEOL();
+}
+
+void MainWindow::rewrapParagraph()
+{
+    m_textEdit->rewrapParagraph();
+}
+
+void MainWindow::columnMode()
+{
+    // alters cut, copy, paste
+    Overlord::getInstance()->set_isColumnMode( false );
+
+    if ( m_ui->actionColumn_Mode->isChecked() )
+    {
+        // on
+        Overlord::getInstance()->set_isColumnMode( true );
+    }
+
+    setStatus_ColMode();
+}
+
+
+// ** search methods are located in search.cpp
+
+void MainWindow::goLine()
+{
+    m_textEdit->goLine();
+}
+
+void MainWindow::goColumn()
+{
+    m_textEdit->goColumn();
+}
+
+void MainWindow::goTop()
+{
+    m_textEdit->goTop();
+}
+
+void MainWindow::goBottom()
+{
+    m_textEdit->goBottom();
+}
+
+
+// **view
+void MainWindow::lineHighlight()
+{
+    Overlord::getInstance()->set_showLineHighlight( false );
+
+    if ( m_ui->actionLine_Highlight->isChecked() )
+    {
+        // on
+        Overlord::getInstance()->set_showLineHighlight( true );
+    }
+
+    moveBar();
+}
+
+void MainWindow::moveBar()
+{
+    m_textEdit->moveBar();
+}
+
+void MainWindow::lineNumbers()
+{
+    if ( m_ui->actionLine_Numbers->isChecked() )
+    {
+        //on
+        Overlord::getInstance()->set_showLineNumbers( true );
+    }
+    else
+    {
+        // off
+        Overlord::getInstance()->set_showLineNumbers( false );
+    }
+
+}
+
+void MainWindow::wordWrap()
+{
+    if ( m_ui->actionWord_Wrap->isChecked() )
+    {
+        //on
+        Overlord::getInstance()->set_isWordWrap( true );
+        m_textEdit->setWordWrapMode( QTextOption::WordWrap );
+
+    }
+    else
+    {
+        // off
+        Overlord::getInstance()->set_isWordWrap( false );
+        m_textEdit->setWordWrapMode( QTextOption::NoWrap );
+
+    }
+
+}
+
+void MainWindow::show_Spaces()
+{
+    QTextDocument *td   = m_textEdit->document();
+    QTextOption textOpt = td->defaultTextOption();
+
+    //bool oldValue = Overlord::getInstance()->showSpaces();
+
+    if ( m_ui->actionShow_Spaces->isChecked() )
+    {
+        //on
+        Overlord::getInstance()->set_showSpaces( true );
+
+        if ( Overlord::getInstance()->showBreaks() )
+        {
+            textOpt.setFlags( QTextOption::ShowTabsAndSpaces | QTextOption::ShowLineAndParagraphSeparators );
+
+        }
+        else
+        {
+            textOpt.setFlags( QTextOption::ShowTabsAndSpaces );
+        }
+
+        td->setDefaultTextOption( textOpt );
+
+    }
+    else
+    {
+        // off
+        Overlord::getInstance()->set_showSpaces( false );
+
+        if ( Overlord::getInstance()->showBreaks() )
+        {
+            textOpt.setFlags( QTextOption::ShowLineAndParagraphSeparators );
+
+        }
+        else
+        {
+            textOpt.setFlags( 0 );
+        }
+
+        td->setDefaultTextOption( textOpt );
+    }
+}
+
+void MainWindow::show_Breaks()
+{
+    QTextDocument *td = m_textEdit->document();
+    QTextOption textOpt = td->defaultTextOption();
+
+    if ( m_ui->actionShow_Breaks->isChecked() )
+    {
+        //on
+        Overlord::getInstance()->set_showBreaks( true );
+
+        if ( Overlord::getInstance()->showSpaces() )
+        {
+            textOpt.setFlags( QTextOption::ShowTabsAndSpaces | QTextOption::ShowLineAndParagraphSeparators );
+
+        }
+        else
+        {
+            textOpt.setFlags( QTextOption::ShowLineAndParagraphSeparators );
+
+        }
+
+        td->setDefaultTextOption( textOpt );
+
+    }
+    else
+    {
+        // off
+        Overlord::getInstance()->set_showBreaks( false );
+
+        if ( Overlord::getInstance()->showSpaces() )
+        {
+            textOpt.setFlags( QTextOption::ShowTabsAndSpaces );
+
+        }
+        else
+        {
+            textOpt.setFlags( 0 );
+
+        }
+
+        td->setDefaultTextOption( textOpt );
+    }
+}
+
+void MainWindow::displayHTML()
+{
+    try
+    {
+        showHtml( "display", m_curFile );
+
+    }
+    catch ( std::exception &e )
+    {
+        // do nothing for now
+    }
+}
+
+
+void MainWindow::setSynType( SyntaxTypes data )
+{
+    m_ui->actionSyn_C->setChecked( false );
+    m_ui->actionSyn_Clipper->setChecked( false );
+    m_ui->actionSyn_CMake->setChecked( false );
+    m_ui->actionSyn_Css->setChecked( false );
+    m_ui->actionSyn_Doxy->setChecked( false );
+    m_ui->actionSyn_ErrorLog->setChecked( false );
+    m_ui->actionSyn_Html->setChecked( false );
+    m_ui->actionSyn_Java->setChecked( false );
+    m_ui->actionSyn_Javascript->setChecked( false );
+    m_ui->actionSyn_Json->setChecked( false );
+    m_ui->actionSyn_Makefile->setChecked( false );
+    m_ui->actionSyn_Nsis->setChecked( false );
+    m_ui->actionSyn_Text->setChecked( false );
+    m_ui->actionSyn_Shell->setChecked( false );
+    m_ui->actionSyn_Perl->setChecked( false );
+    m_ui->actionSyn_PHP->setChecked( false );
+    m_ui->actionSyn_Python->setChecked( false );
+    m_ui->actionSyn_Xml->setChecked( false );
+    m_ui->actionSyn_None->setChecked( false );
+
+    // m_ui->actionSyn_UnUsed1->setChecked(false);
+    // m_ui->actionSyn_UnUsed2->setChecked(false);
+
+    switch ( data )
+    {
+        case SYN_C:
+            m_ui->actionSyn_C->setChecked( true );
+            break;
+
+        case SYN_CLIPPER:
+            m_ui->actionSyn_Clipper->setChecked( true );
+            break;
+
+        case SYN_CMAKE:
+            m_ui->actionSyn_CMake->setChecked( true );
+            break;
+
+        case SYN_CSS:
+            m_ui->actionSyn_Css->setChecked( true );
+            break;
+
+        case SYN_DOXY:
+            m_ui->actionSyn_Doxy->setChecked( true );
+            break;
+
+        case SYN_ERRLOG:
+            m_ui->actionSyn_ErrorLog->setChecked( true );
+            break;
+
+        case SYN_HTML:
+            m_ui->actionSyn_Html->setChecked( true );
+            break;
+
+        case SYN_JAVA:
+            m_ui->actionSyn_Java->setChecked( true );
+            break;
+
+        case SYN_JS:
+            m_ui->actionSyn_Javascript->setChecked( true );
+            break;
+
+        case SYN_JSON:
+            m_ui->actionSyn_Json->setChecked( true );
+            break;
+
+        case SYN_MAKE:
+            m_ui->actionSyn_Makefile->setChecked( true );
+            break;
+
+        case SYN_NSIS:
+            m_ui->actionSyn_Nsis->setChecked( true );
+            break;
+
+        case SYN_TEXT:
+            m_ui->actionSyn_Text->setChecked( true );
+            break;
+
+        case SYN_SHELL:
+            m_ui->actionSyn_Shell->setChecked( true );
+            break;
+
+        case SYN_PERL:
+            m_ui->actionSyn_Perl->setChecked( true );
+            break;
+
+        case SYN_PHP:
+            m_ui->actionSyn_PHP->setChecked( true );
+            break;
+
+        case SYN_PYTHON:
+            m_ui->actionSyn_Python->setChecked( true );
+            break;
+
+        case SYN_XML:
+            m_ui->actionSyn_Xml->setChecked( true );
+            break;
+
+        case SYN_NONE:
+            m_ui->actionSyn_None->setChecked( true );
+            break;
+
+        case SYN_UNUSED1:
+            //m_ui->actionSyn_UnUsed1->setChecked(true);
+            break;
+
+        case SYN_UNUSED2:
+            //m_ui->actionSyn_UnUsed2->setChecked(true);
+            break;
+    }
+}
+
+void MainWindow::formatUnix()
+{
+    showNotDone( "Document, format Unix (LF)" );
+}
+
+void MainWindow::formatWin()
+{
+    showNotDone( "Document, format Windows (CR LF)" );
+}
+
+void MainWindow::fixTab_Spaces()
+{
+    m_textEdit->fixTab_Spaces();
+}
+
+void MainWindow::fixSpaces_Tab()
+{
+    m_textEdit->fixSpaces_Tab();
+}
+
+void MainWindow::deleteEOL_Spaces()
+{
+    m_textEdit->deleteEOL_Spaces();
+}
+
+
+// ** tools
+void MainWindow::mw_macroStart()
+{
+    if ( ! m_record )
+    {
+        m_record = true;
+        m_textEdit->macroStart();
+
+        setStatusBar( tr( "Recording macro. . ." ), 0 );
+    }
+}
+
+void MainWindow::mw_macroStop()
+{
+    if ( m_record )
+    {
+        m_record = false;
+        m_textEdit->macroStop();
+
+        // save macro to global list
+        m_macroList = m_textEdit->get_MacroKeyList();
+
+        setStatusBar( tr( "Macro recorded" ), 1200 );
+
+    }
+    else
+    {
+        setStatusBar( tr( "No recording in progress" ), 1200 );
+
+    }
+}
+
+void MainWindow::macroPlay()
+{
+    if ( m_record )
+    {
+        csError( "Macro Playback", "Unable to play back a macro while recording" );
+
+    }
+    else
+    {
+        int cnt = m_macroList.count();
+
+        if ( cnt == 0 )
+        {
+            csError( "Macro Playback", "No macro to play back" );
+
+        }
+        else
+        {
+            QKeyEvent *event;
+
+            for ( int k = 0; k < cnt; ++k )
+            {
+                event = m_macroList.at( k );
+
+                QKeyEvent *newEvent;
+                newEvent = new QKeyEvent( *event );
+
+                QApplication::postEvent( m_textEdit, newEvent );
+            }
+        }
+    }
+}
+
+void MainWindow::macroLoad()
+{
+    QStringList macroIds = Overlord::getInstance()->loadMacroIds();
+
+    if ( macroIds.count() == 0 )
+    {
+        csError( "Load Macros", "No exiting macros" );
+        return;
+    }
+
+    Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_LOAD, macroIds,
+                                         Overlord::getInstance()->macroNames() );
+    int result = dw->exec();
+
+    if ( result == QDialog::Accepted )
+    {
+        QString text = dw->get_Macro();
+        Overlord::getInstance()->loadMacro( text );
+    }
+
+    delete dw;
+}
+
+void MainWindow::macroEditNames()
+{
+    QStringList macroIds = Overlord::getInstance()->loadMacroIds();
+
+    if ( macroIds.count() == 0 )
+    {
+        csError( "Load Macros", "No exiting macros" );
+        return;
+    }
+
+    //  TODO:: No need to pass macroNames when we pass settings reference
+    //
+    Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_EDITNAMES, macroIds,
+                                         Overlord::getInstance()->macroNames() );
+    dw->exec();
+
+    delete dw;
+}
+
+// **
+void MainWindow::spellCheck()
+{
+    if ( m_ui->actionSpell_Check->isChecked() )
+    {
+        //on
+        Overlord::getInstance()->set_isSpellCheck( true );
+
+    }
+    else
+    {
+        // off
+        Overlord::getInstance()->set_isSpellCheck( false );
+    }
+
+    // run for every tab
+    int count = m_tabWidget->count();
+
+    QWidget *tmp;
+    DiamondTextEdit *textEdit;
+
+    for ( int k = 0; k < count; ++k )
+    {
+
+        tmp      = m_tabWidget->widget( k );
+        textEdit = dynamic_cast<DiamondTextEdit *>( tmp );
+
+        if ( textEdit )
+        {
+            // save new values & reHighlight
+            textEdit->set_Spell( Overlord::getInstance()->isSpellCheck() );
+        }
+    }
+}
+
+static const double SOURCE_DPI = 100.00;
+
+void MainWindow::print()
+{
+    QPrinter printer( QPrinter::HighResolution );
+
+    QPrintDialog dialog( &printer, this );
+    dialog.setWindowTitle( "Print Document" );
+
+    if ( m_textEdit->textCursor().hasSelection() )
+    {
+        dialog.addEnabledOption( QAbstractPrintDialog::PrintSelection );
+    }
+
+    if ( dialog.exec() == QDialog::Accepted )
+    {
+        this->printOut( &printer );
+    }
+}
+
+void MainWindow::printPreview()
+{
+    // called from menu
+    QPrinter printer( QPrinter::HighResolution );
+
+    QPrintPreviewDialog preview( &printer, this );
+    preview.setWindowTitle( m_curFile );
+
+    connect( &preview, &QPrintPreviewDialog::paintRequested, this, &MainWindow::printOut );
+    preview.exec();
+}
+
+void MainWindow::printPdf()
+{
+    QString outputName = QFileInfo( m_curFile ).baseName() + ".pdf";
+
+    QString selectedFilter;
+    QFileDialog::Options options;
+
+    QString fileName = QFileDialog::getSaveFileName( this, tr( "Print to PDF" ),
+                       outputName, tr( "PDF File (*.pdf)" ), &selectedFilter, options );
+
+    if ( ! fileName.isEmpty() )
+    {
+
+        if ( QFileInfo( fileName ).suffix().isEmpty() )
+        {
+            fileName.append( ".pdf" );
+        }
+
+        QPrinter printer( QPrinter::HighResolution );
+
+        printer.setOutputFormat( QPrinter::PdfFormat );
+        printer.setOutputFileName( fileName );
+
+        this->printOut( &printer );
+    }
+}
+
+
+// * *
+void MainWindow::printOut( QPrinter *printer )
+{
+    QTextDocument *td = new QTextDocument;
+
+    /*
+       // consider this later one
+       if (m_ui->actionWord_Wrap->isChecked()) {
+          td->setWordWrapMode(QTextOption::WordWrap);
+       }
+    */
+
+    QString html = "";
+
+    if ( Overlord::getInstance()->printLineNumbers() )
+    {
+
+        QTextBlock block = m_textEdit->document()->firstBlock();
+        int blockNumber  = block.blockNumber();
+
+        html += "<html><head></head>";
+        html += "<body><table border='none' cellspacing='0' cellpadding='0'>";
+
+        while ( block.isValid() )
+        {
+
+            html += "<tr>";
+            html += "<td  align='right' valign='middle'><b><font size='2'>" + QString::number( blockNumber + 1 ) + "</b></font></td>";
+            html += "<td> &nbsp;&nbsp; </td>";
+            html += "<td> " + this->convertBlockToHTML( block.text(), Overlord::getInstance()->tabSpacing() ) + "</td>";
+            html += "</tr>";
+
+            block = block.next();
+            ++blockNumber;
+        }
+
+        html += "</table></body></html>";
+
+    }
+    else
+    {
+        html = Qt::convertFromPlainText( m_textEdit->toPlainText() );
+
+    }
+
+    td->setHtml( html );
+
+    printer->setPaperSize( QPageSize::Letter );
+    printer->setPageMargins( QMarginsF{ Overlord::getInstance()->marginLeft(),
+                                        Overlord::getInstance()->marginTop(),
+                                        Overlord::getInstance()->marginRight(),
+                                        Overlord::getInstance()->marginBottom()},
+                             QPageSize::Inch );
+
+    QPainter painter;
+
+    if ( painter.begin( printer ) )
+    {
+
+        m_resolution = printer->logicalDpiX();
+
+        painter.setViewport( printer->paperRect() );
+
+        int winX = 8.5  * m_resolution;
+        int winY = 11.0 * m_resolution;
+        painter.setWindow( 0, 0, winX, winY );
+
+        td->documentLayout()->setPaintDevice( painter.device() );
+        td->setDefaultFont( Overlord::getInstance()->printFontText() );
+
+        // save printarea for header and footer
+        double xx = ( 8.5 - Overlord::getInstance()->marginLeft()
+                      - Overlord::getInstance()->marginRight() ) * m_resolution;
+        double yy = ( 11.0 - Overlord::getInstance()->marginTop()
+                      - Overlord::getInstance()->marginBottom() ) * m_resolution;
+        QRectF printArea = QRectF( 0, 0, xx, yy );
+
+        // between the header and the body, and the body and the footer
+        int spacer = Overlord::getInstance()->headerGap() * m_resolution;
+
+        m_printArea = printArea;
+
+        int headHeight = get_HeaderSize( &painter );
+        int footHeight = get_FooterSize( &painter );
+
+        printArea.setTop( printArea.top() + headHeight + spacer );
+        printArea.setBottom( printArea.bottom() - ( footHeight + spacer ) );
+
+        QRectF printableRect = QRectF( QPoint( 0,0 ), printArea.size() );
+        td->setPageSize( printableRect.size() );
+
+        m_pageNo    = 1;
+        m_pageCount = td->pageCount();
+
+        // print header and footer
+        this->doHeader( &painter );
+        this->doFooter( &painter );
+
+        int headerSpace = + headHeight + spacer;
+
+        for ( int k = 1; k <= m_pageCount; ++k )
+        {
+
+            painter.save();
+
+            // move the painter "down"
+            painter.translate( 0, ( printableRect.height() * ( k-1 ) * ( -1 ) ) + headerSpace );
+
+            // print one page worth of text
+            td->drawContents( &painter, printableRect );
+            m_pageNo++;
+
+            // move the document "up"
+            printableRect.translate( 0, printableRect.height() );
+
+            painter.restore();
+
+            if ( k < m_pageCount )
+            {
+                printer->newPage();
+
+                this->doHeader( &painter );
+                this->doFooter( &painter );
+            }
+        }
+
+        painter.end();
+    }
+}
+
+int MainWindow::get_HeaderSize( QPainter *painter )
+{
+    if ( ! Overlord::getInstance()->printHeader() )
+    {
+        return 0;
+    }
+
+    painter->save();
+    painter->setFont( Overlord::getInstance()->printFontHeader() );
+
+    QString header = "Test line";
+    QRect rect     = painter->boundingRect( painter->window(), Qt::AlignLeft, header );
+
+    int size = rect.height();
+
+    if ( !Overlord::getInstance()->headerLine2().isEmpty() )
+    {
+        size = size * 2;
+    }
+
+    painter->restore();
+
+    return size;
+}
+
+int MainWindow::get_FooterSize( QPainter *painter )
+{
+    if ( ! Overlord::getInstance()->printFooter() )
+    {
+        return 0;
+    }
+
+    painter->save();
+    painter->setFont( Overlord::getInstance()->printFontFooter() );
+
+    QString footer = "Test line";
+    QRect rect     = painter->boundingRect( painter->window(), Qt::AlignLeft, footer );
+
+    int size = rect.height();
+
+    if ( ! Overlord::getInstance()->footerLine2().isEmpty() )
+    {
+        size = size * 2;
+    }
+
+    painter->restore();
+
+    return size;;
+}
+
+void MainWindow::doHeader( QPainter *painter )
+{
+    if ( ! Overlord::getInstance()->printHeader() )
+    {
+        return;
+    }
+
+    QString header;
+    QRectF rect1;
+    QRectF rectBig =  m_printArea;
+
+    painter->save();
+    painter->setFont( Overlord::getInstance()->printFontHeader() );
+
+    //
+    header = macroExpand( Overlord::getInstance()->headerLeft() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignLeft, header );
+    painter->drawText( rect1, Qt::AlignLeft, header );
+
+    //
+    header = macroExpand( Overlord::getInstance()->headerCenter() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignHCenter, header );
+    painter->drawText( rect1, Qt::AlignHCenter, header );
+
+    //
+    header = macroExpand( Overlord::getInstance()->headerRight() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignRight, header );
+    painter->drawText( rect1, Qt::AlignRight, header );
+
+    //
+    header = Overlord::getInstance()->headerLine2();
+
+    if ( header.isEmpty() )
+    {
+        // line after header
+        painter->drawLine( rectBig.left(), rect1.bottom()+8, rectBig.right(), rect1.bottom()+8 );
+
+    }
+    else
+    {
+        QRectF rect2 = rectBig;
+        rect2.translate( 0, rect1.height() );
+
+        rect2 = painter->boundingRect( rect2, Qt::AlignLeft, header );
+        painter->drawText( rect2, Qt::AlignLeft, header );
+
+        // line after header
+        painter->drawLine( rectBig.left(), rect2.bottom()+8, rectBig.right(), rect2.bottom()+8 );
+    }
+
+    painter->restore();
+
+    return;
+}
+
+void MainWindow::doFooter( QPainter *painter )
+{
+    if ( ! Overlord::getInstance()->printFooter() )
+    {
+        return;
+    }
+
+    QString footer;
+    QRectF rect1;
+    QRectF rectBig = m_printArea;
+
+    painter->save();
+    painter->setFont( Overlord::getInstance()->printFontFooter() );
+
+    //
+    QString footer_L2 = footer = Overlord::getInstance()->footerLine2();
+    QRectF rect_L2;
+
+    if ( ! footer_L2.isEmpty() )
+    {
+        rect_L2 = painter->boundingRect( rectBig, Qt::AlignLeft, footer_L2 );
+
+        rect_L2.translate( 0, rectBig.height() - rect_L2.height() );
+        painter->drawText( rect_L2, Qt::AlignLeft, footer_L2 );
+    }
+
+    //
+    footer = macroExpand( Overlord::getInstance()->footerLeft() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignLeft, footer );
+
+    rect1.translate( 0, rectBig.height() - rect1.height() - rect_L2.height() );
+    painter->drawText( rect1, Qt::AlignLeft, footer );
+
+    //
+    footer = macroExpand( Overlord::getInstance()->footerCenter() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignHCenter, footer );
+
+    rect1.translate( 0, rectBig.height() - rect1.height() - rect_L2.height() );
+    painter->drawText( rect1, Qt::AlignHCenter, footer );
+
+    //
+    footer = macroExpand( Overlord::getInstance()->footerRight() );
+    rect1  = painter->boundingRect( rectBig, Qt::AlignRight, footer );
+
+    rect1.translate( 0, rectBig.height() - rect1.height() - rect_L2.height() );
+    painter->drawText( rect1, Qt::AlignRight, footer );
+
+    // line before footer
+    painter->drawLine( rectBig.left(), rect1.top()-3, rectBig.right(), rect1.top()-3 );
+
+    painter->restore();
+
+    return;
+}
+
+QString MainWindow::macroExpand( QString data )
+{
+    QString macro;
+    QString text;
+
+    int begin;
+    int end;
+
+    while ( true )
+    {
+
+        begin = data.indexOf( "$(" );
+
+        if ( begin == -1 )
+        {
+            break;
+        }
+
+        end = data.indexOf( ")", begin );
+
+        if ( end == -1 )
+        {
+            data = data.replace( begin, 2, "" );
+            continue;
+        }
+
+        macro = data.mid( begin, end-begin+1 );
+        text  = "";
+
+        if ( macro == "$(FileName)" )
+        {
+            text = strippedName( m_curFile );
+
+        }
+        else if ( macro == "$(PathFileName)" )
+        {
+            text = m_curFile;
+
+        }
+        else if ( macro == "$(PageNo)" )
+        {
+            text = QString::number( m_pageNo );
+
+        }
+        else if ( macro == "$(TotalPages)" )
+        {
+            text = QString::number( m_pageCount );
+
+        }
+        else if ( macro == "$(Date)" )
+        {
+            QDate date   = QDate::currentDate();
+            text= date.toString( Overlord::getInstance()->formatDate() );
+
+        }
+        else if ( macro == "$(Time)" )
+        {
+            QTime time   = QTime::currentTime();
+            text = time.toString( Overlord::getInstance()->formatTime() );
+
+        }
+
+        data = data.replace( begin, end-begin+1, text );
+    }
+
+    return data;
+}
+
+QString MainWindow::convertBlockToHTML( const QString &plain, int tabSpacing ) const
+{
+    int col = 0;
+    QString retval;
+
+    for ( QChar c : plain )
+    {
+
+        if ( c == '\t' )
+        {
+            retval.append( QChar( 0x00A0 ) );
+            ++col;
+
+            while ( col % tabSpacing )
+            {
+                retval.append( QChar( 0x00A0 ) );
+                ++col;
+            }
+
+        }
+        else if ( c.isSpace() )
+        {
+            retval.append( QChar( 0x00A0 ) );
+
+        }
+        else if ( c == '<' )
+        {
+            retval.append( "&lt;" );
+
+        }
+        else if ( c == '>' )
+        {
+            retval.append( "&gt;" );
+
+        }
+        else if ( c == '&' )
+        {
+            retval.append( "&amp;" );
+
+        }
+        else
+        {
+            retval.append( c );
+
+        }
+
+        ++col;
+    }
+
+    return retval;
+}
+
+// ****  recent files
+void MainWindow::rf_CreateMenus()
+{
+    int cnt = Overlord::getInstance()->recentFiles().count();
+
+    QString tName;
+
+    QMenu   *fileMenu = m_ui->menuFile;
+    QAction *action   = fileMenu->insertSeparator( m_ui->actionExit );
+
+    for ( int i = 0; i < DiamondLimits::RECENT_FILES_MAX; ++i )
+    {
+
+        if ( i < cnt )
+        {
+            tName = Overlord::getInstance()->recentFiles()[i];
+        }
+        else
+        {
+            tName = "file"+QString::number( i );
+        }
+
+        rf_Actions[i] = new QAction( tName, this );
+        rf_Actions[i]->setData( QString( "recent-file" ) );
+
+        fileMenu->insertAction( action, rf_Actions[i] );
+
+        if ( i >= cnt )
+        {
+            rf_Actions[i]->setVisible( false );
+        }
+
+        connect( rf_Actions[i], SIGNAL( triggered() ), this, SLOT( rf_Open() ) );
+    }
+}
+
+void MainWindow::rf_Open()
+{
+    QAction *action;
+    action = ( QAction * )sender();
+
+    if ( action )
+    {
+        bool ok = loadFile( action->text(), true, false );
+
+        if ( ! ok )
+        {
+            int index = Overlord::getInstance()->recentFiles().indexOf( action->text() );
+
+            if ( index >= 0 )
+            {
+                Overlord::getInstance()->recentFiles().removeAt( index );
+                Overlord::getInstance()->markToNotify();
+
+                // update actions
+                rf_UpdateActions();
+            }
+        }
+    }
+}
+
+void MainWindow::showContext_Files( const QPoint &pt )
+{
+    QAction *action = m_ui->menuFile->actionAt( pt );
+
+    if ( action )
+    {
+        QString data = action->data().toString();
+
+        if ( data == "recent-file" )
+        {
+            QString fName = action->text();
+
+            QMenu *menu = new QMenu( this );
+            menu->addAction( "Clear Recent file list", this, SLOT( rf_ClearList() ) );
+
+            QAction *rfAction = menu->addAction( "Remove file:  " + fName, this, SLOT( rf_RemoveFName() ) );
+            rfAction->setData( fName );
+
+            menu->exec( m_ui->menuFile->mapToGlobal( pt ) );
+            delete menu;
+        }
+    }
+}
+
+void MainWindow::rf_ClearList()
+{
+    QAction *action;
+    action = ( QAction * )sender();
+
+    if ( action )
+    {
+        Overlord::getInstance()->recentFileListClear();
+
+        // update actions
+        rf_UpdateActions();
+    }
+}
+
+void MainWindow::rf_RemoveFName()
+{
+    QAction *action;
+    action = ( QAction * )sender();
+
+    if ( action )
+    {
+        QString fName = action->data().toString();
+
+        int index = Overlord::getInstance()->recentFiles().indexOf( fName );
+
+        if ( index >= 0 )
+        {
+            Overlord::getInstance()->recentFiles().removeAt( index );
+            Overlord::getInstance()->markToNotify();
+
+            // update actions
+            rf_UpdateActions();
+        }
+    }
+}
+
+void MainWindow::rf_Update()
+{
+    int cnt = Overlord::getInstance()->recentFiles().count();
+
+    if ( cnt >= DiamondLimits::RECENT_FILES_MAX )
+    {
+        Overlord::getInstance()->recentFiles().removeFirst();
+    }
+
+    Overlord::getInstance()->recentFiles().append( m_curFile );
+
+    // update actions
+    rf_UpdateActions();
+}
+
+void MainWindow::rf_UpdateActions()
+{
+    int cnt = Overlord::getInstance()->recentFiles().count();
+
+    for ( int i = 0; i < DiamondLimits::RECENT_FILES_MAX; ++i )
+    {
+
+        if ( i < cnt )
+        {
+            rf_Actions[i]->setText( Overlord::getInstance()->recentFiles()[i] );
+            rf_Actions[i]->setVisible( true );
+
+        }
+        else
+        {
+            rf_Actions[i]->setVisible( false );
+        }
+
+    }
+}
+
+
+
+
+// ****  recent folders
+void MainWindow::rfolder_CreateMenus()
+{
+    int cnt = Overlord::getInstance()->recentFolders().count();
+
+    QString tName;
+    QMenu *menu = new QMenu( this );
+
+    for ( int i = 0; i < DiamondLimits::RECENT_FOLDERS_MAX; ++i )
+    {
+
+        if ( i < cnt )
+        {
+            tName = Overlord::getInstance()->recentFolders()[i];
+        }
+        else
+        {
+            tName = "folder"+QString::number( i );
+        }
+
+        rfolder_Actions[i] = new QAction( tName, this );
+        rfolder_Actions[i]->setData( QString( "recent-folder" ) );
+
+        menu->addAction( rfolder_Actions[i] );
+
+        if ( i >= cnt )
+        {
+            rfolder_Actions[i]->setVisible( false );
+        }
+
+        connect( rfolder_Actions[i], SIGNAL( triggered() ), this, SLOT( rfolder_Open() ) );
+    }
+
+    m_ui->actionOpen_RecentFolder->setMenu( menu );
+
+}
+
+void MainWindow::rfolder_Open()
+{
+    QAction *action;
+    action = ( QAction * )sender();
+
+    if ( action )
+    {
+        // pass the path
+        openDoc( action->text() );
+    }
+}
+
+void MainWindow::showContext_RecentFolder( const QPoint &pt )
+{
+    QAction *action = m_ui->actionOpen_RecentFolder->menu()->actionAt( pt );
+
+    if ( action )
+    {
+        QString data = action->data().toString();
+
+        if ( data == "recent-folder" )
+        {
+            QString fName = action->text();
+
+            QMenu *menu = new QMenu( this );
+            menu->addAction( "Clear Recent folder list",  this, SLOT( rfolder_ClearList() ) );
+
+            QAction *rfAction = menu->addAction( "Remove folder:  " + fName, this,  SLOT( rfolder_RemoveFName() ) );
+            rfAction->setData( fName );
+
+            menu->exec( QCursor::pos() );
+            delete menu;
+        }
+    }
+}
+
+void MainWindow::rfolder_ClearList()
+{
+    QAction *action;
+    action = ( QAction * )sender();
+
+    if ( action )
+    {
+        Overlord::getInstance()->recentFolders().clear();
+
+        // update actions
+        rfolder_UpdateActions();
+    }
+}
+
+void MainWindow::rfolder_RemoveFName()
+{
+    QAction *action;
+    action = ( QAction * )sender();
+
+    if ( action )
+    {
+        QString fName = action->data().toString();
+
+        int index = Overlord::getInstance()->recentFolders().indexOf( fName );
+
+        if ( index >= 0 )
+        {
+            Overlord::getInstance()->recentFolders().removeAt( index );
+
+            // update actions
+            rfolder_UpdateActions();
+        }
+    }
+}
+
+void MainWindow::rfolder_Add()
+{
+    if ( m_curFile.isEmpty() )
+    {
+        return;
+    }
+
+    int cnt = Overlord::getInstance()->recentFolders().count();
+
+    if ( cnt >= DiamondLimits::RECENT_FOLDERS_MAX )
+    {
+        Overlord::getInstance()->recentFolders().removeFirst();
+    }
+
+    QString fileName = pathName( m_curFile );
+
+    if ( ! Overlord::getInstance()->recentFolders().contains( fileName ) )
+    {
+        Overlord::getInstance()->recentFolders().append( fileName );
+    }
+
+    // update actions
+    rfolder_UpdateActions();
+}
+
+void MainWindow::rfolder_UpdateActions()
+{
+    int cnt = Overlord::getInstance()->recentFolders().count();
+
+    for ( int i = 0; i < DiamondLimits::RECENT_FOLDERS_MAX; ++i )
+    {
+
+        if ( i < cnt )
+        {
+            rfolder_Actions[i]->setText( Overlord::getInstance()->recentFolders()[i] );
+            rfolder_Actions[i]->setVisible( true );
+
+        }
+        else
+        {
+            rfolder_Actions[i]->setVisible( false );
+        }
+
+    }
+}
+
+
+
+// ****  preset folders
+void MainWindow::prefolder_CreateMenus()
+{
+    QString tName;
+    QMenu *menu = new QMenu( this );
+
+    for ( int i = 0; i < DiamondLimits::PRESET_FOLDERS_MAX; ++i )
+    {
+
+        tName = Overlord::getInstance()->presetFolders()[i];
+
+        if ( tName.isEmpty() )
+        {
+            continue;
+        }
+
+        prefolder_Actions[i] = new QAction( tName, this );
+        prefolder_Actions[i]->setData( QString( "preset-folder" ) );
+
+        menu->addAction( prefolder_Actions[i] );
+        connect( prefolder_Actions[i], SIGNAL( triggered() ), this, SLOT( prefolder_Open() ) );
+    }
+
+    m_ui->actionOpen_PresetFolder->setMenu( menu );
+
+}
+
+void MainWindow::prefolder_Open()
+{
+    QAction *action;
+    action = ( QAction * )sender();
+
+    if ( action )
+    {
+        // pass the path
+        openDoc( action->text() );
+    }
+}
+
+void MainWindow::prefolder_RedoList()
+{
+    QMenu *menu = m_ui->actionOpen_PresetFolder->menu();
+    menu->deleteLater();
+
+    prefolder_CreateMenus();
+}
+
+void MainWindow::openTab_CreateMenus()
+{
+    // re-populate m_openedFiles
+    QString fullName;
+    QString tName;
+
+    int cnt = m_tabWidget->count();
+    Overlord::getInstance()->openedFilesClear();
+    Overlord::getInstance()->openedModifiedClear();
+
+    for ( int k = 0; k < cnt; ++k )
+    {
+        fullName = this->get_curFileName( k );
+
+        if ( fullName.isEmpty() )
+        {
+            --cnt;
+
+        }
+        else
+        {
+            Overlord::getInstance()->openedFilesAppend( fullName );
+            Overlord::getInstance()->openedModifiedAppend( false );
+        }
+    }
+
+    //
+    QMenu *windowMenu = m_ui->menuWindow;
+    windowMenu->addSeparator();
+
+    for ( int k = 0; k < DiamondLimits::OPENTABS_MAX; ++k )
+    {
+
+        if ( k < cnt )
+        {
+            fullName = Overlord::getInstance()->openedFiles( k );
+            tName    = fullName;
+
+            if ( Overlord::getInstance()->openedModified( k ) )
+            {
+                tName += " *";
+            }
+
+        }
+        else
+        {
+            tName = "file"+QString::number( k );
+
+        }
+
+        openTab_Actions[k] = new QAction( tName, this );
+
+//    openTab_Actions[k]->setData("select-tab");
+        openTab_Actions[k]->setData( QString( "select-tab" ) );
+
+        windowMenu->addAction( openTab_Actions[k] );
+
+        if ( k >= cnt )
+        {
+            openTab_Actions[k]->setVisible( false );
+        }
+
+        connect( openTab_Actions[k], &QAction::triggered, this, [this, k]( bool ) { openTab_Select( k ); } );
+    }
+}
+
+void MainWindow::openTab_Select( int index )
+{
+    bool match = false;
+    QString fullName = Overlord::getInstance()->openedFiles( index );
+
+    if ( fullName.isEmpty() )
+    {
+        // something is pretty bogus
+
+    }
+    else
+    {
+        int cnt   = m_tabWidget->count();
+        int index = m_tabWidget->currentIndex();
+
+        for ( int k = 0; k < cnt; ++k )
+        {
+            QString tcurFile = this->get_curFileName( k );
+
+            if ( tcurFile == fullName )
+            {
+                match = true;
+                index = k;
+                break;
+            }
+        }
+
+        if ( match )
+        {
+            // select new tab
+            m_tabWidget->setCurrentIndex( index );
+
+        }
+        else
+        {
+            // delete entry from list since it did not exist
+            Overlord::getInstance()->openedFilesRemove( fullName );
+
+            // update actions
+            openTab_UpdateActions();
+        }
+    }
+}
+
+void MainWindow::showContext_Tabs( const QPoint &pt )
+{
+    QAction *action = m_ui->menuWindow->actionAt( pt );
+
+    if ( action )
+    {
+        QString data = action->data().toString();
+
+        if ( data == "select-tab" )
+        {
+            QMenu *menu = new QMenu( this );
+            menu->addAction( "Reorder Tab file list", this, SLOT( openTab_redo() ) );
+
+            menu->exec( m_ui->menuWindow->mapToGlobal( pt ) );
+            delete menu;
+        }
+    }
+}
+
+void MainWindow::openTab_redo()
+{
+    QWidget *temp;
+    DiamondTextEdit *textEdit;
+
+    QAction *action;
+    action = ( QAction * )sender();
+
+    if ( action )
+    {
+        // re-populate m_openedFiles and m_openedModified
+        QString tName;
+        bool isModified;
+
+        Overlord::getInstance()->openedFilesClear();
+        Overlord::getInstance()->openedModifiedClear();
+
+        int cnt = m_tabWidget->count();
+
+        for ( int k = 0; k < cnt; ++k )
+        {
+            tName = this->get_curFileName( k );
+            Overlord::getInstance()->openedFilesAppend( tName );
+
+            temp = m_tabWidget->widget( k );
+            textEdit = dynamic_cast<DiamondTextEdit *>( temp );
+
+            if ( textEdit )
+            {
+                isModified = textEdit->document()->isModified();
+                Overlord::getInstance()->openedModifiedAppend( isModified );
+            }
+        }
+
+        for ( int i = 0; i < DiamondLimits::OPENTABS_MAX; ++i )
+        {
+
+            if ( i < cnt )
+            {
+                tName = Overlord::getInstance()->openedFiles( i );
+
+                if ( Overlord::getInstance()->openedModified( i ) )
+                {
+                    tName += " *";
+                }
+
+            }
+            else
+            {
+                tName = "file"+QString::number( i );
+            }
+
+            openTab_Actions[i]->setText( tName );
+
+            if ( i >= cnt )
+            {
+                openTab_Actions[i]->setVisible( false );
+            }
+
+        }
+    }
+}
+
+void MainWindow::openTab_Add()
+{
+    if ( m_curFile.isEmpty() )
+    {
+        return;
+    }
+
+    Overlord::getInstance()->openedFilesAppend( m_curFile );
+    Overlord::getInstance()->openedModifiedAppend( false );
+
+    // update actions
+    openTab_UpdateActions();
+}
+
+void MainWindow::openTab_Delete()
+{
+    Overlord::getInstance()->openedFilesRemove( m_curFile );
+
+    // update actions
+    openTab_UpdateActions();
+}
+
+void MainWindow::openTab_UpdateActions()
+{
+    int cnt = Overlord::getInstance()->openedFilesCount();
+
+    for ( int k = 0; k < DiamondLimits::OPENTABS_MAX; ++k )
+    {
+
+        if ( k < cnt )
+        {
+            QString modified;
+
+            if ( Overlord::getInstance()->openedModified( k ) )
+            {
+                modified += " *";
+            }
+
+            openTab_Actions[k]->setText( Overlord::getInstance()->openedFiles( k ) + modified );
+            openTab_Actions[k]->setVisible( true );
+
+        }
+        else
+        {
+            openTab_Actions[k]->setVisible( false );
+        }
+    }
+}
+
+void MainWindow::split_Vertical()
+{
+    // only allow one for now
+    if ( m_isSplit )
+    {
+        deleteOldSplit();
+    }
+
+    m_split_textEdit = new DiamondTextEdit( this, "split" );
+    m_splitFileName  = m_curFile;
+
+    // sync documents
+    m_split_textEdit->setDocument( m_textEdit->document() );
+
+    if ( m_split_textEdit->get_ColumnMode() )
+    {
+        m_split_textEdit->setFont( Overlord::getInstance()->fontColumn() );
+    }
+    else
+    {
+        m_split_textEdit->setFont( Overlord::getInstance()->fontNormal() );
+    }
+
+    QPalette temp = m_split_textEdit->palette();
+    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme()->colorText() );
+    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme()->colorBack() );
+    m_split_textEdit->setPalette( temp );
+
+    // position on same line
+    QTextCursor cursor( m_textEdit->textCursor() );
+    m_split_textEdit->setTextCursor( cursor );
+
+    m_isSplit  = true;
+    m_textEdit = m_split_textEdit;
+
+    //
+    m_splitWidget = new QFrame( this );
+    m_splitWidget->setFrameShape( QFrame::Panel );
+    m_splitWidget->setWhatsThis( "split_widget" );
+
+    //
+    m_splitName_CB = new QComboBox();
+    m_splitName_CB->setMinimumWidth( 175 );
+
+    QFont font2 = m_splitName_CB->font();
+    font2.setPointSize( 11 );
+    m_splitName_CB->setFont( font2 );
+
+    for ( int k = 0; k < Overlord::getInstance()->openedFilesCount(); ++k )
+    {
+
+        QString fullName = Overlord::getInstance()->openedFiles( k );
+        add_splitCombo( fullName );
+
+        if ( Overlord::getInstance()->openedModified( k ) )
+        {
+            update_splitCombo( fullName, true );
+        }
+    }
+
+    //
+    m_splitClose_PB = new QPushButton();
+    m_splitClose_PB->setText( "Close" );
+
+    QBoxLayout *topbar_Layout = new QHBoxLayout();
+    topbar_Layout->addWidget( m_splitName_CB, 1 );
+    topbar_Layout->addSpacing( 25 );
+    topbar_Layout->addWidget( m_splitClose_PB );
+    topbar_Layout->addStretch( 2 );
+
+    //
+    QBoxLayout *layout = new QVBoxLayout();
+    layout->addLayout( topbar_Layout );
+    layout->addWidget( m_split_textEdit );
+
+    m_splitWidget->setLayout( layout );
+
+    m_splitter->setOrientation( Qt::Horizontal );      // difference Here
+    m_splitter->addWidget( m_splitWidget );
+
+    //
+    int splitIndex = m_splitName_CB->findData( m_splitFileName );
+    m_splitName_CB->setCurrentIndex( splitIndex );
+
+    moveBar();
+
+    connect( m_splitName_CB,   static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
+             this, &MainWindow::split_NameChanged );
+
+    connect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::splitCloseClicked );
+
+    connect( m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo );
+    connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar );
+    connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::setStatus_LineCol );
+
+    connect( m_split_textEdit, &DiamondTextEdit::undoAvailable, m_ui->actionUndo, &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled );
+
+    connect( m_split_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType );
+    connect( Overlord::getInstance(), &Overlord::settingsChanged,
+             m_split_textEdit, &DiamondTextEdit::changeSettings );
+
+}
+
+void MainWindow::split_Horizontal()
+{
+    // only allow one for now
+    if ( m_isSplit )
+    {
+        deleteOldSplit();
+    }
+
+    m_split_textEdit = new DiamondTextEdit( this, "split" );
+    m_splitFileName  = m_curFile;
+
+    // sync documents
+    m_split_textEdit->setDocument( m_textEdit->document() );
+
+    if ( m_split_textEdit->get_ColumnMode() )
+    {
+        m_split_textEdit->setFont( Overlord::getInstance()->fontColumn() );
+    }
+    else
+    {
+        m_split_textEdit->setFont( Overlord::getInstance()->fontNormal() );
+    }
+
+    QPalette temp = m_split_textEdit->palette();
+    temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme()->colorText() );
+    temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme()->colorBack() );
+    m_split_textEdit->setPalette( temp );
+
+    // position on same line
+    QTextCursor cursor( m_textEdit->textCursor() );
+    m_split_textEdit->setTextCursor( cursor );
+
+    m_isSplit  = true;
+    m_textEdit = m_split_textEdit;
+
+    //
+    m_splitWidget = new QFrame( this );
+    m_splitWidget->setFrameShape( QFrame::Panel );
+    m_splitWidget->setWhatsThis( "split_widget" );
+
+    //
+    m_splitName_CB = new QComboBox();
+    m_splitName_CB->setMinimumWidth( 175 );
+
+    QFont font2 = m_splitName_CB->font();
+    font2.setPointSize( 11 );
+    m_splitName_CB->setFont( font2 );
+
+    for ( int k = 0; k < Overlord::getInstance()->openedFilesCount(); ++k )
+    {
+        QString fullName = Overlord::getInstance()->openedFiles( k );
+        add_splitCombo( fullName );
+
+        if ( Overlord::getInstance()->openedModified( k ) )
+        {
+            update_splitCombo( fullName, true );
+        }
+    }
+
+    //
+    m_splitClose_PB = new QPushButton();
+    m_splitClose_PB->setText( tr( "Close" ) );
+
+    QBoxLayout *topbar_Layout = new QHBoxLayout();
+    topbar_Layout->addWidget( m_splitName_CB, 1 );
+    topbar_Layout->addSpacing( 25 );
+    topbar_Layout->addWidget( m_splitClose_PB );
+    topbar_Layout->addStretch( 2 );
+
+    QBoxLayout *layout = new QVBoxLayout();
+    layout->addLayout( topbar_Layout );
+    layout->addWidget( m_split_textEdit );
+
+    m_splitWidget->setLayout( layout );
+
+    m_splitter->setOrientation( Qt::Vertical );        // Difference is here
+    m_splitter->addWidget( m_splitWidget );
+
+    //
+    int splitIndex = m_splitName_CB->findData( m_splitFileName );
+    m_splitName_CB->setCurrentIndex( splitIndex );
+
+    moveBar();
+
+    connect( m_splitName_CB,   static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
+             this, &MainWindow::split_NameChanged );
+
+    connect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::splitCloseClicked );
+
+    connect( m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo );
+    connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar );
+    connect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::setStatus_LineCol );
+
+    connect( m_split_textEdit, &DiamondTextEdit::undoAvailable, m_ui->actionUndo, &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled );
+    connect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled );
+
+    connect( m_split_textEdit, &DiamondTextEdit::setSynType, this, &MainWindow::setSynType );
+    connect( Overlord::getInstance(), &Overlord::settingsChanged,
+             m_split_textEdit, &DiamondTextEdit::changeSettings );
+
+}
+
+void MainWindow::set_splitCombo()
+{
+    QString shortName = strippedName( m_splitFileName );
+
+    bool isModified = m_split_textEdit->document()->isModified();
+
+    if ( isModified )
+    {
+        shortName += " *";
+    }
+
+    int index = Overlord::getInstance()->openedFilesFind( m_splitFileName );
+
+    if ( index != -1 )
+    {
+        Overlord::getInstance()->openedModifiedReplace( index,isModified );
+    }
+
+    //
+    int splitIndex = m_splitName_CB->findData( m_splitFileName );
+
+    if ( splitIndex != -1 )
+    {
+        m_splitName_CB->setItemText( splitIndex, shortName );
+        m_splitName_CB->setItemData( splitIndex, m_splitFileName, Qt::ToolTipRole );
+    }
+}
+
+void MainWindow::update_splitCombo( QString fullName, bool isModified )
+{
+    QString shortName = strippedName( fullName );
+
+    if ( isModified )
+    {
+        shortName += " *";
+    }
+
+    int splitIndex = m_splitName_CB->findData( fullName );
+
+    if ( splitIndex != -1 )
+    {
+        m_splitName_CB->setItemText( splitIndex, shortName );
+        m_splitName_CB->setItemData( splitIndex,fullName, Qt::ToolTipRole );
+    }
+}
+
+void MainWindow::add_splitCombo( QString fullName )
+{
+    int splitIndex = m_splitName_CB->findData( fullName );
+
+    if ( splitIndex == -1 )
+    {
+        QString shortName = strippedName( fullName );
+        m_splitName_CB->addItem( shortName, fullName );
+
+        splitIndex = m_splitName_CB->count() - 1;
+        m_splitName_CB->setItemData( splitIndex,fullName, Qt::ToolTipRole );
+
+    }
+    else
+    {
+        set_splitCombo();
+
+    }
+}
+
+void MainWindow::rm_splitCombo( QString fullName )
+{
+    int splitIndex = m_splitName_CB->findData( fullName );
+
+    if ( splitIndex != -1 )
+    {
+        m_splitName_CB->removeItem( splitIndex );
+    }
+}
+
+void MainWindow::split_NameChanged( int data )
+{
+    QString newName = m_splitName_CB->itemData( data ).toString();
+
+    if ( m_splitFileName != newName )
+    {
+
+        // old doc
+        disconnect( m_split_textEdit->document(), &QTextDocument::contentsChanged,
+                    this, &MainWindow::set_splitCombo );
+
+        // new doc
+        m_splitFileName = newName;
+
+        int whichTab = -1;
+
+        for ( int k = 0; k < m_tabWidget->count(); ++k )
+        {
+
+            if ( newName == this->get_curFileName( k ) )
+            {
+                whichTab = k;
+                break;
+            }
+        }
+
+        if ( whichTab == -1 )
+        {
+            csError( tr( "Split Window Selection" ), tr( "Unable to locate selected document" ) );
+
+            deleteOldSplit();
+            return;
+        }
+
+        QWidget *temp = m_tabWidget->widget( whichTab );
+        DiamondTextEdit *textEdit = dynamic_cast<DiamondTextEdit *>( temp );
+
+        if ( textEdit )
+        {
+            // get document matching the file name
+            m_split_textEdit->setDocument( textEdit->document() );
+
+            m_split_textEdit->setReadOnly( textEdit->isReadOnly() );
+
+            if ( m_split_textEdit->get_ColumnMode() )
+            {
+                m_split_textEdit->setFont( Overlord::getInstance()->fontColumn() );
+            }
+            else
+            {
+                m_split_textEdit->setFont( Overlord::getInstance()->fontNormal() );
+            }
+
+            QPalette temp = m_split_textEdit->palette();
+            temp.setColor( QPalette::Text, Overlord::getInstance()->currentTheme()->colorText() );
+            temp.setColor( QPalette::Base, Overlord::getInstance()->currentTheme()->colorBack() );
+            m_split_textEdit->setPalette( temp );
+
+            m_textEdit = m_split_textEdit;
+
+            set_splitCombo();
+
+            //
+            m_curFile = m_splitFileName;
+            setStatus_FName( m_curFile );
+            setStatus_ReadWrite( m_textEdit->isReadOnly() );
+
+            // ** retrieve slected syntax type
+//       m_syntaxParser = m_textEdit->get_SyntaxParser();
+
+            // retrieve the menu enum
+//       m_syntaxEnum = m_textEdit->get_SyntaxEnum();
+
+            // check the menu item
+//       setSynType(m_syntaxEnum);
+
+            moveBar();
+            show_Spaces();
+            show_Breaks();
+
+            connect( m_split_textEdit->document(), &QTextDocument::contentsChanged,
+                     this, &MainWindow::set_splitCombo );
+
+        }
+        else
+        {
+            // close the split
+            csError( tr( "Split Window Selection" ), tr( "Selected document invalid" ) );
+            deleteOldSplit();
+        }
+    }
+}
+
+void MainWindow::deleteOldSplit()
+{
+    // set focus to the current tab widget
+    QWidget *temp = m_tabWidget->currentWidget();
+    temp->setFocus();
+    m_isSplit = false;
+
+
+    disconnect( m_splitName_CB,   static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
+                this, &MainWindow::split_NameChanged );
+
+    disconnect( m_splitClose_PB,  &QPushButton::clicked, this, &MainWindow::splitCloseClicked );
+
+    disconnect( m_split_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::set_splitCombo );
+    disconnect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::moveBar );
+    disconnect( m_split_textEdit, &DiamondTextEdit::cursorPositionChanged,     this, &MainWindow::setStatus_LineCol );
+
+    disconnect( m_split_textEdit, &DiamondTextEdit::undoAvailable, m_ui->actionUndo, &QAction::setEnabled );
+    disconnect( m_split_textEdit, &DiamondTextEdit::redoAvailable, m_ui->actionRedo, &QAction::setEnabled );
+    disconnect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCut,  &QAction::setEnabled );
+    disconnect( m_split_textEdit, &DiamondTextEdit::copyAvailable, m_ui->actionCopy, &QAction::setEnabled );
+
+    m_splitName_CB->clear();
+    m_split_textEdit = nullptr;
+
+    m_splitWidget->deleteLater();
+
+}
+
+void MainWindow::splitCloseClicked()
+{
+    deleteOldSplit();
+    // There is a jiggling and juggling of focus with this close button
+    // It gets focus back after we leave here.
+    //
+    m_refocusTimer->start();
+
+}
+
+void MainWindow::refocusTab()
+{
+    m_refocusTimer->stop();
+
+    // set focus to the current tab widget
+    // need to do this in a slot so it can be called by a timer
+    // when closing non-modal dialogs we cannot do this within the close
+    // of the dialog because it will be ignored.
+    if ( m_textEdit )
+    {
+        m_textEdit->setFocus();
+    }
+    else
+    {
+        qWarning() << tr( "m_textEdit was null in refocusTab()" );
     }
 }

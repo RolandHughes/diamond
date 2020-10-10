@@ -1,20 +1,14 @@
 // todo.txt
 
-*) Take another stab at Themes as pointers. When copying the QMap need to create new objects. When comparing QMap need to compare value-at
+*)  ONE CLASS ONE SOURCE FILE
 
-*) themes in settings is walking on stuff behind it in RAM. At least it looks like that when these fields came after.
-    QString         m_edtLastDeletedWord;
-    QString         m_edtLastDeletedLine;
-    QString         m_edtLastDeletedChar;
-   m_edtLastDeletedLine got huge quantities of garbage in it. Odd because m_edtLastDeletedWord was fine
-   Might have nothing to do with it at all. Last deleted line might have had regular expression stuff that hosed things.
+*) [SEL][GOLD][4] not selecting to end of file
 
+*) Rewrite search dialog. Make it an actual dialog, not part of MainWindow
+*) Get busy dialog to actually work. May need new version or build of CopperSpice for this
 
-*) Each Theme should provide its own colors for selected text
-    QPalette roles
-    QPalette::Highlight
-    QPalette::HighlightedText
-
+*) Can we have multiple syntax highlighters on same document?
+*) Can syntax highlighter be moved to thread?
 
 *) Fix macro save - make it actually happen - test create-use-save-reload of macros
     from menu_action.cpp
@@ -26,6 +20,17 @@
     EDT keys might need some work to be part of macro.
 
 *) test out macro save/load/use. I really butchered that.
+
+*) m_edtLastDeletedLine storing quite a bit of garbage in it. Need to look into that.
+
+*) Clean up astyle logic. We shouldn't replace and re-highlight the entire document if only a few lines moved.
+
+*) Each Theme should provide its own colors for selected text
+    QPalette roles
+    QPalette::Highlight
+    QPalette::HighlightedText
+
+
 
 *) Create dev_doc directory and start adding developer documentation about how to set up VM for development, getting started, etc. All files here need to be rtf or .txt. Steal blog posts for rtf.
 

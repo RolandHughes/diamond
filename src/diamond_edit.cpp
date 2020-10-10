@@ -1102,8 +1102,8 @@ void DiamondTextEdit::runSyntax( QString synFName )
     set_SyntaxFile( synFName );
 
     set_SyntaxParser( new Syntax( nullptr, synFName, m_spellCheck ) );
-    m_syntaxParser->setDocument( document());
-    
+    m_syntaxParser->setDocument( document() );
+
 }
 
 void DiamondTextEdit::spell_replaceWord()
@@ -3475,7 +3475,6 @@ void DiamondTextEdit::astyleComplete( int exitCode, QProcess::ExitStatus status 
     if ( txt.length() > 0 )
     {
         setPlainText( txt );
-        //QApplication::processEvents();
         QTextCursor cursor( document()->findBlockByNumber( Overlord::getInstance()->lastActiveRow() ) );
         cursor.movePosition( QTextCursor::StartOfLine );
         cursor.movePosition( QTextCursor::Right, QTextCursor::MoveAnchor, Overlord::getInstance()->lastActiveColumn() - 1 );
