@@ -25,6 +25,13 @@
 #include <QRegularExpression>
 #include <QVector>
 
+//
+struct HighlightingRule
+{
+    QRegularExpression pattern;
+    QTextCharFormat format;
+};
+
 class Syntax : public QSyntaxHighlighter
 {
     CS_OBJECT( Syntax )
@@ -54,14 +61,8 @@ private:
     QTextCharFormat m_multiLineCommentFormat;
     QTextCharFormat m_spellCheckFormat;
 
-    //
-    struct HighlightingRule
-    {
-        QRegularExpression pattern;
-        QTextCharFormat format;
-    };
 
-    QVector<HighlightingRule *> highlightingRules;
+    QVector<HighlightingRule *> m_highlightingRules;
 };
 
 #endif

@@ -43,9 +43,9 @@ Syntax::~Syntax()
 
 void Syntax::deleteHighlightingRules()
 {
-    if ( highlightingRules.count() > 0 )
+    if ( m_highlightingRules.count() > 0 )
     {
-        for ( HighlightingRule *rule : highlightingRules )
+        for ( HighlightingRule *rule : m_highlightingRules )
         {
             if ( rule )
             {
@@ -53,7 +53,7 @@ void Syntax::deleteHighlightingRules()
             }
         }
 
-        highlightingRules.clear();
+        m_highlightingRules.clear();
     }
 
 }
@@ -86,7 +86,7 @@ void Syntax::processSyntax( Settings *settings )
             rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
-        highlightingRules.append( rule );
+        m_highlightingRules.append( rule );
     }
 
     for ( const QString &pattern : patterns->class_Patterns )
@@ -109,7 +109,7 @@ void Syntax::processSyntax( Settings *settings )
             rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
-        highlightingRules.append( rule );
+        m_highlightingRules.append( rule );
     }
 
     for ( const QString &pattern : patterns->func_Patterns )
@@ -132,7 +132,7 @@ void Syntax::processSyntax( Settings *settings )
             rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
-        highlightingRules.append( rule );
+        m_highlightingRules.append( rule );
     }
 
     for ( const QString &pattern : patterns->type_Patterns )
@@ -155,7 +155,7 @@ void Syntax::processSyntax( Settings *settings )
             rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
-        highlightingRules.append( rule );
+        m_highlightingRules.append( rule );
     }
 
 
@@ -179,7 +179,7 @@ void Syntax::processSyntax( Settings *settings )
             rule->pattern.setPatternOptions( QPatternOption::CaseInsensitiveOption );
         }
 
-        highlightingRules.append( rule );
+        m_highlightingRules.append( rule );
     }
 
     rule = new HighlightingRule;
@@ -189,7 +189,7 @@ void Syntax::processSyntax( Settings *settings )
     rule->format.setFontItalic( settings->currentTheme()->syntaxQuote().italic() );
     rule->format.setForeground( settings->currentTheme()->syntaxQuote().color() );
     rule->pattern = QRegularExpression( "\".*?\"" );
-    highlightingRules.append( rule );
+    m_highlightingRules.append( rule );
 
     rule = new HighlightingRule;
 
@@ -201,7 +201,7 @@ void Syntax::processSyntax( Settings *settings )
     rule->format.setFontItalic( settings->currentTheme()->syntaxComment().italic() );
     rule->format.setForeground( settings->currentTheme()->syntaxComment().color() );
     rule->pattern = QRegularExpression( patterns->commentSingle );
-    highlightingRules.append( rule );
+    m_highlightingRules.append( rule );
 
 
     m_multiLineCommentFormat.setFontWeight( settings->currentTheme()->syntaxMLine().weight() );
@@ -234,7 +234,7 @@ void Syntax::highlightBlock( const QString &text )
     QRegularExpressionMatch match;
 
 
-    for ( HighlightingRule *rule : highlightingRules )
+    for ( HighlightingRule *rule : m_highlightingRules )
     {
         match = rule->pattern.match( text );
 

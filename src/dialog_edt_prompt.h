@@ -37,9 +37,6 @@ public:
     void setEditPalette( QPalette &p )   { m_lineEdit->setPalette( p );}
     void setText( QString txt )          { m_lineEdit->setText( txt );}
 
-    CS_SLOT_1( Public, void reposition() )
-    CS_SLOT_2( reposition )
-
 protected:
     void showEvent( QShowEvent *e );
 

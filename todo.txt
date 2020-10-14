@@ -7,8 +7,6 @@
 *) Rewrite search dialog. Make it an actual dialog, not part of MainWindow
 *) Get busy dialog to actually work. May need new version or build of CopperSpice for this
 
-*) Can we have multiple syntax highlighters on same document?
-*) Can syntax highlighter be moved to thread?
 
 *) Fix macro save - make it actually happen - test create-use-save-reload of macros
     from menu_action.cpp

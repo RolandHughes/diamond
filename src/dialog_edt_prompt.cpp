@@ -15,6 +15,7 @@
 #include "dialog_edt_prompt.h"
 #include "overlord.h"
 #include <QStyle>
+#include <QPoint>
 
 Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QWidget *parent ) :
     QDialog( parent )
@@ -27,8 +28,8 @@ Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QW
     // Qt::FramelessWindowHint
     setWindowFlags( flags | Qt::FramelessWindowHint );
 
-    //setSizeGripEnabled( false );
-    //setModal(false);
+    setSizeGripEnabled( false );
+    setModal( false );
 
     QPalette temp = palette();
     temp.setColor( this->foregroundRole(), Overlord::getInstance()->currentTheme()->colorText() );
@@ -51,33 +52,29 @@ Dialog_Edt_Prompt::Dialog_Edt_Prompt( QString labelText, bool allowDirection, QW
 
     if ( parentWidget() )
     {
+        qDebug() << "parentWidget() exists\n";
         setMinimumWidth( parentWidget()->width() );
     }
+
 }
 
-void Dialog_Edt_Prompt::reposition()
-{
-    if ( parentWidget() )
-    {
-        QSize parentSize = parentWidget()->size();
-        int w = size().width();
-        int h = size().height();
-        setGeometry( 0, ( parentSize.height() - h ), w, h );
-    }
-}
 
 void Dialog_Edt_Prompt::showEvent( QShowEvent *e )
 {
-    if ( parent() )
+    QDialog::showEvent( e );
+
+    if ( parentWidget() )
     {
 
+        qDebug() << "parentWidget() existed";
         QSize parentSize = parentWidget()->size();
         int w = size().width();
         int h = size().height();
         setGeometry( 0, ( parentSize.height() - h ), w, h );
-    }
-    else
-    {
-        QDialog::showEvent( e );
+        QPoint point = parentWidget()->rect().bottomLeft();
+        point.rx() += 25;
+        point.ry() += 10;
+        qDebug() << "mapping to global\n";
+        this->move( parentWidget()->mapToGlobal( point ) );
     }
 }
