@@ -43,17 +43,11 @@
 #include <QStackedWidget>
 #include <QResizeEvent>
 #include <QTimer>
+#include "advfindstruct.h"
 
 class Dialog_AdvFind;
-class Dialog_Busy;
 
 
-struct advFindStruct
-{
-    QString fileName;
-    int lineNumber;
-    QString text;
-};
 
 class MainWindow : public QMainWindow
 {
@@ -96,8 +90,6 @@ public:
     void split_Vertical();
     void showClipboard();
 
-    void showBusy();
-    void hideBusy();
     void refocusTab();
 
 protected:
@@ -109,13 +101,12 @@ protected:
 private:
     // methods come first
     //
+    void deleteCurrentMacro();
     void getConfigFileName();
     void add_splitCombo( QString fullName );
     void rm_splitCombo( QString fullName );
     void update_splitCombo( QString fullName, bool isModified );
-    QList<advFindStruct> advFind_getResults( bool &aborted );
-    void findRecursive( const QString &path, bool isFirstLoop = true );
-    void advFind_ShowFiles( QList<advFindStruct> foundList );
+    void advFind_ShowFiles( QList<AdvFindStruct> foundList );
     void onceEventLoopStarts();
     int getReply();
     void replaceQuery();
@@ -308,11 +299,10 @@ private:
 
     QString m_appPath;
 
-    Dialog_Busy *m_busy;
     QString m_configFileName;
     QStringList m_fileList;
     QStringList m_flagList;
-    QList<QKeyEvent *> m_macroList;
+    QList<QKeyEvent *> m_currentMacro;
     DiamondTextEdit *m_textEdit;
     QTabWidget *m_tabWidget;
     QString m_curFile;
@@ -327,7 +317,6 @@ private:
     QPushButton *m_splitClose_PB;
     QShortcut *m_actionCopyBuffer;
     Dialog_AdvFind *m_dwAdvFind;
-    QStringList m_recursiveList;
     QFrame *m_findWidget;
     QStandardItemModel *m_model;
     QStandardItemModel *m_backupModel;

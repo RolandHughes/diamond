@@ -14,6 +14,7 @@
 
 #include "dialog_macro.h"
 #include "util.h"
+#include "overlord.h"
 
 #include <QDialog>
 #include <QLabel>
@@ -21,13 +22,9 @@
 #include <QSize>
 #include <QTableView>
 
-Dialog_Macro::Dialog_Macro( MainWindow *parent, MacroEnum enumValue, QStringList macroIds,
-                            QStringList macroNames )
+Dialog_Macro::Dialog_Macro( QWidget *parent, MacroEnum enumValue )
     : QDialog( parent )
     , m_ui( new Ui::Dialog_Macro )
-    , m_parent( parent )
-    , m_macroIds_D( macroIds )
-    , m_macroNames_D( macroNames )
     , m_enum( enumValue )
 {
     m_ui->setupUi( this );
@@ -61,30 +58,31 @@ Dialog_Macro::~Dialog_Macro()
 
 void Dialog_Macro::setupTitle()
 {
-    if ( m_enum == MACRO_LOAD )
+    switch ( m_enum )
     {
-        setWindowTitle( "Load Macro" );
+        case MACRO_LOAD:
+            setWindowTitle( "Load Macro" );
+            break;
 
-    }
-    else if ( m_enum == MACRO_SAVE )
-    {
-        m_ui->select_PB->setText( "Save" );
-        setWindowTitle( "Save Macro" );
+        case MACRO_SAVE:
+            m_ui->select_PB->setText( "Save" );
+            setWindowTitle( "Save Macro" );
+            break;
 
-    }
-    else if ( m_enum == MACRO_EDITNAMES )
-    {
-        m_ui->select_PB->setDisabled( true );
-        setWindowTitle( "Edit Macro Names" );
-
+        case MACRO_EDITNAMES:
+            m_ui->select_PB->setDisabled( true );
+            setWindowTitle( "Edit Macro Names" );
+            break;
     }
 }
 
 void Dialog_Macro::setUpView()
 {
+    // TODO:: Need checkbox column for deletions
+    //
     m_model = new QStandardItemModel( this );
     m_model->setColumnCount( 2 );
-    m_model->setHeaderData( 0, Qt::Horizontal, tr( "Macro #" ) );
+    m_model->setHeaderData( 0, Qt::Horizontal, tr( "Delete" ) );
     m_model->setHeaderData( 1, Qt::Horizontal, tr( "Macro Name" ) );
 
     //
@@ -92,7 +90,6 @@ void Dialog_Macro::setUpView()
     m_ui->tableView->setSelectionMode( QAbstractItemView::SingleSelection );
     m_ui->tableView->setEditTriggers( QAbstractItemView::NoEditTriggers );
 
-    m_ui->tableView->setColumnWidth( 0, 95 );
     m_ui->tableView->setColumnWidth( 1, 250 );
 
     // resize the last column
@@ -100,25 +97,26 @@ void Dialog_Macro::setUpView()
     QBrush brush = QColor( 0,0,255 );
 
     // add data
-    m_maxCount = m_macroIds_D.size();
+    QMapIterator<QString, QList<MacroStruct *>> iter( Overlord::getInstance()->macros() );
 
-    for ( int row = 0; row < m_maxCount; ++row )
+    int row = 0;
+
+    while ( iter.hasNext() )
     {
+        QStandardItem *item0 = new QStandardItem( "" );
+        item0->setCheckable( true );
+        item0->setCheckState( Qt::Unchecked );
+        // TODO:: see if we need to set brush
 
-        QStandardItem *item1 = new QStandardItem( m_macroIds_D.at( row ) );
+        QStandardItem *item1 = new QStandardItem( iter.key() );
+        item1->setData( iter.key(), ORIGINAL_ROLE );
         item1->setForeground( brush );
-        item1->setEnabled( false );
+        item1->setEnabled( true );
 
-        QStandardItem *item2 = new QStandardItem( m_macroNames_D.at( row ) );
-        item2->setEditable( true );
-
-        m_model->setItem( row, 0, item1 );
-        m_model->setItem( row, 1, item2 );
+        m_model->setItem( row, 0, item0 );
+        m_model->setItem( row, 1, item1 );
+        row++;
     }
-
-    // initial sort
-    m_ui->tableView->sortByColumn( 0, Qt::AscendingOrder );
-    m_ui->tableView->setSortingEnabled( true );
 
     m_ui->tableView->setEditTriggers( QAbstractItemView::DoubleClicked );
 
@@ -136,16 +134,24 @@ void Dialog_Macro::select()
 {
     if ( m_updateNames )
     {
-
-        for ( int row = 0; row < m_maxCount; ++row )
+        for ( int row = 0; row < m_model->rowCount(); row++ )
         {
-            QStandardItem *item = m_model->item( row, 1 );
-            QString data = item->data( Qt::DisplayRole ).toString();
+            QStandardItem *item0 = m_model->item( row, 0 );
+            QStandardItem *item1 = m_model->item( row, 1 );
+            QString currentText  = item1->data( Qt::DisplayRole ).toString();
+            QString originalText = item1->data( ORIGINAL_ROLE ).toString();
 
-            m_macroNames_D.replace( row, data );
+            // see if user wants to delete
+            //
+            if ( item0->checkState() == Qt::Checked )
+            {
+                Overlord::getInstance()->deleteMacro( originalText );
+            }
+            else if ( currentText != originalText )
+            {
+                Overlord::getInstance()->renameMacro( originalText, currentText );
+            }
         }
-
-        Overlord::getInstance()->set_macroNames( m_macroNames_D );
     }
 
     this->done( QDialog::Accepted );
@@ -156,13 +162,12 @@ void Dialog_Macro::cancel()
     this->done( QDialog::Rejected );
 }
 
-//
 void Dialog_Macro::view()
 {
     QString macro = this->get_Macro();
 
     // get the macro
-    QList<macroStruct> data;
+    QList<MacroStruct *> data;
     data = Overlord::getInstance()->viewMacro( macro );
 
     QString msg = "<table style=margin-right:35>";
@@ -170,9 +175,9 @@ void Dialog_Macro::view()
     for ( int k = 0; k < data.size(); ++k )
     {
 
-        int key         = data.at( k ).key;
-        int modifier    = data.at( k ).modifier;
-        QString textAsc = data.at( k ).text;
+        int key         = data.at( k )->m_key;
+        int modifier    = data.at( k )->m_modifier;
+        QString textAsc = data.at( k )->m_text;
 
         msg += "<tr><td width=150>Modifier: &nbsp;";
 
@@ -371,7 +376,7 @@ QString Dialog_Macro::get_Macro()
         return QString( "" );
     }
 
-    // return the macro id
+    // return the macro name
     QStandardItem *item = m_model->item( index.row(), 0 );
     QString data = item->data( Qt::DisplayRole ).toString();
 

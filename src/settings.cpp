@@ -83,6 +83,7 @@ Settings::Settings() :
 Settings::~Settings()
 {
     deleteAllThemes();
+    deleteAllMacros();
 }
 
 void Settings::deleteAllThemes()
@@ -93,6 +94,23 @@ void Settings::deleteAllThemes()
     }
 
     m_themes.clear();
+}
+
+void Settings::deleteAllMacros()
+{
+    QMapIterator<QString, QList<MacroStruct *>> iter( m_macros );
+
+    while ( iter.hasNext() )
+    {
+        iter.next();
+
+        for ( MacroStruct *ptr : iter.value() )
+        {
+            delete ptr;
+        }
+    }
+
+    m_macros.clear();
 }
 
 Settings &Settings::operator =( const Settings &other )
@@ -137,7 +155,7 @@ Settings &Settings::operator =( const Settings &other )
         m_lastActiveFile            = other.m_lastActiveFile;
         m_lastActiveRow             = other.m_lastActiveRow;
         m_lastActiveColumn          = other.m_lastActiveColumn;
-        m_macroNames                = other.m_macroNames;
+        m_macros                    = other.m_macros;
         m_openedFiles               = other.m_openedFiles;
         m_openedModified            = other.m_openedModified;
         m_options                   = other.m_options;
@@ -252,6 +270,7 @@ bool Settings::load()
         // constructor created.
         //
         deleteAllThemes();
+        deleteAllMacros();
 
         // get existing json data
         QByteArray data = json_ReadFile();
@@ -400,35 +419,6 @@ bool Settings::load()
             m_replaceList.append( list.at( k ).toString() );
         }
 
-        // macro names
-        list = object.value( "macro-names" ).toArray();
-        cnt  = list.count();
-
-        for ( int k = 0; k < cnt; k++ )
-        {
-            m_macroNames.append( list.at( k ).toString() );
-        }
-
-        // ensure a macro name exists for each macro-id
-        QStringList macroIds = json_Load_MacroIds();
-        bool modified = false;
-
-        for ( int k = 0; k < macroIds.count() ; ++k )
-        {
-
-            if ( ( m_macroNames.count() <= k ) || ( m_macroNames.at( k ).isEmpty() ) )
-            {
-                QString temp = "Macro Name " + QString::number( k+1 );
-                m_macroNames.append( temp );
-
-                modified  = true;
-            }
-        }
-
-        if ( modified )
-        {
-            save();
-        }
 
         // preset folders
         m_preFolderList.clear();
@@ -442,6 +432,8 @@ bool Settings::load()
 
         // silly way to pad the list
         // TODO:: find out why this list _has_ to be padded
+        //        we literally crash if it is not padded
+        //
         for ( int k = cnt; k < DiamondLimits::PRESET_FOLDERS_MAX; k++ )
         {
             m_preFolderList.append( "" );
@@ -525,6 +517,41 @@ bool Settings::load()
         m_options.set_preloadSh( object.value( "preload-sh" ).toBool() );
         m_options.set_preloadTxt( object.value( "preload-txt" ).toBool() );
         m_options.set_preloadXml( object.value( "preload-xml" ).toBool() );
+
+        // macros
+        list = object.value( "macros" ).toArray();
+        cnt  = list.count();
+
+        for ( int k = 0; k < cnt; k++ )
+        {
+            QList<MacroStruct *> keyList;
+            QJsonObject obj = list.at( k ).toObject();
+            QString macroName = obj.value( "macro-name" ).toString();
+            QJsonArray keys = obj.value( "macro-keys" ).toArray();
+
+            int keyCount = keys.count();
+
+            // Yes, macro-keys is the QList but we cheated and
+            // stored the fields of macroStruct as a list/array.
+            //
+            for ( int mk=0; mk < keyCount; mk++ )
+            {
+                QJsonArray lst = keys.at( mk ).toArray();
+
+                if ( lst.count() > 2 )
+                {
+                    MacroStruct *macroPtr = new MacroStruct;
+
+                    macroPtr->m_key      = lst.at( 0 ).toInt();
+                    macroPtr->m_modifier = lst.at( 1 ).toInt();
+                    macroPtr->m_text     = lst.at( 2 ).toString();
+
+                    keyList.append( macroPtr );
+                }
+            }
+
+            m_macros[macroName] = keyList;
+        }
 
         m_activeTheme = object.value( "active-theme" ).toString();
         QJsonArray themesArray = object.value( "themes" ).toArray();
@@ -728,6 +755,48 @@ void Settings::createThemeArray( QJsonObject &object )
 
 }
 
+void Settings::createMacroArray( QJsonObject &object )
+{
+    QJsonArray list;
+    QJsonArray macroArray;
+
+    // dummy
+    list.append( 0 );
+    list.append( 0 );
+    list.append( 0 );
+
+    QMapIterator<QString, QList<MacroStruct *>> iter( m_macros );
+
+    while ( iter.hasNext() )
+    {
+        QJsonObject arrayElement;
+        QJsonArray keyList;
+
+        arrayElement.insert( "macro-name", iter.key() );
+
+        while ( iter.hasNext() )
+        {
+            iter.next();
+
+            for ( MacroStruct *ptr : iter.value() )
+            {
+                list.replace( 0, ptr->m_key );
+                list.replace( 1, ptr->m_modifier );
+                list.replace( 2, ptr->m_text );
+
+                keyList.append( list );
+            }
+        }
+
+        arrayElement.insert( "macro-keys", keyList );
+
+        macroArray.append( arrayElement );
+    }
+
+    object.insert( "macros", macroArray );
+
+}
+
 
 void Settings::save()
 {
@@ -763,6 +832,8 @@ void Settings::save()
 
     object.insert( "active-theme", m_activeTheme );
     createThemeArray( object );
+
+    createMacroArray( object );
 
     object.insert( "preload-clipper",   m_options.preloadClipper() );
     object.insert( "preload-cmake",     m_options.preloadCmake() );
@@ -866,101 +937,8 @@ void Settings::save()
     object.insert( "edt-word-Alt-Option",   m_options.keys().edtWordAltOption() );
     object.insert( "edt-f12-as-backspace",  m_options.keys().f12AsBackspace() );
 
-
     object.insert( "pathPrior", m_priorPath );
     object.insert( "pathSyntax", syntaxPath() );
-
-    // TODO:: figure this macro stuff out later.
-    //        see if we can move MacroKeyList out of m_textEdit.
-    //        If it can't be made part of settings it should at least
-    //        be moved into Overlord.
-    //        It is just a class member variable so we can move it.
-    //
-#if 0
-    QList<QKeyEvent *> eventList;
-    eventList = m_textEdit->get_MacroKeyList();
-
-    int count = eventList.count();
-
-    if ( count > 0 )
-    {
-        QVariantList macroList;
-
-        QKeyEvent *event;
-
-        for ( int k = 0; k < count; ++k )
-        {
-            event = eventList.at( k );
-
-            // hard coded order
-            QStringList eventList;
-            eventList.append( QString::number( event->key() ) );
-            eventList.append( QString::number( event->modifiers() ) );
-            eventList.append( event->text() );
-
-            //
-            macroList.append( eventList );
-        }
-
-        bool ok = true;
-
-        // get next macro name
-        QString macroName = object.value( "macro-next" ).toString();
-
-        // next macro id number
-        int id = macroName.mid( 9 ).toInteger<int>();
-
-        if ( id > DiamondLimits::MACRO_MAX - 1 )
-        {
-
-            QStringList macroIds = json_Load_MacroIds();
-            // TODO:: this dialog logic needs to be in main window
-
-            // select macro id to overwrite
-            Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_SAVE, macroIds, m_macroNames );
-
-            int result = dw->exec();
-
-            if ( result == QDialog::Accepted )
-            {
-                // over write
-                QString text = dw->get_Macro();
-                macroName = text;
-
-            }
-            else
-            {
-                // do not save
-                ok = false;
-            }
-
-            delete dw;
-
-        }
-        else
-        {
-            // save next macro name
-            object.insert( "macro-next", "macro-id-" + QString::number( id + 1 ) );
-
-            // save macro_names
-            m_macroNames.append( "Macro Name " + QString::number( id + 1 ) );
-
-            QJsonArray temp = QJsonArray::fromStringList( m_macroNames );
-            object.insert( "macro-names", temp );
-        }
-
-        if ( ok )
-        {
-            // save macro
-            QJsonArray temp = QJsonArray::fromVariantList( macroList );
-            object.insert( macroName, temp );
-        }
-    }
-
-#endif
-
-    temp = QJsonArray::fromStringList( m_macroNames );
-    object.insert( "macro-names", temp );
 
     temp = QJsonArray::fromStringList( m_preFolderList );
     object.insert( "preset-folders", temp );
@@ -1104,116 +1082,6 @@ void Settings::trimBackups( QString path )
     }
 
 
-}
-
-QStringList Settings::json_Load_MacroIds()
-{
-    // get existing json data
-    QByteArray data = json_ReadFile();
-
-    QJsonDocument doc  = QJsonDocument::fromJson( data );
-    QJsonObject object = doc.object();
-
-    //
-    QStringList keyList = object.keys();
-    QStringList macroList;
-
-    for ( int k = 0; k < keyList.count(); k++ )
-    {
-        QString key = keyList.at( k );
-
-        if ( key.left( 9 ) == "macro-id-" )
-        {
-            macroList.append( key );
-        }
-    }
-
-    return macroList;
-}
-
-bool Settings::json_Load_Macro( QString macroName )
-{
-    bool ok = true;
-
-    // get existing json data
-    QByteArray data = json_ReadFile();
-
-    QJsonDocument doc = QJsonDocument::fromJson( data );
-
-    QJsonObject object = doc.object();
-    QJsonArray list;
-
-    // macro data
-    list = object.value( macroName ).toArray();
-
-    //  TODO:: have to decouple this from the GUI.
-    //         probably move the logic into mainwindow and
-    //         move m_macroList to Settings, providing accessor methods.
-#if 0
-    int cnt = list.count();
-    m_textEdit->macroStart();
-    m_macroList.clear();
-
-    for ( int k = 0; k < cnt; k++ )
-    {
-
-        QJsonArray element = list.at( k ).toArray();
-
-        // hard coded order
-        int key      = element.at( 0 ).toString().toInteger<int>();
-        Qt::KeyboardModifier modifier = Qt::KeyboardModifier( element.at( 1 ).toString().toInteger<int>() );
-        QString text = element.at( 2 ).toString();
-
-        QKeyEvent *event = new QKeyEvent( QEvent::KeyPress, key, modifier, text );
-        m_macroList.append( event );
-    }
-
-    m_textEdit->macroStop();
-#endif
-    return ok;
-}
-
-QList<macroStruct> Settings::json_View_Macro( QString macroName )
-{
-    QList<macroStruct> retval;
-
-    // get existing json data
-    QByteArray data = json_ReadFile();
-
-    QJsonDocument doc = QJsonDocument::fromJson( data );
-
-    QJsonObject object = doc.object();
-    QJsonArray list;
-
-    // macro data
-    list = object.value( macroName ).toArray();
-    int cnt = list.count();
-
-    for ( int k = 0; k < cnt; k++ )
-    {
-
-        QJsonArray element = list.at( k ).toArray();
-
-        // hard coded order
-        int key      = element.at( 0 ).toString().toInteger<int>();
-        Qt::KeyboardModifier modifier = Qt::KeyboardModifier( element.at( 1 ).toString().toInteger<int>() );
-        QString text = element.at( 2 ).toString();
-
-        struct macroStruct temp;
-        temp.key       = key;
-        temp.modifier  = modifier;
-        temp.text      = text;
-
-        retval.append( temp );
-    }
-
-    return retval;
-}
-
-
-void Settings::json_Save_MacroNames( const QStringList &macroNames )
-{
-    m_macroNames = macroNames;
 }
 
 

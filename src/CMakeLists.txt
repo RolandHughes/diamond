@@ -37,6 +37,8 @@ list(APPEND DIAMOND_INCLUDES
    ${CMAKE_CURRENT_SOURCE_DIR}/edt_lineedit.h
    ${CMAKE_CURRENT_SOURCE_DIR}/dialog_edt_prompt.h
    ${CMAKE_CURRENT_SOURCE_DIR}/dialog_busy.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/advfind_busy.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/advfindstruct.h
 
    ${CMAKE_CURRENT_SOURCE_DIR}/diamond_build_info.h
 )
@@ -79,6 +81,9 @@ list(APPEND DIAMOND_SOURCES
    ${CMAKE_CURRENT_SOURCE_DIR}/edt_lineedit.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/dialog_edt_prompt.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/dialog_busy.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/macrostruct.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/advfind_busy.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/advfindstruct.cpp
 
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_advfind.ui
    ${CMAKE_CURRENT_SOURCE_DIR}/../forms/dialog_buffer.ui

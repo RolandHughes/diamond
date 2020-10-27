@@ -232,6 +232,8 @@ private:
     void edtLineDown( QTextCursor::MoveMode mode );
     void edtEndOfLine( QTextCursor::MoveMode mode );
     void edtHome( QTextCursor::MoveMode mode );
+    void nukeMacro();
+    void storeMacro();
 
 
     Settings *m_settingsPtr;

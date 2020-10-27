@@ -12,37 +12,38 @@
 *
 ***************************************************************************/
 
-#ifndef DIALOG_BUSY_H
-#define DIALOG_BUSY_H
+#ifndef ADVFIND_BUSY_H
+#define ADVFIND_BUSY_H
 
-#include "ui_dialog_busy.h"
-
-#include <QDialog>
+#include "dialog_busy.h"
 #include <QList>
-#include <QTimer>
+#include <QStringList>
+#include "advfindstruct.h"
+#include <QFutureWatcher>
 
-class QPixmap;
-
-class Dialog_Busy : public QDialog
+class AdvFind_Busy : public Dialog_Busy
 {
-    CS_OBJECT( Dialog_Busy )
+    CS_OBJECT( AdvFind_Busy )
 
 public:
-    Dialog_Busy( QWidget *parent );
-    ~Dialog_Busy();
+    AdvFind_Busy( QWidget *parent=0 );
+    ~AdvFind_Busy();
 
-    void setProgressLabelVisible( bool yesNo );
-    void setCancelButtonVisible( bool yesNo );
-    void setProgressLabelText( QString text );
+    int exec();
+    void reject();
+
+    QList<AdvFindStruct> m_foundList;
 
 protected:
-    void nextImage();
+    CS_SLOT_1( Private, void finished() )
+    CS_SLOT_2( finished )
+
+    void advFind_getResults();
+    void findRecursive( const QString &path, bool isFirstLoop = true );
 
 private:
-    Ui::Dialog_Busy *m_ui;
-    QList<QPixmap *> m_images;
-    int m_currentImage;
-    QTimer m_timer;
+    QFutureWatcher<void> m_watcher;
+    QStringList m_recursiveList;
 };
 
 #endif

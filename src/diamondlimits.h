@@ -18,7 +18,7 @@ class DiamondLimits
 {
 public:
 
-    static const int MACRO_MAX           = 10;
+    //static const int MACRO_MAX           = 10;
     static const int OPENTABS_MAX        = 20;
     static const int PRESET_FOLDERS_MAX  = 15;
     static const int RECENT_FOLDERS_MAX  = 10;

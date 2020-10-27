@@ -17,7 +17,6 @@
 #include "non_gui_functions.h"
 
 #include <stdexcept>
-
 #include <QFileInfo>
 #include <QKeySequence>
 #include <QLabel>
@@ -31,6 +30,7 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QRect>
+#include <QKeySequence>
 #include "dialog_colors.h"
 #include "dialog_fonts.h"
 #include "dialog_options.h"
@@ -48,8 +48,6 @@
 #include "dialog_replace.h"
 #include "dialog_open.h"
 #include "dialog_macro.h"
-
-
 #include <QBoxLayout>
 #include <QFontDialog>
 #include <QLabel>
@@ -57,6 +55,7 @@
 #include <QSettings>
 #include <QTimer>
 #include <QClipboard>
+#include "advfind_busy.h"
 
 MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     : QMainWindow( nullptr )
@@ -98,8 +97,6 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     // macros
     m_record = false;
 
-    m_busy = new Dialog_Busy( this );
-
     // copy buffer
     m_actionCopyBuffer = new QShortcut( this );
     connect( m_actionCopyBuffer, &QShortcut::activated, this, &MainWindow::showCopyBuffer );
@@ -124,6 +121,21 @@ MainWindow::MainWindow( QStringList fileList, QStringList flagList )
 MainWindow::~MainWindow()
 {
     delete m_ui;
+    deleteCurrentMacro();
+}
+
+void MainWindow::deleteCurrentMacro()
+{
+    if ( m_currentMacro.count() > 0 )
+    {
+        for ( QKeyEvent *event : m_currentMacro )
+        {
+            delete event;
+        }
+
+        m_currentMacro.clear();
+    }
+
 }
 
 void MainWindow::onceEventLoopStarts()
@@ -1210,17 +1222,6 @@ void MainWindow::astyle()
     }
 }
 
-void MainWindow::showBusy()
-{
-    m_busy->showBusy();
-    qApp->processEvents();
-}
-
-void MainWindow::hideBusy()
-{
-    m_busy->hideBusy();
-}
-
 void MainWindow::argLoad( QList<QString> argList )
 {
     int argCnt = argList.count();
@@ -2154,20 +2155,18 @@ void MainWindow::advFind()
                     Overlord::getInstance()->set_advancedFindFolder( QDir::currentPath() );
                 }
 
-                //
-                bool aborted = false;
-                showBusy();
-                QList<advFindStruct> foundList = this->advFind_getResults( aborted );
-                hideBusy();
+                AdvFind_Busy *busy = new AdvFind_Busy( this );
+                int rslt = busy->exec();
 
-                if ( aborted )
+                if ( QDialog::Rejected == rslt )
                 {
                     // do nothing
 
                 }
-                else if ( foundList.isEmpty() )
+                else if ( busy->m_foundList.isEmpty() )
                 {
                     csError( "Advanced Find", "Not found: " + Overlord::getInstance()->advancedFindText() );
+                    delete busy;
 
                     // allow user to search again
                     continue;
@@ -2175,7 +2174,8 @@ void MainWindow::advFind()
                 }
                 else
                 {
-                    this->advFind_ShowFiles( foundList );
+                    this->advFind_ShowFiles( busy->m_foundList );
+                    delete busy;
 
                 }
             }
@@ -2193,181 +2193,6 @@ void MainWindow::advFind()
 
     m_dwAdvFind->deleteLater();
     m_dwAdvFind = nullptr;
-}
-
-QList<advFindStruct> MainWindow::advFind_getResults( bool &aborted )
-{
-    aborted = false;
-
-    // part 1
-    QStringList searchList;
-    QDir currentDir;
-
-    if ( Overlord::getInstance()->advancedFSearchFolders() )
-    {
-        m_recursiveList.clear();
-
-        this->findRecursive( Overlord::getInstance()->advancedFindFolder() );
-        searchList = m_recursiveList;
-
-    }
-    else
-    {
-        currentDir = QDir( Overlord::getInstance()->advancedFindFolder() );
-        searchList = currentDir.entryList( QStringList( Overlord::getInstance()->advancedFindFileType() ),
-                                           QDir::Files | QDir::NoSymLinks );
-    }
-
-    QProgressDialog progressDialog( this );
-
-    progressDialog.setMinimumDuration( 1500 );
-    progressDialog.setMinimumWidth( 275 );
-    progressDialog.setRange( 0, searchList.size() );
-    progressDialog.setWindowTitle( tr( "Advanced File Search" ) );
-
-    progressDialog.setCancelButtonText( tr( "&Cancel" ) );
-    progressDialog.setCancelButtonCentered( true );
-
-    QLabel *label = new QLabel;
-
-    QFont font = label->font();
-    font.setPointSize( 11 );
-
-    label->setFont( font );
-    label->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
-    progressDialog.setLabel( label );
-
-    // part 2
-    QList<advFindStruct> foundList;
-    QString name;
-
-    enum Qt::CaseSensitivity caseFlag;
-    QRegularExpression regExp = QRegularExpression( "\\b" + Overlord::getInstance()->advancedFindText() + "\\b" );
-
-    if ( Overlord::getInstance()->advancedFCase() )
-    {
-        caseFlag = Qt::CaseSensitive;
-
-    }
-    else
-    {
-        caseFlag = Qt::CaseInsensitive;
-        regExp.setPatternOptions( QPatternOption::CaseInsensitiveOption );
-
-    }
-
-    // process each file
-    for ( int k = 0; k < searchList.size(); ++k )
-    {
-
-        progressDialog.setValue( k );
-        progressDialog.setLabelText( tr( "Searching file %1 of %2" ).formatArg( k ).formatArg( searchList.size() ) );
-
-        if ( progressDialog.wasCanceled() )
-        {
-            aborted = true;
-            break;
-        }
-
-        if ( Overlord::getInstance()->advancedFSearchFolders() )
-        {
-            name = searchList[k];
-
-        }
-        else
-        {
-            name = currentDir.absoluteFilePath( searchList[k] );
-
-        }
-
-#if defined (Q_OS_WIN)
-        // change forward to backslash
-        name.replace( '/', '\\' );
-#endif
-
-        QFile file( name );
-
-        if ( file.open( QIODevice::ReadOnly ) )
-        {
-            QString line;
-            QTextStream in( &file );
-
-            int lineNumber = 0;
-            int position   = 0;
-
-            while ( ! in.atEnd() )
-            {
-
-                line = in.readLine();
-                lineNumber++;
-
-                if ( Overlord::getInstance()->advancedFWholeWords() )
-                {
-                    position = line.indexOf( regExp );
-
-                }
-                else
-                {
-                    position = line.indexOf( Overlord::getInstance()->advancedFindText(), 0, caseFlag );
-
-                }
-
-                // store the results
-                if ( position != -1 )
-                {
-                    advFindStruct temp;
-
-                    temp.fileName   = name;
-                    temp.lineNumber = lineNumber;
-                    temp.text       = line.trimmed();
-
-                    foundList.append( temp );
-                }
-            }
-        }
-
-        file.close();
-    }
-
-    return foundList;
-}
-
-void MainWindow::findRecursive( const QString &path, bool isFirstLoop )
-{
-    QDir dir( path );
-    dir.setFilter( QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks );
-
-    QFileInfoList list = dir.entryInfoList( QStringList( Overlord::getInstance()->advancedFindFileType() ) );
-    int cnt = list.count();
-
-    qDebug() << "isFirstLoop: " << isFirstLoop << "  cnt: " << cnt << "\n";
-
-    if ( isFirstLoop && cnt > 0 )
-    {
-        qDebug() << "should be showing busy msg\n";
-        showBusy();
-    }
-
-    if ( ! list.isEmpty() )
-    {
-        for ( int k = 0; k != cnt; ++k )
-        {
-
-            QString filePath = list[k].filePath();
-
-            if ( list[k].isDir() )
-            {
-                // recursive
-                findRecursive( filePath, false );
-
-            }
-            else
-            {
-                m_recursiveList.append( filePath );
-
-            }
-        }
-    }
 }
 
 void MainWindow::showBackups()
@@ -2485,7 +2310,7 @@ void MainWindow::show_backups( QString fileName, SyntaxTypes syntaxType )
     connect( closeButton, &QPushButton::clicked, this, &MainWindow::advFind_Close );
 }
 
-void MainWindow::advFind_ShowFiles( QList<advFindStruct> foundList )
+void MainWindow::advFind_ShowFiles( QList<AdvFindStruct> foundList )
 {
     int index = m_splitter->indexOf( m_findWidget );
 
@@ -3885,8 +3710,8 @@ void MainWindow::mw_macroStop()
         m_record = false;
         m_textEdit->macroStop();
 
-        // save macro to global list
-        m_macroList = m_textEdit->get_MacroKeyList();
+        // TODO:: save macro to global list
+        m_currentMacro = m_textEdit->get_MacroKeyList();
 
         setStatusBar( tr( "Macro recorded" ), 1200 );
 
@@ -3907,21 +3732,15 @@ void MainWindow::macroPlay()
     }
     else
     {
-        int cnt = m_macroList.count();
-
-        if ( cnt == 0 )
+        if ( m_currentMacro.count() < 1 )
         {
             csError( "Macro Playback", "No macro to play back" );
 
         }
         else
         {
-            QKeyEvent *event;
-
-            for ( int k = 0; k < cnt; ++k )
+            for ( QKeyEvent *event : m_currentMacro )
             {
-                event = m_macroList.at( k );
-
                 QKeyEvent *newEvent;
                 newEvent = new QKeyEvent( *event );
 
@@ -3933,22 +3752,36 @@ void MainWindow::macroPlay()
 
 void MainWindow::macroLoad()
 {
-    QStringList macroIds = Overlord::getInstance()->loadMacroIds();
-
-    if ( macroIds.count() == 0 )
+    if ( Overlord::getInstance()->macros().count() < 1 )
     {
         csError( "Load Macros", "No exiting macros" );
         return;
     }
 
-    Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_LOAD, macroIds,
-                                         Overlord::getInstance()->macroNames() );
+    Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_LOAD );
+
     int result = dw->exec();
 
     if ( result == QDialog::Accepted )
     {
         QString text = dw->get_Macro();
-        Overlord::getInstance()->loadMacro( text );
+
+        if ( Overlord::getInstance()->macroExists( text ) )
+        {
+            deleteCurrentMacro();
+
+            for ( MacroStruct *ptr : Overlord::getInstance()->macros()[text] )
+            {
+                Qt::KeyboardModifiers modifier = Qt::KeyboardModifiers( ptr->m_modifier );
+                QKeyEvent *event = new QKeyEvent( QEvent::KeyPress, ptr->m_key, modifier, ptr->m_text );
+                m_currentMacro.append( event );
+            }
+        }
+        else
+        {
+            csError( "Load Macros", "unknown macro" );
+        }
+
     }
 
     delete dw;
@@ -3956,18 +3789,14 @@ void MainWindow::macroLoad()
 
 void MainWindow::macroEditNames()
 {
-    QStringList macroIds = Overlord::getInstance()->loadMacroIds();
-
-    if ( macroIds.count() == 0 )
+    if ( Overlord::getInstance()->macros().count() < 1 )
     {
         csError( "Load Macros", "No exiting macros" );
         return;
     }
 
-    //  TODO:: No need to pass macroNames when we pass settings reference
-    //
-    Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_EDITNAMES, macroIds,
-                                         Overlord::getInstance()->macroNames() );
+    Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_EDITNAMES );
+
     dw->exec();
 
     delete dw;
