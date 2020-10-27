@@ -87,7 +87,7 @@ int main( int argc, char *argv[] )
             QString errMsg = "bad_alloc: " + what;
 
             std::cout << "bad_alloc: " << what.toStdWString().c_str() << '\n';
-            
+
             QMessageBox msgB;
             msgB.setWindowTitle( "Diamond / Issue" );
             msgB.setIcon( QMessageBox::NoIcon );

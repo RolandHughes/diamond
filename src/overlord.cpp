@@ -17,6 +17,7 @@
 #include <QTime>
 #include <iostream>
 #include <QApplication>
+#include <QKeyEvent>
 
 Overlord *Overlord::m_instance = nullptr;
 
@@ -495,16 +496,9 @@ Settings *Overlord::pointerToSettings()
     return &m_settings;
 }
 
-void Overlord::set_macroNames( const QStringList &macroNames )
+QList<MacroStruct *> Overlord::viewMacro( QString macroName )
 {
-    m_settings.json_Save_MacroNames( macroNames );
-    markToNotify();  // force flush to disk
-    checkForChange();
-}
-
-QList<macroStruct> Overlord::viewMacro( QString macroName )
-{
-    return m_settings.json_View_Macro( macroName );
+    return m_settings.m_macros[ macroName ];
 }
 
 PrintSettings &Overlord::pullLocalCopyOfPrintSettings()
@@ -582,14 +576,73 @@ void Overlord::openedFilesRemove( QString name )
     markToNotify();
 }
 
-QStringList Overlord::loadMacroIds()
+bool Overlord::macroExists( QString macroName )
 {
-    return m_settings.json_Load_MacroIds();
+    return m_settings.m_macros.contains( macroName );
 }
 
-bool Overlord::loadMacro( QString macroName )
+void Overlord::deleteMacroKeyStrokes( QList<MacroStruct *> &keyStrokes )
 {
-    return m_settings.json_Load_Macro( macroName );
+    for ( MacroStruct *ptr : keyStrokes )
+    {
+        delete ptr;
+    }
+
+    keyStrokes.clear();
+    markToNotify();
+}
+
+void Overlord::deleteMacro( QString macroName )
+{
+    if ( macroExists( macroName ) )
+    {
+        deleteMacroKeyStrokes( m_settings.m_macros[macroName] );
+        m_settings.m_macros.erase( m_settings.m_macros.find( macroName ) );
+        markToNotify();
+    }
+}
+
+void Overlord::renameMacro( QString macroName, QString newName )
+{
+    if ( macroExists( macroName ) )
+    {
+        m_settings.m_macros[ newName] = m_settings.m_macros[ macroName];
+        deleteMacro( macroName );
+        markToNotify();
+    }
+}
+
+void Overlord::addMacro( QString macroName, QList<MacroStruct *> keyStrokes )
+{
+    // If you pass in an existing name the keyStrokes will be overwritten
+    // It is the only way to allow for update
+    //
+    QList<MacroStruct *> lst;
+
+    for ( MacroStruct *ptr : keyStrokes )
+    {
+        lst.append( new MacroStruct( *ptr ) );
+    }
+
+    m_settings.m_macros[ macroName] = lst;
+    markToNotify();
+}
+
+void Overlord::addMacro( QString macroName, QList<QKeyEvent *> keyStrokes )
+{
+    // If you pass in an existing name the keyStrokes will be overwritten
+    // It is the only way to allow for update
+    //
+    QList<MacroStruct *> lst;
+
+    for ( QKeyEvent *evt : keyStrokes )
+    {
+        MacroStruct *macroStruct    = new MacroStruct( evt->key(), evt->modifiers(), evt->text() );
+        lst.append( macroStruct );
+    }
+
+    m_settings.m_macros[ macroName] = lst;
+    markToNotify();
 }
 
 void Overlord::findListPrepend( QString text )

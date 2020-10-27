@@ -20,6 +20,8 @@
 #include <QTimer>
 #include <QTemporaryDir>
 
+class QKeyEvent;
+
 class Overlord : public QObject
 {
     CS_OBJECT( Overlord )
@@ -109,7 +111,6 @@ public:
 
     QStringList &findList()                 { return m_settings.m_findList;}
     QStringList &replaceList()              { return m_settings.m_replaceList;}
-    QStringList &macroNames()               { return m_settings.m_macroNames;}
     QStringList &recentFiles()              { return m_settings.m_recentFilesList;}
     QStringList &recentFolders()            { return m_settings.m_rFolderList;}
     QStringList &presetFolders()            { return m_settings.m_preFolderList;}
@@ -167,9 +168,10 @@ public:
     bool    edtWordCtrlMeta()               { return keys().edtWordCtrlMeta();}
     bool    edtWordAltOption()              { return keys().edtWordAltOption();}
 
-    QList<macroStruct> viewMacro( QString macroName );
-    QStringList loadMacroIds();
-    bool loadMacro( QString macroName );
+    QMap<QString, QList<MacroStruct *>> macros() { return m_settings.m_macros;}
+
+    QList<MacroStruct *> viewMacro( QString macroName );
+    bool macroExists( QString macroName );
     bool openedFilesContains( QString name );
     bool recentFilesListContains( QString text );
     bool edtDirection() { return m_edtDirection;}
@@ -246,7 +248,6 @@ public:
     void set_findFlagsWholeWords();
     void set_findCase( bool yesNo );
     void set_replaceList( QStringList lst );
-    void set_macroNames( const QStringList &macroNames );
     void set_lastSize( QSize size );
     void set_lastPosition( QPoint pos );
     void set_lastActiveFile( QString fileName );
@@ -272,6 +273,11 @@ public:
     void replaceListPrepend( QString text );
     void replaceListMove( int index, int dest );
     void set_edtDirection( bool forwardBackwards );
+    void deleteMacro( QString macroName );
+    void deleteMacroKeyStrokes( QList<MacroStruct *> &keyStrokes );
+    void renameMacro( QString originalName, QString newName );
+    void addMacro( QString macroName, QList<MacroStruct *> keyStrokes ); // TODO:: be sure to copy events
+    void addMacro( QString macroName, QList<QKeyEvent *> keyStrokes );  // TODO:: be sure to copy events
 
 
     // dangerous methods needed by dialogs that are designed to change

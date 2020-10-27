@@ -85,6 +85,7 @@ private:
     int     findListFind( QString text );
     bool    recentFilesListContains( QString text );
     void    deleteAllThemes();
+    void    deleteAllMacros();
 
     void openedFilesClear()                     { m_openedFiles.clear();}
     void openedModifiedClear()                  { m_openedModified.clear();}
@@ -101,9 +102,6 @@ private:
     void json_Save_MacroNames( const QStringList &macroNames );
     bool json_Read();
     QByteArray json_ReadFile();
-    QList<macroStruct> json_View_Macro( QString macroName );
-    QStringList json_Load_MacroIds();
-    bool json_Load_Macro( QString macroName );
     void importOldConfig( QJsonObject object );
 
     void set_lastSize( QSize size )             { m_lastSize = size;}
@@ -123,6 +121,7 @@ private:
 
     void trimBackups( QString path );
     void createThemeArray( QJsonObject &object );
+    void createMacroArray( QJsonObject &object );
 
     bool load();
     void save();
@@ -159,7 +158,6 @@ private:
     QString         m_lastActiveFile;
     int             m_lastActiveRow;
     int             m_lastActiveColumn;
-    QStringList     m_macroNames;
     QStringList     m_openedFiles;
     QList<bool>     m_openedModified;
     Options         m_options;
@@ -175,19 +173,8 @@ private:
     bool            m_showLineNumbers;
     bool            m_showSpaces;
 
-    /*
-     *   The way object cleanup works is as follows:
-     *
-     * Parented QObject instances are destroyed by their parent
-     * Unparented QObject instances are not destroyed by anyone, you must call QObject::deleteLater()
-     * At the end of the program, static Singleton instances should be destroyed in program shutdown
-     * Need to run Valgrind or something to find out what happens when QMap makes a solid copy of
-     * a dynamically allocated theme.
-     */
-
     QMap <QString, Themes *> m_themes;
-
-
+    QMap< QString, QList<MacroStruct *>>  m_macros;  // TODO:: destructor needs to nuke the entries
 };
 
 #endif

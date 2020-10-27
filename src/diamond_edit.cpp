@@ -46,6 +46,7 @@
 #include <QStringParser>
 #include <QFileDialog>
 #include <QUuid>
+#include <QInputDialog>
 
 static const int MESSAGE_TIME = 3000;
 
@@ -131,6 +132,18 @@ DiamondTextEdit::~DiamondTextEdit()
         delete m_astyleProcess;
         m_astyleProcess = nullptr;
     }
+
+    nukeMacro();
+}
+
+void DiamondTextEdit::nukeMacro()
+{
+    for ( QKeyEvent *ptr : m_macroKeyList )
+    {
+        delete ptr;
+    }
+
+    m_macroKeyList.clear();
 }
 
 // ** line numbers
@@ -646,15 +659,42 @@ QList<QString> DiamondTextEdit::copyBuffer() const
 // ** macros
 void DiamondTextEdit::macroStart()
 {
+    nukeMacro();
     m_record = true;
-
-    // delete prior macro
-    m_macroKeyList.clear();
 }
 
 void DiamondTextEdit::macroStop()
 {
     m_record = false;
+    storeMacro();
+}
+
+void DiamondTextEdit::storeMacro()
+{
+    if ( m_macroKeyList.count() < 1 )
+    {
+        return;
+    }
+
+    int ctr = 0;
+    QString macroName;
+
+    do
+    {
+        ctr++;
+        macroName = QString( "Macro %1" ).formatArg( ctr );
+    }
+    while ( Overlord::getInstance()->macroExists( macroName ) );
+
+    bool ok;
+    macroName = QInputDialog::getText( this, tr( "Macro Save" ), tr( "Macro Name:" ),
+                                       QLineEdit::Normal, macroName, &ok );
+
+    if ( ok && !macroName.isEmpty() )
+    {
+        Overlord::getInstance()->addMacro( macroName, m_macroKeyList );
+    }
+
 }
 
 QList<QKeyEvent *> DiamondTextEdit::get_MacroKeyList()

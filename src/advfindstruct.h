@@ -11,26 +11,27 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 *
 ***************************************************************************/
-#ifndef MACROSTRUCT_H
-#define MACROSTRUCT_H
+
+#ifndef ADVFINDSTRUCT_H
+#define ADVFINDSTRUCT_H
 
 #include <QString>
 
-class MacroStruct
+class AdvFindStruct
 {
-    CS_GADGET( MacroStruct )
+    CS_GADGET( AdvFindStruct )
 public:
-    MacroStruct();
-    MacroStruct( int key, int modifier, const QString text );
-    MacroStruct( const MacroStruct &other );
+    AdvFindStruct();
+    AdvFindStruct( QString file_Name, int line_Number, QString txt );
+    AdvFindStruct( const AdvFindStruct &other );
 
-    MacroStruct &operator = ( const MacroStruct &other );
-    friend bool operator ==( const MacroStruct &left, const MacroStruct &right );
-    friend bool operator !=( const MacroStruct &left, const MacroStruct &right );
+    AdvFindStruct &operator = ( const AdvFindStruct &other );
+    friend bool operator ==( const AdvFindStruct &left, const AdvFindStruct &right );
+    friend bool operator !=( const AdvFindStruct &left, const AdvFindStruct &right );
 
-    int m_key;
-    int m_modifier;
-    QString m_text;
+    QString fileName;
+    int lineNumber;
+    QString text;
 };
 
 #endif
