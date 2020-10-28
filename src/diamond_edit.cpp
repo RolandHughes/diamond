@@ -49,6 +49,7 @@
 #include <QInputDialog>
 
 static const int MESSAGE_TIME = 3000;
+const QString DiamondTextEdit::PARAGRAPH_MARKER = QString::fromUtf8( "\u2029" );
 
 DiamondTextEdit::DiamondTextEdit( QWidget *parent, QString owner )
     : QPlainTextEdit( parent )
@@ -740,6 +741,14 @@ bool DiamondTextEdit::event( QEvent *event )
         {
             if ( handleEdtKey( key, modifiers ) )
             {
+                if ( m_record )
+                {
+                    QKeyEvent *newEvent;
+                    newEvent = new QKeyEvent( *keyPressEvent );
+
+                    m_macroKeyList.append( newEvent );
+                }
+
                 return true;
             }
         }
@@ -896,7 +905,6 @@ bool DiamondTextEdit::event( QEvent *event )
                 return true;
             }
         }
-
     }
 
     return QPlainTextEdit::event( event );
@@ -1412,7 +1420,13 @@ void DiamondTextEdit::deleteThroughEOL()
         cursor.movePosition( QTextCursor::StartOfLine, QTextCursor::KeepAnchor, 1 );
     }
 
-    Overlord::getInstance()->set_edtLastDeletedLine( cursor.selectedText() );
+    // if we don't replace the paragraph marker with new line we get
+    // garbage in the JSON file. The garbage keeps growing too. Eventually
+    // you have a 900,000+ byte "line" and the editor barely loads.
+    //
+    QString txt = cursor.selectedText();
+    txt = txt.replace( PARAGRAPH_MARKER, "\n" );
+    Overlord::getInstance()->set_edtLastDeletedLine( txt );
     cursor.removeSelectedText();
     cursor.endEditBlock();
     setTextCursor( cursor );
@@ -2852,7 +2866,6 @@ bool DiamondTextEdit::handleEdtKey( int key, int modifiers )
             default:
                 break;
         }
-
 
 
         if ( keyStr == Overlord::getInstance()->keys().edtGotoLine() )

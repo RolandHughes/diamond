@@ -202,6 +202,7 @@ private:
     void mw_macroStart();
     void mw_macroStop();
     void macroPlay();
+    void macroRepeat();
     void macroLoad();
     void macroEditNames();
     void spellCheck();

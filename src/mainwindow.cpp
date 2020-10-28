@@ -56,6 +56,7 @@
 #include <QTimer>
 #include <QClipboard>
 #include "advfind_busy.h"
+#include <QInputDialog>
 
 MainWindow::MainWindow( QStringList fileList, QStringList flagList )
     : QMainWindow( nullptr )
@@ -301,12 +302,21 @@ void MainWindow::tabNew()
 //  TODO:: tabs are basically wrong.
 //         A tab isn't a set of spaces it is a tab stop.
 //         When a tab is 8 that means the cursor STOPS every 8 spaces, not lands after the next 8 space boundary
-//         COBOL AREA-B starts in column 8 because that is where the tab stopped the typewriter.
+//         COBOL AREA-B starts in column 8 because that is where the tab stopped the typewriter carriage.
 //
     int tmp = m_textEdit->fontMetrics().width( " " );
     m_textEdit->setTabStopWidth( tmp * Overlord::getInstance()->tabSpacing() );
 
     m_textEdit->setFocus();
+
+    if ( Overlord::getInstance()->isWordWrap() )
+    {
+        m_textEdit->setLineWrapMode( QPlainTextEdit::WidgetWidth );
+    }
+    else
+    {
+        m_textEdit->setLineWrapMode( QPlainTextEdit::NoWrap );
+    }
 
     // connect(m_textEdit, SIGNAL(fileDropped(const QString &)), this, SLOT(fileDropped(const QString &)));
     connect( m_textEdit->document(), &QTextDocument::contentsChanged, this, &MainWindow::documentWasModified );
@@ -624,6 +634,7 @@ void MainWindow::createConnections()
     connect( m_ui->actionMacro_Start,       &QAction::triggered, this, &MainWindow::mw_macroStart );
     connect( m_ui->actionMacro_Stop,        &QAction::triggered, this, &MainWindow::mw_macroStop );
     connect( m_ui->actionMacro_Play,        &QAction::triggered, this, &MainWindow::macroPlay );
+    connect( m_ui->actionMacro_Repeat,      &QAction::triggered, this, &MainWindow::macroRepeat );
     connect( m_ui->actionMacro_Load,        &QAction::triggered, this, &MainWindow::macroLoad );
     connect( m_ui->actionMacro_EditNames,   &QAction::triggered, this, &MainWindow::macroEditNames );
     connect( m_ui->actionSpell_Check,       &QAction::triggered, this, &MainWindow::spellCheck );
@@ -2179,12 +2190,10 @@ void MainWindow::advFind()
 
                 }
             }
-
         }
         else
         {
             Overlord::getInstance()->set_advancedFindText( saveText );
-
         }
 
         // exit while loop
@@ -3750,9 +3759,24 @@ void MainWindow::macroPlay()
     }
 }
 
+void MainWindow::macroRepeat()
+{
+    bool ok = true;
+
+    int  cnt = QInputDialog::getInt( this, tr( "Repeat Macro" ), tr( "Number of times" ), 0, 0, 5000, 1, &ok );
+
+    if ( ok && ( cnt > 0 ) )
+    {
+        for ( int ctr = 0; ctr < cnt; ctr++ )
+        {
+            macroPlay();
+        }
+    }
+}
+
 void MainWindow::macroLoad()
 {
-    if ( Overlord::getInstance()->macros().count() < 1 )
+    if ( Overlord::getInstance()->macroCount() < 1 )
     {
         csError( "Load Macros", "No exiting macros" );
         return;
@@ -3770,7 +3794,7 @@ void MainWindow::macroLoad()
         {
             deleteCurrentMacro();
 
-            for ( MacroStruct *ptr : Overlord::getInstance()->macros()[text] )
+            for ( MacroStruct *ptr : Overlord::getInstance()->viewMacro( text ) )
             {
                 Qt::KeyboardModifiers modifier = Qt::KeyboardModifiers( ptr->m_modifier );
                 QKeyEvent *event = new QKeyEvent( QEvent::KeyPress, ptr->m_key, modifier, ptr->m_text );
@@ -3789,13 +3813,13 @@ void MainWindow::macroLoad()
 
 void MainWindow::macroEditNames()
 {
-    if ( Overlord::getInstance()->macros().count() < 1 )
+    if ( Overlord::getInstance()->macroCount() < 1 )
     {
         csError( "Load Macros", "No exiting macros" );
         return;
     }
 
-    Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_EDITNAMES );
+    Dialog_Macro *dw = new Dialog_Macro( this, Dialog_Macro::MACRO_MANAGE );
 
     dw->exec();
 

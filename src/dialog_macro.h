@@ -28,7 +28,7 @@ class Dialog_Macro : public QDialog
     CS_OBJECT( Dialog_Macro )
 
 public:
-    enum MacroEnum { MACRO_LOAD, MACRO_SAVE, MACRO_EDITNAMES };
+    enum MacroEnum { MACRO_LOAD, MACRO_MANAGE };
 
     Dialog_Macro( QWidget *parent, MacroEnum enumValue );
     ~Dialog_Macro();
@@ -47,7 +47,7 @@ private:
 
     MacroEnum m_enum;
 
-    void select();
+    void processEdits();
     void view();
     void cancel();
     void tableDataChanged( const QModelIndex &topLeft,const QModelIndex &bottomRight );

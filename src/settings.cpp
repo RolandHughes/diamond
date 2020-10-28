@@ -527,30 +527,35 @@ bool Settings::load()
             QList<MacroStruct *> keyList;
             QJsonObject obj = list.at( k ).toObject();
             QString macroName = obj.value( "macro-name" ).toString();
-            QJsonArray keys = obj.value( "macro-keys" ).toArray();
 
-            int keyCount = keys.count();
-
-            // Yes, macro-keys is the QList but we cheated and
-            // stored the fields of macroStruct as a list/array.
-            //
-            for ( int mk=0; mk < keyCount; mk++ )
+            // don't load unnamed macro
+            if ( macroName.length() > 0 )
             {
-                QJsonArray lst = keys.at( mk ).toArray();
+                QJsonArray keys = obj.value( "macro-keys" ).toArray();
 
-                if ( lst.count() > 2 )
+                int keyCount = keys.count();
+
+                // Yes, macro-keys is the QList but we cheated and
+                // stored the fields of macroStruct as a list/array.
+                //
+                for ( int mk=0; mk < keyCount; mk++ )
                 {
-                    MacroStruct *macroPtr = new MacroStruct;
+                    QJsonArray lst = keys.at( mk ).toArray();
 
-                    macroPtr->m_key      = lst.at( 0 ).toInt();
-                    macroPtr->m_modifier = lst.at( 1 ).toInt();
-                    macroPtr->m_text     = lst.at( 2 ).toString();
+                    if ( lst.count() > 2 )
+                    {
+                        MacroStruct *macroPtr = new MacroStruct;
 
-                    keyList.append( macroPtr );
+                        macroPtr->m_key      = lst.at( 0 ).toInt();
+                        macroPtr->m_modifier = lst.at( 1 ).toInt();
+                        macroPtr->m_text     = lst.at( 2 ).toString();
+
+                        keyList.append( macroPtr );
+                    }
                 }
-            }
 
-            m_macros[macroName] = keyList;
+                m_macros[macroName] = keyList;
+            }
         }
 
         m_activeTheme = object.value( "active-theme" ).toString();
@@ -769,14 +774,17 @@ void Settings::createMacroArray( QJsonObject &object )
 
     while ( iter.hasNext() )
     {
+        iter.next();
+
         QJsonObject arrayElement;
         QJsonArray keyList;
 
-        arrayElement.insert( "macro-name", iter.key() );
-
-        while ( iter.hasNext() )
+        // don't save unnamed macro
+        //
+        if ( iter.key().length() > 0 )
         {
-            iter.next();
+            arrayElement.insert( "macro-name", iter.key() );
+
 
             for ( MacroStruct *ptr : iter.value() )
             {
@@ -786,15 +794,14 @@ void Settings::createMacroArray( QJsonObject &object )
 
                 keyList.append( list );
             }
+
+            arrayElement.insert( "macro-keys", keyList );
+
+            macroArray.append( arrayElement );
         }
-
-        arrayElement.insert( "macro-keys", keyList );
-
-        macroArray.append( arrayElement );
     }
 
     object.insert( "macros", macroArray );
-
 }
 
 
@@ -962,6 +969,13 @@ void Settings::save()
 
 
     object.insert( "edt-lastDeletedWord", m_edtLastDeletedWord );
+
+    if ( m_edtLastDeletedLine.length() > 300 )
+    {
+        QByteArray hex = m_edtLastDeletedLine.toUtf8().toHex();
+        qWarning() << "edt-lastDeletedLine > 300 characters: " << hex << "\n";
+    }
+
     object.insert( "edt-lastDeletedLine", m_edtLastDeletedLine );
     object.insert( "edt-lastDeletedChar", m_edtLastDeletedChar );
 

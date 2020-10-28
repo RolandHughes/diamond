@@ -42,6 +42,8 @@ public:
 
     QString m_owner;
 
+    static const QString PARAGRAPH_MARKER;
+
     QString currentFile();
     void setCurrentFile( QString fileName );
 

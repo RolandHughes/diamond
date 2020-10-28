@@ -19,6 +19,7 @@
 #include "syntaxpatterns.h"
 #include <QTimer>
 #include <QTemporaryDir>
+#include <QMutex>
 
 class QKeyEvent;
 
@@ -167,8 +168,9 @@ public:
     bool    edtMode()                       { return keys().edtEnabled();}
     bool    edtWordCtrlMeta()               { return keys().edtWordCtrlMeta();}
     bool    edtWordAltOption()              { return keys().edtWordAltOption();}
+    int     macroCount()                    { return m_settings.m_macros.count(); }
 
-    QMap<QString, QList<MacroStruct *>> macros() { return m_settings.m_macros;}
+    QStringList macroNames()                { return m_settings.m_macros.keys();}
 
     QList<MacroStruct *> viewMacro( QString macroName );
     bool macroExists( QString macroName );
@@ -302,8 +304,6 @@ public:
     // end dangerous methods
     void markToNotify();
 
-
-
 private:
     Overlord();
     ~Overlord();
@@ -315,6 +315,7 @@ private:
 
     static Overlord *m_instance;
 
+    QMutex m_mutex;
     Settings m_settings;
 
     QTimer m_flushTimer;

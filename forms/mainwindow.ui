@@ -217,6 +217,7 @@
     <addaction name="actionMacro_Start"/>
     <addaction name="actionMacro_Stop"/>
     <addaction name="actionMacro_Play"/>
+    <addaction name="actionMacro_Repeat"/>
     <addaction name="separator"/>
     <addaction name="actionMacro_Load"/>
     <addaction name="actionMacro_EditNames"/>
@@ -748,7 +749,7 @@
   </action>
   <action name="actionMacro_EditNames">
    <property name="text">
-    <string>Edit Macro Names</string>
+    <string>Manage Macros</string>
    </property>
   </action>
   <action name="actionOpen_RecentFolder">
@@ -832,6 +833,11 @@
   <action name="actionBackups">
    <property name="text">
     <string>Backups</string>
+   </property>
+  </action>
+  <action name="actionMacro_Repeat">
+   <property name="text">
+    <string>Repeat Macro</string>
    </property>
   </action>
  </widget>

@@ -4,8 +4,10 @@
 
 *) [SEL][GOLD][4] not selecting to end of file
 
-*) Rewrite search dialog. Make it an actual dialog, not part of MainWindow
-*) Get busy dialog to actually work. May need new version or build of CopperSpice for this
+*) m_edtLastDeletedLine storing quite a bit of garbage in it. Need to look into
+ that.
+
+*) EDT PF4 doesn't work on wrapped line.
 
 
 *) Fix macro save - make it actually happen - test create-use-save-reload of macros
@@ -19,7 +21,6 @@
 
 *) test out macro save/load/use. I really butchered that.
 
-*) m_edtLastDeletedLine storing quite a bit of garbage in it. Need to look into that.
 
 *) Clean up astyle logic. We shouldn't replace and re-highlight the entire document if only a few lines moved.
 
