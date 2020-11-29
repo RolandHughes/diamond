@@ -229,9 +229,25 @@ endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/syntax/ DESTINATION syntax)
 
-# installs English by default
+# installs all dictionaries so user can choose
+#
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/en_US.aff DESTINATION dictionary)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/en_US.dic DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/es.aff DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/es.dic DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/de_DE_frami.aff DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/de_DE_frami.dic DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/fr.aff DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/fr.dic DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/de_DE.aff DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/de_DE.dic DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/it_IT.aff DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/it_IT.dic DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/pt.aff DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/pt.dic DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/pt_BR.aff DESTINATION dictionary)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../source_extra/dictionary/pt_BR.dic DESTINATION dictionary)
+
 
 # will not overwrite dictionary/userDict.txt
 install(CODE "

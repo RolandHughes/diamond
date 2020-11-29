@@ -1,7 +1,8 @@
 // todo.txt
 
+*) Options dialog either looking in wrong place for .dic files or the initial startup needs to copy all of them to the ~/.config/diamond directory. Startup needs a verify_dictionaries() thread that will copy whatever dictionary files are in the main distro/install tree that are not in ~/.config/diamond. We really need to revisit the dictionary file logic in general. It really should be looking back at the install directory for everything but the UserDict.
 
-http://bluegriffon.org/
+*) If installed to existing "original" environment we don't seem to get the full theme list.
 
 *) [SEL][GOLD][4] not selecting to end of file
 
@@ -18,8 +19,6 @@ http://bluegriffon.org/
     QPalette::HighlightedText
 
 
-
-*) Create dev_doc directory and start adding developer documentation about how to set up VM for development, getting started, etc. All files here need to be rtf or .txt. Steal blog posts for rtf.
 
 
 *) read documentation for QSyntaxHighlighter in CopperSpice
