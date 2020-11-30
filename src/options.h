@@ -36,81 +36,221 @@ public:
     //
     // getters
     //
-    int             rewrapColumn()      { return m_rewrapColumn;}
-    int             tabSpacing()        { return m_tabSpacing;}
-    int             maxVersions()       { return m_maxVersions;}
-    bool            useSpaces()         { return m_useSpaces;}
-    bool            removeSpaces()      { return m_removeSpaces;}
-    bool            autoLoad()          { return m_autoLoad;}
-    bool            isAutoDetect()      { return m_autoDetect;}
-    bool            makeBackups()       { return m_makeBackups;}
-    bool            astyleOnSave()      { return m_astyleOnSave;}
-    bool            preloadClipper()    { return m_preloadClipper;}
-    bool            preloadCmake()      { return m_preloadCmake;}
-    bool            preloadCpp()        { return m_preloadCpp;}
-    bool            preloadCss()        { return m_preloadCss;}
-    bool            preloadDoxy()       { return m_preloadDoxy;}
-    bool            preloadErrLog()     { return m_preloadErrLog;}
-    bool            preloadHtml()       { return m_preloadHtml;}
-    bool            preloadJava()       { return m_preloadJava;}
-    bool            preloadJs()         { return m_preloadJs;}
-    bool            preloadJson()       { return m_preloadJson;}
-    bool            preloadMake()       { return m_preloadMake;}
-    bool            preloadNone()       { return m_preloadNone;}
-    bool            preloadNSI()        { return m_preloadNSI;}
-    bool            preloadPhp()        { return m_preloadPhp;}
-    bool            preloadPl()         { return m_preloadPl;}
-    bool            preloadPy()         { return m_preloadPy;}
-    bool            preloadSh()         { return m_preloadSh;}
-    bool            preloadTxt()        { return m_preloadTxt;}
-    bool            preloadXml()        { return m_preloadXml;}
-    QString         formatDate()        { return m_formatDate;}
-    QString         formatTime()        { return m_formatTime;}
-    QString         backupDirectory()   { return m_backupDirectory;}
-    QString         mainDictionary()    { return m_mainDictionary;}
-    QString         userDictionary()    { return m_userDictionary;}
-    QString         syntaxPath()        { return m_syntaxPath;}
-    QString         aboutUrl()          { return m_aboutUrl;}
+    int             rewrapColumn()      {
+        return m_rewrapColumn;
+    }
+    int             tabSpacing()        {
+        return m_tabSpacing;
+    }
+    int             maxVersions()       {
+        return m_maxVersions;
+    }
+    bool            useSpaces()         {
+        return m_useSpaces;
+    }
+    bool            removeSpaces()      {
+        return m_removeSpaces;
+    }
+    bool            autoLoad()          {
+        return m_autoLoad;
+    }
+    bool            isAutoDetect()      {
+        return m_autoDetect;
+    }
+    bool            makeBackups()       {
+        return m_makeBackups;
+    }
+    bool            astyleOnSave()      {
+        return m_astyleOnSave;
+    }
+    bool            preloadClipper()    {
+        return m_preloadClipper;
+    }
+    bool            preloadCmake()      {
+        return m_preloadCmake;
+    }
+    bool            preloadCpp()        {
+        return m_preloadCpp;
+    }
+    bool            preloadCss()        {
+        return m_preloadCss;
+    }
+    bool            preloadDoxy()       {
+        return m_preloadDoxy;
+    }
+    bool            preloadErrLog()     {
+        return m_preloadErrLog;
+    }
+    bool            preloadHtml()       {
+        return m_preloadHtml;
+    }
+    bool            preloadJava()       {
+        return m_preloadJava;
+    }
+    bool            preloadJs()         {
+        return m_preloadJs;
+    }
+    bool            preloadJson()       {
+        return m_preloadJson;
+    }
+    bool            preloadMake()       {
+        return m_preloadMake;
+    }
+    bool            preloadNone()       {
+        return m_preloadNone;
+    }
+    bool            preloadNSI()        {
+        return m_preloadNSI;
+    }
+    bool            preloadPhp()        {
+        return m_preloadPhp;
+    }
+    bool            preloadPl()         {
+        return m_preloadPl;
+    }
+    bool            preloadPy()         {
+        return m_preloadPy;
+    }
+    bool            preloadSh()         {
+        return m_preloadSh;
+    }
+    bool            preloadTxt()        {
+        return m_preloadTxt;
+    }
+    bool            preloadXml()        {
+        return m_preloadXml;
+    }
+    QString         formatDate()        {
+        return m_formatDate;
+    }
+    QString         formatTime()        {
+        return m_formatTime;
+    }
+    QString         backupDirectory()   {
+        return m_backupDirectory;
+    }
+    QString         mainDictionary()    {
+        return m_mainDictionary;
+    }
+    QString         userDictionary()    {
+        return m_userDictionary;
+    }
+    QString         syntaxPath()        {
+        return m_syntaxPath;
+    }
+    QString         aboutUrl()          {
+        return m_aboutUrl;
+    }
 
-    KeyDefinitions &keys()              { return m_keys;}
+    KeyDefinitions &keys()              {
+        return m_keys;
+    }
 
     //
     // setters
     //
-    void set_rewrapColumn( int col )                { m_rewrapColumn = col;}
-    void set_tabSpacing( int tabStop )              { m_tabSpacing = tabStop;}
-    void set_maxVersions( int max )                 { m_maxVersions = max; }
-    void set_useSpaces( bool yesNo )                { m_useSpaces = yesNo;}
-    void set_removeSpaces( bool yesNo )             { m_removeSpaces = yesNo;}
-    void set_autoLoad( bool yesNo )                 { m_autoLoad = yesNo;}
-    void set_formatDate( QString fmt )              { m_formatDate = fmt;}
-    void set_formatTime( QString fmt )              { m_formatTime = fmt;}
-    void set_backupDirectory( QString directory )   { m_backupDirectory = directory; }
-    void set_mainDictionary( QString dictionary )   { m_mainDictionary = dictionary;}
-    void set_userDictionary( QString dictionary )   { m_userDictionary = dictionary;}
-    void set_syntaxPath( const QString path )       { m_syntaxPath = path;}
-    void set_abouturl( QString url )                { m_aboutUrl = url;}
-    void set_preloadClipper( bool yesNo )           { m_preloadClipper = yesNo;}
-    void set_preloadCmake( bool yesNo )             { m_preloadCmake = yesNo;}
-    void set_preloadCpp( bool yesNo )               { m_preloadCpp = yesNo;}
-    void set_preloadCss( bool yesNo )               { m_preloadCss = yesNo;}
-    void set_preloadDoxy( bool yesNo )              { m_preloadDoxy = yesNo;}
-    void set_preloadErrLog( bool yesNo )            { m_preloadErrLog = yesNo;}
-    void set_preloadHtml( bool yesNo )              { m_preloadHtml = yesNo;}
-    void set_preloadJava( bool yesNo )              { m_preloadJava = yesNo;}
-    void set_preloadJs( bool yesNo )                { m_preloadJs = yesNo;}
-    void set_preloadJson( bool yesNo )              { m_preloadJson = yesNo;}
-    void set_preloadMake( bool yesNo )              { m_preloadMake = yesNo;}
-    void set_preloadNone( bool yesNo )              { m_preloadNone = yesNo;}
-    void set_preloadNSI( bool yesNo )               { m_preloadNSI = yesNo;}
-    void set_preloadPhp( bool yesNo )               { m_preloadPhp = yesNo;}
-    void set_preloadPl( bool yesNo )                { m_preloadPl = yesNo;}
-    void set_preloadPy( bool yesNo )                { m_preloadPy = yesNo;}
-    void set_preloadSh( bool yesNo )                { m_preloadSh = yesNo;}
-    void set_preloadTxt( bool yesNo )               { m_preloadTxt = yesNo;}
-    void set_preloadXml( bool yesNo )               { m_preloadXml = yesNo;}
-    void set_astyleOnSave( bool yesNo )             { m_astyleOnSave = yesNo;}
-    void set_makeBackups( bool yesNo )              { m_makeBackups = yesNo;}
+    void set_rewrapColumn( int col )                {
+        m_rewrapColumn = col;
+    }
+    void set_tabSpacing( int tabStop )              {
+        m_tabSpacing = tabStop;
+    }
+    void set_maxVersions( int max )                 {
+        m_maxVersions = max;
+    }
+    void set_useSpaces( bool yesNo )                {
+        m_useSpaces = yesNo;
+    }
+    void set_removeSpaces( bool yesNo )             {
+        m_removeSpaces = yesNo;
+    }
+    void set_autoLoad( bool yesNo )                 {
+        m_autoLoad = yesNo;
+    }
+    void set_formatDate( QString fmt )              {
+        m_formatDate = fmt;
+    }
+    void set_formatTime( QString fmt )              {
+        m_formatTime = fmt;
+    }
+    void set_backupDirectory( QString directory )   {
+        m_backupDirectory = directory;
+    }
+    void set_mainDictionary( QString dictionary )   {
+        m_mainDictionary = dictionary;
+    }
+    void set_userDictionary( QString dictionary )   {
+        m_userDictionary = dictionary;
+    }
+    void set_syntaxPath( const QString path )       {
+        m_syntaxPath = path;
+    }
+    void set_abouturl( QString url )                {
+        m_aboutUrl = url;
+    }
+    void set_preloadClipper( bool yesNo )           {
+        m_preloadClipper = yesNo;
+    }
+    void set_preloadCmake( bool yesNo )             {
+        m_preloadCmake = yesNo;
+    }
+    void set_preloadCpp( bool yesNo )               {
+        m_preloadCpp = yesNo;
+    }
+    void set_preloadCss( bool yesNo )               {
+        m_preloadCss = yesNo;
+    }
+    void set_preloadDoxy( bool yesNo )              {
+        m_preloadDoxy = yesNo;
+    }
+    void set_preloadErrLog( bool yesNo )            {
+        m_preloadErrLog = yesNo;
+    }
+    void set_preloadHtml( bool yesNo )              {
+        m_preloadHtml = yesNo;
+    }
+    void set_preloadJava( bool yesNo )              {
+        m_preloadJava = yesNo;
+    }
+    void set_preloadJs( bool yesNo )                {
+        m_preloadJs = yesNo;
+    }
+    void set_preloadJson( bool yesNo )              {
+        m_preloadJson = yesNo;
+    }
+    void set_preloadMake( bool yesNo )              {
+        m_preloadMake = yesNo;
+    }
+    void set_preloadNone( bool yesNo )              {
+        m_preloadNone = yesNo;
+    }
+    void set_preloadNSI( bool yesNo )               {
+        m_preloadNSI = yesNo;
+    }
+    void set_preloadPhp( bool yesNo )               {
+        m_preloadPhp = yesNo;
+    }
+    void set_preloadPl( bool yesNo )                {
+        m_preloadPl = yesNo;
+    }
+    void set_preloadPy( bool yesNo )                {
+        m_preloadPy = yesNo;
+    }
+    void set_preloadSh( bool yesNo )                {
+        m_preloadSh = yesNo;
+    }
+    void set_preloadTxt( bool yesNo )               {
+        m_preloadTxt = yesNo;
+    }
+    void set_preloadXml( bool yesNo )               {
+        m_preloadXml = yesNo;
+    }
+    void set_astyleOnSave( bool yesNo )             {
+        m_astyleOnSave = yesNo;
+    }
+    void set_makeBackups( bool yesNo )              {
+        m_makeBackups = yesNo;
+    }
 
 
 private:

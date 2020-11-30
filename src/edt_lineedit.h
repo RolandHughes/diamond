@@ -29,11 +29,19 @@ public:
 
     Edt_LineEdit( QWidget *parent=nullptr );
 
-    void set_allowDirection( bool yesNo )     { m_allowDirection = yesNo;}
+    void set_allowDirection( bool yesNo )     {
+        m_allowDirection = yesNo;
+    }
 
-    int terminator()            { return m_terminator;}
-    bool ctrlMSubstitution()    { return m_ctrlMSubstitution;}
-    bool allowDirection()       { return m_allowDirection;}
+    int terminator()            {
+        return m_terminator;
+    }
+    bool ctrlMSubstitution()    {
+        return m_ctrlMSubstitution;
+    }
+    bool allowDirection()       {
+        return m_allowDirection;
+    }
 
     CS_SIGNAL_1( Public, void inputComplete() )
     CS_SIGNAL_2( inputComplete )

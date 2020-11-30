@@ -1,4 +1,4 @@
-# Script to build a multi-arch debian package for ipos
+# Script to build a debian package for diamond
 #
 set -e
 
@@ -11,7 +11,7 @@ fi
 
 echo "MUST BE RUN FROM ROOT OF PROJECT DIRECTORY TREE"
 echo ""
-echo "This script ASSUMES it can create or use diamond_build and diamond_release"
+echo "This script ASSUMES it can create or use diamond_debian_build and diamond_debian_release"
 echo "directories one level up from where this script is being run. If they"
 echo "exist they will be deleted and recreated."
 echo ""
@@ -67,13 +67,18 @@ if [ -d "$DEBIAN_DIR" ]; then
 fi
 
 #  Because of the way diamond currently builds and is designed
-#  I'm going to violate Debian rules and thump this into a single directory
+#  I'm going to violate Debian convention and thump this into a single directory
 #  under opt.
 #
 #  Properly packaged the binary would be in /usr/local/bin
-#  the CopperSpice libraries would be under /usr/lib
+#  the CopperSpice libraries would be under /usr/lib (provided by OS)
 #  the support sub-directories of dictionary, platforms, printerdrivers, and syntax
-#  would all be under /usr/share/diamond
+#  would all be under /usr/local/share/diamond
+#
+#  If one was properly packaging as a maintainer for a distro the directories would be
+#  /usr/bin
+#  /usr/lib
+#  /usr/share/diamond
 #
 #  I have to change too much to fix that right now.
 #

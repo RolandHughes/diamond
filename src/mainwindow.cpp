@@ -537,20 +537,32 @@ void MainWindow::createConnections()
 {
     // file
     connect( m_ui->actionNew,               &QAction::triggered, this, &MainWindow::newFile );
-    connect( m_ui->actionOpen,              &QAction::triggered, this, [this]( bool ) { openDoc( Overlord::getInstance()->priorPath() ); } );
+    connect( m_ui->actionOpen,              &QAction::triggered, this, [this]( bool ) {
+        openDoc( Overlord::getInstance()->priorPath() );
+    } );
     connect( m_ui->actionOpen_RelatedFile,  &QAction::triggered, this, &MainWindow::open_RelatedFile );
-    connect( m_ui->actionClose,             &QAction::triggered, this, [this]( bool ) { close_Doc(); } );
-    connect( m_ui->actionClose_All,         &QAction::triggered, this, [this]( bool ) { closeAll_Doc( false ); } );
+    connect( m_ui->actionClose,             &QAction::triggered, this, [this]( bool ) {
+        close_Doc();
+    } );
+    connect( m_ui->actionClose_All,         &QAction::triggered, this, [this]( bool ) {
+        closeAll_Doc( false );
+    } );
     connect( m_ui->actionReload,            &QAction::triggered, this, &MainWindow::reload );
 
-    connect( m_ui->actionSave,              &QAction::triggered, this, [this]( bool ) { save(); } );
-    connect( m_ui->actionSave_As,           &QAction::triggered, this, [this]( bool ) { saveAs( Overlord::SAVE_ONE ); } );
+    connect( m_ui->actionSave,              &QAction::triggered, this, [this]( bool ) {
+        save();
+    } );
+    connect( m_ui->actionSave_As,           &QAction::triggered, this, [this]( bool ) {
+        saveAs( Overlord::SAVE_ONE );
+    } );
     connect( m_ui->actionSave_All,          &QAction::triggered, this, &MainWindow::saveAll );
 
     connect( m_ui->actionPrint,             &QAction::triggered, this, &MainWindow::print );
     connect( m_ui->actionPrint_Preview,     &QAction::triggered, this, &MainWindow::printPreview );
     connect( m_ui->actionPrint_Pdf,         &QAction::triggered, this, &MainWindow::printPdf );
-    connect( m_ui->actionExit,              &QAction::triggered, this, [this]( bool ) { close(); } );
+    connect( m_ui->actionExit,              &QAction::triggered, this, [this]( bool ) {
+        close();
+    } );
 
     // edit
     connect( m_ui->actionUndo,              &QAction::triggered, this, &MainWindow::mw_undo );
@@ -567,8 +579,12 @@ void MainWindow::createConnections()
     connect( m_ui->actionCase_Lower,        &QAction::triggered, this, &MainWindow::caseLower );
     connect( m_ui->actionCase_Cap,          &QAction::triggered, this, &MainWindow::caseCap );
 
-    connect( m_ui->actionIndent_Incr,       &QAction::triggered, this, [this]( bool ) { indentIncr( "indent" );   } );
-    connect( m_ui->actionIndent_Decr,       &QAction::triggered, this, [this]( bool ) { indentDecr( "unindent" ); } );
+    connect( m_ui->actionIndent_Incr,       &QAction::triggered, this, [this]( bool ) {
+        indentIncr( "indent" );
+    } );
+    connect( m_ui->actionIndent_Decr,       &QAction::triggered, this, [this]( bool ) {
+        indentDecr( "unindent" );
+    } );
     connect( m_ui->actionDelete_Line,       &QAction::triggered, this, &MainWindow::deleteLine );
     connect( m_ui->actionDelete_EOL,        &QAction::triggered, this, &MainWindow::deleteEOL );
     connect( m_ui->actionDelete_ThroughEOL, &QAction::triggered, this, &MainWindow::deleteThroughEOL );
@@ -600,25 +616,63 @@ void MainWindow::createConnections()
     connect( m_ui->actionBackups,           &QAction::triggered, this, &MainWindow::showBackups );
 
     // document
-    connect( m_ui->actionSyn_C,             &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_C );       } );
-    connect( m_ui->actionSyn_Clipper,       &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_CLIPPER ); } );
-    connect( m_ui->actionSyn_CMake,         &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_CMAKE );   } );
-    connect( m_ui->actionSyn_Css,           &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_CSS );     } );
-    connect( m_ui->actionSyn_Doxy,          &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_DOXY );    } );
-    connect( m_ui->actionSyn_ErrorLog,      &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_ERRLOG );  } );
-    connect( m_ui->actionSyn_Html,          &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_HTML );    } );
-    connect( m_ui->actionSyn_Java,          &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_JAVA );    } );
-    connect( m_ui->actionSyn_Javascript,    &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_JS );      } );
-    connect( m_ui->actionSyn_Json,          &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_JSON );    } );
-    connect( m_ui->actionSyn_Makefile,      &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_MAKE );    } );
-    connect( m_ui->actionSyn_Nsis,          &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_NSIS );    } );
-    connect( m_ui->actionSyn_Text,          &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_TEXT );    } );
-    connect( m_ui->actionSyn_Shell,         &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_SHELL );   } );
-    connect( m_ui->actionSyn_Perl,          &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_PERL );    } );
-    connect( m_ui->actionSyn_PHP,           &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_PHP );     } );
-    connect( m_ui->actionSyn_Python,        &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_PYTHON );  } );
-    connect( m_ui->actionSyn_Xml,           &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_XML );     } );
-    connect( m_ui->actionSyn_None,          &QAction::triggered, this, [this]( bool ) { forceSyntax( SYN_NONE );    } );
+    connect( m_ui->actionSyn_C,             &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_C );
+    } );
+    connect( m_ui->actionSyn_Clipper,       &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_CLIPPER );
+    } );
+    connect( m_ui->actionSyn_CMake,         &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_CMAKE );
+    } );
+    connect( m_ui->actionSyn_Css,           &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_CSS );
+    } );
+    connect( m_ui->actionSyn_Doxy,          &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_DOXY );
+    } );
+    connect( m_ui->actionSyn_ErrorLog,      &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_ERRLOG );
+    } );
+    connect( m_ui->actionSyn_Html,          &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_HTML );
+    } );
+    connect( m_ui->actionSyn_Java,          &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_JAVA );
+    } );
+    connect( m_ui->actionSyn_Javascript,    &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_JS );
+    } );
+    connect( m_ui->actionSyn_Json,          &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_JSON );
+    } );
+    connect( m_ui->actionSyn_Makefile,      &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_MAKE );
+    } );
+    connect( m_ui->actionSyn_Nsis,          &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_NSIS );
+    } );
+    connect( m_ui->actionSyn_Text,          &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_TEXT );
+    } );
+    connect( m_ui->actionSyn_Shell,         &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_SHELL );
+    } );
+    connect( m_ui->actionSyn_Perl,          &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_PERL );
+    } );
+    connect( m_ui->actionSyn_PHP,           &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_PHP );
+    } );
+    connect( m_ui->actionSyn_Python,        &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_PYTHON );
+    } );
+    connect( m_ui->actionSyn_Xml,           &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_XML );
+    } );
+    connect( m_ui->actionSyn_None,          &QAction::triggered, this, [this]( bool ) {
+        forceSyntax( SYN_NONE );
+    } );
 
     // connect(m_ui->actionSyn_UNUSED1,    &QAction::triggered, this, [this](bool){ forceSyntax(SYN_UNUSED1); } );
     // connect(m_ui->actionSyn_UNUSED2,    &QAction::triggered, this, [this](bool){ forceSyntax(SYN_UNUSED2); } );
@@ -1088,115 +1142,115 @@ void MainWindow::move_ConfigFile()
 
     switch ( result )
     {
-        case QDialog::Rejected:
-            break;
+    case QDialog::Rejected:
+        break;
 
-        case 1:
-            // create
+    case 1:
+        // create
+    {
+        QString selectedFilter;
+        QFileDialog::Options options;
+
+        // force windows 7 and 8 to honor initial path
+        options = QFileDialog::ForceInitialDir_Win7;
+
+        QString newName = QFileDialog::getSaveFileName( this, tr( "Create New Configuration File" ),
+                          m_appPath + "/config.json", tr( "Json Files (*.json)" ),
+                          &selectedFilter, options );
+
+        if ( newName.isEmpty() )
         {
-            QString selectedFilter;
-            QFileDialog::Options options;
+            // do nothing
 
-            // force windows 7 and 8 to honor initial path
-            options = QFileDialog::ForceInitialDir_Win7;
+        }
+        else if ( QFile::exists( newName ) )
+        {
+            // can this happen?
+            csError( "Diamond Configuration",
+                     "Configuration file already exists, unable to create new file." );
 
-            QString newName = QFileDialog::getSaveFileName( this, tr( "Create New Configuration File" ),
-                              m_appPath + "/config.json", tr( "Json Files (*.json)" ),
-                              &selectedFilter, options );
+        }
+        else
+        {
+            m_configFileName = newName;
+            settings.setValue( "configName", m_configFileName );
+            Overlord::getInstance()->set_newConfigFileName( m_configFileName );
+        }
 
-            if ( newName.isEmpty() )
+        break;
+    }
+
+    case 2:
+        // select
+    {
+        QString selectedFilter;
+        QFileDialog::Options options;
+
+        QString newName = QFileDialog::getOpenFileName( this,
+                          tr( "Select Diamond Configuration File" ),
+                          "*.json",
+                          tr( "Json Files (*.json)" ),
+                          &selectedFilter, options );
+
+        if ( newName.isEmpty() )
+        {
+            // do nothing
+
+        }
+        else if ( QFile::exists( newName ) )
+        {
+            m_configFileName = newName;
+            settings.setValue( "configName", m_configFileName );
+
+            Overlord::getInstance()->set_configFileName( m_configFileName );
+
+            csError( "Diamond Configuration", "New configuration file selected."
+                     " Restart Diamond to utilize the new configuration file settings." );
+        }
+
+        break;
+    }
+
+    case 3:
+        // rename
+        QString newName = dw->get_newName();
+
+        if ( newName.isEmpty() )
+        {
+            csError( "Diamond Configuration", "No configuration file name specified, unable to rename." );
+
+        }
+
+        if ( QFile::exists( newName ) )
+        {
+            csError( "Diamond Configuration", "New configuration file already exists, unable to rename." );
+
+        }
+        else
+        {
+
+            QString path = pathName( newName );
+            QDir directory( path );
+
+            if ( ! directory.exists() )
             {
-                // do nothing
-
+                directory.mkpath( path );
             }
-            else if ( QFile::exists( newName ) )
+
+            if ( QFile::rename( m_configFileName, newName ) )
             {
-                // can this happen?
-                csError( "Diamond Configuration",
-                         "Configuration file already exists, unable to create new file." );
+                m_configFileName = newName;
+                settings.setValue( "configName", m_configFileName );
 
             }
             else
             {
-                m_configFileName = newName;
-                settings.setValue( "configName", m_configFileName );
-                Overlord::getInstance()->set_newConfigFileName( m_configFileName );
-            }
+                csError( "Diamond Configuration", "Configuration file rename failed." );
 
-            break;
+            }
         }
 
-        case 2:
-            // select
-        {
-            QString selectedFilter;
-            QFileDialog::Options options;
-
-            QString newName = QFileDialog::getOpenFileName( this,
-                              tr( "Select Diamond Configuration File" ),
-                              "*.json",
-                              tr( "Json Files (*.json)" ),
-                              &selectedFilter, options );
-
-            if ( newName.isEmpty() )
-            {
-                // do nothing
-
-            }
-            else if ( QFile::exists( newName ) )
-            {
-                m_configFileName = newName;
-                settings.setValue( "configName", m_configFileName );
-
-                Overlord::getInstance()->set_configFileName( m_configFileName );
-
-                csError( "Diamond Configuration", "New configuration file selected."
-                         " Restart Diamond to utilize the new configuration file settings." );
-            }
-
-            break;
-        }
-
-        case 3:
-            // rename
-            QString newName = dw->get_newName();
-
-            if ( newName.isEmpty() )
-            {
-                csError( "Diamond Configuration", "No configuration file name specified, unable to rename." );
-
-            }
-
-            if ( QFile::exists( newName ) )
-            {
-                csError( "Diamond Configuration", "New configuration file already exists, unable to rename." );
-
-            }
-            else
-            {
-
-                QString path = pathName( newName );
-                QDir directory( path );
-
-                if ( ! directory.exists() )
-                {
-                    directory.mkpath( path );
-                }
-
-                if ( QFile::rename( m_configFileName, newName ) )
-                {
-                    m_configFileName = newName;
-                    settings.setValue( "configName", m_configFileName );
-
-                }
-                else
-                {
-                    csError( "Diamond Configuration", "Configuration file rename failed." );
-
-                }
-            }
-
-            break;
+        break;
     }
 }
 
@@ -3588,89 +3642,89 @@ void MainWindow::setSynType( SyntaxTypes data )
 
     switch ( data )
     {
-        case SYN_C:
-            m_ui->actionSyn_C->setChecked( true );
-            break;
+    case SYN_C:
+        m_ui->actionSyn_C->setChecked( true );
+        break;
 
-        case SYN_CLIPPER:
-            m_ui->actionSyn_Clipper->setChecked( true );
-            break;
+    case SYN_CLIPPER:
+        m_ui->actionSyn_Clipper->setChecked( true );
+        break;
 
-        case SYN_CMAKE:
-            m_ui->actionSyn_CMake->setChecked( true );
-            break;
+    case SYN_CMAKE:
+        m_ui->actionSyn_CMake->setChecked( true );
+        break;
 
-        case SYN_CSS:
-            m_ui->actionSyn_Css->setChecked( true );
-            break;
+    case SYN_CSS:
+        m_ui->actionSyn_Css->setChecked( true );
+        break;
 
-        case SYN_DOXY:
-            m_ui->actionSyn_Doxy->setChecked( true );
-            break;
+    case SYN_DOXY:
+        m_ui->actionSyn_Doxy->setChecked( true );
+        break;
 
-        case SYN_ERRLOG:
-            m_ui->actionSyn_ErrorLog->setChecked( true );
-            break;
+    case SYN_ERRLOG:
+        m_ui->actionSyn_ErrorLog->setChecked( true );
+        break;
 
-        case SYN_HTML:
-            m_ui->actionSyn_Html->setChecked( true );
-            break;
+    case SYN_HTML:
+        m_ui->actionSyn_Html->setChecked( true );
+        break;
 
-        case SYN_JAVA:
-            m_ui->actionSyn_Java->setChecked( true );
-            break;
+    case SYN_JAVA:
+        m_ui->actionSyn_Java->setChecked( true );
+        break;
 
-        case SYN_JS:
-            m_ui->actionSyn_Javascript->setChecked( true );
-            break;
+    case SYN_JS:
+        m_ui->actionSyn_Javascript->setChecked( true );
+        break;
 
-        case SYN_JSON:
-            m_ui->actionSyn_Json->setChecked( true );
-            break;
+    case SYN_JSON:
+        m_ui->actionSyn_Json->setChecked( true );
+        break;
 
-        case SYN_MAKE:
-            m_ui->actionSyn_Makefile->setChecked( true );
-            break;
+    case SYN_MAKE:
+        m_ui->actionSyn_Makefile->setChecked( true );
+        break;
 
-        case SYN_NSIS:
-            m_ui->actionSyn_Nsis->setChecked( true );
-            break;
+    case SYN_NSIS:
+        m_ui->actionSyn_Nsis->setChecked( true );
+        break;
 
-        case SYN_TEXT:
-            m_ui->actionSyn_Text->setChecked( true );
-            break;
+    case SYN_TEXT:
+        m_ui->actionSyn_Text->setChecked( true );
+        break;
 
-        case SYN_SHELL:
-            m_ui->actionSyn_Shell->setChecked( true );
-            break;
+    case SYN_SHELL:
+        m_ui->actionSyn_Shell->setChecked( true );
+        break;
 
-        case SYN_PERL:
-            m_ui->actionSyn_Perl->setChecked( true );
-            break;
+    case SYN_PERL:
+        m_ui->actionSyn_Perl->setChecked( true );
+        break;
 
-        case SYN_PHP:
-            m_ui->actionSyn_PHP->setChecked( true );
-            break;
+    case SYN_PHP:
+        m_ui->actionSyn_PHP->setChecked( true );
+        break;
 
-        case SYN_PYTHON:
-            m_ui->actionSyn_Python->setChecked( true );
-            break;
+    case SYN_PYTHON:
+        m_ui->actionSyn_Python->setChecked( true );
+        break;
 
-        case SYN_XML:
-            m_ui->actionSyn_Xml->setChecked( true );
-            break;
+    case SYN_XML:
+        m_ui->actionSyn_Xml->setChecked( true );
+        break;
 
-        case SYN_NONE:
-            m_ui->actionSyn_None->setChecked( true );
-            break;
+    case SYN_NONE:
+        m_ui->actionSyn_None->setChecked( true );
+        break;
 
-        case SYN_UNUSED1:
-            //m_ui->actionSyn_UnUsed1->setChecked(true);
-            break;
+    case SYN_UNUSED1:
+        //m_ui->actionSyn_UnUsed1->setChecked(true);
+        break;
 
-        case SYN_UNUSED2:
-            //m_ui->actionSyn_UnUsed2->setChecked(true);
-            break;
+    case SYN_UNUSED2:
+        //m_ui->actionSyn_UnUsed2->setChecked(true);
+        break;
     }
 }
 
@@ -4756,7 +4810,9 @@ void MainWindow::openTab_CreateMenus()
             openTab_Actions[k]->setVisible( false );
         }
 
-        connect( openTab_Actions[k], &QAction::triggered, this, [this, k]( bool ) { openTab_Select( k ); } );
+        connect( openTab_Actions[k], &QAction::triggered, this, [this, k]( bool ) {
+            openTab_Select( k );
+        } );
     }
 }
 

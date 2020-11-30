@@ -1036,7 +1036,9 @@ void Settings::trimBackups( QString path )
     filters << wild;
 
     if ( !QFile::exists( m_configFileName ) )
-    { return; }
+    {
+        return;
+    }
 
     QStringList backupFiles = dir.entryList( filters, QDir::Files | QDir::Writable, QDir::Name );
 

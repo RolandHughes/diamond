@@ -38,47 +38,47 @@ bool Edt_LineEdit::event( QEvent *ev )
 
         switch ( key )
         {
-            case Qt::Key_4:
-            case Qt::Key_Left:
-                if ( isKeypad  && m_allowDirection )
-                {
-                    m_terminator = ADVANCE;
-                    inputComplete();
-                    retVal = true;
-                }
-
-                break;
-
-            case Qt::Key_5:
-            case Qt::Key_Clear:
-                if ( isKeypad && m_allowDirection )
-                {
-                    m_terminator = BACKUP;
-                    inputComplete();
-                    retVal = true;
-                }
-
-                break;
-
-            case Qt::Key_Enter:
-                if ( isKeypad )
-                {
-                    m_terminator = ENTER;
-                    inputComplete();
-                    retVal = true;
-                }
-
-                break;
-
-            case Qt::Key_Return:
-                m_ctrlMSubstitution = true;
-                QCoreApplication::sendEvent( this, new QKeyEvent( QEvent::KeyPress, Qt::Key_AsciiCircum, Qt::ShiftModifier, "^" ) );
-                QCoreApplication::sendEvent( this, new QKeyEvent( QEvent::KeyPress, Qt::Key_M, Qt::ShiftModifier, "M" ) );
+        case Qt::Key_4:
+        case Qt::Key_Left:
+            if ( isKeypad  && m_allowDirection )
+            {
+                m_terminator = ADVANCE;
+                inputComplete();
                 retVal = true;
-                break;
+            }
 
-            default:
-                break;
+            break;
+
+        case Qt::Key_5:
+        case Qt::Key_Clear:
+            if ( isKeypad && m_allowDirection )
+            {
+                m_terminator = BACKUP;
+                inputComplete();
+                retVal = true;
+            }
+
+            break;
+
+        case Qt::Key_Enter:
+            if ( isKeypad )
+            {
+                m_terminator = ENTER;
+                inputComplete();
+                retVal = true;
+            }
+
+            break;
+
+        case Qt::Key_Return:
+            m_ctrlMSubstitution = true;
+            QCoreApplication::sendEvent( this, new QKeyEvent( QEvent::KeyPress, Qt::Key_AsciiCircum, Qt::ShiftModifier, "^" ) );
+            QCoreApplication::sendEvent( this, new QKeyEvent( QEvent::KeyPress, Qt::Key_M, Qt::ShiftModifier, "M" ) );
+            retVal = true;
+            break;
+
+        default:
+            break;
         }
     }
 

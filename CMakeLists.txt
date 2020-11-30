@@ -9,7 +9,10 @@ project(diamond)
 
 set(BUILD_MAJOR "2")
 set(BUILD_MINOR "0")
-set(BUILD_MICRO "0")
+# To more cleanly support RPM packaging BUILD_MICRO needs to be non-zero
+set(BUILD_MICRO "1")
+
+file (READ "description.txt" DIAMOND_DESCRIPTION)
 
 set(BUILD_COMPONENTS "diamond")
 
@@ -63,6 +66,9 @@ set(PACKAGE_TARNAME   "diamond")
 set(PACKAGE_BUGREPORT "info@copperspice.com")
 set(PACKAGE_URL       "https://www.copperspice.com/")
 
+set(RPM_VERSION       "${BUILD_MAJOR}.${BUILD_MINOR}")
+set(RPM_RELEASE       "${BUILD_MICRO}")
+
 set(CPACK_PACKAGE_NAME    ${PROJECT_NAME} )
 set(CPACK_PACKAGE_VENDOR  "CopperSpice")
 
@@ -114,6 +120,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "(Linux|OpenBSD|FreeBSD|NetBSD|DragonFly)")
     configure_file(
        ${CMAKE_SOURCE_DIR}/deb_build.etc/control.in
        deb_build.etc/control
+    )
+    
+    configure_file(
+       ${CMAKE_SOURCE_DIR}/diamond.spec.in
+       diamond.spec
     )
     
     configure_file(

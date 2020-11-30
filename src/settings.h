@@ -49,31 +49,71 @@ public:
     //
     // getters
     //
-    QString activeTheme()           { return m_activeTheme;}
-    Themes  *currentTheme()         { return m_themes[m_activeTheme];}
-    QString syntaxPath()            { return m_options.syntaxPath();}
-    QStringList availableThemes()   { return m_themes.keys();}
-    QFont   fontColumn()            { return m_fontColumn;}
-    QFont   fontNormal()            { return m_fontNormal;}
-    bool    showLineNumbers()       { return m_showLineNumbers;}
-    bool    isColumnMode()          { return m_isColumnMode;}
-    QString mainDictionary()        { return m_options.mainDictionary();}
-    QString userDictionary()        { return m_options.userDictionary();}
-    int     tabSpacing()            { return m_options.tabSpacing();}
-    bool    useSpaces()             { return m_options.useSpaces();}
-    QString formatDate()            { return m_options.formatDate();}
-    QString formatTime()            { return m_options.formatTime();}
-    int     rewrapColumn()          { return m_options.rewrapColumn();}
-    bool    showLineHighlight()     { return m_showLineHighlight;}
+    QString activeTheme()           {
+        return m_activeTheme;
+    }
+    Themes  *currentTheme()         {
+        return m_themes[m_activeTheme];
+    }
+    QString syntaxPath()            {
+        return m_options.syntaxPath();
+    }
+    QStringList availableThemes()   {
+        return m_themes.keys();
+    }
+    QFont   fontColumn()            {
+        return m_fontColumn;
+    }
+    QFont   fontNormal()            {
+        return m_fontNormal;
+    }
+    bool    showLineNumbers()       {
+        return m_showLineNumbers;
+    }
+    bool    isColumnMode()          {
+        return m_isColumnMode;
+    }
+    QString mainDictionary()        {
+        return m_options.mainDictionary();
+    }
+    QString userDictionary()        {
+        return m_options.userDictionary();
+    }
+    int     tabSpacing()            {
+        return m_options.tabSpacing();
+    }
+    bool    useSpaces()             {
+        return m_options.useSpaces();
+    }
+    QString formatDate()            {
+        return m_options.formatDate();
+    }
+    QString formatTime()            {
+        return m_options.formatTime();
+    }
+    int     rewrapColumn()          {
+        return m_options.rewrapColumn();
+    }
+    bool    showLineHighlight()     {
+        return m_showLineHighlight;
+    }
 
     //
     // setters
     //
-    void set_activeTheme( const QString &name )     { m_activeTheme = name;}
-    void set_syntaxPath( const QString path )        { m_options.set_syntaxPath( path ); }
+    void set_activeTheme( const QString &name )     {
+        m_activeTheme = name;
+    }
+    void set_syntaxPath( const QString path )        {
+        m_options.set_syntaxPath( path );
+    }
     void add_theme( Themes *theme );
-    void set_mainDictionary( const QString path )    { m_options.set_mainDictionary( path ); }
-    void set_userDictionary( const QString path )    { m_options.set_userDictionary( path ); }
+    void set_mainDictionary( const QString path )    {
+        m_options.set_mainDictionary( path );
+    }
+    void set_userDictionary( const QString path )    {
+        m_options.set_userDictionary( path );
+    }
 
 
 private:
@@ -87,16 +127,36 @@ private:
     void    deleteAllThemes();
     void    deleteAllMacros();
 
-    void openedFilesClear()                     { m_openedFiles.clear();}
-    void openedModifiedClear()                  { m_openedModified.clear();}
-    void recentFileListClear()                  { m_recentFilesList.clear();}
-    void openedFilesAppend( QString curFile )   { m_openedFiles.append( curFile );}
-    void openedModifiedAppend( bool yesNo )     { m_openedModified.append( yesNo );}
-    void openedFilesRemove( QString name )      { m_openedFiles.removeOne( name );}
-    void findListPrepend( QString text )        { m_findList.prepend( text );}
-    void findListMove( int index, int dest )    { m_findList.move( index, dest );}
-    void replaceListPrepend( QString text )     { m_replaceList.prepend( text );}
-    void replaceListMove( int index, int dest ) { m_replaceList.move( index, dest );}
+    void openedFilesClear()                     {
+        m_openedFiles.clear();
+    }
+    void openedModifiedClear()                  {
+        m_openedModified.clear();
+    }
+    void recentFileListClear()                  {
+        m_recentFilesList.clear();
+    }
+    void openedFilesAppend( QString curFile )   {
+        m_openedFiles.append( curFile );
+    }
+    void openedModifiedAppend( bool yesNo )     {
+        m_openedModified.append( yesNo );
+    }
+    void openedFilesRemove( QString name )      {
+        m_openedFiles.removeOne( name );
+    }
+    void findListPrepend( QString text )        {
+        m_findList.prepend( text );
+    }
+    void findListMove( int index, int dest )    {
+        m_findList.move( index, dest );
+    }
+    void replaceListPrepend( QString text )     {
+        m_replaceList.prepend( text );
+    }
+    void replaceListMove( int index, int dest ) {
+        m_replaceList.move( index, dest );
+    }
 
     // json
     void json_Save_MacroNames( const QStringList &macroNames );
@@ -104,11 +164,21 @@ private:
     QByteArray json_ReadFile();
     void importOldConfig( QJsonObject object );
 
-    void set_lastSize( QSize size )             { m_lastSize = size;}
-    void set_lastPosition( QPoint pos )         { m_lastPosition = pos;}
-    void set_lastActiveFile( QString name )     { m_lastActiveFile = name;}
-    void set_lastActiveRow( int num )           { m_lastActiveRow = num;}
-    void set_lastActiveColumn( int num )        { m_lastActiveColumn = num; }
+    void set_lastSize( QSize size )             {
+        m_lastSize = size;
+    }
+    void set_lastPosition( QPoint pos )         {
+        m_lastPosition = pos;
+    }
+    void set_lastActiveFile( QString name )     {
+        m_lastActiveFile = name;
+    }
+    void set_lastActiveRow( int num )           {
+        m_lastActiveRow = num;
+    }
+    void set_lastActiveColumn( int num )        {
+        m_lastActiveColumn = num;
+    }
 
     //
     // signals
