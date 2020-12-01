@@ -7,11 +7,17 @@ Group:      Applications/Editors
 URL:        https://www.copperspice.com/documentation-diamond.html
 Vendor:     @CPACK_PACKAGE_VENDOR@
 Packager:   Roland Hughes <roland@logikalsolutions.com>
+Provides:   libCsXcbSupport1.7.so, libCsCore1.7.so, libCsGui1.7.so, libCsNetwork1.7.so 
+
 
 %description
 @DIAMOND_DESCRIPTION@
 
 %prep
+# Cleanup any left over build files
+#
+rm -rf *
+
 # Populate the build directory
 #
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%{buildroot}/opt/diamond" -DCMAKE_PREFIX_PATH=/usr/lib/cs_lib/lib64/cmake/CopperSpice "@CMAKE_SOURCE_DIR@"
@@ -22,10 +28,24 @@ ninja
 %install
 rm -rf %{buildroot}/opt/diamond
 mkdir -p %{buildroot}/opt/diamond
+mkdir -p %{buildroot}/usr/lib/cs_lib/lib64
 ninja install
+#cp %{buildroot}/opt/diamond/libCsCore1.7.so %{buildroot}/usr/lib/cs_lib/lib64
+#cp %{buildroot}/opt/diamond/libCsGui1.7.so %{buildroot}/usr/lib/cs_lib/lib64
+#cp %{buildroot}/opt/diamond/libCsNetwork1.7.so %{buildroot}/usr/lib/cs_lib/lib64
+#cp %{buildroot}/opt/diamond/libCsXcbSupport1.7.so %{buildroot}/usr/lib/cs_lib/lib64
 
+#rm %{buildroot}/opt/diamond/libCsCore1.7.so
+#rm %{buildroot}/opt/diamond/libCsGui1.7.so
+#rm %{buildroot}/opt/diamond/libCsNetwork1.7.so
+#rm %{buildroot}/opt/diamond/libCsXcbSupport1.7.so
 
 %files
+#/usr/lib/cs_lib/lib64/libCsCore1.7.so
+#/usr/lib/cs_lib/lib64/libCsGui1.7.so
+#/usr/lib/cs_lib/lib64/libCsNetwork1.7.so
+#/usr/lib/cs_lib/lib64/libCsXcbSupport1.7.so
+
 /opt/diamond/diamond
 /opt/diamond/diamond.desktop
 /opt/diamond/diamond.png
