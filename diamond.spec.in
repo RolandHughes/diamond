@@ -7,7 +7,7 @@ Group:      Applications/Editors
 URL:        https://www.copperspice.com/documentation-diamond.html
 Vendor:     @CPACK_PACKAGE_VENDOR@
 Packager:   Roland Hughes <roland@logikalsolutions.com>
-Provides:   libCsXcbSupport1.7.so, libCsCore1.7.so, libCsGui1.7.so, libCsNetwork1.7.so 
+Provides:   libCsCore1.7.so()(64bit), libCsGui1.7.so()(64bit), libCsNetwork1.7.so()(64bit)
 
 
 %description
@@ -28,24 +28,10 @@ ninja
 %install
 rm -rf %{buildroot}/opt/diamond
 mkdir -p %{buildroot}/opt/diamond
-mkdir -p %{buildroot}/usr/lib/cs_lib/lib64
+mkdir -p %{buildroot}/usr/lib64/cs_lib/lib64
 ninja install
-#cp %{buildroot}/opt/diamond/libCsCore1.7.so %{buildroot}/usr/lib/cs_lib/lib64
-#cp %{buildroot}/opt/diamond/libCsGui1.7.so %{buildroot}/usr/lib/cs_lib/lib64
-#cp %{buildroot}/opt/diamond/libCsNetwork1.7.so %{buildroot}/usr/lib/cs_lib/lib64
-#cp %{buildroot}/opt/diamond/libCsXcbSupport1.7.so %{buildroot}/usr/lib/cs_lib/lib64
-
-#rm %{buildroot}/opt/diamond/libCsCore1.7.so
-#rm %{buildroot}/opt/diamond/libCsGui1.7.so
-#rm %{buildroot}/opt/diamond/libCsNetwork1.7.so
-#rm %{buildroot}/opt/diamond/libCsXcbSupport1.7.so
 
 %files
-#/usr/lib/cs_lib/lib64/libCsCore1.7.so
-#/usr/lib/cs_lib/lib64/libCsGui1.7.so
-#/usr/lib/cs_lib/lib64/libCsNetwork1.7.so
-#/usr/lib/cs_lib/lib64/libCsXcbSupport1.7.so
-
 /opt/diamond/diamond
 /opt/diamond/diamond.desktop
 /opt/diamond/diamond.png
@@ -97,23 +83,23 @@ ninja install
 /opt/diamond/printerdrivers/CsPrinterDriverCups1.7.so
 
 %post
-echo "called post install script section"
-if [ $1 == 1] ; then
-    echo "we are in install"
-    ln -s /opt/diamond/diamond /usr/local/bin
-    cp /opt/diamond/diamond.desktop /usr/share/applications
-fi
+# no matter install or upgrade, create and copy
+#
+ln -s /opt/diamond/diamond /usr/local/bin
+cp /opt/diamond/diamond.desktop /usr/share/applications
+
 
 %postun
-if [ $1 == 1 ] ; then
-    # upgrading
-    rm /usr/local/bin/diamond
-else if [ $1 == 0 ] ; then
-    # removing
-    rm /usr/local/bin/diamond
-    rm /usr/share/applications/diamond.desktop
+# No difference between upgrade and uninstall for these
+#
+rm /usr/local/bin/diamond
+rm /usr/share/applications/diamond.desktop
+
+if [ $1 -gt 0 ] ; then
+    # removing - need to completely remove the directory
+    rm -rf /opt/diamond
 fi
-fi
+
 
 %changelog
 # let's skip this for now
