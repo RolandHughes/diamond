@@ -60,13 +60,13 @@ void Dialog_Macro::setupTitle()
 {
     switch ( m_enum )
     {
-    case MACRO_LOAD:
-        setWindowTitle( "Load Macro" );
-        break;
+        case MACRO_LOAD:
+            setWindowTitle( "Load Macro" );
+            break;
 
-    case MACRO_MANAGE:
-        setWindowTitle( "Edit Macro Names" );
-        break;
+        case MACRO_MANAGE:
+            setWindowTitle( "Edit Macro Names" );
+            break;
     }
 }
 
@@ -183,36 +183,36 @@ void Dialog_Macro::view()
         switch ( modifier )
         {
 
-        case 0:
-            msg += " ";
-            break;
+            case 0:
+                msg += " ";
+                break;
 
-        case Qt::SHIFT:
-            msg += "Shift";
-            break;
+            case Qt::SHIFT:
+                msg += "Shift";
+                break;
 
-        case Qt::CTRL:
-            msg += "Control";
-            break;
+            case Qt::CTRL:
+                msg += "Control";
+                break;
 
-        case Qt::META:
-            msg += "Meta";
-            break;
+            case Qt::META:
+                msg += "Meta";
+                break;
 
-        case Qt::ALT:
-            msg += "Alt";
-            break;
+            case Qt::ALT:
+                msg += "Alt";
+                break;
 
-        case Qt::KeypadModifier:
-            msg += "Key-Pad";
-            break;
+            case Qt::KeypadModifier:
+                msg += "Key-Pad";
+                break;
 
-        case Qt::GroupSwitchModifier:
-            msg += "Group-Switch";
-            break;
+            case Qt::GroupSwitchModifier:
+                msg += "Group-Switch";
+                break;
 
-        default:
-            msg += "(modifier)" + QString::number( modifier );
+            default:
+                msg += "(modifier)" + QString::number( modifier );
         }
 
         msg += "</td> <td width=150>Key: &nbsp;";
@@ -223,95 +223,95 @@ void Dialog_Macro::view()
         switch ( key )
         {
 
-        case Qt::Key_Tab:
-            msg += "Tab";
-            isKey = true;
-            break;
-
-        case Qt::Key_Backtab:
-            msg += "Back-Tab";
-            isKey = true;
-            break;
-
-        case Qt::Key_Backspace:
-            msg += "Backspace";
-            isKey = true;
-            break;
-
-        case Qt::Key_Return:
-        case Qt::Key_Enter:
-            msg += "Return";
-            isKey = true;
-            break;
-
-        case Qt::Key_Insert:
-            msg += "Insert";
-            isKey = true;
-            break;
-
-        case Qt::Key_Delete:
-            msg += "Delete";
-            isKey = true;
-            break;
-
-        case Qt::Key_Shift:
-            msg += " ";
-            isKey = true;
-            break;
-
-        case Qt::Key_Space:
-            msg += "Space";
-            isKey = true;
-            break;
-
-        case Qt::Key_Home:
-            msg += "Home";
-            isKey = true;
-            break;
-
-        case Qt::Key_End:
-            msg += "End";
-            isKey = true;
-            break;
-
-        case Qt::Key_Left:
-            msg += "Left";
-            isKey = true;
-            break;
-
-        case Qt::Key_Right:
-            msg += "Right";
-            isKey = true;
-            break;
-
-        case Qt::Key_Up:
-            msg += "Up";
-            isKey = true;
-            break;
-
-        case Qt::Key_Down:
-            msg += "Down";
-            isKey = true;
-            break;
-
-        case Qt::Key_PageUp:
-            msg += "Page-Up";
-            isKey = true;
-            break;
-
-        case Qt::Key_PageDown:
-            msg += "Page-Down";
-            isKey = true;
-            break;
-
-        default:
-            if ( textAsc.isEmpty() )
-            {
-                msg += QString::number( key );
+            case Qt::Key_Tab:
+                msg += "Tab";
                 isKey = true;
-            }
+                break;
 
-            break;
+            case Qt::Key_Backtab:
+                msg += "Back-Tab";
+                isKey = true;
+                break;
+
+            case Qt::Key_Backspace:
+                msg += "Backspace";
+                isKey = true;
+                break;
+
+            case Qt::Key_Return:
+            case Qt::Key_Enter:
+                msg += "Return";
+                isKey = true;
+                break;
+
+            case Qt::Key_Insert:
+                msg += "Insert";
+                isKey = true;
+                break;
+
+            case Qt::Key_Delete:
+                msg += "Delete";
+                isKey = true;
+                break;
+
+            case Qt::Key_Shift:
+                msg += " ";
+                isKey = true;
+                break;
+
+            case Qt::Key_Space:
+                msg += "Space";
+                isKey = true;
+                break;
+
+            case Qt::Key_Home:
+                msg += "Home";
+                isKey = true;
+                break;
+
+            case Qt::Key_End:
+                msg += "End";
+                isKey = true;
+                break;
+
+            case Qt::Key_Left:
+                msg += "Left";
+                isKey = true;
+                break;
+
+            case Qt::Key_Right:
+                msg += "Right";
+                isKey = true;
+                break;
+
+            case Qt::Key_Up:
+                msg += "Up";
+                isKey = true;
+                break;
+
+            case Qt::Key_Down:
+                msg += "Down";
+                isKey = true;
+                break;
+
+            case Qt::Key_PageUp:
+                msg += "Page-Up";
+                isKey = true;
+                break;
+
+            case Qt::Key_PageDown:
+                msg += "Page-Down";
+                isKey = true;
+                break;
+
+            default:
+                if ( textAsc.isEmpty() )
+                {
+                    msg += QString::number( key );
+                    isKey = true;
+                }
+
+                break;
         }
 
         // part 3

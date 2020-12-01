@@ -49,69 +49,89 @@ public:
     //
     // getters
     //
-    QString activeTheme()           {
+    QString activeTheme()
+    {
         return m_activeTheme;
     }
-    Themes  *currentTheme()         {
+    Themes  *currentTheme()
+    {
         return m_themes[m_activeTheme];
     }
-    QString syntaxPath()            {
+    QString syntaxPath()
+    {
         return m_options.syntaxPath();
     }
-    QStringList availableThemes()   {
+    QStringList availableThemes()
+    {
         return m_themes.keys();
     }
-    QFont   fontColumn()            {
+    QFont   fontColumn()
+    {
         return m_fontColumn;
     }
-    QFont   fontNormal()            {
+    QFont   fontNormal()
+    {
         return m_fontNormal;
     }
-    bool    showLineNumbers()       {
+    bool    showLineNumbers()
+    {
         return m_showLineNumbers;
     }
-    bool    isColumnMode()          {
+    bool    isColumnMode()
+    {
         return m_isColumnMode;
     }
-    QString mainDictionary()        {
+    QString mainDictionary()
+    {
         return m_options.mainDictionary();
     }
-    QString userDictionary()        {
+    QString userDictionary()
+    {
         return m_options.userDictionary();
     }
-    int     tabSpacing()            {
+    int     tabSpacing()
+    {
         return m_options.tabSpacing();
     }
-    bool    useSpaces()             {
+    bool    useSpaces()
+    {
         return m_options.useSpaces();
     }
-    QString formatDate()            {
+    QString formatDate()
+    {
         return m_options.formatDate();
     }
-    QString formatTime()            {
+    QString formatTime()
+    {
         return m_options.formatTime();
     }
-    int     rewrapColumn()          {
+    int     rewrapColumn()
+    {
         return m_options.rewrapColumn();
     }
-    bool    showLineHighlight()     {
+    bool    showLineHighlight()
+    {
         return m_showLineHighlight;
     }
 
     //
     // setters
     //
-    void set_activeTheme( const QString &name )     {
+    void set_activeTheme( const QString &name )
+    {
         m_activeTheme = name;
     }
-    void set_syntaxPath( const QString path )        {
+    void set_syntaxPath( const QString path )
+    {
         m_options.set_syntaxPath( path );
     }
     void add_theme( Themes *theme );
-    void set_mainDictionary( const QString path )    {
+    void set_mainDictionary( const QString path )
+    {
         m_options.set_mainDictionary( path );
     }
-    void set_userDictionary( const QString path )    {
+    void set_userDictionary( const QString path )
+    {
         m_options.set_userDictionary( path );
     }
 
@@ -127,34 +147,44 @@ private:
     void    deleteAllThemes();
     void    deleteAllMacros();
 
-    void openedFilesClear()                     {
+    void openedFilesClear()
+    {
         m_openedFiles.clear();
     }
-    void openedModifiedClear()                  {
+    void openedModifiedClear()
+    {
         m_openedModified.clear();
     }
-    void recentFileListClear()                  {
+    void recentFileListClear()
+    {
         m_recentFilesList.clear();
     }
-    void openedFilesAppend( QString curFile )   {
+    void openedFilesAppend( QString curFile )
+    {
         m_openedFiles.append( curFile );
     }
-    void openedModifiedAppend( bool yesNo )     {
+    void openedModifiedAppend( bool yesNo )
+    {
         m_openedModified.append( yesNo );
     }
-    void openedFilesRemove( QString name )      {
+    void openedFilesRemove( QString name )
+    {
         m_openedFiles.removeOne( name );
     }
-    void findListPrepend( QString text )        {
+    void findListPrepend( QString text )
+    {
         m_findList.prepend( text );
     }
-    void findListMove( int index, int dest )    {
+    void findListMove( int index, int dest )
+    {
         m_findList.move( index, dest );
     }
-    void replaceListPrepend( QString text )     {
+    void replaceListPrepend( QString text )
+    {
         m_replaceList.prepend( text );
     }
-    void replaceListMove( int index, int dest ) {
+    void replaceListMove( int index, int dest )
+    {
         m_replaceList.move( index, dest );
     }
 
@@ -164,19 +194,24 @@ private:
     QByteArray json_ReadFile();
     void importOldConfig( QJsonObject object );
 
-    void set_lastSize( QSize size )             {
+    void set_lastSize( QSize size )
+    {
         m_lastSize = size;
     }
-    void set_lastPosition( QPoint pos )         {
+    void set_lastPosition( QPoint pos )
+    {
         m_lastPosition = pos;
     }
-    void set_lastActiveFile( QString name )     {
+    void set_lastActiveFile( QString name )
+    {
         m_lastActiveFile = name;
     }
-    void set_lastActiveRow( int num )           {
+    void set_lastActiveRow( int num )
+    {
         m_lastActiveRow = num;
     }
-    void set_lastActiveColumn( int num )        {
+    void set_lastActiveColumn( int num )
+    {
         m_lastActiveColumn = num;
     }
 

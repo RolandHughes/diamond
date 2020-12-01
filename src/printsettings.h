@@ -33,122 +33,160 @@ public:
     //
     // getters
     //
-    bool    lineNumbers()   {
+    bool    lineNumbers()
+    {
         return m_lineNumbers;
     }
-    bool    printHeader()   {
+    bool    printHeader()
+    {
         return m_printHeader;
     }
-    bool    printFooter()   {
+    bool    printFooter()
+    {
         return m_printFooter;
     }
-    QString headerLeft()    {
+    QString headerLeft()
+    {
         return m_headerLeft;
     }
-    QString headerCenter()  {
+    QString headerCenter()
+    {
         return m_headerCenter;
     }
-    QString headerRight()   {
+    QString headerRight()
+    {
         return m_headerRight;
     }
-    QString headerLine2()   {
+    QString headerLine2()
+    {
         return m_headerLine2;
     }
-    QString footerLeft()    {
+    QString footerLeft()
+    {
         return m_footerLeft;
     }
-    QString footerCenter()  {
+    QString footerCenter()
+    {
         return m_footerCenter;
     }
-    QString footerRight()   {
+    QString footerRight()
+    {
         return m_footerRight;
     }
-    QString footerLine2()   {
+    QString footerLine2()
+    {
         return m_footerLine2;
     }
-    double  marginLeft()    {
+    double  marginLeft()
+    {
         return m_marginLeft;
     }
-    double  marginRight()   {
+    double  marginRight()
+    {
         return m_marginRight;
     }
-    double  marginTop()     {
+    double  marginTop()
+    {
         return m_marginTop;
     }
-    double  marginBottom()  {
+    double  marginBottom()
+    {
         return m_marginBottom;
     }
-    double  headerGap()     {
+    double  headerGap()
+    {
         return m_headerGap;
     }
-    QFont   fontHeader()    {
+    QFont   fontHeader()
+    {
         return m_fontHeader;
     }
-    QFont   fontFooter()    {
+    QFont   fontFooter()
+    {
         return m_fontFooter;
     }
-    QFont   fontText()      {
+    QFont   fontText()
+    {
         return m_fontText;
     }
 
     //
     // setters
     //
-    void set_lineNumbers( bool yesNo )        {
+    void set_lineNumbers( bool yesNo )
+    {
         m_lineNumbers = yesNo;
     }
-    void set_printHeader( bool yesNo )        {
+    void set_printHeader( bool yesNo )
+    {
         m_printHeader = yesNo;
     }
-    void set_printFooter( bool yesNo )        {
+    void set_printFooter( bool yesNo )
+    {
         m_printFooter = yesNo;
     }
-    void set_headerLeft( QString hdr )        {
+    void set_headerLeft( QString hdr )
+    {
         m_headerLeft = hdr;
     }
-    void set_headerCenter( QString hdr )      {
+    void set_headerCenter( QString hdr )
+    {
         m_headerCenter = hdr;
     }
-    void set_headerRight( QString hdr )       {
+    void set_headerRight( QString hdr )
+    {
         m_headerRight = hdr;
     }
-    void set_headerLine2( QString hdr )       {
+    void set_headerLine2( QString hdr )
+    {
         m_headerLine2 = hdr;
     }
-    void set_footerLeft( QString ftr )        {
+    void set_footerLeft( QString ftr )
+    {
         m_footerLeft = ftr;
     }
-    void set_footerCenter( QString ftr )      {
+    void set_footerCenter( QString ftr )
+    {
         m_footerCenter = ftr;
     }
-    void set_footerRight( QString ftr )       {
+    void set_footerRight( QString ftr )
+    {
         m_footerRight = ftr;
     }
-    void set_footerLine2( QString ftr )       {
+    void set_footerLine2( QString ftr )
+    {
         m_footerLine2 = ftr;
     }
-    void set_marginLeft( double margin )      {
+    void set_marginLeft( double margin )
+    {
         m_marginLeft = margin;
     }
-    void set_marginTop( double margin )       {
+    void set_marginTop( double margin )
+    {
         m_marginTop = margin;
     }
-    void set_marginRight( double margin )     {
+    void set_marginRight( double margin )
+    {
         m_marginRight = margin;
     }
-    void set_marginBottom( double margin )    {
+    void set_marginBottom( double margin )
+    {
         m_marginBottom = margin;
     }
-    void set_headerGap( double gap )          {
+    void set_headerGap( double gap )
+    {
         m_headerGap = gap;
     }
-    void set_fontHeader( QFont font )         {
+    void set_fontHeader( QFont font )
+    {
         m_fontHeader = font;
     }
-    void set_fontFooter( QFont font )         {
+    void set_fontFooter( QFont font )
+    {
         m_fontFooter = font;
     }
-    void set_fontText( QFont font )           {
+    void set_fontText( QFont font )
+    {
         m_fontText = font;
     }
 

@@ -29,17 +29,21 @@ public:
 
     Edt_LineEdit( QWidget *parent=nullptr );
 
-    void set_allowDirection( bool yesNo )     {
+    void set_allowDirection( bool yesNo )
+    {
         m_allowDirection = yesNo;
     }
 
-    int terminator()            {
+    int terminator()
+    {
         return m_terminator;
     }
-    bool ctrlMSubstitution()    {
+    bool ctrlMSubstitution()
+    {
         return m_ctrlMSubstitution;
     }
-    bool allowDirection()       {
+    bool allowDirection()
+    {
         return m_allowDirection;
     }
 

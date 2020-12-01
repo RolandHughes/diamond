@@ -33,101 +33,132 @@ public:
     //
     // getters
     //
-    bool   isProtected()                {
+    bool   isProtected()
+    {
         return m_protected;
     }
-    QString name()                      {
+    QString name()
+    {
         return m_name;
     }
-    QColor colorText()                  {
+    QColor colorText()
+    {
         return m_colorText;
     }
-    QColor colorBack()                  {
+    QColor colorBack()
+    {
         return m_colorBack;
     }
-    QColor gutterText()                 {
+    QColor gutterText()
+    {
         return m_gutterText;
     }
-    QColor gutterBack()                 {
+    QColor gutterBack()
+    {
         return m_gutterBack;
     }
-    QColor currentLineBack()            {
+    QColor currentLineBack()
+    {
         return m_currentLineBack;
     }
-    TextAttributes &syntaxKey()         {
+    TextAttributes &syntaxKey()
+    {
         return m_synKey;
     }
-    TextAttributes &syntaxType()        {
+    TextAttributes &syntaxType()
+    {
         return m_synType;
     }
-    TextAttributes &syntaxClass()       {
+    TextAttributes &syntaxClass()
+    {
         return m_synClass;
     }
-    TextAttributes &syntaxFunc()        {
+    TextAttributes &syntaxFunc()
+    {
         return m_synFunc;
     }
-    TextAttributes &syntaxQuote()       {
+    TextAttributes &syntaxQuote()
+    {
         return m_synQuote;
     }
-    TextAttributes &syntaxComment()     {
+    TextAttributes &syntaxComment()
+    {
         return m_synComment;
     }
-    TextAttributes &syntaxMLine()       {
+    TextAttributes &syntaxMLine()
+    {
         return m_synMLine;
     }
-    TextAttributes &syntaxConstant()    {
+    TextAttributes &syntaxConstant()
+    {
         return m_synConstant;
     }
 
     //
     // setters
     //
-    void set_protection( bool yesNo )                 {
+    void set_protection( bool yesNo )
+    {
         m_protected = yesNo;
     }
-    void set_colorText( QColor color )                {
+    void set_colorText( QColor color )
+    {
         m_colorText = color;
     }
-    void set_colorBack( QColor color )                {
+    void set_colorBack( QColor color )
+    {
         m_colorBack = color;
     }
-    void set_gutterText( QColor color )               {
+    void set_gutterText( QColor color )
+    {
         m_gutterText = color;
     }
-    void set_gutterBack( QColor color )               {
+    void set_gutterBack( QColor color )
+    {
         m_gutterBack = color;
     }
-    void set_name( QString name )                       {
+    void set_name( QString name )
+    {
         m_name = name;
     }
-    void set_protected( bool yesNo )                    {
+    void set_protected( bool yesNo )
+    {
         m_protected = yesNo;
     }
-    void set_currentLineBack( QColor color )          {
+    void set_currentLineBack( QColor color )
+    {
         m_currentLineBack = color;
     }
-    void set_syntaxKey( TextAttributes &attr )        {
+    void set_syntaxKey( TextAttributes &attr )
+    {
         m_synKey = attr;
     }
-    void set_syntaxType( TextAttributes &attr )       {
+    void set_syntaxType( TextAttributes &attr )
+    {
         m_synType = attr;
     }
-    void set_syntaxClass( TextAttributes &attr )      {
+    void set_syntaxClass( TextAttributes &attr )
+    {
         m_synClass = attr;
     }
-    void set_syntaxFunc( TextAttributes &attr )       {
+    void set_syntaxFunc( TextAttributes &attr )
+    {
         m_synFunc = attr;
     }
-    void set_syntaxQuote( TextAttributes &attr )      {
+    void set_syntaxQuote( TextAttributes &attr )
+    {
         m_synQuote = attr;
     }
-    void set_syntaxComment( TextAttributes &attr )    {
+    void set_syntaxComment( TextAttributes &attr )
+    {
         m_synComment = attr;
     }
-    void set_syntaxMLine( TextAttributes &attr )      {
+    void set_syntaxMLine( TextAttributes &attr )
+    {
         m_synMLine = attr;
     }
-    void set_syntaxConstant( TextAttributes &attr )   {
+    void set_syntaxConstant( TextAttributes &attr )
+    {
         m_synConstant = attr;
     }
 

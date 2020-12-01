@@ -51,342 +51,451 @@ public:
 
     // Getters
     //
-    bool    isComplete()                    {
+    bool    isComplete()
+    {
         return m_isComplete;
     }
-    int     rewrapColumn()                  {
+    int     rewrapColumn()
+    {
         return m_settings.m_options.rewrapColumn();
     }
-    int     tabSpacing()                    {
+    int     tabSpacing()
+    {
         return m_settings.m_options.tabSpacing();
     }
-    int     maxVersions()                   {
+    int     maxVersions()
+    {
         return m_settings.m_options.maxVersions();
     }
-    bool    useSpaces()                     {
+    bool    useSpaces()
+    {
         return m_settings.m_options.useSpaces();
     }
-    bool    removeSpaces()                  {
+    bool    removeSpaces()
+    {
         return m_settings.m_options.removeSpaces();
     }
-    bool    autoLoad()                      {
+    bool    autoLoad()
+    {
         return m_settings.m_options.autoLoad();
     }
-    bool    astyleOnSave()                  {
+    bool    astyleOnSave()
+    {
         return m_settings.m_options.astyleOnSave();
     }
-    bool    makeBackups()                   {
+    bool    makeBackups()
+    {
         return m_settings.m_options.makeBackups();
     }
-    bool    preloadClipper()                {
+    bool    preloadClipper()
+    {
         return m_settings.m_options.preloadClipper();
     }
-    bool    preloadCmake()                  {
+    bool    preloadCmake()
+    {
         return m_settings.m_options.preloadCmake();
     }
-    bool    preloadCpp()                    {
+    bool    preloadCpp()
+    {
         return m_settings.m_options.preloadCpp();
     }
-    bool    preloadCss()                    {
+    bool    preloadCss()
+    {
         return m_settings.m_options.preloadCss();
     }
-    bool    preloadDoxy()                   {
+    bool    preloadDoxy()
+    {
         return m_settings.m_options.preloadDoxy();
     }
-    bool    preloadErrLog()                 {
+    bool    preloadErrLog()
+    {
         return m_settings.m_options.preloadErrLog();
     }
-    bool    preloadHtml()                   {
+    bool    preloadHtml()
+    {
         return m_settings.m_options.preloadHtml();
     }
-    bool    preloadJava()                   {
+    bool    preloadJava()
+    {
         return m_settings.m_options.preloadJava();
     }
-    bool    preloadJs()                     {
+    bool    preloadJs()
+    {
         return m_settings.m_options.preloadJs();
     }
-    bool    preloadJson()                   {
+    bool    preloadJson()
+    {
         return m_settings.m_options.preloadJson();
     }
-    bool    preloadMake()                   {
+    bool    preloadMake()
+    {
         return m_settings.m_options.preloadMake();
     }
-    bool    preloadNone()                   {
+    bool    preloadNone()
+    {
         return m_settings.m_options.preloadNone();
     }
-    bool    preloadNSI()                    {
+    bool    preloadNSI()
+    {
         return m_settings.m_options.preloadNSI();
     }
-    bool    preloadPhp()                    {
+    bool    preloadPhp()
+    {
         return m_settings.m_options.preloadPhp();
     }
-    bool    preloadPl()                     {
+    bool    preloadPl()
+    {
         return m_settings.m_options.preloadPl();
     }
-    bool    preloadPy()                     {
+    bool    preloadPy()
+    {
         return m_settings.m_options.preloadPy();
     }
-    bool    preloadSh()                     {
+    bool    preloadSh()
+    {
         return m_settings.m_options.preloadSh();
     }
-    bool    preloadTxt()                    {
+    bool    preloadTxt()
+    {
         return m_settings.m_options.preloadTxt();
     }
-    bool    preloadXml()                    {
+    bool    preloadXml()
+    {
         return m_settings.m_options.preloadXml();
     }
 
-    QString formatDate()                    {
+    QString formatDate()
+    {
         return m_settings.m_options.formatDate();
     }
-    QString formatTime()                    {
+    QString formatTime()
+    {
         return m_settings.m_options.formatTime();
     }
-    QString backupDirectory()               {
+    QString backupDirectory()
+    {
         return m_settings.m_options.backupDirectory();
     }
-    QString mainDictionary()                {
+    QString mainDictionary()
+    {
         return m_settings.m_options.mainDictionary();
     }
-    QString userDictionary()                {
+    QString userDictionary()
+    {
         return m_settings.m_options.userDictionary();
     }
-    QString aboutUrl()                      {
+    QString aboutUrl()
+    {
         return m_settings.m_options.aboutUrl();
     }
-    QString syntaxPath()                    {
+    QString syntaxPath()
+    {
         return m_settings.m_options.syntaxPath();
     }
 
-    KeyDefinitions &keys()                  {
+    KeyDefinitions &keys()
+    {
         return m_settings.m_options.keys();
     }
 
-    bool    showLineHighlight()             {
+    bool    showLineHighlight()
+    {
         return m_settings.m_showLineHighlight;
     }
-    bool    showLineNumbers()               {
+    bool    showLineNumbers()
+    {
         return m_settings.m_showLineNumbers;
     }
-    bool    isColumnMode()                  {
+    bool    isColumnMode()
+    {
         return m_settings.m_isColumnMode;
     }
-    bool    isSpellCheck()                  {
+    bool    isSpellCheck()
+    {
         return m_settings.m_isSpellCheck;
     }
-    bool    isWordWrap()                    {
+    bool    isWordWrap()
+    {
         return m_settings.m_isWordWrap;
     }
-    bool    showSpaces()                    {
+    bool    showSpaces()
+    {
         return m_settings.m_showSpaces;
     }
-    bool    showBreaks()                    {
+    bool    showBreaks()
+    {
         return m_settings.m_showBreaks;
     }
-    bool    flagNoAutoLoad()                {
+    bool    flagNoAutoLoad()
+    {
         return m_settings.m_flagNoAutoLoad;
     }
-    bool    flagNoSaveConfig()              {
+    bool    flagNoSaveConfig()
+    {
         return m_settings.m_flagNoSaveConfig;
     }
 
-    QString priorPath()                     {
+    QString priorPath()
+    {
         return m_settings.m_priorPath;
     }
-    QString activeTheme()                   {
+    QString activeTheme()
+    {
         return m_settings.m_activeTheme;
     }
-    QString tempDir()                       {
+    QString tempDir()
+    {
         return m_tmpDir.path();
     }
-    QFont   fontNormal()                    {
+    QFont   fontNormal()
+    {
         return m_settings.m_fontNormal;
     }
-    QFont   fontColumn()                    {
+    QFont   fontColumn()
+    {
         return m_settings.m_fontColumn;
     }
 
-    Themes  *currentTheme()                 {
+    Themes  *currentTheme()
+    {
         return m_settings.m_themes[m_settings.m_activeTheme];
     }
-    QStringList availableThemes()           {
+    QStringList availableThemes()
+    {
         return m_settings.m_themes.keys();
     }
-    bool themeNameExists( QString name )    {
+    bool themeNameExists( QString name )
+    {
         return m_settings.themeNameExists( name );
     }
 
-    QStringList &findList()                 {
+    QStringList &findList()
+    {
         return m_settings.m_findList;
     }
-    QStringList &replaceList()              {
+    QStringList &replaceList()
+    {
         return m_settings.m_replaceList;
     }
-    QStringList &recentFiles()              {
+    QStringList &recentFiles()
+    {
         return m_settings.m_recentFilesList;
     }
-    QStringList &recentFolders()            {
+    QStringList &recentFolders()
+    {
         return m_settings.m_rFolderList;
     }
-    QStringList &presetFolders()            {
+    QStringList &presetFolders()
+    {
         return m_settings.m_preFolderList;
     }
 
-    QSize   lastSize()                      {
+    QSize   lastSize()
+    {
         return m_settings.m_lastSize;
     }
-    QPoint  lastPosition()                  {
+    QPoint  lastPosition()
+    {
         return m_settings.m_lastPosition;
     }
-    QString lastActiveFile()                {
+    QString lastActiveFile()
+    {
         return m_settings.m_lastActiveFile;
     }
-    int     lastActiveRow()                 {
+    int     lastActiveRow()
+    {
         return m_settings.m_lastActiveRow;
     }
-    int     lastActiveColumn()              {
+    int     lastActiveColumn()
+    {
         return m_settings.m_lastActiveColumn;
     }
 
-    QString openedFiles( int sub )          {
+    QString openedFiles( int sub )
+    {
         return m_settings.m_openedFiles[sub];
     }
-    int     openedFilesCount()              {
+    int     openedFilesCount()
+    {
         return m_settings.m_openedFiles.count();
     }
-    bool    openedModified( int sub )       {
+    bool    openedModified( int sub )
+    {
         return m_settings.m_openedModified[sub];
     }
 
-    QString configFileName()                {
+    QString configFileName()
+    {
         return m_settings.m_configFileName;
     }
 
-    QString advancedFindText()              {
+    QString advancedFindText()
+    {
         return m_settings.m_advancedFindText;
     }
-    QString advancedFindFileType()          {
+    QString advancedFindFileType()
+    {
         return m_settings.m_advancedFindFileType;
     }
-    QString advancedFindFolder()            {
+    QString advancedFindFolder()
+    {
         return m_settings.m_advancedFindFolder;
     }
-    bool    advancedFSearchFolders()        {
+    bool    advancedFSearchFolders()
+    {
         return m_settings.m_advancedFSearchFolders;
     }
-    bool    advancedFCase()                 {
+    bool    advancedFCase()
+    {
         return m_settings.m_advancedFCase;
     }
-    bool    advancedFWholeWords()           {
+    bool    advancedFWholeWords()
+    {
         return m_settings.m_advancedFWholeWords;
     }
-    QTextDocument::FindFlags findFlags()    {
+    QTextDocument::FindFlags findFlags()
+    {
         return m_settings.m_findFlags;
     }
-    QString findText()                      {
+    QString findText()
+    {
         return m_settings.m_findText;
     }
-    QString replaceText()                   {
+    QString replaceText()
+    {
         return m_settings.m_replaceText;
     }
-    bool    findWholeWords()                {
+    bool    findWholeWords()
+    {
         return m_settings.m_findWholeWords;
     }
-    bool    findDirection()                 {
+    bool    findDirection()
+    {
         return m_settings.m_findDirection;
     }
-    bool    findCase()                      {
+    bool    findCase()
+    {
         return m_settings.m_findCase;
     }
-    int     replaceListFind( QString text ) {
+    int     replaceListFind( QString text )
+    {
         return m_settings.m_replaceList.indexOf( text );
     }
-    bool    printLineNumbers()              {
+    bool    printLineNumbers()
+    {
         return m_settings.m_printSettings.lineNumbers();
     }
-    bool    printHeader()                   {
+    bool    printHeader()
+    {
         return m_settings.m_printSettings.printHeader();
     }
-    bool    printFooter()                   {
+    bool    printFooter()
+    {
         return m_settings.m_printSettings.printFooter();
     }
-    QString headerLeft()                    {
+    QString headerLeft()
+    {
         return m_settings.m_printSettings.headerLeft();
     }
-    QString headerCenter()                  {
+    QString headerCenter()
+    {
         return m_settings.m_printSettings.headerCenter();
     }
-    QString headerRight()                   {
+    QString headerRight()
+    {
         return m_settings.m_printSettings.headerRight();
     }
-    QString headerLine2()                   {
+    QString headerLine2()
+    {
         return m_settings.m_printSettings.headerLine2();
     }
-    QString footerLeft()                    {
+    QString footerLeft()
+    {
         return m_settings.m_printSettings.footerLeft();
     }
-    QString footerCenter()                  {
+    QString footerCenter()
+    {
         return m_settings.m_printSettings.footerCenter();
     }
-    QString footerRight()                   {
+    QString footerRight()
+    {
         return m_settings.m_printSettings.footerRight();
     }
-    QString footerLine2()                   {
+    QString footerLine2()
+    {
         return m_settings.m_printSettings.footerLine2();
     }
-    double  marginLeft()                    {
+    double  marginLeft()
+    {
         return m_settings.m_printSettings.marginLeft();
     }
-    double  marginRight()                   {
+    double  marginRight()
+    {
         return m_settings.m_printSettings.marginRight();
     }
-    double  marginTop()                     {
+    double  marginTop()
+    {
         return m_settings.m_printSettings.marginTop();
     }
-    double  marginBottom()                  {
+    double  marginBottom()
+    {
         return m_settings.m_printSettings.marginBottom();
     }
-    double  headerGap()                     {
+    double  headerGap()
+    {
         return m_settings.m_printSettings.headerGap();
     }
-    QFont   printFontHeader()               {
+    QFont   printFontHeader()
+    {
         return m_settings.m_printSettings.fontHeader();
     }
-    QFont   printFontFooter()               {
+    QFont   printFontFooter()
+    {
         return m_settings.m_printSettings.fontFooter();
     }
-    QFont   printFontText()                 {
+    QFont   printFontText()
+    {
         return m_settings.m_printSettings.fontText();
     }
-    int     findListFind( QString text )    {
+    int     findListFind( QString text )
+    {
         return m_settings.findListFind( text );
     }
-    int     openedFilesFind( QString name ) {
+    int     openedFilesFind( QString name )
+    {
         return m_settings.openedFilesFind( name );
     }
-    QString edtLastDeletedChar()            {
+    QString edtLastDeletedChar()
+    {
         return m_settings.m_edtLastDeletedChar;
     }
-    QString edtLastDeletedWord()            {
+    QString edtLastDeletedWord()
+    {
         return m_settings.m_edtLastDeletedWord;
     }
-    QString edtLastDeletedLine()            {
+    QString edtLastDeletedLine()
+    {
         return m_settings.m_edtLastDeletedLine;
     }
-    bool    edtMode()                       {
+    bool    edtMode()
+    {
         return keys().edtEnabled();
     }
-    bool    edtWordCtrlMeta()               {
+    bool    edtWordCtrlMeta()
+    {
         return keys().edtWordCtrlMeta();
     }
-    bool    edtWordAltOption()              {
+    bool    edtWordAltOption()
+    {
         return keys().edtWordAltOption();
     }
-    int     macroCount()                    {
+    int     macroCount()
+    {
         return m_settings.m_macros.count();
     }
 
-    QStringList macroNames()                {
+    QStringList macroNames()
+    {
         return m_settings.m_macros.keys();
     }
 
@@ -394,7 +503,8 @@ public:
     bool macroExists( QString macroName );
     bool openedFilesContains( QString name );
     bool recentFilesListContains( QString text );
-    bool edtDirection() {
+    bool edtDirection()
+    {
         return m_edtDirection;
     }
 

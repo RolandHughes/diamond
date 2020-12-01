@@ -24,11 +24,13 @@ class KeyLineEdit : public QLineEdit
 public:
     explicit KeyLineEdit( QWidget *parent = 0 );
 
-    bool blockModifiers()                   {
+    bool blockModifiers()
+    {
         return m_blockModifiers;
     }
 
-    void set_blockModifiers( bool yesNo )    {
+    void set_blockModifiers( bool yesNo )
+    {
         m_blockModifiers = yesNo;
     }
 

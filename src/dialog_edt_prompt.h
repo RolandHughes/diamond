@@ -28,26 +28,33 @@ class Dialog_Edt_Prompt : public QDialog
 public:
     Dialog_Edt_Prompt( QString labelText, bool allowDirection, QWidget *parent = nullptr );
 
-    int terminator()            {
+    int terminator()
+    {
         return m_lineEdit->terminator();
     }
-    bool ctrlMSubstitution()    {
+    bool ctrlMSubstitution()
+    {
         return m_lineEdit->ctrlMSubstitution();
     }
-    bool allowDirection()       {
+    bool allowDirection()
+    {
         return m_lineEdit->allowDirection();
     }
-    QString text()              {
+    QString text()
+    {
         return m_lineEdit->text();
     }
 
-    void setLabelPalette( QPalette &p )  {
+    void setLabelPalette( QPalette &p )
+    {
         m_label->setPalette( p );
     }
-    void setEditPalette( QPalette &p )   {
+    void setEditPalette( QPalette &p )
+    {
         m_lineEdit->setPalette( p );
     }
-    void setText( QString txt )          {
+    void setText( QString txt )
+    {
         m_lineEdit->setText( txt );
     }
 

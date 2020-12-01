@@ -33,26 +33,32 @@ public:
     //
     // getters
     //
-    QColor color()              {
+    QColor color()
+    {
         return m_color;
     }
-    int    weight()             {
+    int    weight()
+    {
         return m_weight;
     }
-    bool   italic()             {
+    bool   italic()
+    {
         return m_italic;
     }
 
     //
     // setters
     //
-    void set_color( QColor color )    {
+    void set_color( QColor color )
+    {
         m_color = color;
     }
-    void set_weight( int weight )     {
+    void set_weight( int weight )
+    {
         m_weight = weight;
     }
-    void set_italic( bool yesNo )     {
+    void set_italic( bool yesNo )
+    {
         m_italic = yesNo;
     }
 

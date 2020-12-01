@@ -5,16 +5,8 @@ set +e  #cheat to get around lintian complaining about missing -e above
         #if you don't turn off exit on error the first -f file.name test which
         #fails to find a file (not a fatal condition, hence our test) fatals out of the script.
 
-if [ "$1" == "remove" ]
-then
     rm /usr/local/bin/diamond
-else if [ "$1" == "upgrade" ]
-then
-    # Not much difference for upgrade, but keep separate anyway
-    #
-    rm /usr/local/bin/diamond
-fi
-fi
+    rm -rf /opt/diamond
 
 set -e
 

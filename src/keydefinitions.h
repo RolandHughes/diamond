@@ -34,163 +34,215 @@ public:
     //
     // getters
     //
-    QString close()                 {
+    QString close()
+    {
         return m_close;
     }
-    QString columnMode()            {
+    QString columnMode()
+    {
         return m_columnMode;
     }
-    QString copy()                  {
+    QString copy()
+    {
         return m_copy;
     }
-    QString copyBuffer()            {
+    QString copyBuffer()
+    {
         return m_copyBuffer;
     }
-    QString cut()                   {
+    QString cut()
+    {
         return m_cut;
     }
-    QString deleteLine()            {
+    QString deleteLine()
+    {
         return m_deleteLine;
     }
-    QString deleteThroughEOL()      {
+    QString deleteThroughEOL()
+    {
         return m_deleteThroughEOL;
     }
-    QString deleteToEOL()           {
+    QString deleteToEOL()
+    {
         return m_deleteToEOL;
     }
-    QString find()                  {
+    QString find()
+    {
         return m_find;
     }
-    QString findNext()              {
+    QString findNext()
+    {
         return m_findNext;
     }
-    QString findPrev()              {
+    QString findPrev()
+    {
         return m_findPrev;
     }
-    QString goBottom()              {
+    QString goBottom()
+    {
         return m_goBottom;
     }
-    QString goTop()                 {
+    QString goTop()
+    {
         return m_goTop;
     }
-    QString gotoLine()              {
+    QString gotoLine()
+    {
         return m_gotoLine;
     }
-    QString indentDecrement()       {
+    QString indentDecrement()
+    {
         return m_indentDecrement;
     }
-    QString indentIncrement()       {
+    QString indentIncrement()
+    {
         return m_indentIncrement;
     }
-    QString lower()                 {
+    QString lower()
+    {
         return m_lower;
     }
-    QString macroPlay()             {
+    QString macroPlay()
+    {
         return m_macroPlay;
     }
-    QString newTab()                {
+    QString newTab()
+    {
         return m_newTab;
     }
-    QString open()                  {
+    QString open()
+    {
         return m_open;
     }
-    QString paste()                 {
+    QString paste()
+    {
         return m_paste;
     }
-    QString print()                 {
+    QString print()
+    {
         return m_print;
     }
-    QString printPreview()          {
+    QString printPreview()
+    {
         return m_printPreview;
     }
-    QString redo()                  {
+    QString redo()
+    {
         return m_redo;
     }
-    QString reload()                {
+    QString reload()
+    {
         return m_reload;
     }
-    QString replace()               {
+    QString replace()
+    {
         return m_replace;
     }
-    QString save()                  {
+    QString save()
+    {
         return m_save;
     }
-    QString saveAs()                {
+    QString saveAs()
+    {
         return m_saveAs;
     }
-    QString selectAll()             {
+    QString selectAll()
+    {
         return m_selectAll;
     }
-    QString selectBlock()           {
+    QString selectBlock()
+    {
         return m_selectBlock;
     }
-    QString selectLine()            {
+    QString selectLine()
+    {
         return m_selectLine;
     }
-    QString selectWord()            {
+    QString selectWord()
+    {
         return m_selectWord;
     }
-    QString showBreaks()            {
+    QString showBreaks()
+    {
         return m_showBreaks;
     }
-    QString showSpaces()            {
+    QString showSpaces()
+    {
         return m_showSpaces;
     }
-    QString spellCheck()            {
+    QString spellCheck()
+    {
         return m_spellCheck;
     }
-    QString undo()                  {
+    QString undo()
+    {
         return m_undo;
     }
-    QString upper()                 {
+    QString upper()
+    {
         return m_upper;
     }
 
-    QString edtGotoLine()           {
+    QString edtGotoLine()
+    {
         return m_edtGotoLine;
     }
 
-    bool    edtEnabled()            {
+    bool    edtEnabled()
+    {
         return m_edtEnabled;
     }
     Qt::Key goldKey();
-    bool    numLockGold()           {
+    bool    numLockGold()
+    {
         return m_numLockGold;
     }
-    bool    scrollLockGold()        {
+    bool    scrollLockGold()
+    {
         return m_scrollLockGold;
     }
-    QString edtCopy()               {
+    QString edtCopy()
+    {
         return m_edtCopy;
     }
-    QString edtInsertFile()         {
+    QString edtInsertFile()
+    {
         return m_edtInsertFile;
     }
-    QString edtUpperCase()          {
+    QString edtUpperCase()
+    {
         return m_edtUpperCase;
     }
-    QString edtLowerCase()          {
+    QString edtLowerCase()
+    {
         return m_edtLowerCase;
     }
-    QString edtSplitHorizontal()    {
+    QString edtSplitHorizontal()
+    {
         return m_edtSplitHorizontal;
     }
-    QString edtSplitVertical()      {
+    QString edtSplitVertical()
+    {
         return m_edtSplitVertical;
     }
-    QString edtSaveFile()           {
+    QString edtSaveFile()
+    {
         return m_edtSaveFile;
     }
-    QString edtAstyle()             {
+    QString edtAstyle()
+    {
         return m_edtAstyle;
     }
-    bool    edtWordCtrlMeta()       {
+    bool    edtWordCtrlMeta()
+    {
         return m_edtWordCtrlMeta;
     }
-    bool    edtWordAltOption()      {
+    bool    edtWordAltOption()
+    {
         return m_edtWordAltOption;
     }
-    bool    f12AsBackspace()        {
+    bool    f12AsBackspace()
+    {
         return m_f12AsBackspace;
     }
 
@@ -200,161 +252,213 @@ public:
     //
     // Setters
     //
-    void set_close( QString keyValue )             {
+    void set_close( QString keyValue )
+    {
         m_close = keyValue;
     }
-    void set_columnMode( QString keyValue )        {
+    void set_columnMode( QString keyValue )
+    {
         m_columnMode = keyValue;
     }
-    void set_copy( QString keyValue )              {
+    void set_copy( QString keyValue )
+    {
         m_copy = keyValue;
     }
-    void set_copyBuffer( QString keyValue )        {
+    void set_copyBuffer( QString keyValue )
+    {
         m_copyBuffer = keyValue;
     }
-    void set_cut( QString keyValue )               {
+    void set_cut( QString keyValue )
+    {
         m_cut = keyValue;
     }
-    void set_deleteLine( QString keyValue )        {
+    void set_deleteLine( QString keyValue )
+    {
         m_deleteLine = keyValue;
     }
-    void set_deleteThroughEOL( QString keyValue )  {
+    void set_deleteThroughEOL( QString keyValue )
+    {
         m_deleteThroughEOL = keyValue;
     }
-    void set_deleteToEOL( QString keyValue )       {
+    void set_deleteToEOL( QString keyValue )
+    {
         m_deleteToEOL = keyValue;
     }
-    void set_find( QString keyValue )              {
+    void set_find( QString keyValue )
+    {
         m_find = keyValue;
     }
-    void set_findNext( QString keyValue )          {
+    void set_findNext( QString keyValue )
+    {
         m_findNext = keyValue;
     }
-    void set_findPrev( QString keyValue )          {
+    void set_findPrev( QString keyValue )
+    {
         m_findPrev = keyValue;
     }
-    void set_goBottom( QString keyValue )          {
+    void set_goBottom( QString keyValue )
+    {
         m_goBottom = keyValue;
     }
-    void set_goTop( QString keyValue )             {
+    void set_goTop( QString keyValue )
+    {
         m_goTop = keyValue;
     }
-    void set_gotoLine( QString keyValue )          {
+    void set_gotoLine( QString keyValue )
+    {
         m_gotoLine = keyValue;
     }
-    void set_indentDecrement( QString keyValue )   {
+    void set_indentDecrement( QString keyValue )
+    {
         m_indentDecrement = keyValue;
     }
-    void set_indentIncrement( QString keyValue )   {
+    void set_indentIncrement( QString keyValue )
+    {
         m_indentIncrement = keyValue;
     }
-    void set_lower( QString keyValue )             {
+    void set_lower( QString keyValue )
+    {
         m_lower = keyValue;
     }
-    void set_macroPlay( QString keyValue )         {
+    void set_macroPlay( QString keyValue )
+    {
         m_macroPlay = keyValue;
     }
-    void set_newTab( QString keyValue )            {
+    void set_newTab( QString keyValue )
+    {
         m_newTab = keyValue;
     }
-    void set_open( QString keyValue )              {
+    void set_open( QString keyValue )
+    {
         m_open = keyValue;
     }
-    void set_paste( QString keyValue )             {
+    void set_paste( QString keyValue )
+    {
         m_paste = keyValue;
     }
-    void set_print( QString keyValue )             {
+    void set_print( QString keyValue )
+    {
         m_print = keyValue;
     }
-    void set_printPreview( QString keyValue )      {
+    void set_printPreview( QString keyValue )
+    {
         m_printPreview = keyValue;
     }
-    void set_redo( QString keyValue )              {
+    void set_redo( QString keyValue )
+    {
         m_redo = keyValue;
     }
-    void set_reload( QString keyValue )            {
+    void set_reload( QString keyValue )
+    {
         m_reload = keyValue;
     }
-    void set_replace( QString keyValue )           {
+    void set_replace( QString keyValue )
+    {
         m_replace = keyValue;
     }
-    void set_save( QString keyValue )              {
+    void set_save( QString keyValue )
+    {
         m_save = keyValue;
     }
-    void set_saveAs( QString keyValue )            {
+    void set_saveAs( QString keyValue )
+    {
         m_saveAs = keyValue;
     }
-    void set_selectAll( QString keyValue )         {
+    void set_selectAll( QString keyValue )
+    {
         m_selectAll = keyValue;
     }
-    void set_selectBlock( QString keyValue )       {
+    void set_selectBlock( QString keyValue )
+    {
         m_selectBlock = keyValue;
     }
-    void set_selectLine( QString keyValue )        {
+    void set_selectLine( QString keyValue )
+    {
         m_selectLine = keyValue;
     }
-    void set_selectWord( QString keyValue )        {
+    void set_selectWord( QString keyValue )
+    {
         m_selectWord = keyValue;
     }
-    void set_showBreaks( QString keyValue )        {
+    void set_showBreaks( QString keyValue )
+    {
         m_showBreaks = keyValue;
     }
-    void set_showSpaces( QString keyValue )        {
+    void set_showSpaces( QString keyValue )
+    {
         m_showSpaces = keyValue;
     }
-    void set_spellCheck( QString keyValue )        {
+    void set_spellCheck( QString keyValue )
+    {
         m_spellCheck = keyValue;
     }
-    void set_undo( QString keyValue )              {
+    void set_undo( QString keyValue )
+    {
         m_undo = keyValue;
     }
-    void set_upper( QString keyValue )             {
+    void set_upper( QString keyValue )
+    {
         m_upper = keyValue;
     }
 
-    void set_edtEnabled( bool yesNo )               {
+    void set_edtEnabled( bool yesNo )
+    {
         m_edtEnabled = yesNo;
     }
-    void set_edtGotoLine( QString txt )             {
+    void set_edtGotoLine( QString txt )
+    {
         m_edtGotoLine = txt;
     }
-    void set_numLockGold( bool yesNo )              {
+    void set_numLockGold( bool yesNo )
+    {
         m_numLockGold = yesNo;
     }
-    void set_scrollLockGold( bool yesNo )           {
+    void set_scrollLockGold( bool yesNo )
+    {
         m_scrollLockGold = yesNo;
     }
-    void set_edtCopy( QString keyValue )            {
+    void set_edtCopy( QString keyValue )
+    {
         m_edtCopy = keyValue;
     }
-    void set_edtInsertFile( QString keyValue )      {
+    void set_edtInsertFile( QString keyValue )
+    {
         m_edtInsertFile = keyValue;
     }
-    void set_edtUpperCase( QString keyValue )       {
+    void set_edtUpperCase( QString keyValue )
+    {
         m_edtUpperCase = keyValue;
     }
-    void set_edtLowerCase( QString keyValue )       {
+    void set_edtLowerCase( QString keyValue )
+    {
         m_edtLowerCase = keyValue;
     }
-    void set_edtSplitHorizontal( QString keyValue ) {
+    void set_edtSplitHorizontal( QString keyValue )
+    {
         m_edtSplitHorizontal = keyValue;
     }
-    void set_edtSplitVertical( QString keyValue )   {
+    void set_edtSplitVertical( QString keyValue )
+    {
         m_edtSplitVertical = keyValue;
     }
-    void set_edtSaveFile( QString keyValue )        {
+    void set_edtSaveFile( QString keyValue )
+    {
         m_edtSaveFile = keyValue;
     }
-    void set_edtAstyle( QString keyValue )          {
+    void set_edtAstyle( QString keyValue )
+    {
         m_edtAstyle = keyValue;
     }
-    void set_edtWordCtrlMeta( bool yesNo )          {
+    void set_edtWordCtrlMeta( bool yesNo )
+    {
         m_edtWordCtrlMeta = yesNo;
     }
-    void set_edtWordAltOption( bool yesNo )         {
+    void set_edtWordAltOption( bool yesNo )
+    {
         m_edtWordAltOption = yesNo;
     }
-    void set_f12AsBackspace( bool yesNo )           {
+    void set_f12AsBackspace( bool yesNo )
+    {
         m_f12AsBackspace = yesNo;
     }
 
